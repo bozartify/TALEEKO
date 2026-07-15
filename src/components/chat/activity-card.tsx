@@ -22,15 +22,15 @@ export default function ActivityCard({ data }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          {data.subject  && <span className="badge bg-amber-100 text-amber-700">{String(data.subject)}</span>}
-          {data.grade    && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
-          {data.type     && <span className="badge bg-slate-100 text-slate-600"><Users className="w-3 h-3" />{String(data.type).replace('_', ' ')}</span>}
-          {data.duration && <span className="badge bg-slate-100 text-slate-600"><Clock className="w-3 h-3" />{String(data.duration)} min</span>}
+          {!!data.subject  && <span className="badge bg-amber-100 text-amber-700">{String(data.subject)}</span>}
+          {!!data.grade    && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
+          {!!data.type     && <span className="badge bg-slate-100 text-slate-600"><Users className="w-3 h-3" />{String(data.type).replace('_', ' ')}</span>}
+          {!!data.duration && <span className="badge bg-slate-100 text-slate-600"><Clock className="w-3 h-3" />{String(data.duration)} min</span>}
         </div>
       </div>
 
       <div className="p-4 space-y-4">
-        {data.overview && (
+        {!!data.overview && (
           <p className="text-xs text-slate-600">{String(data.overview)}</p>
         )}
 
@@ -88,13 +88,13 @@ export default function ActivityCard({ data }: Props) {
           </div>
         )}
 
-        {data.differentiation && (
+        {!!data.differentiation && (
           <div className="p-3 bg-sky-50 rounded-xl">
             <p className="text-xs font-bold text-sky-700 mb-1">Differentiation</p>
             <p className="text-xs text-slate-700">{String(data.differentiation)}</p>
           </div>
         )}
-        {data.extensions && (
+        {!!data.extensions && (
           <div className="p-3 bg-purple-50 rounded-xl">
             <p className="text-xs font-bold text-purple-700 mb-1">Extensions</p>
             <p className="text-xs text-slate-700">{String(data.extensions)}</p>

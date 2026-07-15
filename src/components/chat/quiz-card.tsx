@@ -29,11 +29,11 @@ export default function QuizCard({ data }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          {data.subject   && <span className="badge bg-orange-100 text-orange-700">{String(data.subject)}</span>}
-          {data.grade     && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
-          {data.difficulty && <span className="badge bg-slate-100 text-slate-600">{String(data.difficulty)}</span>}
-          {data.totalPoints && <span className="badge bg-orange-100 text-orange-700">{String(data.totalPoints)} pts</span>}
-          {data.timeLimit && (
+          {!!data.subject    && <span className="badge bg-orange-100 text-orange-700">{String(data.subject)}</span>}
+          {!!data.grade      && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
+          {!!data.difficulty && <span className="badge bg-slate-100 text-slate-600">{String(data.difficulty)}</span>}
+          {!!data.totalPoints && <span className="badge bg-orange-100 text-orange-700">{String(data.totalPoints)} pts</span>}
+          {!!data.timeLimit && (
             <span className="badge bg-slate-100 text-slate-600">
               <Clock className="w-3 h-3" />{String(data.timeLimit)} min
             </span>

@@ -1,3 +1,4 @@
+'use client'
 import Link from 'next/link'
 import { BookOpen, Plus, MoreHorizontal, ChevronRight, Clock, FileText } from 'lucide-react'
 

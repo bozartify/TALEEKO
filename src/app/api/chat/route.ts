@@ -22,7 +22,7 @@ export async function POST(request: Request) {
                 type: 'text',
                 text: systemPrompt,
                 cache_control: { type: 'ephemeral' },
-              },
+              } as Anthropic.TextBlockParam,
             ],
             tools: TEACHING_TOOLS as Anthropic.Tool[],
             messages,

@@ -26,9 +26,9 @@ export default function LessonPlanCard({ data }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          {data.subject && <span className="badge bg-brand-100 text-brand-700">{String(data.subject)}</span>}
-          {data.grade   && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
-          {data.duration && (
+          {!!data.subject && <span className="badge bg-brand-100 text-brand-700">{String(data.subject)}</span>}
+          {!!data.grade   && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
+          {!!data.duration && (
             <span className="badge bg-slate-100 text-slate-600">
               <Clock className="w-3 h-3" />{String(data.duration)} min
             </span>
@@ -38,7 +38,7 @@ export default function LessonPlanCard({ data }: Props) {
 
       <div className="p-4 space-y-3">
         {/* Objective */}
-        {data.objective && (
+        {!!data.objective && (
           <div className="p-3 bg-brand-50 rounded-xl">
             <p className="text-xs font-bold text-brand-700 mb-1">Learning Objective</p>
             <p className="text-xs text-slate-700">{String(data.objective)}</p>
@@ -61,7 +61,7 @@ export default function LessonPlanCard({ data }: Props) {
         )}
 
         {/* Differentiation */}
-        {data.differentiation && (
+        {!!data.differentiation && (
           <div className="p-3 bg-emerald-50 rounded-xl">
             <p className="text-xs font-bold text-emerald-700 mb-1">Differentiation</p>
             <p className="text-xs text-slate-700">{String(data.differentiation)}</p>

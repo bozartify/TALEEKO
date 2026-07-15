@@ -40,7 +40,7 @@ export default function AnalysisCard({ data }: Props) {
 
       <div className="p-4 space-y-4">
         {/* Score ring */}
-        {data.overallScore && (
+        {!!data.overallScore && (
           <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0"
@@ -57,9 +57,9 @@ export default function AnalysisCard({ data }: Props) {
 
         {/* Score bars */}
         <div className="space-y-2">
-          {data.alignmentScore     && <ScoreBar label="Standards Alignment" value={Number(data.alignmentScore)} />}
-          {data.engagementScore    && <ScoreBar label="Student Engagement"  value={Number(data.engagementScore)} />}
-          {data.differentiationScore && <ScoreBar label="Differentiation"   value={Number(data.differentiationScore)} />}
+          {!!data.alignmentScore      && <ScoreBar label="Standards Alignment" value={Number(data.alignmentScore)} />}
+          {!!data.engagementScore     && <ScoreBar label="Student Engagement"  value={Number(data.engagementScore)} />}
+          {!!data.differentiationScore && <ScoreBar label="Differentiation"    value={Number(data.differentiationScore)} />}
         </div>
 
         {/* Strengths */}
@@ -106,7 +106,7 @@ export default function AnalysisCard({ data }: Props) {
           </div>
         )}
 
-        {data.summary && (
+        {!!data.summary && (
           <p className="text-xs text-slate-500 italic">{String(data.summary)}</p>
         )}
       </div>

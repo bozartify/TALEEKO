@@ -25,14 +25,14 @@ export default function WorksheetCard({ data }: Props) {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 mt-3">
-          {data.subject && <span className="badge bg-emerald-100 text-emerald-700">{String(data.subject)}</span>}
-          {data.grade   && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
-          {data.topic   && <span className="badge bg-slate-100 text-slate-600">{String(data.topic)}</span>}
+          {!!data.subject && <span className="badge bg-emerald-100 text-emerald-700">{String(data.subject)}</span>}
+          {!!data.grade   && <span className="badge bg-slate-100 text-slate-600">Grade {String(data.grade)}</span>}
+          {!!data.topic   && <span className="badge bg-slate-100 text-slate-600">{String(data.topic)}</span>}
         </div>
       </div>
 
       <div className="p-4 space-y-4">
-        {data.objective && (
+        {!!data.objective && (
           <div className="p-3 bg-emerald-50 rounded-xl">
             <p className="text-xs font-bold text-emerald-700 mb-1">Objective</p>
             <p className="text-xs text-slate-700">{String(data.objective)}</p>
@@ -57,7 +57,7 @@ export default function WorksheetCard({ data }: Props) {
           </div>
         ))}
 
-        {data.answerKey && (
+        {!!data.answerKey && (
           <div className="p-3 bg-amber-50 rounded-xl">
             <p className="text-xs font-bold text-amber-700 mb-1">Answer Key</p>
             <p className="text-xs text-slate-700 whitespace-pre-wrap">{String(data.answerKey)}</p>
