@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   @default("teacher")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  courses   Course[]
+  sessions  ChatSession[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  subject     String
+  grade       String
+  color       String   @default("#8b5cf6")
+  teacherId   String
+  teacher     User     @relation(fields: [teacherId], references: [id])
+  lessons     Lesson[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lesson {
+  id        String     @id @default(cuid())
+  title     String
+  objective String?
+  content   String?
+  duration  Int        @default(45)
+  status    String     @default("draft")
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id])
+  materials Material[]
+  analytics LessonAnalytics[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  content   String
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model LessonAnalytics {
+  id              String   @id @default(cuid())
+  lessonId        String
+  lesson          Lesson   @relation(fields: [lessonId], references: [id])
+  engagementScore Float    @default(0)
+  completionRate  Float    @default(0)
+  avgScore        Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  mode      String   @default("general")
+  messages  String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
