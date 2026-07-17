@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
-  BarChart2, Settings, FolderOpen, Lightbulb
+  BarChart2, Settings, FolderOpen, Lightbulb, Bot
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
 const navItems = [
   { href: '/dashboard',  icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/magic-chat', icon: Sparkles,         label: 'Magic Chat', badge: 'AI' },
+  { href: '/agents',     icon: Bot,              label: 'Agent Swarm', badge: 'NEW' },
   { href: '/classroom',  icon: Users,            label: 'Classroom' },
   { href: '/courses',    icon: FolderOpen,       label: 'Courses' },
   { href: '/workspace',  icon: Lightbulb,        label: 'Workspace' },
