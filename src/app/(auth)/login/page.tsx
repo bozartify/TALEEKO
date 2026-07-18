@@ -9,18 +9,18 @@ import {
 } from 'lucide-react'
 
 const features = [
-  { icon: Sparkles, text: 'AI-powered lesson plans in seconds' },
+  { icon: Sparkles,      text: 'AI-powered lesson plans in seconds' },
   { icon: ClipboardList, text: 'Auto-generate quizzes & assessments' },
-  { icon: Users, text: 'Manage classes & track student progress' },
-  { icon: Globe, text: 'Multi-language content in 10+ languages' },
-  { icon: Shield, text: 'Standards-aligned curriculum mapping' },
-  { icon: Zap, text: 'Autonomous agent swarm for scale' },
+  { icon: Users,         text: 'Manage classes & track student progress' },
+  { icon: Globe,         text: 'Multi-language content in 10+ languages' },
+  { icon: Shield,        text: 'Standards-aligned curriculum mapping' },
+  { icon: Zap,           text: 'Autonomous agent swarm for scale' },
 ]
 
 const testimonials = [
   { name: 'Dr. Sarah Chen', role: 'Science Dept Head', text: 'Saved me 15+ hours per week on lesson planning.' },
-  { name: 'Marcus Rivera', role: 'Math Teacher', text: 'The AI-generated quizzes are incredibly well-tailored.' },
-  { name: 'Amara Okafor', role: 'ELA Teacher', text: 'Multi-language support changed how I teach my ESL students.' },
+  { name: 'Marcus Rivera',  role: 'Math Teacher',      text: 'The AI-generated quizzes are incredibly well-tailored.' },
+  { name: 'Amara Okafor',   role: 'ELA Teacher',       text: 'Multi-language support changed how I teach my ESL students.' },
 ]
 
 export default function LoginPage() {
@@ -36,34 +36,40 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen hero-mesh flex">
+    <div className="min-h-screen bg-surface-950 flex relative overflow-hidden">
+      {/* Background glows */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[400px] bg-accent-500/[0.06] rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-1/4 w-[400px] h-[300px] bg-neon-400/[0.04] rounded-full blur-[100px]" />
+      </div>
+
       {/* Left panel — features */}
       <motion.div
-        className="hidden lg:flex lg:w-1/2 flex-col justify-center px-16 relative overflow-hidden"
+        className="hidden lg:flex lg:w-1/2 flex-col justify-center px-16 relative"
         initial={{ opacity: 0, x: -40 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="max-w-md">
           <motion.div
-            className="flex items-center gap-2 mb-8"
+            className="flex items-center gap-2.5 mb-8"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
             <motion.div
               className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
               <GraduationCap className="w-6 h-6 text-white" />
             </motion.div>
-            <span className="text-2xl font-black text-slate-900">TeachWeaver</span>
+            <span className="text-2xl font-black text-white">TeachWeaver</span>
           </motion.div>
 
           <motion.h1
-            className="text-4xl font-black text-slate-900 mb-4 leading-tight"
+            className="text-4xl font-black text-white mb-4 leading-tight"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
@@ -73,7 +79,7 @@ export default function LoginPage() {
             <span className="text-gradient">Teaching Platform</span>
           </motion.h1>
           <motion.p
-            className="text-slate-500 mb-8 text-base leading-relaxed"
+            className="text-surface-400 mb-8 text-base leading-relaxed"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -90,25 +96,25 @@ export default function LoginPage() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.25 + i * 0.06 }}
               >
-                <div className="w-8 h-8 rounded-lg bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-accent-500/15 text-accent-400 flex items-center justify-center flex-shrink-0 border border-accent-500/10">
                   <f.icon className="w-4 h-4" />
                 </div>
-                <span className="text-sm text-slate-700">{f.text}</span>
+                <span className="text-sm text-surface-300">{f.text}</span>
               </motion.div>
             ))}
           </div>
 
           <motion.div
-            className="bg-white/70 rounded-2xl p-5 border border-slate-100"
+            className="glass-card p-5"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
             <div className="flex items-center gap-1 mb-3">
               {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                <Star key={i} className="w-3.5 h-3.5 text-warning-400 fill-warning-400" />
               ))}
-              <span className="text-xs text-slate-400 ml-1">4.9/5 from 2,400+ teachers</span>
+              <span className="text-xs text-surface-500 ml-1">4.9/5 from 2,400+ teachers</span>
             </div>
             <div className="space-y-3">
               {testimonials.map((t, i) => (
@@ -121,27 +127,23 @@ export default function LoginPage() {
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ background: `linear-gradient(135deg, ${['#8b5cf6','#f97316','#14b8a6'][i]}, ${['#6d28d9','#ea580c','#0d9488'][i]})` }}
+                    style={{ background: `linear-gradient(135deg, ${['#6366f1','#f97316','#14b8a6'][i]}, ${['#a78bfa','#ea580c','#0d9488'][i]})` }}
                   >
                     {t.name.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
-                    <p className="text-xs text-slate-700 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{t.name} · {t.role}</p>
+                    <p className="text-xs text-surface-300 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
+                    <p className="text-[10px] text-surface-500 mt-0.5">{t.name} &middot; {t.role}</p>
                   </div>
                 </motion.div>
               ))}
             </div>
           </motion.div>
         </div>
-
-        {/* Decorative blobs */}
-        <div className="absolute -bottom-32 -left-32 w-64 h-64 rounded-full bg-brand-200/20 blur-3xl" />
-        <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-orange-200/20 blur-3xl" />
       </motion.div>
 
       {/* Right panel — login form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <div className="flex-1 flex items-center justify-center px-4 py-12 relative">
         <motion.div
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 24 }}
@@ -151,28 +153,28 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="text-center mb-8 lg:hidden">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-black text-slate-900">TeachWeaver</span>
+              <span className="text-xl font-black text-white">TeachWeaver</span>
             </Link>
-            <p className="text-slate-500 text-sm mt-2">Your AI-powered teaching assistant</p>
+            <p className="text-surface-400 text-sm mt-2">Your AI-powered teaching assistant</p>
           </div>
 
           {/* Card */}
           <motion.div
-            className="bg-white rounded-3xl shadow-card-hover border border-slate-100 p-8"
+            className="glass-card p-8"
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.15, duration: 0.4 }}
           >
-            <h1 className="text-2xl font-black text-slate-900 mb-1">Welcome back</h1>
-            <p className="text-sm text-slate-500 mb-6">Sign in to your account to continue</p>
+            <h1 className="text-2xl font-black text-white mb-1">Welcome back</h1>
+            <p className="text-sm text-surface-400 mb-6">Sign in to your account to continue</p>
 
             {/* Social logins */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <motion.button
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm font-semibold text-surface-300 hover:bg-white/[0.06] transition-colors"
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -180,24 +182,24 @@ export default function LoginPage() {
                 Google
               </motion.button>
               <motion.button
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.03] text-sm font-semibold text-surface-300 hover:bg-white/[0.06] transition-colors"
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                 Microsoft
               </motion.button>
             </div>
 
             <div className="flex items-center gap-3 mb-6">
-              <div className="flex-1 h-px bg-slate-200" />
-              <span className="text-xs text-slate-400">or continue with email</span>
-              <div className="flex-1 h-px bg-slate-200" />
+              <div className="flex-1 divider" />
+              <span className="text-xs text-surface-500">or continue with email</span>
+              <div className="flex-1 divider" />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email address</label>
+                <label className="block text-xs font-semibold text-surface-300 mb-1.5">Email address</label>
                 <input
                   type="email"
                   defaultValue="demo@teachweaver.ai"
@@ -208,8 +210,8 @@ export default function LoginPage() {
               </div>
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-700">Password</label>
-                  <button type="button" className="text-xs text-brand-600 font-semibold hover:text-brand-700">
+                  <label className="block text-xs font-semibold text-surface-300">Password</label>
+                  <button type="button" className="text-xs text-accent-400 font-semibold hover:text-accent-300">
                     Forgot password?
                   </button>
                 </div>
@@ -224,7 +226,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-300"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -232,8 +234,8 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" defaultChecked />
-                <label htmlFor="remember" className="text-xs text-slate-600">Remember me for 30 days</label>
+                <input type="checkbox" id="remember" className="w-4 h-4 rounded border-surface-600 bg-white/[0.04] text-accent-500 focus:ring-accent-500/30" defaultChecked />
+                <label htmlFor="remember" className="text-xs text-surface-400">Remember me for 30 days</label>
               </div>
 
               <motion.button
@@ -251,10 +253,10 @@ export default function LoginPage() {
               </motion.button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-              <p className="text-xs text-slate-400">
+            <div className="mt-6 pt-6 border-t border-white/[0.06] text-center">
+              <p className="text-xs text-surface-500">
                 Don&apos;t have an account?{' '}
-                <Link href="/dashboard" className="text-brand-600 font-semibold hover:text-brand-700">Start for free</Link>
+                <Link href="/dashboard" className="text-accent-400 font-semibold hover:text-accent-300">Start for free</Link>
               </p>
             </div>
           </motion.div>
@@ -266,8 +268,8 @@ export default function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <p className="text-xs text-slate-400">
-              <span className="inline-flex items-center gap-1 bg-brand-50 text-brand-600 font-semibold px-2 py-0.5 rounded-full">
+            <p className="text-xs text-surface-500">
+              <span className="inline-flex items-center gap-1 bg-accent-500/10 text-accent-400 font-semibold px-2 py-0.5 rounded-full border border-accent-500/20">
                 <Sparkles className="w-3 h-3" /> Demo mode
               </span>
               {' '}Any email/password works

@@ -32,7 +32,7 @@ export default function CoursesPage() {
     <div className="space-y-6">
       <FadeUp>
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-500">{courses.length} courses</p>
+          <p className="text-sm text-surface-400">{courses.length} courses</p>
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
             <button className="btn-primary">
               <Plus className="w-4 h-4" />
@@ -51,7 +51,7 @@ export default function CoursesPage() {
             transition={{ delay: 0.08 + i * 0.09, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -4, transition: { duration: 0.2 } }}
           >
-            <Link href={`/courses/${course.id}`} className="bg-white rounded-2xl border border-slate-100 shadow-card hover:shadow-card-hover transition-shadow overflow-hidden group block">
+            <Link href={`/courses/${course.id}`} className="glass-card overflow-hidden group block">
               <div className="h-1.5" style={{ backgroundColor: course.color }} />
               <div className="p-5">
                 <div className="flex items-start justify-between mb-3">
@@ -60,21 +60,21 @@ export default function CoursesPage() {
                       <BookOpen className="w-5 h-5" style={{ color: course.color }} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 group-hover:text-brand-700 transition-colors">{course.title}</h3>
-                      <p className="text-xs text-slate-400">{course.subject} · Grade {course.grade}</p>
+                      <h3 className="font-bold text-white group-hover:text-accent-400 transition-colors">{course.title}</h3>
+                      <p className="text-xs text-surface-500">{course.subject} · Grade {course.grade}</p>
                     </div>
                   </div>
-                  <button className="text-slate-400 hover:text-slate-600" onClick={e => e.preventDefault()}>
+                  <button className="text-surface-500 hover:text-surface-300" onClick={e => e.preventDefault()}>
                     <MoreHorizontal className="w-4 h-4" />
                   </button>
                 </div>
-                <p className="text-xs text-slate-500 mb-4">{course.description}</p>
+                <p className="text-xs text-surface-400 mb-4">{course.description}</p>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-xs text-slate-400">
+                  <div className="flex items-center gap-3 text-xs text-surface-500">
                     <span className="flex items-center gap-1"><FileText className="w-3 h-3" />{course.lessons} lessons</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{course.lastUpdated}</span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-500 group-hover:translate-x-0.5 transition-all" />
+                  <ChevronRight className="w-4 h-4 text-surface-500 group-hover:text-accent-400 group-hover:translate-x-0.5 transition-all" />
                 </div>
               </div>
             </Link>

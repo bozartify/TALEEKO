@@ -7,11 +7,11 @@ import ToolResultCard from './tool-result-card'
 import type { ChatMessage, TeachingMode } from '@/types'
 
 const MODES: { id: TeachingMode; label: string; icon: React.ElementType; color: string }[] = [
-  { id: 'general',   label: 'General',  icon: MessageSquare, color: 'text-slate-600' },
-  { id: 'lesson',    label: 'Lesson',   icon: BookOpen,      color: 'text-brand-600' },
-  { id: 'quiz',      label: 'Quiz',     icon: ClipboardList, color: 'text-orange-600' },
-  { id: 'worksheet', label: 'Sheet',    icon: FileText,      color: 'text-emerald-600' },
-  { id: 'activity',  label: 'Activity', icon: Zap,           color: 'text-amber-600' },
+  { id: 'general',   label: 'General',  icon: MessageSquare, color: 'text-surface-400' },
+  { id: 'lesson',    label: 'Lesson',   icon: BookOpen,      color: 'text-accent-400' },
+  { id: 'quiz',      label: 'Quiz',     icon: ClipboardList, color: 'text-warning-400' },
+  { id: 'worksheet', label: 'Sheet',    icon: FileText,      color: 'text-success-400' },
+  { id: 'activity',  label: 'Activity', icon: Zap,           color: 'text-warning-400' },
 ]
 
 const STARTERS = [
@@ -135,9 +135,9 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-white/[0.04]">
       {/* Mode tabs */}
-      <div className="border-b border-slate-100 px-4 pt-3 pb-0 flex-shrink-0">
+      <div className="border-b border-white/[0.06] px-4 pt-3 pb-0 flex-shrink-0">
         <div className="flex gap-1 overflow-x-auto">
           {MODES.map(m => (
             <button
@@ -146,11 +146,11 @@ export default function ChatInterface() {
               className={cn(
                 'flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-t-lg border-b-2 transition-all whitespace-nowrap',
                 mode === m.id
-                  ? 'border-brand-600 text-brand-700 bg-brand-50'
-                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                  ? 'border-accent-400 text-accent-300 bg-accent-500/10'
+                  : 'border-transparent text-surface-400 hover:text-surface-200 hover:bg-white/[0.03]'
               )}
             >
-              <m.icon className={cn('w-3.5 h-3.5', mode === m.id ? 'text-brand-600' : m.color)} />
+              <m.icon className={cn('w-3.5 h-3.5', mode === m.id ? 'text-accent-400' : m.color)} />
               {m.label}
             </button>
           ))}
@@ -163,13 +163,13 @@ export default function ChatInterface() {
           <div className="flex flex-col items-center justify-center h-full gap-6 py-12">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center animate-float"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
             >
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <div className="text-center">
-              <h3 className="text-xl font-black text-slate-900 mb-2">Magic Chat</h3>
-              <p className="text-sm text-slate-500 max-w-sm">
+              <h3 className="text-xl font-black text-white mb-2">Magic Chat</h3>
+              <p className="text-sm text-surface-400 max-w-sm">
                 Your AI co-teacher. Ask anything or pick a starter below.
               </p>
             </div>
@@ -178,7 +178,7 @@ export default function ChatInterface() {
                 <button
                   key={s}
                   onClick={() => sendMessage(s)}
-                  className="text-left p-3 bg-slate-50 hover:bg-brand-50 hover:border-brand-200 border border-slate-100 rounded-xl text-xs text-slate-600 hover:text-brand-700 transition-all"
+                  className="text-left p-3 bg-white/[0.03] hover:bg-accent-500/10 hover:border-accent-500/20 border border-white/[0.06] rounded-xl text-xs text-surface-400 hover:text-accent-300 transition-all"
                 >
                   {s}
                 </button>
@@ -192,7 +192,7 @@ export default function ChatInterface() {
             {msg.role === 'assistant' && (
               <div
                 className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
-                style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+                style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
               >
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
@@ -203,15 +203,15 @@ export default function ChatInterface() {
                   className={cn(
                     'px-4 py-3 rounded-2xl text-sm',
                     msg.role === 'user'
-                      ? 'bg-brand-600 text-white rounded-tr-sm'
-                      : 'bg-slate-100 text-slate-800 rounded-tl-sm'
+                      ? 'bg-accent-500/20 text-accent-100 rounded-tr-sm border border-accent-500/10'
+                      : 'bg-white/[0.06] text-surface-200 rounded-tl-sm border border-white/[0.06]'
                   )}
                 >
                   {msg.role === 'assistant' && isStreaming && msg.content === '' ? (
                     <span className="inline-flex gap-1">
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="w-1.5 h-1.5 bg-accent-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-neon-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-accent-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </span>
                   ) : (
                     <div className="ai-prose whitespace-pre-wrap">{msg.content}</div>
@@ -228,21 +228,21 @@ export default function ChatInterface() {
       </div>
 
       {/* Input */}
-      <div className="border-t border-slate-100 p-4 flex-shrink-0">
-        <div className="flex items-end gap-2 bg-slate-50 rounded-2xl border border-slate-200 p-2 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100 transition-all">
+      <div className="bg-surface-900/80 backdrop-blur-xl border-t border-white/[0.06] p-4 flex-shrink-0">
+        <div className="flex items-end gap-2 bg-white/[0.04] rounded-2xl border border-white/[0.08] p-2 focus-within:border-accent-400/40 focus-within:ring-2 focus-within:ring-accent-500/10 transition-all">
           <textarea
             ref={textareaRef}
             value={input}
             onChange={e => { setInput(e.target.value); autoResize() }}
             onKeyDown={handleKeyDown}
             placeholder={`Ask TeachWeaver AI anything${mode !== 'general' ? ` (${mode} mode)` : ''}...`}
-            className="flex-1 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 resize-none focus:outline-none px-2 py-1 min-h-[36px] max-h-40"
+            className="flex-1 bg-transparent text-sm text-surface-200 placeholder:text-surface-500 resize-none focus:outline-none px-2 py-1 min-h-[36px] max-h-40"
             rows={1}
           />
           {isStreaming ? (
             <button
               onClick={() => abortRef.current?.abort()}
-              className="w-9 h-9 rounded-xl bg-red-100 text-red-500 hover:bg-red-200 flex items-center justify-center transition-colors flex-shrink-0"
+              className="w-9 h-9 rounded-xl bg-danger-500/20 text-danger-400 hover:bg-danger-500/30 flex items-center justify-center transition-colors flex-shrink-0"
             >
               <Square className="w-4 h-4 fill-current" />
             </button>
@@ -251,13 +251,13 @@ export default function ChatInterface() {
               onClick={() => sendMessage(input)}
               disabled={!input.trim()}
               className="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0 disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
             >
               <Send className="w-4 h-4 text-white" />
             </button>
           )}
         </div>
-        <p className="text-center text-xs text-slate-300 mt-2">Shift+Enter for new line · Enter to send</p>
+        <p className="text-center text-xs text-surface-500 mt-2">Shift+Enter for new line · Enter to send</p>
       </div>
     </div>
   )

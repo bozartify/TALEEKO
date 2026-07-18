@@ -46,7 +46,7 @@ export default function SettingsPage() {
         {/* Sidebar nav */}
         <FadeUp>
           <div className="md:col-span-1">
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-3 space-y-0.5">
+            <div className="glass-card p-3 space-y-0.5">
               {sections.map((s, i) => (
                 <motion.button
                   key={s.id}
@@ -76,8 +76,8 @@ export default function SettingsPage() {
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             >
               {active === 'profile' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">Profile Settings</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">Profile Settings</h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <motion.div
@@ -92,36 +92,36 @@ export default function SettingsPage() {
                         <button className="btn-secondary text-xs">
                           <Upload className="w-3 h-3" /> Change photo
                         </button>
-                        <p className="text-xs text-slate-400">JPG, PNG up to 2MB</p>
+                        <p className="text-xs text-surface-500">JPG, PNG up to 2MB</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">First Name</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">First Name</label>
                         <input defaultValue="Alex" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Last Name</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Last Name</label>
                         <input defaultValue="Johnson" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Email</label>
                         <input defaultValue="demo@teachweaver.ai" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">School / Institution</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">School / Institution</label>
                         <input defaultValue="Lincoln Middle School" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Subject(s)</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Subject(s)</label>
                         <input defaultValue="Science, Biology" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Grade Levels</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Grade Levels</label>
                         <input defaultValue="7th, 8th, 9th" className="input-base" />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Role</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Role</label>
                         <select className="input-base">
                           <option>Teacher</option>
                           <option>Department Head</option>
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Language</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Language</label>
                         <select className="input-base">
                           <option>English</option>
                           <option>Español</option>
@@ -147,7 +147,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Bio</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Bio</label>
                       <textarea
                         defaultValue="Passionate science teacher with 8 years of experience in middle school education."
                         className="input-base h-20 resize-none"
@@ -158,12 +158,12 @@ export default function SettingsPage() {
               )}
 
               {active === 'ai' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">AI Preferences</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">AI Preferences</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Default Grade Level</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Default Grade Level</label>
                         <select className="input-base">
                           <option>K-2nd Grade</option>
                           <option>3rd-5th Grade</option>
@@ -175,12 +175,12 @@ export default function SettingsPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">Default Subject</label>
+                        <label className="block text-xs font-semibold text-surface-200 mb-1.5">Default Subject</label>
                         <input defaultValue="Science" className="input-base" />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Curriculum Standards</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Curriculum Standards</label>
                       <select className="input-base">
                         <option>Common Core State Standards</option>
                         <option>NGSS (Next Generation Science Standards)</option>
@@ -191,15 +191,15 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">AI Creativity Level</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">AI Creativity Level</label>
                       <div className="flex items-center gap-3">
-                        <span className="text-xs text-slate-400">Conservative</span>
-                        <input type="range" min="0" max="100" defaultValue="60" className="flex-1 accent-brand-600" />
-                        <span className="text-xs text-slate-400">Creative</span>
+                        <span className="text-xs text-surface-500">Conservative</span>
+                        <input type="range" min="0" max="100" defaultValue="60" className="flex-1 accent-accent-600" />
+                        <span className="text-xs text-surface-500">Creative</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Default Output Language</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Default Output Language</label>
                       <select className="input-base">
                         <option>Same as input</option>
                         <option>English</option>
@@ -219,16 +219,16 @@ export default function SettingsPage() {
                     ].map((toggle, i) => (
                       <motion.div
                         key={toggle.label}
-                        className="flex items-center justify-between p-4 bg-slate-50 rounded-xl"
+                        className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.05 }}
                       >
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{toggle.label}</p>
-                          <p className="text-xs text-slate-500">{toggle.desc}</p>
+                          <p className="text-sm font-semibold text-white">{toggle.label}</p>
+                          <p className="text-xs text-surface-400">{toggle.desc}</p>
                         </div>
-                        <button className="w-10 h-6 bg-brand-600 rounded-full relative transition-colors">
+                        <button className="w-10 h-6 bg-accent-600 rounded-full relative transition-colors">
                           <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                         </button>
                       </motion.div>
@@ -238,14 +238,14 @@ export default function SettingsPage() {
               )}
 
               {active === 'integrations' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-1">Integrations</h3>
-                  <p className="text-xs text-slate-500 mb-4">Connect your favorite education tools</p>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-1">Integrations</h3>
+                  <p className="text-xs text-surface-400 mb-4">Connect your favorite education tools</p>
                   <div className="space-y-3">
                     {integrations.map((int, i) => (
                       <motion.div
                         key={int.name}
-                        className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors"
+                        className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-xl hover:bg-white/[0.04] transition-colors"
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.06 }}
@@ -253,11 +253,11 @@ export default function SettingsPage() {
                       >
                         <span className="text-2xl">{int.icon}</span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-900">{int.name}</p>
-                          <p className="text-xs text-slate-500">{int.desc}</p>
+                          <p className="text-sm font-semibold text-white">{int.name}</p>
+                          <p className="text-xs text-surface-400">{int.desc}</p>
                         </div>
                         {int.connected ? (
-                          <span className="flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
+                          <span className="flex items-center gap-1 text-xs font-semibold text-success-400 bg-success-400/15 px-2.5 py-1 rounded-full">
                             <Check className="w-3 h-3" /> Connected
                           </span>
                         ) : (
@@ -272,41 +272,41 @@ export default function SettingsPage() {
               )}
 
               {active === 'notif' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">Notifications</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">Notifications</h3>
                   <div className="space-y-2">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Email Notifications</p>
+                    <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-3">Email Notifications</p>
                     {['Weekly usage summary', 'New AI tool announcements', 'Tips & best practices', 'Product updates', 'Agent completion alerts'].map((n, i) => (
                       <motion.div
                         key={n}
-                        className="flex items-center justify-between p-4 bg-slate-50 rounded-xl"
+                        className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.04 }}
                       >
                         <div className="flex items-center gap-3">
-                          <Mail className="w-4 h-4 text-slate-400" />
-                          <p className="text-sm font-medium text-slate-900">{n}</p>
+                          <Mail className="w-4 h-4 text-surface-500" />
+                          <p className="text-sm font-medium text-white">{n}</p>
                         </div>
-                        <button className="w-10 h-6 bg-brand-600 rounded-full relative">
+                        <button className="w-10 h-6 bg-accent-600 rounded-full relative">
                           <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                         </button>
                       </motion.div>
                     ))}
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 mt-6 pt-4 border-t border-slate-100">Push Notifications</p>
+                    <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-3 mt-6 pt-4 border-t border-white/[0.06]">Push Notifications</p>
                     {['Agent task completions', 'Student milestone alerts', 'Schedule reminders'].map((n, i) => (
                       <motion.div
                         key={n}
-                        className="flex items-center justify-between p-4 bg-slate-50 rounded-xl"
+                        className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 + i * 0.04 }}
                       >
                         <div className="flex items-center gap-3">
-                          <Smartphone className="w-4 h-4 text-slate-400" />
-                          <p className="text-sm font-medium text-slate-900">{n}</p>
+                          <Smartphone className="w-4 h-4 text-surface-500" />
+                          <p className="text-sm font-medium text-white">{n}</p>
                         </div>
-                        <button className="w-10 h-6 bg-slate-300 rounded-full relative">
+                        <button className="w-10 h-6 bg-surface-600 rounded-full relative">
                           <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                         </button>
                       </motion.div>
@@ -316,26 +316,26 @@ export default function SettingsPage() {
               )}
 
               {active === 'accessibility' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">Accessibility</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">Accessibility</h3>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                       <div className="flex items-center gap-3">
-                        {darkMode ? <Moon className="w-4 h-4 text-slate-400" /> : <Sun className="w-4 h-4 text-amber-500" />}
+                        {darkMode ? <Moon className="w-4 h-4 text-surface-500" /> : <Sun className="w-4 h-4 text-warning-400" />}
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">Dark Mode</p>
-                          <p className="text-xs text-slate-500">Reduce eye strain in low-light environments</p>
+                          <p className="text-sm font-semibold text-white">Dark Mode</p>
+                          <p className="text-xs text-surface-400">Reduce eye strain in low-light environments</p>
                         </div>
                       </div>
                       <button
                         onClick={() => setDarkMode(!darkMode)}
-                        className={`w-10 h-6 rounded-full relative transition-colors ${darkMode ? 'bg-brand-600' : 'bg-slate-300'}`}
+                        className={`w-10 h-6 rounded-full relative transition-colors ${darkMode ? 'bg-accent-600' : 'bg-surface-600'}`}
                       >
                         <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`} />
                       </button>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Font Size</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Font Size</label>
                       <select className="input-base">
                         <option>Small</option>
                         <option selected>Medium</option>
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Color Contrast</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Color Contrast</label>
                       <select className="input-base">
                         <option selected>Standard</option>
                         <option>High Contrast</option>
@@ -355,12 +355,12 @@ export default function SettingsPage() {
                       { label: 'Screen reader optimized', desc: 'Enhanced ARIA labels and focus management' },
                       { label: 'Keyboard navigation hints', desc: 'Show keyboard shortcut indicators' },
                     ].map((toggle, i) => (
-                      <div key={toggle.label} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                      <div key={toggle.label} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{toggle.label}</p>
-                          <p className="text-xs text-slate-500">{toggle.desc}</p>
+                          <p className="text-sm font-semibold text-white">{toggle.label}</p>
+                          <p className="text-xs text-surface-400">{toggle.desc}</p>
                         </div>
-                        <button className="w-10 h-6 bg-slate-300 rounded-full relative">
+                        <button className="w-10 h-6 bg-surface-600 rounded-full relative">
                           <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                         </button>
                       </div>
@@ -370,18 +370,18 @@ export default function SettingsPage() {
               )}
 
               {active === 'security' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">Security</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">Security</h3>
                   <div className="space-y-4">
-                    <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-3">
-                      <Shield className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <div className="p-4 bg-success-400/10 border border-success-400/20 rounded-xl flex items-start gap-3">
+                      <Shield className="w-5 h-5 text-success-400 flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm font-semibold text-emerald-800">Your account is secured</p>
-                        <p className="text-xs text-emerald-600">Two-factor authentication is enabled</p>
+                        <p className="text-sm font-semibold text-success-400">Your account is secured</p>
+                        <p className="text-xs text-success-400/80">Two-factor authentication is enabled</p>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Password</label>
                       <div className="flex gap-2">
                         <input type="password" defaultValue="••••••••••••" className="input-base flex-1" disabled />
                         <button className="btn-secondary text-xs px-3">
@@ -394,34 +394,34 @@ export default function SettingsPage() {
                       { label: 'Login notifications', desc: 'Get notified of new sign-ins', enabled: true },
                       { label: 'Session timeout', desc: 'Auto-logout after 30 minutes of inactivity', enabled: false },
                     ].map((s, i) => (
-                      <div key={s.label} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                      <div key={s.label} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">{s.label}</p>
-                          <p className="text-xs text-slate-500">{s.desc}</p>
+                          <p className="text-sm font-semibold text-white">{s.label}</p>
+                          <p className="text-xs text-surface-400">{s.desc}</p>
                         </div>
-                        <button className={`w-10 h-6 rounded-full relative transition-colors ${s.enabled ? 'bg-brand-600' : 'bg-slate-300'}`}>
+                        <button className={`w-10 h-6 rounded-full relative transition-colors ${s.enabled ? 'bg-accent-600' : 'bg-surface-600'}`}>
                           <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm ${s.enabled ? 'right-1' : 'left-1'}`} />
                         </button>
                       </div>
                     ))}
-                    <div className="pt-4 border-t border-slate-100">
-                      <h4 className="text-sm font-bold text-slate-900 mb-3">Active Sessions</h4>
+                    <div className="pt-4 border-t border-white/[0.06]">
+                      <h4 className="text-sm font-bold text-white mb-3">Active Sessions</h4>
                       {[
                         { device: 'Chrome on MacOS', location: 'San Francisco, CA', current: true },
                         { device: 'Safari on iPhone', location: 'San Francisco, CA', current: false },
                       ].map(sess => (
-                        <div key={sess.device} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
+                        <div key={sess.device} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-0">
                           <div className="flex items-center gap-3">
-                            <Monitor className="w-4 h-4 text-slate-400" />
+                            <Monitor className="w-4 h-4 text-surface-500" />
                             <div>
-                              <p className="text-sm font-medium text-slate-900">{sess.device}</p>
-                              <p className="text-xs text-slate-400">{sess.location}</p>
+                              <p className="text-sm font-medium text-white">{sess.device}</p>
+                              <p className="text-xs text-surface-500">{sess.location}</p>
                             </div>
                           </div>
                           {sess.current ? (
-                            <span className="badge bg-emerald-100 text-emerald-700">Current</span>
+                            <span className="badge bg-success-400/15 text-success-400">Current</span>
                           ) : (
-                            <button className="text-xs text-red-500 font-semibold hover:text-red-600">Revoke</button>
+                            <button className="text-xs text-danger-400 font-semibold hover:text-danger-300">Revoke</button>
                           )}
                         </div>
                       ))}
@@ -431,8 +431,8 @@ export default function SettingsPage() {
               )}
 
               {active === 'data' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">Data & Export</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">Data & Export</h3>
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {[
@@ -443,40 +443,40 @@ export default function SettingsPage() {
                       ].map((exp, i) => (
                         <motion.button
                           key={exp.label}
-                          className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors text-left"
+                          className="flex items-center gap-3 p-4 bg-white/[0.03] rounded-xl hover:bg-white/[0.04] transition-colors text-left"
                           whileHover={{ x: 2 }}
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.06 }}
                         >
-                          <div className="icon-bubble bg-brand-100 text-brand-600 flex-shrink-0">
+                          <div className="icon-bubble bg-accent-400/15 text-accent-400 flex-shrink-0">
                             <exp.icon className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-900">{exp.label}</p>
-                            <p className="text-xs text-slate-500">{exp.desc}</p>
+                            <p className="text-sm font-semibold text-white">{exp.label}</p>
+                            <p className="text-xs text-surface-400">{exp.desc}</p>
                           </div>
                         </motion.button>
                       ))}
                     </div>
-                    <div className="pt-4 border-t border-slate-100">
-                      <h4 className="text-sm font-bold text-slate-900 mb-3">Import Data</h4>
-                      <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-brand-300 transition-colors cursor-pointer">
-                        <Upload className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                        <p className="text-sm font-semibold text-slate-700">Drop files here or click to browse</p>
-                        <p className="text-xs text-slate-400 mt-1">Supports JSON, CSV, and Excel files</p>
+                    <div className="pt-4 border-t border-white/[0.06]">
+                      <h4 className="text-sm font-bold text-white mb-3">Import Data</h4>
+                      <div className="border-2 border-dashed border-white/[0.08] rounded-xl p-8 text-center hover:border-accent-500/40 transition-colors cursor-pointer">
+                        <Upload className="w-8 h-8 text-surface-500 mx-auto mb-2" />
+                        <p className="text-sm font-semibold text-surface-200">Drop files here or click to browse</p>
+                        <p className="text-xs text-surface-500 mt-1">Supports JSON, CSV, and Excel files</p>
                       </div>
                     </div>
-                    <div className="pt-4 border-t border-slate-100">
-                      <div className="p-4 bg-red-50 border border-red-100 rounded-xl">
+                    <div className="pt-4 border-t border-white/[0.06]">
+                      <div className="p-4 bg-danger-400/10 border border-danger-400/20 rounded-xl">
                         <div className="flex items-center gap-3">
-                          <Trash2 className="w-5 h-5 text-red-500" />
+                          <Trash2 className="w-5 h-5 text-danger-400" />
                           <div>
-                            <p className="text-sm font-semibold text-red-800">Danger Zone</p>
-                            <p className="text-xs text-red-600">Permanently delete your account and all data</p>
+                            <p className="text-sm font-semibold text-danger-400">Danger Zone</p>
+                            <p className="text-xs text-danger-400/80">Permanently delete your account and all data</p>
                           </div>
                         </div>
-                        <button className="mt-3 text-xs font-semibold text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 transition-colors">
+                        <button className="mt-3 text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors">
                           Delete Account
                         </button>
                       </div>
@@ -486,17 +486,17 @@ export default function SettingsPage() {
               )}
 
               {active === 'api' && (
-                <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-6">
-                  <h3 className="text-base font-bold text-slate-900 mb-4">API Configuration</h3>
+                <div className="glass-card p-6">
+                  <h3 className="text-base font-bold text-white mb-4">API Configuration</h3>
                   <div className="space-y-4">
-                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-3">
-                      <Key className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <p className="text-xs text-amber-800 leading-relaxed">
-                        Your Anthropic API key powers the AI features. Set it in your <code className="bg-amber-100 px-1 py-0.5 rounded">.env</code> file as <code className="bg-amber-100 px-1 py-0.5 rounded">ANTHROPIC_API_KEY</code>.
+                    <div className="p-4 bg-warning-400/10 border border-warning-400/20 rounded-xl flex items-start gap-3">
+                      <Key className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
+                      <p className="text-xs text-warning-400 leading-relaxed">
+                        Your Anthropic API key powers the AI features. Set it in your <code className="bg-warning-400/15 px-1 py-0.5 rounded">.env</code> file as <code className="bg-warning-400/15 px-1 py-0.5 rounded">ANTHROPIC_API_KEY</code>.
                       </p>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Anthropic API Key</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Anthropic API Key</label>
                       <div className="flex gap-2">
                         <input
                           type={showKey ? 'text' : 'password'}
@@ -509,7 +509,7 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">AI Model</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">AI Model</label>
                       <select className="input-base">
                         <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (Recommended)</option>
                         <option value="claude-opus-4-8">Claude Opus 4.8 (Most Capable)</option>
@@ -517,33 +517,33 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1.5">Max Tokens</label>
+                      <label className="block text-xs font-semibold text-surface-200 mb-1.5">Max Tokens</label>
                       <select className="input-base">
                         <option>2048 (Default)</option>
                         <option>4096 (Extended)</option>
                         <option>8192 (Maximum)</option>
                       </select>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                    <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">Prompt Caching</p>
-                        <p className="text-xs text-slate-500">Cache system prompts to reduce latency and cost</p>
+                        <p className="text-sm font-semibold text-white">Prompt Caching</p>
+                        <p className="text-xs text-surface-400">Cache system prompts to reduce latency and cost</p>
                       </div>
-                      <button className="w-10 h-6 bg-brand-600 rounded-full relative">
+                      <button className="w-10 h-6 bg-accent-600 rounded-full relative">
                         <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
                       </button>
                     </div>
-                    <div className="pt-4 border-t border-slate-100">
-                      <h4 className="text-sm font-bold text-slate-900 mb-3">Usage This Month</h4>
+                    <div className="pt-4 border-t border-white/[0.06]">
+                      <h4 className="text-sm font-bold text-white mb-3">Usage This Month</h4>
                       <div className="grid grid-cols-3 gap-3">
                         {[
                           { label: 'API Calls', value: '1,247' },
                           { label: 'Tokens Used', value: '2.1M' },
                           { label: 'Estimated Cost', value: '$4.82' },
                         ].map(u => (
-                          <div key={u.label} className="p-3 bg-slate-50 rounded-xl text-center">
-                            <p className="text-lg font-black text-slate-900">{u.value}</p>
-                            <p className="text-xs text-slate-400">{u.label}</p>
+                          <div key={u.label} className="p-3 bg-white/[0.03] rounded-xl text-center">
+                            <p className="text-lg font-black text-white">{u.value}</p>
+                            <p className="text-xs text-surface-500">{u.label}</p>
                           </div>
                         ))}
                       </div>

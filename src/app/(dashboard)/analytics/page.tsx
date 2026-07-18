@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
       <FadeUp>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500">Track your AI-powered teaching productivity</p>
+            <p className="text-sm text-surface-400">Track your AI-powered teaching productivity</p>
           </div>
           <div className="flex items-center gap-2">
             {(['7d', '30d', '90d'] as const).map(r => (
@@ -85,8 +85,8 @@ export default function AnalyticsPage() {
                 onClick={() => setRange(r)}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   range === r
-                    ? 'bg-brand-600 text-white shadow-glow-sm'
-                    : 'bg-white border border-slate-200 text-slate-500 hover:border-brand-300'
+                    ? 'bg-accent-600 text-white shadow-glow-sm'
+                    : 'bg-white/[0.04] border border-white/[0.08] text-surface-400 hover:border-accent-500/40'
                 }`}
               >
                 {r === '7d' ? '7 Days' : r === '30d' ? '30 Days' : '90 Days'}
@@ -102,10 +102,10 @@ export default function AnalyticsPage() {
       {/* Summary stats */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
         {[
-          { label: 'Materials Created', value: '67',   icon: BookOpen,   color: 'bg-brand-100 text-brand-600',   delta: '+12', up: true },
-          { label: 'AI Interactions',   value: '143',  icon: Brain,      color: 'bg-sky-100 text-sky-600',       delta: '+28', up: true },
-          { label: 'Students Reached',  value: '142',  icon: Users,      color: 'bg-emerald-100 text-emerald-600', delta: '+5', up: true },
-          { label: 'Hours Saved',       value: '31h',  icon: Clock,      color: 'bg-amber-100 text-amber-600',   delta: '+8h', up: true },
+          { label: 'Materials Created', value: '67',   icon: BookOpen,   color: 'bg-accent-400/15 text-accent-400',     delta: '+12', up: true },
+          { label: 'AI Interactions',   value: '143',  icon: Brain,      color: 'bg-electric-400/15 text-electric-400', delta: '+28', up: true },
+          { label: 'Students Reached',  value: '142',  icon: Users,      color: 'bg-success-400/15 text-success-400',   delta: '+5', up: true },
+          { label: 'Hours Saved',       value: '31h',  icon: Clock,      color: 'bg-warning-400/15 text-warning-400',   delta: '+8h', up: true },
         ].map(s => (
           <StaggerItem key={s.label} variants={fadeUp}>
             <motion.div
@@ -114,13 +114,13 @@ export default function AnalyticsPage() {
             >
               <div className="flex items-center justify-between mb-3">
                 <div className={`icon-bubble ${s.color}`}><s.icon className="w-5 h-5" /></div>
-                <span className={`flex items-center gap-0.5 text-xs font-bold ${s.up ? 'text-emerald-600' : 'text-red-500'}`}>
+                <span className={`flex items-center gap-0.5 text-xs font-bold ${s.up ? 'text-success-400' : 'text-danger-400'}`}>
                   {s.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                   {s.delta}
                 </span>
               </div>
-              <div className="text-2xl font-black text-slate-900">{s.value}</div>
-              <div className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</div>
+              <div className="text-2xl font-black text-white">{s.value}</div>
+              <div className="text-xs font-semibold text-surface-200 mt-0.5">{s.label}</div>
             </motion.div>
           </StaggerItem>
         ))}
@@ -129,10 +129,10 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly bar chart */}
         <FadeUp delay={0.15}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5">
+          <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900">Weekly Activity</h3>
-              <span className="text-xs text-slate-400 flex items-center gap-1"><Calendar className="w-3 h-3" /> This week</span>
+              <h3 className="text-sm font-bold text-white">Weekly Activity</h3>
+              <span className="text-xs text-surface-500 flex items-center gap-1"><Calendar className="w-3 h-3" /> This week</span>
             </div>
             <div className="flex items-end gap-2 h-36">
               {weekData.map((d, i) => (
@@ -144,16 +144,16 @@ export default function AnalyticsPage() {
                   transition={{ delay: 0.3 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                   style={{ transformOrigin: 'bottom' }}
                 >
-                  <span className="text-xs font-bold text-brand-600">{d.lessons || ''}</span>
+                  <span className="text-xs font-bold text-accent-400">{d.lessons || ''}</span>
                   <motion.div
                     className="w-full rounded-t-lg"
                     style={{
                       height: `${Math.max((d.lessons / maxLessons) * 100, 4)}px`,
-                      background: d.lessons > 0 ? 'linear-gradient(180deg,#8b5cf6,#6d28d9)' : '#e2e8f0',
+                      background: d.lessons > 0 ? 'linear-gradient(180deg,#8b5cf6,#6d28d9)' : 'rgba(255,255,255,0.06)',
                     }}
                     whileHover={{ filter: 'brightness(1.1)', transition: { duration: 0.15 } }}
                   />
-                  <span className="text-xs text-slate-400">{d.day}</span>
+                  <span className="text-xs text-surface-500">{d.day}</span>
                 </motion.div>
               ))}
             </div>
@@ -162,10 +162,10 @@ export default function AnalyticsPage() {
 
         {/* Monthly trend */}
         <FadeUp delay={0.2}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5">
+          <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900">Growth Trend</h3>
-              <span className="flex items-center gap-1 text-xs font-bold text-emerald-600">
+              <h3 className="text-sm font-bold text-white">Growth Trend</h3>
+              <span className="flex items-center gap-1 text-xs font-bold text-success-400">
                 <TrendingUp className="w-3 h-3" /> +458%
               </span>
             </div>
@@ -178,7 +178,7 @@ export default function AnalyticsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.35 + i * 0.07, duration: 0.45 }}
                 >
-                  <span className="text-xs font-bold text-emerald-600">{d.value}</span>
+                  <span className="text-xs font-bold text-success-400">{d.value}</span>
                   <motion.div
                     className="w-full rounded-t-lg"
                     initial={{ height: 0 }}
@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
                     transition={{ delay: 0.4 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                     style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }}
                   />
-                  <span className="text-xs text-slate-400">{d.month}</span>
+                  <span className="text-xs text-surface-500">{d.month}</span>
                 </motion.div>
               ))}
             </div>
@@ -197,8 +197,8 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tool usage */}
         <FadeUp delay={0.25}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 lg:col-span-1">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">Tool Usage</h3>
+          <div className="glass-card p-5 lg:col-span-1">
+            <h3 className="text-sm font-bold text-white mb-4">Tool Usage</h3>
             <div className="space-y-3">
               {topTools.sort((a, b) => b.uses - a.uses).map((tool, i) => (
                 <motion.div
@@ -208,13 +208,13 @@ export default function AnalyticsPage() {
                   transition={{ delay: 0.35 + i * 0.06 }}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+                    <span className="text-xs font-medium text-surface-300 flex items-center gap-1.5">
                       <tool.icon className="w-3 h-3" style={{ color: tool.color }} />
                       {tool.name}
                     </span>
                     <span className="text-xs font-bold" style={{ color: tool.color }}>{tool.uses}x</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
                       initial={{ width: 0 }}
@@ -231,10 +231,10 @@ export default function AnalyticsPage() {
 
         {/* Usage heatmap */}
         <FadeUp delay={0.3}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 lg:col-span-2">
+          <div className="glass-card p-5 lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900">Usage Heatmap</h3>
-              <div className="flex items-center gap-1 text-xs text-slate-400">
+              <h3 className="text-sm font-bold text-white">Usage Heatmap</h3>
+              <div className="flex items-center gap-1 text-xs text-surface-500">
                 <Flame className="w-3 h-3" /> Peak: Thu 2pm
               </div>
             </div>
@@ -243,11 +243,11 @@ export default function AnalyticsPage() {
                 <div className="grid gap-1" style={{ gridTemplateColumns: `60px repeat(7, 1fr)` }}>
                   <div />
                   {heatmapDays.map(d => (
-                    <div key={d} className="text-center text-xs text-slate-400 pb-1">{d}</div>
+                    <div key={d} className="text-center text-xs text-surface-500 pb-1">{d}</div>
                   ))}
                   {heatmapData.map((row, ri) => (
                     <div key={ri} className="contents">
-                      <div className="text-xs text-slate-400 flex items-center">{heatmapHours[ri]}</div>
+                      <div className="text-xs text-surface-500 flex items-center">{heatmapHours[ri]}</div>
                       {row.map((val, ci) => (
                         <motion.div
                           key={ci}
@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.4 + (ri * 7 + ci) * 0.02, duration: 0.3 }}
                           style={{
-                            backgroundColor: val === 0 ? '#f1f5f9' :
+                            backgroundColor: val === 0 ? 'rgba(255,255,255,0.06)' :
                               val === 1 ? '#c4b5fd' :
                               val === 2 ? '#a78bfa' :
                               val === 3 ? '#8b5cf6' :
@@ -269,13 +269,13 @@ export default function AnalyticsPage() {
                   ))}
                 </div>
                 <div className="flex items-center justify-end gap-1 mt-2">
-                  <span className="text-xs text-slate-400">Less</span>
+                  <span className="text-xs text-surface-500">Less</span>
                   {[0,1,2,3,4,5].map(v => (
                     <div
                       key={v}
                       className="w-3 h-3 rounded-sm"
                       style={{
-                        backgroundColor: v === 0 ? '#f1f5f9' :
+                        backgroundColor: v === 0 ? 'rgba(255,255,255,0.06)' :
                           v === 1 ? '#c4b5fd' :
                           v === 2 ? '#a78bfa' :
                           v === 3 ? '#8b5cf6' :
@@ -283,7 +283,7 @@ export default function AnalyticsPage() {
                       }}
                     />
                   ))}
-                  <span className="text-xs text-slate-400">More</span>
+                  <span className="text-xs text-surface-500">More</span>
                 </div>
               </div>
             </div>
@@ -294,8 +294,8 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Class engagement */}
         <FadeUp delay={0.35}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5">
-            <h3 className="text-sm font-bold text-slate-900 mb-4">Engagement by Class</h3>
+          <div className="glass-card p-5">
+            <h3 className="text-sm font-bold text-white mb-4">Engagement by Class</h3>
             <div className="space-y-4">
               {engagementByClass.map((cls, i) => (
                 <motion.div
@@ -306,12 +306,12 @@ export default function AnalyticsPage() {
                   className="space-y-2"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-slate-700">{cls.name}</span>
+                    <span className="text-xs font-semibold text-surface-300">{cls.name}</span>
                     <span className="text-xs font-bold" style={{ color: cls.color }}>{cls.engagement}%</span>
                   </div>
                   <div className="flex gap-2">
                     <div className="flex-1">
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                         <motion.div
                           className="h-full rounded-full"
                           initial={{ width: 0 }}
@@ -320,10 +320,10 @@ export default function AnalyticsPage() {
                           style={{ backgroundColor: cls.color }}
                         />
                       </div>
-                      <span className="text-[10px] text-slate-400">Engagement</span>
+                      <span className="text-[10px] text-surface-500">Engagement</span>
                     </div>
                     <div className="flex-1">
-                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                         <motion.div
                           className="h-full rounded-full opacity-60"
                           initial={{ width: 0 }}
@@ -332,7 +332,7 @@ export default function AnalyticsPage() {
                           style={{ backgroundColor: cls.color }}
                         />
                       </div>
-                      <span className="text-[10px] text-slate-400">Completion</span>
+                      <span className="text-[10px] text-surface-500">Completion</span>
                     </div>
                   </div>
                 </motion.div>
@@ -343,10 +343,10 @@ export default function AnalyticsPage() {
 
         {/* Language distribution */}
         <FadeUp delay={0.4}>
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5">
+          <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900">Content by Language</h3>
-              <Globe className="w-4 h-4 text-slate-400" />
+              <h3 className="text-sm font-bold text-white">Content by Language</h3>
+              <Globe className="w-4 h-4 text-surface-500" />
             </div>
             <div className="space-y-3">
               {languageUsage.map((l, i) => (
@@ -358,16 +358,16 @@ export default function AnalyticsPage() {
                   transition={{ delay: 0.5 + i * 0.06 }}
                 >
                   <span className="text-sm w-6 text-center">{l.flag}</span>
-                  <span className="text-xs font-medium text-slate-700 w-20">{l.lang}</span>
-                  <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <span className="text-xs font-medium text-surface-300 w-20">{l.lang}</span>
+                  <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full rounded-full bg-brand-500"
+                      className="h-full rounded-full bg-accent-500"
                       initial={{ width: 0 }}
                       animate={{ width: `${l.pct}%` }}
                       transition={{ delay: 0.55 + i * 0.06, duration: 0.6 }}
                     />
                   </div>
-                  <span className="text-xs font-bold text-slate-500 w-8 text-right">{l.pct}%</span>
+                  <span className="text-xs font-bold text-surface-400 w-8 text-right">{l.pct}%</span>
                 </motion.div>
               ))}
             </div>
@@ -377,14 +377,14 @@ export default function AnalyticsPage() {
 
       {/* AI Insights */}
       <FadeUp delay={0.45}>
-        <div className="bg-gradient-to-r from-brand-50 to-purple-50 rounded-2xl border border-brand-100 p-5">
+        <div className="glass-card p-5 border-white/[0.06]">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
               <Brain className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">AI Insights</h3>
-              <p className="text-xs text-slate-500">Auto-generated recommendations</p>
+              <h3 className="text-sm font-bold text-white">AI Insights</h3>
+              <p className="text-xs text-surface-400">Auto-generated recommendations</p>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -392,7 +392,7 @@ export default function AnalyticsPage() {
               <motion.div
                 key={i}
                 className={`flex items-start gap-3 p-3 rounded-xl ${
-                  insight.positive ? 'bg-white/70' : 'bg-amber-50/70 border border-amber-100'
+                  insight.positive ? 'bg-white/[0.04]' : 'bg-warning-400/10 border border-warning-400/20'
                 }`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -400,11 +400,11 @@ export default function AnalyticsPage() {
                 whileHover={{ scale: 1.01, transition: { duration: 0.15 } }}
               >
                 <div className={`icon-bubble w-7 h-7 rounded-lg flex-shrink-0 ${
-                  insight.positive ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'
+                  insight.positive ? 'bg-success-400/15 text-success-400' : 'bg-warning-400/15 text-warning-400'
                 }`}>
                   <insight.icon className="w-3.5 h-3.5" />
                 </div>
-                <p className="text-xs text-slate-700 leading-relaxed">{insight.text}</p>
+                <p className="text-xs text-surface-300 leading-relaxed">{insight.text}</p>
               </motion.div>
             ))}
           </div>

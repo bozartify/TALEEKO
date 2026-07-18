@@ -14,12 +14,12 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Link href="/courses" className="text-slate-400 hover:text-slate-600 transition-colors">
+        <Link href="/courses" className="text-surface-500 hover:text-surface-300 transition-colors">
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div className="flex-1">
-          <h2 className="text-xl font-black text-slate-900">7th Grade Biology</h2>
-          <p className="text-xs text-slate-500">Science · Grade 7 · {lessons.length} lessons</p>
+          <h2 className="text-xl font-black text-white">7th Grade Biology</h2>
+          <p className="text-xs text-surface-400">Science · Grade 7 · {lessons.length} lessons</p>
         </div>
         <Link href="/magic-chat?mode=lesson" className="btn-gradient">
           <Sparkles className="w-4 h-4" />
@@ -28,12 +28,12 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
       </div>
 
       {/* Progress bar */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-card p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-sm font-semibold text-slate-900">Course Progress</span>
-          <span className="text-sm text-brand-600 font-bold">{Math.round((lessons.filter(l => l.status === 'published').length / lessons.length) * 100)}% published</span>
+          <span className="text-sm font-semibold text-white">Course Progress</span>
+          <span className="text-sm text-accent-400 font-bold">{Math.round((lessons.filter(l => l.status === 'published').length / lessons.length) * 100)}% published</span>
         </div>
-        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
           <div
             className="h-full rounded-full"
             style={{
@@ -42,8 +42,8 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
             }}
           />
         </div>
-        <div className="flex gap-4 mt-3 text-xs text-slate-500">
-          <span className="text-emerald-600 font-medium">{lessons.filter(l => l.status === 'published').length} published</span>
+        <div className="flex gap-4 mt-3 text-xs text-surface-400">
+          <span className="text-success-400 font-medium">{lessons.filter(l => l.status === 'published').length} published</span>
           <span>{lessons.filter(l => l.status === 'draft').length} drafts</span>
         </div>
       </div>
@@ -51,35 +51,35 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
       {/* Lessons list */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-slate-900">Lessons</h3>
+          <h3 className="text-base font-bold text-white">Lessons</h3>
           <button className="btn-secondary text-xs">
             <Plus className="w-3.5 h-3.5" />
             Add Lesson
           </button>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden">
+        <div className="glass-card overflow-hidden">
           {lessons.map((lesson, i) => (
             <Link
               key={lesson.id}
               href={`/courses/${params.courseId}/lessons/${lesson.id}`}
-              className={`flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors ${
-                i < lessons.length - 1 ? 'border-b border-slate-100' : ''
+              className={`flex items-center gap-4 px-5 py-4 hover:bg-white/[0.04] transition-colors ${
+                i < lessons.length - 1 ? 'border-b border-white/[0.06]' : ''
               }`}
             >
-              <div className="w-7 h-7 rounded-lg bg-brand-50 text-brand-600 text-xs font-bold flex items-center justify-center flex-shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-accent-500/15 text-accent-400 text-xs font-bold flex items-center justify-center flex-shrink-0">
                 {i + 1}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-900 truncate">{lesson.title}</p>
-                <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-400">
+                <p className="text-sm font-semibold text-white truncate">{lesson.title}</p>
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-surface-500">
                   <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{lesson.duration} min</span>
                   <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{lesson.materials} materials</span>
                 </div>
               </div>
               <span className={`badge ${
-                lesson.status === 'published' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                lesson.status === 'published' ? 'bg-success-400/15 text-success-400' : 'bg-white/[0.06] text-surface-400'
               }`}>{lesson.status}</span>
-              <ChevronRight className="w-4 h-4 text-slate-300" />
+              <ChevronRight className="w-4 h-4 text-surface-500" />
             </Link>
           ))}
         </div>

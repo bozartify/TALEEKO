@@ -39,11 +39,11 @@ const events: CalEvent[] = [
 ]
 
 const eventTypeConfig = {
-  lesson:   { icon: BookOpen,      label: 'Lesson',   bg: 'bg-brand-100' },
-  quiz:     { icon: ClipboardList, label: 'Quiz',     bg: 'bg-orange-100' },
-  meeting:  { icon: Video,         label: 'Meeting',  bg: 'bg-sky-100' },
-  deadline: { icon: Target,        label: 'Deadline', bg: 'bg-red-100' },
-  event:    { icon: Star,          label: 'Event',    bg: 'bg-purple-100' },
+  lesson:   { icon: BookOpen,      label: 'Lesson',   bg: 'bg-accent-500/15' },
+  quiz:     { icon: ClipboardList, label: 'Quiz',     bg: 'bg-warning-500/15' },
+  meeting:  { icon: Video,         label: 'Meeting',  bg: 'bg-electric-500/15' },
+  deadline: { icon: Target,        label: 'Deadline', bg: 'bg-danger-500/15' },
+  event:    { icon: Star,          label: 'Event',    bg: 'bg-neon-500/15' },
 }
 
 type ViewMode = 'month' | 'week' | 'agenda'
@@ -81,18 +81,18 @@ export default function CalendarPage() {
               <Calendar className="w-5 h-5 text-white" />
             </motion.div>
             <div>
-              <h2 className="text-xl font-black text-slate-900">Teaching Calendar</h2>
-              <p className="text-xs text-slate-500">Plan your lessons, quizzes, and events</p>
+              <h2 className="text-xl font-black text-white">Teaching Calendar</h2>
+              <p className="text-xs text-surface-400">Plan your lessons, quizzes, and events</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-slate-100 rounded-full p-0.5">
+            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
               {(['month', 'week', 'agenda'] as const).map(v => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize ${
-                    view === v ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+                    view === v ? 'bg-white/[0.08] text-white' : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   {v}
@@ -114,14 +114,14 @@ export default function CalendarPage() {
       <FadeUp delay={0.1}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button className="p-2 rounded-lg hover:bg-slate-100 text-slate-400"><ChevronLeft className="w-4 h-4" /></button>
-            <h3 className="text-lg font-black text-slate-900">{MONTHS[month]} {year}</h3>
-            <button className="p-2 rounded-lg hover:bg-slate-100 text-slate-400"><ChevronRight className="w-4 h-4" /></button>
+            <button className="p-2 rounded-lg hover:bg-white/[0.04] text-surface-500"><ChevronLeft className="w-4 h-4" /></button>
+            <h3 className="text-lg font-black text-white">{MONTHS[month]} {year}</h3>
+            <button className="p-2 rounded-lg hover:bg-white/[0.04] text-surface-500"><ChevronRight className="w-4 h-4" /></button>
           </div>
           <div className="flex items-center gap-3 text-xs">
             {Object.entries(eventTypeConfig).map(([key, cfg]) => (
-              <span key={key} className="flex items-center gap-1 text-slate-500">
-                <span className={`w-2 h-2 rounded-full ${cfg.bg.replace('bg-', 'bg-').replace('-100', '-500')}`} style={{ backgroundColor: key === 'lesson' ? '#8b5cf6' : key === 'quiz' ? '#f97316' : key === 'meeting' ? '#0ea5e9' : key === 'deadline' ? '#ef4444' : '#6366f1' }} />
+              <span key={key} className="flex items-center gap-1 text-surface-400">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: key === 'lesson' ? '#8b5cf6' : key === 'quiz' ? '#f97316' : key === 'meeting' ? '#0ea5e9' : key === 'deadline' ? '#ef4444' : '#6366f1' }} />
                 {cfg.label}
               </span>
             ))}
@@ -132,12 +132,12 @@ export default function CalendarPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Calendar grid */}
         <FadeUp delay={0.15}>
-          <div className="lg:col-span-3 bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden">
+          <div className="lg:col-span-3 glass-card overflow-hidden">
             {view === 'month' && (
               <>
-                <div className="grid grid-cols-7 border-b border-slate-100">
+                <div className="grid grid-cols-7 border-b border-white/[0.06]">
                   {DAYS.map(d => (
-                    <div key={d} className="text-center text-xs font-semibold text-slate-400 py-3">{d}</div>
+                    <div key={d} className="text-center text-xs font-semibold text-surface-500 py-3">{d}</div>
                   ))}
                 </div>
                 <div className="grid grid-cols-7">
@@ -148,9 +148,9 @@ export default function CalendarPage() {
                     return (
                       <motion.div
                         key={i}
-                        className={`min-h-[90px] p-1.5 border-b border-r border-slate-50 cursor-pointer transition-colors ${
-                          isSelected ? 'bg-brand-50' : 'hover:bg-slate-50'
-                        } ${!day ? 'bg-slate-25' : ''}`}
+                        className={`min-h-[90px] p-1.5 border-b border-r border-white/[0.06] cursor-pointer transition-colors ${
+                          isSelected ? 'bg-accent-500/15' : 'hover:bg-white/[0.04]'
+                        } ${!day ? 'bg-white/[0.02]' : ''}`}
                         onClick={() => day && setSelectedDay(day === selectedDay ? null : day)}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -159,7 +159,7 @@ export default function CalendarPage() {
                         {day && (
                           <>
                             <span className={`text-xs font-semibold inline-flex items-center justify-center w-6 h-6 rounded-full ${
-                              isToday ? 'bg-brand-600 text-white' : 'text-slate-700'
+                              isToday ? 'bg-accent-500 text-white' : 'text-surface-200'
                             }`}>
                               {day}
                             </span>
@@ -174,7 +174,7 @@ export default function CalendarPage() {
                                 </div>
                               ))}
                               {dayEvts.length > 2 && (
-                                <span className="text-[10px] text-slate-400 pl-1">+{dayEvts.length - 2} more</span>
+                                <span className="text-[10px] text-surface-500 pl-1">+{dayEvts.length - 2} more</span>
                               )}
                             </div>
                           </>
@@ -193,21 +193,21 @@ export default function CalendarPage() {
                   return (
                     <motion.div
                       key={i}
-                      className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors"
+                      className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/[0.04] transition-colors"
                       initial={{ opacity: 0, x: -8 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.03 }}
                     >
                       <div className="text-center w-12 flex-shrink-0">
-                        <p className="text-lg font-black text-slate-900">{evt.day}</p>
-                        <p className="text-[10px] text-slate-400">{MONTHS[month].slice(0, 3)}</p>
+                        <p className="text-lg font-black text-white">{evt.day}</p>
+                        <p className="text-[10px] text-surface-500">{MONTHS[month].slice(0, 3)}</p>
                       </div>
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
                         <cfg.icon className="w-4 h-4" style={{ color: evt.color }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-900">{evt.title}</p>
-                        <p className="text-xs text-slate-400">{evt.time ?? 'All Day'}{evt.class ? ` · ${evt.class}` : ''}</p>
+                        <p className="text-sm font-semibold text-white">{evt.title}</p>
+                        <p className="text-xs text-surface-500">{evt.time ?? 'All Day'}{evt.class ? ` · ${evt.class}` : ''}</p>
                       </div>
                       <span className="badge text-[10px]" style={{ backgroundColor: evt.color + '18', color: evt.color }}>
                         {cfg.label}
@@ -228,15 +228,15 @@ export default function CalendarPage() {
                       <motion.div
                         key={i}
                         className={`p-3 rounded-xl border transition-all ${
-                          day === today ? 'border-brand-200 bg-brand-50' : 'border-slate-100'
+                          day === today ? 'border-accent-500/30 bg-accent-500/15' : 'border-white/[0.06]'
                         }`}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.05 }}
                       >
                         <div className="text-center mb-2">
-                          <p className="text-[10px] text-slate-400">{DAYS[i]}</p>
-                          <p className={`text-lg font-black ${day === today ? 'text-brand-600' : 'text-slate-900'}`}>
+                          <p className="text-[10px] text-surface-500">{DAYS[i]}</p>
+                          <p className={`text-lg font-black ${day === today ? 'text-accent-400' : 'text-white'}`}>
                             {day > 0 && day <= daysInMonth ? day : ''}
                           </p>
                         </div>
@@ -268,12 +268,12 @@ export default function CalendarPage() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedDay ?? 'today'}
-                className="bg-white rounded-2xl border border-slate-100 shadow-card p-5"
+                className="glass-card p-5"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
               >
-                <h3 className="text-sm font-bold text-slate-900 mb-3">
+                <h3 className="text-sm font-bold text-white mb-3">
                   {selectedDay ? `${MONTHS[month]} ${selectedDay}` : "Today's Schedule"}
                 </h3>
                 {(selectedDay ? dayEvents : todayEvents).length > 0 ? (
@@ -283,7 +283,7 @@ export default function CalendarPage() {
                       return (
                         <motion.div
                           key={i}
-                          className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl"
+                          className="flex items-start gap-3 p-3 bg-white/[0.03] rounded-xl"
                           initial={{ opacity: 0, x: -4 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: i * 0.05 }}
@@ -292,8 +292,8 @@ export default function CalendarPage() {
                             <cfg.icon className="w-4 h-4" style={{ color: evt.color }} />
                           </div>
                           <div>
-                            <p className="text-xs font-bold text-slate-900">{evt.title}</p>
-                            <p className="text-[10px] text-slate-400">{evt.time ?? 'All Day'}{evt.class ? ` · ${evt.class}` : ''}</p>
+                            <p className="text-xs font-bold text-white">{evt.title}</p>
+                            <p className="text-[10px] text-surface-500">{evt.time ?? 'All Day'}{evt.class ? ` · ${evt.class}` : ''}</p>
                           </div>
                         </motion.div>
                       )
@@ -301,8 +301,8 @@ export default function CalendarPage() {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <Calendar className="w-8 h-8 text-slate-200 mx-auto mb-2" />
-                    <p className="text-xs text-slate-400">No events scheduled</p>
+                    <Calendar className="w-8 h-8 text-surface-500 mx-auto mb-2" />
+                    <p className="text-xs text-surface-500">No events scheduled</p>
                   </div>
                 )}
               </motion.div>
@@ -311,10 +311,10 @@ export default function CalendarPage() {
 
           {/* AI suggestions */}
           <FadeUp delay={0.3}>
-            <div className="bg-gradient-to-br from-brand-50 to-purple-50 rounded-2xl border border-brand-100 p-5">
+            <div className="bg-gradient-to-br from-accent-500/10 to-neon-500/10 rounded-2xl border border-white/[0.06] p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-brand-600" />
-                <h3 className="text-sm font-bold text-slate-900">AI Suggestions</h3>
+                <Sparkles className="w-4 h-4 text-accent-400" />
+                <h3 className="text-sm font-bold text-white">AI Suggestions</h3>
               </div>
               <div className="space-y-2">
                 {[
@@ -324,13 +324,13 @@ export default function CalendarPage() {
                 ].map((s, i) => (
                   <motion.div
                     key={i}
-                    className="flex items-start gap-2 p-2.5 bg-white/70 rounded-xl"
+                    className="flex items-start gap-2 p-2.5 bg-white/[0.06] rounded-xl"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.35 + i * 0.07 }}
                   >
-                    <Zap className="w-3 h-3 text-brand-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-slate-700">{s}</p>
+                    <Zap className="w-3 h-3 text-accent-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-surface-300">{s}</p>
                   </motion.div>
                 ))}
               </div>

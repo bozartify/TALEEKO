@@ -58,10 +58,10 @@ export default function ClassroomPage() {
       {/* Stats row */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
         {[
-          { label: 'Total Students', value: totalStudents.toString(), icon: Users, color: 'bg-brand-100 text-brand-600', delta: '+3 this week' },
-          { label: 'Active Classes',  value: classes.length.toString(), icon: BookOpen, color: 'bg-emerald-100 text-emerald-600', delta: 'All active' },
-          { label: 'Average Score',   value: `${avgScore}%`, icon: Target, color: 'bg-sky-100 text-sky-600', delta: '+2.1% vs last month' },
-          { label: 'Needs Attention', value: needsAttention.toString(), icon: AlertTriangle, color: 'bg-amber-100 text-amber-600', delta: 'Review recommended' },
+          { label: 'Total Students', value: totalStudents.toString(), icon: Users, color: 'bg-accent-500/15 text-accent-400', delta: '+3 this week' },
+          { label: 'Active Classes',  value: classes.length.toString(), icon: BookOpen, color: 'bg-success-400/15 text-success-400', delta: 'All active' },
+          { label: 'Average Score',   value: `${avgScore}%`, icon: Target, color: 'bg-electric-400/15 text-electric-400', delta: '+2.1% vs last month' },
+          { label: 'Needs Attention', value: needsAttention.toString(), icon: AlertTriangle, color: 'bg-warning-400/15 text-warning-400', delta: 'Review recommended' },
         ].map(s => (
           <StaggerItem key={s.label} variants={fadeUp}>
             <motion.div
@@ -69,9 +69,9 @@ export default function ClassroomPage() {
               whileHover={{ y: -3, boxShadow: '0 8px 30px rgba(139,92,246,0.12)', transition: { duration: 0.2 } }}
             >
               <div className={`icon-bubble ${s.color} mb-3`}><s.icon className="w-5 h-5" /></div>
-              <div className="text-2xl font-black text-slate-900">{s.value}</div>
-              <div className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</div>
-              <div className="text-xs text-slate-400 mt-1">{s.delta}</div>
+              <div className="text-2xl font-black text-white">{s.value}</div>
+              <div className="text-xs font-semibold text-surface-200 mt-0.5">{s.label}</div>
+              <div className="text-xs text-surface-500 mt-1">{s.delta}</div>
             </motion.div>
           </StaggerItem>
         ))}
@@ -80,7 +80,7 @@ export default function ClassroomPage() {
       {/* Tabs + actions */}
       <FadeUp delay={0.15}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1">
+          <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-1">
             {([
               { key: 'classes' as const, label: 'Classes', icon: BookOpen },
               { key: 'students' as const, label: 'Students', icon: Users },
@@ -90,7 +90,7 @@ export default function ClassroomPage() {
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
-                  tab === t.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                  tab === t.key ? 'bg-white/[0.08] text-white' : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
                 }`}
               >
                 <t.icon className="w-3.5 h-3.5" />
@@ -128,7 +128,7 @@ export default function ClassroomPage() {
               {classes.map((cls, i) => (
                 <motion.div
                   key={cls.name}
-                  className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-card-hover transition-all cursor-pointer group"
+                  className="glass-card overflow-hidden cursor-pointer group"
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -138,35 +138,35 @@ export default function ClassroomPage() {
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <h4 className="font-bold text-slate-900 group-hover:text-brand-700 transition-colors">{cls.name}</h4>
-                        <p className="text-xs text-slate-500 mt-0.5">{cls.subject} · {cls.period}</p>
+                        <h4 className="font-bold text-white group-hover:text-accent-400 transition-colors">{cls.name}</h4>
+                        <p className="text-xs text-surface-400 mt-0.5">{cls.subject} · {cls.period}</p>
                       </div>
-                      <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button className="text-surface-500 hover:text-surface-200"><MoreHorizontal className="w-4 h-4" /></button>
                     </div>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="flex items-center gap-1.5 text-sm">
-                        <Users className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-semibold text-slate-900">{cls.students}</span>
-                        <span className="text-slate-400 text-xs">students</span>
+                        <Users className="w-3.5 h-3.5 text-surface-500" />
+                        <span className="font-semibold text-white">{cls.students}</span>
+                        <span className="text-surface-500 text-xs">students</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-sm">
-                        <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-semibold text-slate-900">{cls.lessons}</span>
-                        <span className="text-slate-400 text-xs">lessons</span>
+                        <BookOpen className="w-3.5 h-3.5 text-surface-500" />
+                        <span className="font-semibold text-white">{cls.lessons}</span>
+                        <span className="text-surface-500 text-xs">lessons</span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-1 mb-1">
-                            <span className="text-xs font-bold text-slate-700">Avg: {cls.avgScore}%</span>
+                            <span className="text-xs font-bold text-surface-200">Avg: {cls.avgScore}%</span>
                             {cls.trend === 'up' ? (
-                              <TrendingUp className="w-3 h-3 text-emerald-500" />
+                              <TrendingUp className="w-3 h-3 text-success-400" />
                             ) : (
-                              <TrendingDown className="w-3 h-3 text-red-500" />
+                              <TrendingDown className="w-3 h-3 text-danger-400" />
                             )}
                           </div>
-                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
                             <motion.div
                               className="h-full rounded-full"
                               initial={{ width: 0 }}
@@ -179,7 +179,7 @@ export default function ClassroomPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Link href="/courses" className="btn-outline text-xs px-3 py-1.5">View</Link>
-                        <button className="text-slate-400 hover:text-brand-600 p-1.5 rounded-lg hover:bg-brand-50 transition-colors">
+                        <button className="text-surface-500 hover:text-accent-400 p-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
                           <Mail className="w-4 h-4" />
                         </button>
                       </div>
@@ -202,13 +202,13 @@ export default function ClassroomPage() {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="relative flex-1 max-w-xs">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search students..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9 pr-4 py-2 text-xs rounded-full border border-slate-200 bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full transition-all"
+                  className="pl-9 pr-4 py-2 text-xs rounded-full border border-white/[0.06] bg-white/[0.03] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 w-full transition-all"
                 />
               </div>
               <div className="flex gap-1">
@@ -217,7 +217,7 @@ export default function ClassroomPage() {
                     key={c ?? 'all'}
                     onClick={() => setSelectedClass(c)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                      selectedClass === c ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                      selectedClass === c ? 'bg-accent-500 text-white' : 'bg-white/[0.06] text-surface-400 hover:bg-white/[0.08]'
                     }`}
                   >
                     {c ?? 'All'}
@@ -225,63 +225,63 @@ export default function ClassroomPage() {
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden">
+            <div className="glass-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Student</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Class</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Avg Score</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Streak</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Awards</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Last Active</th>
-                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Status</th>
+                    <tr className="border-b border-white/[0.06]">
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Student</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Class</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Avg Score</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Streak</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Awards</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Last Active</th>
+                      <th className="text-left text-xs font-semibold text-surface-400 px-5 py-3">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredStudents.map((s, i) => (
                       <motion.tr
                         key={s.name}
-                        className="hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                        className="hover:bg-white/[0.04] transition-colors border-b border-white/[0.06] last:border-0"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: i * 0.04, duration: 0.3 }}
                       >
                         <td className="px-5 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-accent-500/15 text-accent-400 text-xs font-bold flex items-center justify-center flex-shrink-0">
                               {s.name.split(' ').map(n => n[0]).join('')}
                             </div>
                             <div>
-                              <span className="text-sm font-semibold text-slate-900">{s.name}</span>
-                              <p className="text-xs text-slate-400">{s.grade} Grade</p>
+                              <span className="text-sm font-semibold text-white">{s.name}</span>
+                              <p className="text-xs text-surface-500">{s.grade} Grade</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-5 py-3 text-sm text-slate-500">{s.class}</td>
+                        <td className="px-5 py-3 text-sm text-surface-400">{s.class}</td>
                         <td className="px-5 py-3">
                           <span className={`text-sm font-bold ${
-                            s.avg >= 90 ? 'text-emerald-600' :
-                            s.avg >= 80 ? 'text-brand-600' :
-                            s.avg >= 70 ? 'text-amber-600' : 'text-red-500'
+                            s.avg >= 90 ? 'text-success-400' :
+                            s.avg >= 80 ? 'text-accent-400' :
+                            s.avg >= 70 ? 'text-warning-400' : 'text-danger-400'
                           }`}>{s.avg}%</span>
                         </td>
                         <td className="px-5 py-3">
                           <span className="flex items-center gap-1 text-sm">
-                            🔥 <span className="font-semibold text-slate-700">{s.streak}d</span>
+                            🔥 <span className="font-semibold text-surface-200">{s.streak}d</span>
                           </span>
                         </td>
                         <td className="px-5 py-3">
                           <span className="flex items-center gap-1 text-sm">
-                            <Award className="w-3.5 h-3.5 text-amber-500" />
-                            <span className="font-semibold text-slate-700">{s.awards}</span>
+                            <Award className="w-3.5 h-3.5 text-warning-400" />
+                            <span className="font-semibold text-surface-200">{s.awards}</span>
                           </span>
                         </td>
-                        <td className="px-5 py-3 text-xs text-slate-400">{s.lastActive}</td>
+                        <td className="px-5 py-3 text-xs text-surface-500">{s.lastActive}</td>
                         <td className="px-5 py-3">
                           <span className={`badge ${
-                            s.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                            s.status === 'active' ? 'bg-success-400/15 text-success-400' : 'bg-warning-400/15 text-warning-400'
                           }`}>
                             {s.status === 'active' ? 'On track' : 'Needs attention'}
                           </span>
@@ -308,27 +308,27 @@ export default function ClassroomPage() {
               {announcements.map((a, i) => (
                 <motion.div
                   key={a.title}
-                  className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex items-center gap-4 hover:shadow-card-hover transition-shadow"
+                  className="glass-card p-5 flex items-center gap-4 transition-shadow"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.07 }}
                   whileHover={{ x: 3 }}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    a.urgent ? 'bg-red-100' : 'bg-brand-100'
+                    a.urgent ? 'bg-danger-400/15' : 'bg-accent-500/15'
                   }`}>
                     {a.urgent ? (
-                      <AlertTriangle className="w-5 h-5 text-red-500" />
+                      <AlertTriangle className="w-5 h-5 text-danger-400" />
                     ) : (
-                      <MessageSquare className="w-5 h-5 text-brand-600" />
+                      <MessageSquare className="w-5 h-5 text-accent-400" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-bold text-slate-900">{a.title}</h4>
-                    <p className="text-xs text-slate-500">{a.class} · {a.date}</p>
+                    <h4 className="text-sm font-bold text-white">{a.title}</h4>
+                    <p className="text-xs text-surface-400">{a.class} · {a.date}</p>
                   </div>
-                  {a.urgent && <span className="badge bg-red-100 text-red-700">Urgent</span>}
-                  <ChevronRight className="w-4 h-4 text-slate-300" />
+                  {a.urgent && <span className="badge bg-danger-400/15 text-danger-400">Urgent</span>}
+                  <ChevronRight className="w-4 h-4 text-surface-500" />
                 </motion.div>
               ))}
             </div>

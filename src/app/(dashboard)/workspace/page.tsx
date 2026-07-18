@@ -81,7 +81,7 @@ export default function WorkspacePage() {
     <div className="space-y-6">
       {/* Hero */}
       <FadeUp>
-        <div className="hero-mesh rounded-3xl p-6 border border-slate-100">
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
             <div className="flex items-center gap-3">
               <motion.div
@@ -93,19 +93,19 @@ export default function WorkspacePage() {
                 <Layers className="w-5 h-5 text-white" />
               </motion.div>
               <div>
-                <h2 className="text-xl font-black text-slate-900">AI Workspace</h2>
-                <p className="text-xs text-slate-500">{allTools.length} tools across {toolCategories.length} categories</p>
+                <h2 className="text-xl font-black text-white">AI Workspace</h2>
+                <p className="text-xs text-surface-400">{allTools.length} tools across {toolCategories.length} categories</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search tools..."
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="pl-9 pr-4 py-2 text-xs rounded-full border border-slate-200 bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent w-48 transition-all"
+                  className="pl-9 pr-4 py-2 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500/40 w-48 transition-all"
                 />
               </div>
             </div>
@@ -126,8 +126,8 @@ export default function WorkspacePage() {
               onClick={() => setSort(s.key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
                 sort === s.key
-                  ? 'bg-brand-600 text-white shadow-glow-sm'
-                  : 'bg-white border border-slate-200 text-slate-500 hover:border-brand-300'
+                  ? 'bg-white/[0.08] text-white'
+                  : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
               }`}
             >
               <s.icon className="w-3 h-3" />
@@ -141,7 +141,7 @@ export default function WorkspacePage() {
       {filtered !== null ? (
         <FadeUp>
           <div>
-            <p className="text-sm text-slate-500 mb-4">{filtered.length} result{filtered.length !== 1 ? 's' : ''} for &ldquo;{search}&rdquo;</p>
+            <p className="text-sm text-surface-400 mb-4">{filtered.length} result{filtered.length !== 1 ? 's' : ''} for &ldquo;{search}&rdquo;</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {filtered.map((tool, i) => (
                 <ToolCard key={tool.label} tool={tool} index={i} />
@@ -156,10 +156,10 @@ export default function WorkspacePage() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{cat.title}</h3>
-                  <p className="text-xs text-slate-500">{cat.description}</p>
+                  <h3 className="text-base font-bold text-white">{cat.title}</h3>
+                  <p className="text-xs text-surface-400">{cat.description}</p>
                 </div>
-                <span className="text-xs text-slate-400">{cat.tools.length} tools</span>
+                <span className="text-xs text-surface-500">{cat.tools.length} tools</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {cat.tools.map((tool, i) => (
@@ -191,15 +191,15 @@ function ToolCard({ tool, index }: { tool: { href: string; icon: React.Component
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="font-bold text-slate-900 text-sm truncate">{tool.label}</h4>
+            <h4 className="font-bold text-white text-sm truncate">{tool.label}</h4>
             {tool.favorite && <Star className="w-3 h-3 text-amber-400 fill-amber-400 flex-shrink-0" />}
           </div>
-          <p className="text-xs text-slate-500 mt-0.5 leading-relaxed line-clamp-2">{tool.desc}</p>
+          <p className="text-xs text-surface-400 mt-0.5 leading-relaxed line-clamp-2">{tool.desc}</p>
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-[10px] text-slate-400">{tool.uses} uses</span>
+            <span className="text-[10px] text-surface-500">{tool.uses} uses</span>
           </div>
         </div>
-        <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-brand-500 flex-shrink-0 mt-0.5 transition-colors" />
+        <ChevronRight className="w-4 h-4 text-surface-500 group-hover:text-accent-400 flex-shrink-0 mt-0.5 transition-colors" />
       </Link>
     </motion.div>
   )
