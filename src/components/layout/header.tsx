@@ -14,6 +14,8 @@ const titles: Record<string, string> = {
   '/rubrics':        'Rubric Builder',
   '/standards':      'Standards Library',
   '/communication':  'Communication',
+  '/calendar':       'Calendar',
+  '/portfolio':      'Student Portfolios',
   '/analytics':      'Analytics',
   '/settings':       'Settings',
 }

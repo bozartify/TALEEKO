@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
-  Shield, MessageSquare
+  Shield, MessageSquare, Calendar
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -19,6 +19,8 @@ const navItems = [
   { href: '/rubrics',        icon: PenTool,          label: 'Rubrics' },
   { href: '/standards',      icon: Shield,           label: 'Standards' },
   { href: '/communication',  icon: MessageSquare,    label: 'Communication' },
+  { href: '/calendar',       icon: Calendar,         label: 'Calendar' },
+  { href: '/portfolio',      icon: GraduationCap,    label: 'Portfolios' },
   { href: '/analytics',      icon: BarChart2,        label: 'Analytics' },
 ]
 
