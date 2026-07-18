@@ -1,128 +1,340 @@
 'use client'
+import { useState } from 'react'
 import Link from 'next/link'
-import { Users, BookOpen, ChevronRight, Plus, Mail, MoreHorizontal } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  Users, BookOpen, ChevronRight, Plus, Mail, MoreHorizontal,
+  Search, Filter, Download, Award, TrendingUp, TrendingDown,
+  AlertTriangle, Star, Target, Clock, MessageSquare, BarChart2,
+  UserPlus, ChevronDown, X
+} from 'lucide-react'
+import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
 const classes = [
-  { name: '7th Grade Science', students: 28, lessons: 12, color: '#8b5cf6', subject: 'Biology & Earth Science', period: '1st Period' },
-  { name: '8th Grade History', students: 31, lessons: 9,  color: '#f97316', subject: 'American History',        period: '3rd Period' },
-  { name: '9th Grade Math',    students: 25, lessons: 15, color: '#14b8a6', subject: 'Algebra I',              period: '5th Period' },
-  { name: '10th Grade English',students: 29, lessons: 8,  color: '#f43f5e', subject: 'Literature & Writing',   period: '7th Period' },
+  { name: '7th Grade Science', students: 28, lessons: 12, color: '#8b5cf6', subject: 'Biology & Earth Science', period: '1st Period', avgScore: 88, trend: 'up' as const },
+  { name: '8th Grade History', students: 31, lessons: 9,  color: '#f97316', subject: 'American History',        period: '3rd Period', avgScore: 82, trend: 'up' as const },
+  { name: '9th Grade Math',    students: 25, lessons: 15, color: '#14b8a6', subject: 'Algebra I',              period: '5th Period', avgScore: 79, trend: 'down' as const },
+  { name: '10th Grade English',students: 29, lessons: 8,  color: '#f43f5e', subject: 'Literature & Writing',   period: '7th Period', avgScore: 85, trend: 'up' as const },
 ]
 
 const students = [
-  { name: 'Emma Rodriguez',  grade: '7th', class: 'Science', avg: 92, status: 'active' },
-  { name: 'James Kim',       grade: '8th', class: 'History', avg: 87, status: 'active' },
-  { name: 'Aisha Thompson',  grade: '9th', class: 'Math',    avg: 95, status: 'active' },
-  { name: 'Liam Chen',       grade: '10th',class: 'English', avg: 78, status: 'needs-attention' },
-  { name: 'Sofia Patel',     grade: '7th', class: 'Science', avg: 88, status: 'active' },
-  { name: 'Noah Williams',   grade: '8th', class: 'History', avg: 71, status: 'needs-attention' },
+  { name: 'Emma Rodriguez',  grade: '7th', class: 'Science', avg: 92, status: 'active' as const,          streak: 15, lastActive: '2h ago',   awards: 3 },
+  { name: 'James Kim',       grade: '8th', class: 'History', avg: 87, status: 'active' as const,          streak: 8,  lastActive: '1h ago',   awards: 2 },
+  { name: 'Aisha Thompson',  grade: '9th', class: 'Math',    avg: 95, status: 'active' as const,          streak: 22, lastActive: '30m ago',  awards: 5 },
+  { name: 'Liam Chen',       grade: '10th',class: 'English', avg: 78, status: 'needs-attention' as const, streak: 3,  lastActive: '2d ago',   awards: 1 },
+  { name: 'Sofia Patel',     grade: '7th', class: 'Science', avg: 88, status: 'active' as const,          streak: 11, lastActive: '3h ago',   awards: 2 },
+  { name: 'Noah Williams',   grade: '8th', class: 'History', avg: 71, status: 'needs-attention' as const, streak: 1,  lastActive: '5d ago',   awards: 0 },
+  { name: 'Olivia Martinez', grade: '9th', class: 'Math',    avg: 91, status: 'active' as const,          streak: 14, lastActive: '1h ago',   awards: 4 },
+  { name: 'Ethan Johnson',   grade: '7th', class: 'Science', avg: 84, status: 'active' as const,          streak: 7,  lastActive: '4h ago',   awards: 1 },
+  { name: 'Ava Lee',         grade: '10th',class: 'English', avg: 93, status: 'active' as const,          streak: 19, lastActive: '45m ago',  awards: 3 },
+  { name: 'Mason Brown',     grade: '8th', class: 'History', avg: 76, status: 'needs-attention' as const, streak: 2,  lastActive: '3d ago',   awards: 1 },
 ]
 
+const announcements = [
+  { title: 'Science Fair Projects Due', class: '7th Science', date: 'In 5 days', urgent: true },
+  { title: 'History Essay Peer Review', class: '8th History', date: 'Tomorrow', urgent: true },
+  { title: 'Math Quiz Chapter 7',       class: '9th Math',    date: 'Next Monday', urgent: false },
+  { title: 'Book Report Presentations', class: '10th English',date: 'In 2 weeks', urgent: false },
+]
+
+type Tab = 'classes' | 'students' | 'announcements'
+
 export default function ClassroomPage() {
+  const [tab, setTab] = useState<Tab>('classes')
+  const [search, setSearch] = useState('')
+  const [selectedClass, setSelectedClass] = useState<string | null>(null)
+
+  const filteredStudents = students.filter(s =>
+    (!search || s.name.toLowerCase().includes(search.toLowerCase())) &&
+    (!selectedClass || s.class === selectedClass)
+  )
+
+  const totalStudents = classes.reduce((sum, c) => sum + c.students, 0)
+  const avgScore = Math.round(classes.reduce((sum, c) => sum + c.avgScore, 0) / classes.length)
+  const needsAttention = students.filter(s => s.status === 'needs-attention').length
+
   return (
     <div className="space-y-6">
-      {/* Header actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-slate-500">Manage your classes and students</p>
-        </div>
-        <button className="btn-primary">
-          <Plus className="w-4 h-4" />
-          Add Class
-        </button>
-      </div>
+      {/* Stats row */}
+      <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
+        {[
+          { label: 'Total Students', value: totalStudents.toString(), icon: Users, color: 'bg-brand-100 text-brand-600', delta: '+3 this week' },
+          { label: 'Active Classes',  value: classes.length.toString(), icon: BookOpen, color: 'bg-emerald-100 text-emerald-600', delta: 'All active' },
+          { label: 'Average Score',   value: `${avgScore}%`, icon: Target, color: 'bg-sky-100 text-sky-600', delta: '+2.1% vs last month' },
+          { label: 'Needs Attention', value: needsAttention.toString(), icon: AlertTriangle, color: 'bg-amber-100 text-amber-600', delta: 'Review recommended' },
+        ].map(s => (
+          <StaggerItem key={s.label} variants={fadeUp}>
+            <motion.div
+              className="stat-card h-full"
+              whileHover={{ y: -3, boxShadow: '0 8px 30px rgba(139,92,246,0.12)', transition: { duration: 0.2 } }}
+            >
+              <div className={`icon-bubble ${s.color} mb-3`}><s.icon className="w-5 h-5" /></div>
+              <div className="text-2xl font-black text-slate-900">{s.value}</div>
+              <div className="text-xs font-semibold text-slate-700 mt-0.5">{s.label}</div>
+              <div className="text-xs text-slate-400 mt-1">{s.delta}</div>
+            </motion.div>
+          </StaggerItem>
+        ))}
+      </StaggerList>
 
-      {/* Classes grid */}
-      <div>
-        <h3 className="text-base font-bold text-slate-900 mb-4">My Classes</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {classes.map((cls) => (
-            <div key={cls.name} className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-card-hover transition-all cursor-pointer">
-              <div className="h-2" style={{ backgroundColor: cls.color }} />
-              <div className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h4 className="font-bold text-slate-900">{cls.name}</h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{cls.subject} · {cls.period}</p>
-                  </div>
-                  <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal className="w-4 h-4" /></button>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <Users className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-semibold text-slate-900">{cls.students}</span>
-                    <span className="text-slate-400 text-xs">students</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-sm">
-                    <BookOpen className="w-3.5 h-3.5 text-slate-400" />
-                    <span className="font-semibold text-slate-900">{cls.lessons}</span>
-                    <span className="text-slate-400 text-xs">lessons</span>
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center gap-2">
-                  <Link href="/courses" className="btn-outline text-xs px-3 py-1.5">View lessons</Link>
-                  <button className="text-slate-400 hover:text-brand-600 p-1.5 rounded-lg hover:bg-brand-50 transition-colors">
-                    <Mail className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Students table */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-slate-900">Students</h3>
-          <button className="btn-secondary text-xs">Export roster</button>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Student</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Grade</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Class</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Avg Score</th>
-                  <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s, i) => (
-                  <tr key={s.name} className={`hover:bg-slate-50 transition-colors ${i < students.length - 1 ? 'border-b border-slate-100' : ''}`}>
-                    <td className="px-5 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
-                          {s.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <span className="text-sm font-medium text-slate-900">{s.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-5 py-3 text-sm text-slate-500">{s.grade}</td>
-                    <td className="px-5 py-3 text-sm text-slate-500">{s.class}</td>
-                    <td className="px-5 py-3">
-                      <span className={`text-sm font-bold ${
-                        s.avg >= 90 ? 'text-emerald-600' :
-                        s.avg >= 80 ? 'text-brand-600' :
-                        s.avg >= 70 ? 'text-amber-600' : 'text-red-500'
-                      }`}>{s.avg}%</span>
-                    </td>
-                    <td className="px-5 py-3">
-                      <span className={`badge ${
-                        s.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-                      }`}>
-                        {s.status === 'active' ? 'On track' : 'Needs attention'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Tabs + actions */}
+      <FadeUp delay={0.15}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-full p-1">
+            {([
+              { key: 'classes' as const, label: 'Classes', icon: BookOpen },
+              { key: 'students' as const, label: 'Students', icon: Users },
+              { key: 'announcements' as const, label: 'Announcements', icon: MessageSquare },
+            ]).map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
+                  tab === t.key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <t.icon className="w-3.5 h-3.5" />
+                {t.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="btn-secondary text-xs px-3 py-1.5">
+              <Download className="w-3 h-3" /> Export
+            </button>
+            <motion.button
+              className="btn-primary text-xs"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Plus className="w-3.5 h-3.5" />
+              {tab === 'classes' ? 'Add Class' : tab === 'students' ? 'Add Student' : 'New Announcement'}
+            </motion.button>
           </div>
         </div>
-      </div>
+      </FadeUp>
+
+      <AnimatePresence mode="wait">
+        {/* Classes tab */}
+        {tab === 'classes' && (
+          <motion.div
+            key="classes"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {classes.map((cls, i) => (
+                <motion.div
+                  key={cls.name}
+                  className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden hover:shadow-card-hover transition-all cursor-pointer group"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.05 + i * 0.08, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                >
+                  <div className="h-2" style={{ backgroundColor: cls.color }} />
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h4 className="font-bold text-slate-900 group-hover:text-brand-700 transition-colors">{cls.name}</h4>
+                        <p className="text-xs text-slate-500 mt-0.5">{cls.subject} · {cls.period}</p>
+                      </div>
+                      <button className="text-slate-400 hover:text-slate-600"><MoreHorizontal className="w-4 h-4" /></button>
+                    </div>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="font-semibold text-slate-900">{cls.students}</span>
+                        <span className="text-slate-400 text-xs">students</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="font-semibold text-slate-900">{cls.lessons}</span>
+                        <span className="text-slate-400 text-xs">lessons</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1 mb-1">
+                            <span className="text-xs font-bold text-slate-700">Avg: {cls.avgScore}%</span>
+                            {cls.trend === 'up' ? (
+                              <TrendingUp className="w-3 h-3 text-emerald-500" />
+                            ) : (
+                              <TrendingDown className="w-3 h-3 text-red-500" />
+                            )}
+                          </div>
+                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full"
+                              initial={{ width: 0 }}
+                              animate={{ width: `${cls.avgScore}%` }}
+                              transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
+                              style={{ backgroundColor: cls.color }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Link href="/courses" className="btn-outline text-xs px-3 py-1.5">View</Link>
+                        <button className="text-slate-400 hover:text-brand-600 p-1.5 rounded-lg hover:bg-brand-50 transition-colors">
+                          <Mail className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Students tab */}
+        {tab === 'students' && (
+          <motion.div
+            key="students"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="relative flex-1 max-w-xs">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search students..."
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="pl-9 pr-4 py-2 text-xs rounded-full border border-slate-200 bg-white text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full transition-all"
+                />
+              </div>
+              <div className="flex gap-1">
+                {[null, 'Science', 'History', 'Math', 'English'].map(c => (
+                  <button
+                    key={c ?? 'all'}
+                    onClick={() => setSelectedClass(c)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedClass === c ? 'bg-brand-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                    }`}
+                  >
+                    {c ?? 'All'}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-card overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-slate-100">
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Student</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Class</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Avg Score</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Streak</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Awards</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Last Active</th>
+                      <th className="text-left text-xs font-semibold text-slate-500 px-5 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.map((s, i) => (
+                      <motion.tr
+                        key={s.name}
+                        className="hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.04, duration: 0.3 }}
+                      >
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                              {s.name.split(' ').map(n => n[0]).join('')}
+                            </div>
+                            <div>
+                              <span className="text-sm font-semibold text-slate-900">{s.name}</span>
+                              <p className="text-xs text-slate-400">{s.grade} Grade</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-5 py-3 text-sm text-slate-500">{s.class}</td>
+                        <td className="px-5 py-3">
+                          <span className={`text-sm font-bold ${
+                            s.avg >= 90 ? 'text-emerald-600' :
+                            s.avg >= 80 ? 'text-brand-600' :
+                            s.avg >= 70 ? 'text-amber-600' : 'text-red-500'
+                          }`}>{s.avg}%</span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="flex items-center gap-1 text-sm">
+                            🔥 <span className="font-semibold text-slate-700">{s.streak}d</span>
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          <span className="flex items-center gap-1 text-sm">
+                            <Award className="w-3.5 h-3.5 text-amber-500" />
+                            <span className="font-semibold text-slate-700">{s.awards}</span>
+                          </span>
+                        </td>
+                        <td className="px-5 py-3 text-xs text-slate-400">{s.lastActive}</td>
+                        <td className="px-5 py-3">
+                          <span className={`badge ${
+                            s.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {s.status === 'active' ? 'On track' : 'Needs attention'}
+                          </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Announcements tab */}
+        {tab === 'announcements' && (
+          <motion.div
+            key="announcements"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
+            <div className="space-y-3">
+              {announcements.map((a, i) => (
+                <motion.div
+                  key={a.title}
+                  className="bg-white rounded-2xl border border-slate-100 shadow-card p-5 flex items-center gap-4 hover:shadow-card-hover transition-shadow"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  whileHover={{ x: 3 }}
+                >
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                    a.urgent ? 'bg-red-100' : 'bg-brand-100'
+                  }`}>
+                    {a.urgent ? (
+                      <AlertTriangle className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <MessageSquare className="w-5 h-5 text-brand-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-bold text-slate-900">{a.title}</h4>
+                    <p className="text-xs text-slate-500">{a.class} · {a.date}</p>
+                  </div>
+                  {a.urgent && <span className="badge bg-red-100 text-red-700">Urgent</span>}
+                  <ChevronRight className="w-4 h-4 text-slate-300" />
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

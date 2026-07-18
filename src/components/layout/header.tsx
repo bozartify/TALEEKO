@@ -5,14 +5,17 @@ import { usePathname } from 'next/navigation'
 import { Sparkles, Search, Globe, Check, ChevronDown } from 'lucide-react'
 
 const titles: Record<string, string> = {
-  '/dashboard':  'Dashboard',
-  '/magic-chat': 'Magic Chat',
-  '/agents':     'Agent Swarm',
-  '/classroom':  'My Classroom',
-  '/courses':    'Courses',
-  '/workspace':  'Workspace',
-  '/analytics':  'Analytics',
-  '/settings':   'Settings',
+  '/dashboard':      'Dashboard',
+  '/magic-chat':     'Magic Chat',
+  '/agents':         'Agent Swarm',
+  '/classroom':      'My Classroom',
+  '/courses':        'Courses',
+  '/workspace':      'Workspace',
+  '/rubrics':        'Rubric Builder',
+  '/standards':      'Standards Library',
+  '/communication':  'Communication',
+  '/analytics':      'Analytics',
+  '/settings':       'Settings',
 }
 
 const LANGUAGES = [

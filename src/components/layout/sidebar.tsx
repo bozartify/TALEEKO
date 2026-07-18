@@ -4,7 +4,8 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
-  BarChart2, Settings, FolderOpen, Lightbulb, Bot
+  BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
+  Shield, MessageSquare
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -14,8 +15,11 @@ const navItems = [
   { href: '/agents',     icon: Bot,              label: 'Agent Swarm', badge: 'NEW' },
   { href: '/classroom',  icon: Users,            label: 'Classroom' },
   { href: '/courses',    icon: FolderOpen,       label: 'Courses' },
-  { href: '/workspace',  icon: Lightbulb,        label: 'Workspace' },
-  { href: '/analytics',  icon: BarChart2,        label: 'Analytics' },
+  { href: '/workspace',      icon: Lightbulb,        label: 'Workspace' },
+  { href: '/rubrics',        icon: PenTool,          label: 'Rubrics' },
+  { href: '/standards',      icon: Shield,           label: 'Standards' },
+  { href: '/communication',  icon: MessageSquare,    label: 'Communication' },
+  { href: '/analytics',      icon: BarChart2,        label: 'Analytics' },
 ]
 
 const teacher = { name: 'Alex Johnson', email: 'demo@teachweaver.ai' }
