@@ -5,7 +5,7 @@ import {
   User, Bell, Palette, Key, Globe, Save, Shield, Database, Plug,
   Monitor, Moon, Sun, Check, Upload, Download, Trash2, Eye, EyeOff,
   ChevronRight, Mail, Smartphone, Lock, RefreshCw, ExternalLink,
-  BarChart2
+  BarChart2, CreditCard, Users
 } from 'lucide-react'
 import { FadeUp } from '@/components/ui/motion'
 
@@ -18,6 +18,8 @@ const sections = [
   { id: 'security',      label: 'Security',        icon: Shield },
   { id: 'data',          label: 'Data & Export',    icon: Database },
   { id: 'api',           label: 'API Keys',        icon: Key },
+  { id: 'billing',       label: 'Billing',         icon: CreditCard },
+  { id: 'team',          label: 'Team',            icon: Users },
 ]
 
 const integrations = [
@@ -547,6 +549,338 @@ export default function SettingsPage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {active === 'billing' && (
+                <div className="space-y-4">
+                  {/* Current Plan */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Current Plan</h3>
+                    <div className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl mb-4">
+                      <div className="flex items-center gap-4">
+                        <motion.div
+                          className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                          style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+                          whileHover={{ scale: 1.05, rotate: 3 }}
+                          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                        >
+                          <CreditCard className="w-5 h-5 text-white" />
+                        </motion.div>
+                        <div>
+                          <p className="text-sm font-bold text-white">Professional Plan</p>
+                          <p className="text-xs text-surface-400">Billed monthly</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-black text-white">$12<span className="text-sm font-medium text-surface-400">/mo</span></p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        { label: 'Lessons Created', value: '84 / 100' },
+                        { label: 'AI Generations', value: '1,247 / 2,000' },
+                        { label: 'Storage Used', value: '2.4 GB / 10 GB' },
+                      ].map((stat, i) => (
+                        <motion.div
+                          key={stat.label}
+                          className="p-3 bg-white/[0.03] rounded-xl text-center"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.06 }}
+                        >
+                          <p className="text-sm font-black text-white">{stat.value}</p>
+                          <p className="text-xs text-surface-500">{stat.label}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Plan Comparison */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Compare Plans</h3>
+                    <div className="space-y-3">
+                      {[
+                        {
+                          name: 'Free',
+                          price: '$0',
+                          features: { lessons: '10 / mo', ai: '50 generations', storage: '500 MB', integrations: false, analytics: false, priority: false },
+                          current: false,
+                        },
+                        {
+                          name: 'Pro',
+                          price: '$12',
+                          features: { lessons: '100 / mo', ai: '2,000 generations', storage: '10 GB', integrations: true, analytics: true, priority: false },
+                          current: true,
+                        },
+                        {
+                          name: 'Department',
+                          price: '$39',
+                          features: { lessons: 'Unlimited', ai: 'Unlimited', storage: '100 GB', integrations: true, analytics: true, priority: true },
+                          current: false,
+                        },
+                      ].map((plan, i) => (
+                        <motion.div
+                          key={plan.name}
+                          className={`p-4 rounded-xl border ${plan.current ? 'bg-accent-600/10 border-accent-500/30' : 'bg-white/[0.03] border-white/[0.04]'}`}
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.06 }}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <p className="text-sm font-bold text-white">{plan.name}</p>
+                              {plan.current && (
+                                <span className="badge bg-accent-400/15 text-accent-400">Current</span>
+                              )}
+                            </div>
+                            <p className="text-lg font-black text-white">{plan.price}<span className="text-xs font-medium text-surface-400">/mo</span></p>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {[
+                              { label: 'Lessons', value: plan.features.lessons },
+                              { label: 'AI Generations', value: plan.features.ai },
+                              { label: 'Storage', value: plan.features.storage },
+                              { label: 'Integrations', value: plan.features.integrations },
+                              { label: 'Analytics', value: plan.features.analytics },
+                              { label: 'Priority Support', value: plan.features.priority },
+                            ].map(f => (
+                              <div key={f.label} className="flex items-center gap-1.5">
+                                {typeof f.value === 'boolean' ? (
+                                  f.value ? (
+                                    <Check className="w-3 h-3 text-success-400" />
+                                  ) : (
+                                    <span className="w-3 h-3 flex items-center justify-center text-surface-600 text-xs">--</span>
+                                  )
+                                ) : (
+                                  <Check className="w-3 h-3 text-success-400" />
+                                )}
+                                <span className="text-xs text-surface-300">
+                                  {typeof f.value === 'string' ? `${f.label}: ${f.value}` : f.label}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Payment Method */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Payment Method</h3>
+                    <motion.div
+                      className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-7 bg-white/[0.08] rounded-lg flex items-center justify-center">
+                          <CreditCard className="w-4 h-4 text-surface-300" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white">Visa ending in 4242</p>
+                          <p className="text-xs text-surface-400">Expires 09/2027</p>
+                        </div>
+                      </div>
+                      <button className="btn-secondary text-xs px-3">
+                        Update
+                      </button>
+                    </motion.div>
+                  </div>
+
+                  {/* Billing History */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Billing History</h3>
+                    <div className="space-y-2">
+                      {[
+                        { date: 'Jul 1, 2026', amount: '$12.00', status: 'Paid', invoice: 'INV-2026-007' },
+                        { date: 'Jun 1, 2026', amount: '$12.00', status: 'Paid', invoice: 'INV-2026-006' },
+                        { date: 'May 1, 2026', amount: '$12.00', status: 'Paid', invoice: 'INV-2026-005' },
+                      ].map((inv, i) => (
+                        <motion.div
+                          key={inv.invoice}
+                          className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <p className="text-sm font-semibold text-white">{inv.date}</p>
+                              <p className="text-xs text-surface-500">{inv.invoice}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <p className="text-sm font-bold text-white">{inv.amount}</p>
+                            <span className="badge bg-success-400/15 text-success-400">{inv.status}</span>
+                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300">
+                              <Download className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Billing Actions */}
+                  <div className="flex gap-3">
+                    <motion.button
+                      className="btn-gradient"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Upgrade Plan
+                    </motion.button>
+                    <motion.button
+                      className="btn-secondary text-danger-400 border-danger-400/20 hover:bg-danger-400/10"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Cancel Subscription
+                    </motion.button>
+                  </div>
+                </div>
+              )}
+
+              {active === 'team' && (
+                <div className="space-y-4">
+                  {/* Team Overview */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-1">Team Overview</h3>
+                    <p className="text-xs text-surface-400 mb-4">Manage your school team members and roles</p>
+                    <div className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-xl">
+                      <motion.div
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                        style={{ background: 'linear-gradient(135deg,#06b6d4,#0891b2)' }}
+                        whileHover={{ scale: 1.05, rotate: 3 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                      >
+                        <Users className="w-5 h-5 text-white" />
+                      </motion.div>
+                      <div className="flex-1">
+                        <p className="text-sm font-bold text-white">Lincoln Middle School</p>
+                        <p className="text-xs text-surface-400">8 team members</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-white/[0.03] rounded-xl text-center">
+                          <p className="text-lg font-black text-white">6</p>
+                          <p className="text-xs text-surface-500">Active</p>
+                        </div>
+                        <div className="p-3 bg-white/[0.03] rounded-xl text-center">
+                          <p className="text-lg font-black text-white">2</p>
+                          <p className="text-xs text-surface-500">Invited</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Team Members */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Members</h3>
+                    <div className="space-y-2">
+                      {[
+                        { name: 'Alex Johnson', email: 'alex.johnson@lincoln.edu', role: 'Admin', status: 'Active', initials: 'AJ', color: '#8b5cf6' },
+                        { name: 'Maria Santos', email: 'maria.santos@lincoln.edu', role: 'Teacher', status: 'Active', initials: 'MS', color: '#06b6d4' },
+                        { name: 'David Chen', email: 'david.chen@lincoln.edu', role: 'Teacher', status: 'Active', initials: 'DC', color: '#f59e0b' },
+                        { name: 'Sarah Williams', email: 'sarah.williams@lincoln.edu', role: 'Viewer', status: 'Invited', initials: 'SW', color: '#64748b' },
+                      ].map((member, i) => (
+                        <motion.div
+                          key={member.email}
+                          className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-xl hover:bg-white/[0.04] transition-colors"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.06 }}
+                          whileHover={{ x: 2 }}
+                        >
+                          <div
+                            className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                            style={{ background: `linear-gradient(135deg, ${member.color}, ${member.color}dd)` }}
+                          >
+                            {member.initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white">{member.name}</p>
+                            <p className="text-xs text-surface-400 truncate">{member.email}</p>
+                          </div>
+                          <span className={`badge ${
+                            member.role === 'Admin'
+                              ? 'bg-accent-400/15 text-accent-400'
+                              : member.role === 'Teacher'
+                                ? 'bg-success-400/15 text-success-400'
+                                : 'bg-surface-400/15 text-surface-400'
+                          }`}>
+                            {member.role}
+                          </span>
+                          <span className={`badge ${
+                            member.status === 'Active'
+                              ? 'bg-success-400/15 text-success-400'
+                              : 'bg-warning-400/15 text-warning-400'
+                          }`}>
+                            {member.status}
+                          </span>
+                          <button className="text-surface-500 hover:text-white transition-colors">
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Invite Teacher */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Invite Teacher</h3>
+                    <div className="flex gap-2">
+                      <div className="flex-1 relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500" />
+                        <input
+                          type="email"
+                          placeholder="colleague@school.edu"
+                          className="input-base pl-10 w-full"
+                        />
+                      </div>
+                      <select className="input-base w-32">
+                        <option>Teacher</option>
+                        <option>Viewer</option>
+                        <option>Admin</option>
+                      </select>
+                      <motion.button
+                        className="btn-gradient"
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        <Mail className="w-4 h-4" />
+                        Invite
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  {/* Role Info */}
+                  <div className="glass-card p-6">
+                    <h3 className="text-base font-bold text-white mb-4">Role Permissions</h3>
+                    <div className="space-y-3">
+                      {[
+                        { role: 'Admin', desc: 'Full access to all settings, billing, team management, and content creation', color: 'text-accent-400' },
+                        { role: 'Teacher', desc: 'Create and edit lessons, view analytics, and manage own content', color: 'text-success-400' },
+                        { role: 'Viewer', desc: 'View shared lessons and resources. Cannot create or edit content', color: 'text-surface-400' },
+                      ].map((info, i) => (
+                        <motion.div
+                          key={info.role}
+                          className="flex items-start gap-3 p-4 bg-white/[0.03] rounded-xl"
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: i * 0.05 }}
+                        >
+                          <Shield className="w-4 h-4 mt-0.5 flex-shrink-0 text-surface-500" />
+                          <div>
+                            <p className={`text-sm font-semibold ${info.color}`}>{info.role}</p>
+                            <p className="text-xs text-surface-400">{info.desc}</p>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
                 </div>

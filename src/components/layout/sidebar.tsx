@@ -31,6 +31,7 @@ const navItems = [
   { href: '/templates',  icon: Layout,          label: 'Templates' },
   { href: '/reports',    icon: FileText,        label: 'Reports' },
   { href: '/professional-dev', icon: Award,     label: 'PD Courses' },
+  { href: '/parent-portal', icon: Users,       label: 'Parent Portal' },
   { href: '/integrations', icon: Plug,          label: 'Integrations' },
   { href: '/api-keys',   icon: Key,             label: 'API Keys' },
   { href: '/notifications', icon: Bell,         label: 'Notifications' },

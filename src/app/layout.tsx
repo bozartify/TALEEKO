@@ -15,7 +15,24 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: 'TeachWeaver – AI Teaching Platform',
-  description: 'AI-powered tools for modern educators',
+  description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes. Built for K-12 and higher-ed educators.',
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'TeachWeaver – AI Teaching Platform',
+    description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes.',
+    siteName: 'TeachWeaver',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TeachWeaver – AI Teaching Platform',
+    description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes.',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

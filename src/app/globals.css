@@ -252,6 +252,34 @@
      NOISE TEXTURE OVERLAY
      ═══════════════════════════════════════════ */
 
+  /* ═══════════════════════════════════════════
+     FOCUS-VISIBLE (keyboard accessibility)
+     ═══════════════════════════════════════════ */
+
+  .btn-primary:focus-visible,
+  .btn-gradient:focus-visible,
+  .btn-secondary:focus-visible,
+  .btn-outline:focus-visible {
+    @apply outline-none;
+    box-shadow: 0 0 0 2px rgba(16, 18, 28, 0.8), 0 0 0 4px rgba(99, 102, 241, 0.6);
+  }
+
+  .sidebar-item:focus-visible {
+    @apply outline-none;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+  }
+
+  a:focus-visible {
+    @apply outline-none rounded-sm;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+  }
+
+  select:focus-visible {
+    @apply outline-none;
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  }
+
   .noise-overlay::after {
     content: '';
     @apply absolute inset-0 pointer-events-none opacity-[0.015];

@@ -32,6 +32,75 @@ const features = [
   'All subjects supported',
 ]
 
+const testimonials = [
+  {
+    name: 'Sarah Mitchell',
+    role: 'Science Teacher',
+    school: 'Lincoln Middle School',
+    initials: 'SM',
+    gradient: 'from-indigo-500 to-violet-500',
+    quote: 'The lesson planning tool cut my prep time from 2 hours to 15 minutes. I finally have my evenings back and my lessons are actually better.',
+  },
+  {
+    name: 'James Okafor',
+    role: 'Math Department Chair',
+    school: 'Westfield High School',
+    initials: 'JO',
+    gradient: 'from-violet-500 to-purple-500',
+    quote: 'Quiz generation is a game-changer. I create differentiated assessments for three levels in the time it used to take me to write one quiz.',
+  },
+  {
+    name: 'Maria Santos',
+    role: '4th Grade Teacher',
+    school: 'Riverside Elementary',
+    initials: 'MS',
+    gradient: 'from-indigo-400 to-blue-500',
+    quote: 'The differentiation features are incredible. It automatically suggests modifications for my ELL students and gifted learners. Every kid gets what they need.',
+  },
+  {
+    name: 'David Chen',
+    role: 'AP History Teacher',
+    school: 'Oakdale Preparatory',
+    initials: 'DC',
+    gradient: 'from-purple-500 to-indigo-500',
+    quote: 'I was skeptical about AI in education, but TeachWeaver understands pedagogy. The worksheet generator creates rigorous, standards-aligned materials every time.',
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Special Education',
+    school: 'Greenwood Academy',
+    initials: 'PS',
+    gradient: 'from-blue-500 to-violet-500',
+    quote: 'I save at least 6 hours a week on IEP-aligned materials. The AI adapts content to each student\'s level without me having to rewrite everything manually.',
+  },
+  {
+    name: 'Angela Torres',
+    role: 'ELA Teacher',
+    school: 'Maplewood Middle School',
+    initials: 'AT',
+    gradient: 'from-violet-400 to-indigo-500',
+    quote: 'Magic Chat feels like having a co-teacher available 24/7. I brainstorm lesson ideas at midnight and have a polished plan ready before first period.',
+  },
+]
+
+const footerLinks = {
+  Product: [
+    { label: 'Features', href: '#features' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Demo', href: '/dashboard' },
+  ],
+  Company: [
+    { label: 'About', href: '#' },
+    { label: 'Blog', href: '#' },
+    { label: 'Careers', href: '#' },
+  ],
+  Support: [
+    { label: 'Help Center', href: '#' },
+    { label: 'Contact', href: '#' },
+    { label: 'Privacy', href: '#' },
+  ],
+}
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-surface-950 text-surface-200">
@@ -220,6 +289,47 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Testimonials */}
+      <section className="py-24 px-6 relative">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent-500/[0.05] rounded-full blur-[120px]" />
+        </div>
+        <div className="max-w-6xl mx-auto relative">
+          <FadeInWhenVisible className="text-center mb-14">
+            <h2 className="text-4xl font-black text-white mb-4">Loved by teachers everywhere</h2>
+            <p className="text-lg text-surface-400">See what educators are saying about TeachWeaver</p>
+          </FadeInWhenVisible>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {testimonials.map((t, i) => (
+              <FadeInWhenVisible key={t.name} delay={i * 0.07}>
+                <motion.div
+                  className="glass-card p-6 h-full flex flex-col"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                >
+                  <div className="flex items-center gap-0.5 mb-4">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <Star key={s} className="w-4 h-4 text-warning-400 fill-warning-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm text-surface-300 leading-relaxed mb-6 flex-1">&ldquo;{t.quote}&rdquo;</p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-9 h-9 rounded-full bg-gradient-to-br ${t.gradient} flex items-center justify-center flex-shrink-0`}
+                    >
+                      <span className="text-xs font-bold text-white">{t.initials}</span>
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">{t.name}</div>
+                      <div className="text-xs text-surface-500">{t.role} &middot; {t.school}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              </FadeInWhenVisible>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="py-24 px-6">
         <FadeInWhenVisible>
@@ -254,15 +364,42 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/[0.06] py-8 px-6">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
-              <GraduationCap className="w-3.5 h-3.5 text-white" />
+      <footer className="border-t border-white/[0.06] py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
+                  <GraduationCap className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-sm font-bold text-white">TeachWeaver</span>
+              </div>
+              <p className="text-xs text-surface-500 leading-relaxed">AI-powered tools that help teachers save time and teach better.</p>
             </div>
-            <span className="text-sm font-bold text-white">TeachWeaver</span>
+            {Object.entries(footerLinks).map(([category, links]) => (
+              <div key={category}>
+                <h4 className="text-xs font-semibold text-surface-300 uppercase tracking-wider mb-3">{category}</h4>
+                <ul className="space-y-2">
+                  {links.map((link) => (
+                    <li key={link.label}>
+                      <Link href={link.href} className="text-sm text-surface-500 hover:text-white transition-colors">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          <p className="text-xs text-surface-500">&copy; 2025 TeachWeaver. Built for educators everywhere.</p>
+          <div className="border-t border-white/[0.06] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-surface-500">&copy; 2026 TeachWeaver. Built for educators everywhere.</p>
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Star key={i} className="w-3 h-3 text-warning-400 fill-warning-400" />
+              ))}
+              <span className="text-xs text-surface-500 ml-1">Loved by 10,000+ teachers</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
