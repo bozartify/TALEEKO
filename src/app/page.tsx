@@ -52,10 +52,11 @@ export default function LandingPage() {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-surface-400">
             <a href="#tools" className="hover:text-white transition-colors">Tools</a>
             <a href="#features" className="hover:text-white transition-colors">Features</a>
+            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm font-medium text-surface-400 hover:text-white transition-colors">Sign in</Link>
-            <Link href="/dashboard" className="btn-primary text-xs px-4 py-2">Start Free</Link>
+            <Link href="/register" className="btn-primary text-xs px-4 py-2">Start Free</Link>
           </div>
         </div>
       </motion.nav>

@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
-  Shield, MessageSquare, Calendar
+  Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
+  Library, Layout, Plug, Key
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -21,7 +22,16 @@ const navItems = [
   { href: '/communication', icon: MessageSquare, label: 'Communication' },
   { href: '/calendar',   icon: Calendar,        label: 'Calendar' },
   { href: '/portfolio',  icon: GraduationCap,   label: 'Portfolios' },
+  { href: '/gradebook',  icon: BookOpen,        label: 'Gradebook' },
   { href: '/analytics',  icon: BarChart2,       label: 'Analytics' },
+  { href: '/library',    icon: Library,         label: 'Content Library' },
+  { href: '/templates',  icon: Layout,          label: 'Templates' },
+  { href: '/reports',    icon: FileText,        label: 'Reports' },
+  { href: '/integrations', icon: Plug,          label: 'Integrations' },
+  { href: '/api-keys',   icon: Key,             label: 'API Keys' },
+  { href: '/notifications', icon: Bell,         label: 'Notifications' },
+  { href: '/settings',   icon: Settings,        label: 'Settings' },
+  { href: '/help',       icon: HelpCircle,      label: 'Help' },
 ]
 
 const teacher = { name: 'Alex Johnson', email: 'demo@teachweaver.ai' }
