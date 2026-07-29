@@ -1,12 +1,13 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
-  Library, Layout, Plug, Key
+  Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -23,10 +24,13 @@ const navItems = [
   { href: '/calendar',   icon: Calendar,        label: 'Calendar' },
   { href: '/portfolio',  icon: GraduationCap,   label: 'Portfolios' },
   { href: '/gradebook',  icon: BookOpen,        label: 'Gradebook' },
+  { href: '/attendance',  icon: CheckSquare,     label: 'Attendance' },
+  { href: '/curriculum',  icon: Map,            label: 'Curriculum' },
   { href: '/analytics',  icon: BarChart2,       label: 'Analytics' },
   { href: '/library',    icon: Library,         label: 'Content Library' },
   { href: '/templates',  icon: Layout,          label: 'Templates' },
   { href: '/reports',    icon: FileText,        label: 'Reports' },
+  { href: '/professional-dev', icon: Award,     label: 'PD Courses' },
   { href: '/integrations', icon: Plug,          label: 'Integrations' },
   { href: '/api-keys',   icon: Key,             label: 'API Keys' },
   { href: '/notifications', icon: Bell,         label: 'Notifications' },
@@ -36,14 +40,11 @@ const navItems = [
 
 const teacher = { name: 'Alex Johnson', email: 'demo@teachweaver.ai' }
 
-export default function Sidebar() {
-  const pathname = usePathname()
-
+function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
-    <aside className="sidebar">
-      {/* Logo */}
+    <>
       <div className="px-5 py-5 border-b border-white/[0.06]">
-        <Link href="/dashboard" className="flex items-center gap-2.5">
+        <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
           <motion.div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
@@ -59,13 +60,12 @@ export default function Sidebar() {
         </Link>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         <p className="text-[10px] font-semibold text-surface-500 px-3 mb-3 uppercase tracking-[0.12em]">Menu</p>
         {navItems.map(({ href, icon: Icon, label, badge }) => {
           const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
           return (
-            <Link key={href} href={href} className="relative block">
+            <Link key={href} href={href} className="relative block" onClick={onNavigate}>
               <motion.div
                 className={cn('sidebar-item', isActive && 'active')}
                 whileHover={{ x: 2 }}
@@ -88,7 +88,6 @@ export default function Sidebar() {
           )
         })}
 
-        {/* Quick start CTA */}
         <div className="mt-5 pt-5 border-t border-white/[0.06]">
           <div className="relative rounded-2xl p-4 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-accent-600/20 via-neon-500/10 to-electric-400/10 rounded-2xl" />
@@ -102,7 +101,7 @@ export default function Sidebar() {
               </div>
               <p className="text-[13px] font-bold text-white mb-1">Try Magic Chat</p>
               <p className="text-[11px] text-surface-400 mb-3 leading-relaxed">Generate any teaching material in seconds</p>
-              <Link href="/magic-chat" className="btn-primary text-xs px-3 py-2 w-full justify-center">
+              <Link href="/magic-chat" className="btn-primary text-xs px-3 py-2 w-full justify-center" onClick={onNavigate}>
                 Open Chat
               </Link>
             </div>
@@ -110,9 +109,8 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Settings + Avatar */}
       <div className="px-3 py-4 border-t border-white/[0.06] space-y-1">
-        <Link href="/settings" className="relative block">
+        <Link href="/settings" className="relative block" onClick={onNavigate}>
           <motion.div
             className={cn('sidebar-item', pathname === '/settings' && 'active')}
             whileHover={{ x: 2 }}
@@ -135,6 +133,63 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  )
+}
+
+export default function Sidebar() {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  return (
+    <>
+      <aside className="sidebar hidden lg:flex">
+        <SidebarContent pathname={pathname} />
+      </aside>
+
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl flex items-center justify-center bg-surface-800/80 backdrop-blur-xl border border-white/[0.08] text-surface-300 hover:text-white hover:bg-surface-700/80 transition-all"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setMobileOpen(false)}
+            />
+
+            <motion.aside
+              className="fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col lg:hidden"
+              style={{
+                background: 'rgba(16, 18, 28, 0.95)',
+                backdropFilter: 'blur(24px) saturate(1.3)',
+                borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+              }}
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+            >
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 rounded-lg flex items-center justify-center text-surface-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <SidebarContent pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
