@@ -57,6 +57,25 @@ const sampleItems = [
     id: '9', type: 'activity' as ContentType, title: 'Geometry Shapes Scavenger Hunt',
     subject: 'Mathematics', grade: '3rd Grade', createdAt: '2026-07-20', uses: 14, aiGenerated: true,
   },
+  {
+    id: '10', type: 'lesson' as ContentType, title: 'Civil Rights Movement: Key Figures',
+    subject: 'History', grade: '11th Grade', createdAt: '2026-07-19', uses: 7, aiGenerated: true,
+  },
+  {
+    id: '11', type: 'assessment' as ContentType, title: 'Reading Comprehension Benchmark',
+    subject: 'English', grade: '6th Grade', createdAt: '2026-07-18', uses: 25, aiGenerated: false,
+  },
+  {
+    id: '12', type: 'worksheet' as ContentType, title: 'Chemical Bonding Practice',
+    subject: 'Chemistry', grade: '10th Grade', createdAt: '2026-07-17', uses: 11, aiGenerated: true,
+  },
+]
+
+const collections = [
+  { name: 'Biology Unit 3', count: 8, color: '#10b981', icon: '🧬' },
+  { name: 'Math Assessments', count: 12, color: '#f97316', icon: '📐' },
+  { name: 'History Projects', count: 5, color: '#ec4899', icon: '📜' },
+  { name: 'ELL Resources', count: 6, color: '#6366f1', icon: '🌍' },
 ]
 
 const filterTabs: { key: FilterTab; label: string }[] = [
@@ -246,6 +265,38 @@ export default function LibraryPage() {
               )}
             </button>
           ))}
+        </div>
+      </FadeUp>
+
+      {/* Collections */}
+      <FadeUp delay={0.18}>
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-white">Collections</h3>
+            <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">+ New Collection</button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {collections.map((col, i) => (
+              <motion.div
+                key={col.name}
+                className="glass-card p-3.5 cursor-pointer group"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.04 }}
+                whileHover={{ y: -2 }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center text-lg" style={{ backgroundColor: col.color + '18' }}>
+                    {col.icon}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-white truncate group-hover:text-accent-300 transition-colors">{col.name}</p>
+                    <p className="text-[10px] text-surface-500">{col.count} items</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </FadeUp>
 
