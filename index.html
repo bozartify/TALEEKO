@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TeachWeaver - AI Teaching Platform</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0b14;color:#e2e8f0;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 20px}
+.glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:500px;background:radial-gradient(ellipse,rgba(99,102,241,0.12),transparent 70%);pointer-events:none;z-index:0}
+.content{position:relative;z-index:1}
+.badge{display:inline-block;background:rgba(99,102,241,0.15);color:#a78bfa;font-size:11px;font-weight:600;padding:5px 14px;border-radius:16px;border:1px solid rgba(99,102,241,0.25);margin-bottom:16px}
+.center{text-align:center}
+h1{font-size:clamp(26px,5vw,42px);font-weight:900;line-height:1.15;margin-bottom:8px;letter-spacing:-0.02em}
+h1 em{font-style:italic;background:linear-gradient(135deg,#6366f1,#22d3ee,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:#94a3b8;font-size:15px;max-width:560px;margin:0 auto 32px;line-height:1.6}
+.stats{display:flex;justify-content:center;gap:28px;flex-wrap:wrap;margin-bottom:40px}
+.stat{text-align:center}
+.stat .v{font-size:28px;font-weight:900;background:linear-gradient(135deg,#6366f1,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat .l{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.08em;margin-top:2px}
+h2{font-size:20px;font-weight:800;margin-bottom:6px}
+h2+p{color:#94a3b8;font-size:13px;margin-bottom:20px}
+.sec{margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(99,102,241,0.1)}
+.card-top{height:6px}
+.card-body{padding:20px}
+.card-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.card-body h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.card-body .desc{font-size:12px;color:#94a3b8;line-height:1.5;margin-bottom:10px}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:3px 8px;border-radius:6px;margin-right:4px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.feat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.feat .i{font-size:24px;margin-bottom:8px}
+.feat h4{font-size:13px;font-weight:700;margin-bottom:3px}
+.feat p{font-size:11px;color:#94a3b8}
+.tech{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:24px 0}
+.tech span{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:500;color:#cbd5e1}
+.foot{text-align:center;padding:24px 0;border-top:1px solid rgba(255,255,255,0.06);color:#475569;font-size:11px;margin-top:20px}
+.cta{display:inline-block;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:13px;font-weight:600;padding:10px 24px;border-radius:10px;text-decoration:none;margin-top:8px;transition:opacity .2s}
+.cta:hover{opacity:0.85}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.stats{gap:16px}.grid2{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="wrap content">
+<div class="center">
+<span class="badge">AI-Powered Teaching Platform</span>
+<h1>TeachWeaver <em>Platform Showcase</em></h1>
+<p class="sub">A premium dark glassmorphism AI teaching platform with 38 dashboard pages, 5 AI tools, autonomous agent swarm, and full classroom management. Built with Next.js 14, Framer Motion, and Claude AI.</p>
+</div>
+<div class="stats">
+<div class="stat"><div class="v">52</div><div class="l">Total Routes</div></div>
+<div class="stat"><div class="v">38</div><div class="l">Dashboard Pages</div></div>
+<div class="stat"><div class="v">28</div><div class="l">AI Tools</div></div>
+<div class="stat"><div class="v">15</div><div class="l">API Endpoints</div></div>
+<div class="stat"><div class="v">6</div><div class="l">AI Agents</div></div>
+</div>
+<div class="sec">
+<h2>Core Platform</h2>
+<p>AI-powered dashboard, streaming chat, and autonomous agents</p>
+<div class="grid">
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#6366f1,#a78bfa)"></div><div class="card-body"><div class="card-icon" style="background:rgba(99,102,241,0.15)">&#x1F3E0;</div><h3>Dashboard</h3><div class="desc">Time-based greeting, stat cards with trends, quick actions grid, weekly activity chart, agent activity feed, recent AI generations, upcoming deadlines</div><span class="tag" style="background:rgba(99,102,241,0.12);color:#a78bfa">4 Stats</span><span class="tag" style="background:rgba(34,211,238,0.12);color:#22d3ee">6 Quick Actions</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#8b5cf6,#6d28d9)"></div><div class="card-body"><div class="card-icon" style="background:rgba(139,92,246,0.15)">&#x2728;</div><h3>Magic Chat</h3><div class="desc">Full SSE streaming AI chat with 5 mode tabs (Lesson Plan, Quiz, Worksheet, Activity, Analyze). Real-time tool use with Anthropic Claude.</div><span class="tag" style="background:rgba(139,92,246,0.12);color:#a78bfa">AI Streaming</span><span class="tag" style="background:rgba(249,115,22,0.12);color:#f97316">5 Modes</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#22d3ee,#6366f1)"></div><div class="card-body"><div class="card-icon" style="background:rgba(34,211,238,0.15)">&#x1F916;</div><h3>Agent Swarm</h3><div class="desc">6 autonomous AI agents: Curriculum Architect, Assessment Engine, Grading Assistant, Differentiation Expert, Resource Curator, Data Analyst.</div><span class="tag" style="background:rgba(34,211,238,0.12);color:#22d3ee">6 Agents</span><span class="tag" style="background:rgba(16,185,129,0.12);color:#10b981">Autonomous</span></div></div>
+</div></div>
+<div class="sec">
+<h2>Teaching &amp; Content</h2>
+<p>Course management, gradebook, AI workspace with 28 tools</p>
+<div class="grid">
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#10b981,#14b8a6)"></div><div class="card-body"><div class="card-icon" style="background:rgba(16,185,129,0.15)">&#x1F4DA;</div><h3>Courses</h3><div class="desc">8 courses with search, subject filter, sort, grid/list toggle. Progress bars, status badges, NGSS standards. Expandable lesson flow sections.</div><span class="tag" style="background:rgba(16,185,129,0.12);color:#10b981">8 Courses</span><span class="tag" style="background:rgba(99,102,241,0.12);color:#a78bfa">Standards</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#f97316,#f59e0b)"></div><div class="card-body"><div class="card-icon" style="background:rgba(249,115,22,0.15)">&#x1F4CB;</div><h3>Gradebook</h3><div class="desc">Full grade table with per-student scores, calculated averages, grade distribution chart, assignment performance, class filter, search, and export.</div><span class="tag" style="background:rgba(249,115,22,0.12);color:#f97316">Charts</span><span class="tag" style="background:rgba(236,72,153,0.12);color:#ec4899">Grade Table</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#8b5cf6,#ec4899)"></div><div class="card-body"><div class="card-icon" style="background:rgba(139,92,246,0.15)">&#x1F9F0;</div><h3>AI Workspace</h3><div class="desc">28 AI tools across 4 categories. Stat cards, recently used, quick create shortcuts, favorites, search, weekly usage chart.</div><span class="tag" style="background:rgba(139,92,246,0.12);color:#a78bfa">28 Tools</span><span class="tag" style="background:rgba(234,179,8,0.12);color:#eab308">4 Categories</span></div></div>
+</div></div>
+<div class="sec">
+<h2>AI Teaching Tools</h2>
+<p>Report cards, differentiation, IEP/504 tracking, and student groups</p>
+<div class="grid">
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#6366f1,#22d3ee)"></div><div class="card-body"><div class="card-icon" style="background:rgba(99,102,241,0.15)">&#x1F4C4;</div><h3>AI Report Cards</h3><div class="desc">3-step wizard: select students, choose from 6 templates, preview with AI-generated comments. Expandable subject grades with progress bars.</div><span class="tag" style="background:rgba(99,102,241,0.12);color:#a78bfa">AI</span><span class="tag" style="background:rgba(16,185,129,0.12);color:#10b981">3-Step Wizard</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#ec4899,#a78bfa)"></div><div class="card-body"><div class="card-icon" style="background:rgba(236,72,153,0.15)">&#x1F9E0;</div><h3>Differentiation</h3><div class="desc">5 learner profiles (Advanced, Grade Level, Approaching, ELL, IEP). AI lesson adapter with tabbed adaptations. 12-item accommodation checklist.</div><span class="tag" style="background:rgba(236,72,153,0.12);color:#ec4899">AI</span><span class="tag" style="background:rgba(139,92,246,0.12);color:#a78bfa">5 Profiles</span></div></div>
+<div class="card"><div class="card-top" style="background:linear-gradient(90deg,#14b8a6,#10b981)"></div><div class="card-body"><div class="card-icon" style="background:rgba(20,184,166,0.15)">&#x1F6E1;</div><h3>IEP/504 Accommodations</h3><div class="desc">6 student profiles with accommodation checklists, compliance tracker, implementation status, annual review dates, meeting schedule.</div><span class="tag" style="background:rgba(20,184,166,0.12);color:#14b8a6">Compliance</span><span class="tag" style="background:rgba(249,115,22,0.12);color:#f97316">6 Students</span></div></div>
+</div></div>
+<div class="sec">
+<h2>All 38 Dashboard Pages</h2>
+<p>Every page built with dark glassmorphism, Framer Motion animations, and responsive design</p>
+<div class="grid2">
+<div class="feat"><div class="i">&#x1F3E0;</div><h4>Dashboard</h4><p>AI-powered hub</p></div>
+<div class="feat"><div class="i">&#x2728;</div><h4>Magic Chat</h4><p>SSE streaming</p></div>
+<div class="feat"><div class="i">&#x1F916;</div><h4>Agent Swarm</h4><p>6 AI agents</p></div>
+<div class="feat"><div class="i">&#x1F465;</div><h4>Classroom</h4><p>3 tabs</p></div>
+<div class="feat"><div class="i">&#x1F4DA;</div><h4>Courses</h4><p>8 courses</p></div>
+<div class="feat"><div class="i">&#x1F9F0;</div><h4>Workspace</h4><p>28 AI tools</p></div>
+<div class="feat"><div class="i">&#x270F;</div><h4>Rubrics</h4><p>Interactive editor</p></div>
+<div class="feat"><div class="i">&#x1F6E1;</div><h4>Standards</h4><p>6 frameworks</p></div>
+<div class="feat"><div class="i">&#x1F4AC;</div><h4>Communication</h4><p>Parent messaging</p></div>
+<div class="feat"><div class="i">&#x1F4C5;</div><h4>Calendar</h4><p>3 views</p></div>
+<div class="feat"><div class="i">&#x1F393;</div><h4>Portfolios</h4><p>Growth tracking</p></div>
+<div class="feat"><div class="i">&#x1F4CB;</div><h4>Gradebook</h4><p>Full grades</p></div>
+<div class="feat"><div class="i">&#x1F465;</div><h4>Groups</h4><p>AI grouping</p></div>
+<div class="feat"><div class="i">&#x2705;</div><h4>Attendance</h4><p>Click grid</p></div>
+<div class="feat"><div class="i">&#x1F5FA;</div><h4>Curriculum</h4><p>Year planner</p></div>
+<div class="feat"><div class="i">&#x1F4CA;</div><h4>Analytics</h4><p>Usage insights</p></div>
+<div class="feat"><div class="i">&#x1F4DA;</div><h4>Library</h4><p>12 items</p></div>
+<div class="feat"><div class="i">&#x1F4D0;</div><h4>Templates</h4><p>8 templates</p></div>
+<div class="feat"><div class="i">&#x1F4C4;</div><h4>Reports</h4><p>AI generator</p></div>
+<div class="feat"><div class="i">&#x1F4C4;</div><h4>Report Cards</h4><p>AI comments</p></div>
+<div class="feat"><div class="i">&#x1F9E0;</div><h4>Differentiation</h4><p>5 profiles</p></div>
+<div class="feat"><div class="i">&#x1F6E1;</div><h4>IEP/504</h4><p>Compliance</p></div>
+<div class="feat"><div class="i">&#x1F3C6;</div><h4>PD Courses</h4><p>10 courses</p></div>
+<div class="feat"><div class="i">&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467;</div><h4>Parent Portal</h4><p>4 tabs</p></div>
+<div class="feat"><div class="i">&#x1F50C;</div><h4>Integrations</h4><p>12 apps</p></div>
+<div class="feat"><div class="i">&#x1F511;</div><h4>API Keys</h4><p>Key management</p></div>
+<div class="feat"><div class="i">&#x1F514;</div><h4>Notifications</h4><p>17 items</p></div>
+<div class="feat"><div class="i">&#x2699;</div><h4>Settings</h4><p>10 sections</p></div>
+<div class="feat"><div class="i">&#x2753;</div><h4>Help</h4><p>14 FAQs</p></div>
+</div></div>
+<div class="center">
+<h2>Tech Stack</h2>
+<div class="tech">
+<span>Next.js 14</span><span>TypeScript</span><span>Tailwind CSS</span><span>Framer Motion v12</span><span>Anthropic Claude AI</span><span>Prisma + SQLite</span><span>Lucide React</span><span>SSE Streaming</span>
+</div>
+<p class="sub" style="margin-top:16px">Download the project source code to run locally, or clone from GitHub.</p>
+<a href="https://github.com/bozartify/TALEEKO" class="cta">View on GitHub</a>
+</div>
+<div class="foot">TeachWeaver AI Teaching Platform &mdash; Premium Dark Glassmorphism Design &mdash; 52 Routes, 0 TypeScript Errors</div>
+</div>
+</body>
+</html>
