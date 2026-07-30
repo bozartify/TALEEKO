@@ -7,7 +7,8 @@ import {
   GraduationCap, LayoutDashboard, Sparkles, Users, BookOpen,
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
-  Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award
+  Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
+  Brain
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -24,6 +25,7 @@ const navItems = [
   { href: '/calendar',   icon: Calendar,        label: 'Calendar' },
   { href: '/portfolio',  icon: GraduationCap,   label: 'Portfolios' },
   { href: '/gradebook',  icon: BookOpen,        label: 'Gradebook' },
+  { href: '/groups',      icon: Users,           label: 'Student Groups' },
   { href: '/attendance',  icon: CheckSquare,     label: 'Attendance' },
   { href: '/curriculum',  icon: Map,            label: 'Curriculum' },
   { href: '/analytics',  icon: BarChart2,       label: 'Analytics' },
@@ -31,6 +33,8 @@ const navItems = [
   { href: '/templates',  icon: Layout,          label: 'Templates' },
   { href: '/reports',    icon: FileText,        label: 'Reports' },
   { href: '/report-cards', icon: FileText,     label: 'Report Cards', badge: 'AI' },
+  { href: '/differentiation', icon: Brain,    label: 'Differentiation', badge: 'AI' },
+  { href: '/accommodations', icon: Shield,    label: 'IEP/504' },
   { href: '/professional-dev', icon: Award,     label: 'PD Courses' },
   { href: '/parent-portal', icon: Users,       label: 'Parent Portal' },
   { href: '/integrations', icon: Plug,          label: 'Integrations' },
