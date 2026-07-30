@@ -30,6 +30,7 @@ const navItems = [
   { href: '/library',    icon: Library,         label: 'Content Library' },
   { href: '/templates',  icon: Layout,          label: 'Templates' },
   { href: '/reports',    icon: FileText,        label: 'Reports' },
+  { href: '/report-cards', icon: FileText,     label: 'Report Cards', badge: 'AI' },
   { href: '/professional-dev', icon: Award,     label: 'PD Courses' },
   { href: '/parent-portal', icon: Users,       label: 'Parent Portal' },
   { href: '/integrations', icon: Plug,          label: 'Integrations' },
