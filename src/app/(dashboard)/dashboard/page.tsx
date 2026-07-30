@@ -44,6 +44,20 @@ const upcomingDeadlines = [
   { title: 'Math Quiz Chapter 7',   class: '9th Math',    date: 'Next Mon',  urgent: false },
 ]
 
+const recentGenerations = [
+  { type: 'Lesson Plan', title: 'Photosynthesis Deep Dive', time: '2 min ago', icon: BookOpen, color: 'text-accent-400' },
+  { type: 'Quiz', title: '10-Q American Revolution', time: '18 min ago', icon: ClipboardList, color: 'text-warning-400' },
+  { type: 'Worksheet', title: 'Quadratic Practice Set', time: '1 hr ago', icon: FileText, color: 'text-success-400' },
+  { type: 'Activity', title: 'Shakespeare Scene Analysis', time: '3 hrs ago', icon: Zap, color: 'text-electric-400' },
+]
+
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return { text: 'Good morning', emoji: '☀️' }
+  if (h < 17) return { text: 'Good afternoon', emoji: '🌤️' }
+  return { text: 'Good evening', emoji: '🌙' }
+}
+
 const weeklyActivity = [
   { day: 'Mon', value: 4 }, { day: 'Tue', value: 7 },
   { day: 'Wed', value: 3 }, { day: 'Thu', value: 9 },
@@ -53,6 +67,7 @@ const weeklyActivity = [
 
 export default function DashboardPage() {
   const maxActivity = Math.max(...weeklyActivity.map(d => d.value))
+  const greeting = getGreeting()
 
   return (
     <div className="space-y-6">
@@ -66,16 +81,24 @@ export default function DashboardPage() {
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-black text-white">Good morning, Alex!</h2>
+                <h2 className="text-2xl font-black text-white">{greeting.text}, Alex!</h2>
                 <motion.span
                   className="text-2xl"
                   animate={{ rotate: [0, 15, -5, 10, 0] }}
                   transition={{ duration: 1.5, delay: 0.5 }}
                 >
-                  ☀️
+                  {greeting.emoji}
                 </motion.span>
               </div>
               <p className="text-surface-400 text-sm">You have 3 lessons to review, 2 quizzes ready to assign, and 1 agent awaiting approval.</p>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="flex items-center gap-1.5 text-xs font-semibold text-warning-400 bg-warning-400/10 px-2.5 py-1 rounded-full">
+                  <Flame className="w-3 h-3" /> 12-day streak
+                </span>
+                <span className="flex items-center gap-1.5 text-xs font-medium text-surface-400">
+                  <Star className="w-3 h-3 text-warning-400 fill-warning-400" /> Pro Plan
+                </span>
+              </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
@@ -314,8 +337,42 @@ export default function DashboardPage() {
             </div>
           </FadeUp>
 
+          {/* Recent AI Generations */}
+          <FadeUp delay={0.38}>
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-accent-400" /> Recent Generations
+                </h3>
+                <Link href="/library" className="text-xs text-accent-400 font-semibold hover:text-accent-300">
+                  Library
+                </Link>
+              </div>
+              <div className="space-y-2.5">
+                {recentGenerations.map((g, i) => (
+                  <motion.div
+                    key={g.title}
+                    className="flex items-center gap-3 group cursor-pointer"
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.42 + i * 0.05 }}
+                    whileHover={{ x: 2 }}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.06] flex-shrink-0">
+                      <g.icon className={`w-3.5 h-3.5 ${g.color}`} />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs font-semibold text-surface-200 truncate group-hover:text-white transition-colors">{g.title}</p>
+                      <p className="text-[10px] text-surface-500">{g.type} · {g.time}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </FadeUp>
+
           {/* Quick navigation */}
-          <FadeUp delay={0.4}>
+          <FadeUp delay={0.42}>
             <div className="glass-card p-5 relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-accent-500/[0.06] via-transparent to-neon-400/[0.04] pointer-events-none" />
               <div className="relative">
@@ -331,7 +388,7 @@ export default function DashboardPage() {
                       key={item.label}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.45 + i * 0.05 }}
+                      transition={{ delay: 0.47 + i * 0.05 }}
                     >
                       <Link
                         href={item.href}

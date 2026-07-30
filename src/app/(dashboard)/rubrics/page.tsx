@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   PenTool, Plus, ChevronRight, Star, Copy, Download, Trash2,
@@ -62,12 +62,29 @@ const templates = [
   { name: 'Custom (AI-Generated)', icon: '\u{2728}', criteria: 0 },
 ]
 
+/** Extract point value from level header like "Exemplary (4)" => 4 */
+function getLevelPoints(levels: string[], index: number): number {
+  const match = levels[index]?.match(/\((\d+)\)/)
+  if (match) return parseInt(match[1], 10)
+  return levels.length - index
+}
+
 type View = 'gallery' | 'preview'
 
 export default function RubricsPage() {
   const [view, setView] = useState<View>('gallery')
   const [showTemplates, setShowTemplates] = useState(false)
   const [generating, setGenerating] = useState(false)
+
+  // Editing state
+  const [editing, setEditing] = useState(false)
+  const [editableCriteria, setEditableCriteria] = useState<string[]>(rubricPreview.criteria)
+  const [editableLevels, setEditableLevels] = useState<string[]>(rubricPreview.levels)
+  const [editableCells, setEditableCells] = useState<string[][]>(rubricPreview.cells.map(r => [...r]))
+  const [aiImproving, setAiImproving] = useState(false)
+
+  // Snapshot for cancel
+  const snapshotRef = useRef<{ criteria: string[]; levels: string[]; cells: string[][] } | null>(null)
 
   function handleGenerate() {
     setGenerating(true)
@@ -77,6 +94,91 @@ export default function RubricsPage() {
       setView('preview')
     }, 2000)
   }
+
+  function startEditing() {
+    snapshotRef.current = {
+      criteria: [...editableCriteria],
+      levels: [...editableLevels],
+      cells: editableCells.map(r => [...r]),
+    }
+    setEditing(true)
+  }
+
+  function cancelEditing() {
+    if (snapshotRef.current) {
+      setEditableCriteria(snapshotRef.current.criteria)
+      setEditableLevels(snapshotRef.current.levels)
+      setEditableCells(snapshotRef.current.cells)
+    }
+    setEditing(false)
+  }
+
+  function doneEditing() {
+    snapshotRef.current = null
+    setEditing(false)
+  }
+
+  function handleAiImprove() {
+    setAiImproving(true)
+    setTimeout(() => {
+      // Simulate AI improvement: capitalize first letter and add polish wording
+      setEditableCells(prev =>
+        prev.map(row =>
+          row.map(cell => {
+            const trimmed = cell.trim()
+            if (!trimmed) return trimmed
+            return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+          })
+        )
+      )
+      setAiImproving(false)
+    }, 1500)
+  }
+
+  // Editable data helpers
+  const updateCriterion = useCallback((index: number, value: string) => {
+    setEditableCriteria(prev => { const next = [...prev]; next[index] = value; return next })
+  }, [])
+
+  const updateLevel = useCallback((index: number, value: string) => {
+    setEditableLevels(prev => { const next = [...prev]; next[index] = value; return next })
+  }, [])
+
+  const updateCell = useCallback((ri: number, ci: number, value: string) => {
+    setEditableCells(prev => {
+      const next = prev.map(r => [...r])
+      next[ri][ci] = value
+      return next
+    })
+  }, [])
+
+  function addCriterion() {
+    setEditableCriteria(prev => [...prev, ''])
+    setEditableCells(prev => [...prev, Array(editableLevels.length).fill('')])
+  }
+
+  function addLevel() {
+    const newIndex = editableLevels.length
+    setEditableLevels(prev => [...prev, `Level ${newIndex + 1}`])
+    setEditableCells(prev => prev.map(row => [...row, '']))
+  }
+
+  function removeCriterion(index: number) {
+    if (editableCriteria.length <= 2) return
+    setEditableCriteria(prev => prev.filter((_, i) => i !== index))
+    setEditableCells(prev => prev.filter((_, i) => i !== index))
+  }
+
+  function removeLevel(index: number) {
+    if (editableLevels.length <= 2) return
+    setEditableLevels(prev => prev.filter((_, i) => i !== index))
+    setEditableCells(prev => prev.map(row => row.filter((_, i) => i !== index)))
+  }
+
+  // Compute total possible points
+  const totalPoints = editableLevels.length > 0
+    ? editableCriteria.length * getLevelPoints(editableLevels, 0)
+    : 0
 
   return (
     <div className="space-y-6">
@@ -249,47 +351,215 @@ export default function RubricsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
           >
-            <div className="glass-card overflow-hidden">
+            <div className="glass-card overflow-hidden relative">
+              {/* Header bar */}
               <div className="p-5 border-b border-white/[0.06] flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-white">Essay Writing Rubric</h3>
-                  <p className="text-xs text-surface-400">English · 10th Grade · 4 criteria × 4 levels</p>
+                  <p className="text-xs text-surface-400">
+                    English · 10th Grade · {editableCriteria.length} criteria × {editableLevels.length} levels
+                    <span className="ml-2 text-accent-400 font-semibold">{totalPoints} pts possible</span>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="btn-secondary text-xs px-3 py-1.5"><Edit3 className="w-3 h-3" /> Edit</button>
+                  {!editing && (
+                    <motion.button
+                      className="btn-secondary text-xs px-3 py-1.5"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={startEditing}
+                    >
+                      <Edit3 className="w-3 h-3" /> Edit
+                    </motion.button>
+                  )}
                   <button className="btn-secondary text-xs px-3 py-1.5"><Copy className="w-3 h-3" /> Duplicate</button>
                   <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3 h-3" /> Export</button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+
+              {/* Editing toolbar */}
+              <AnimatePresence>
+                {editing && (
+                  <motion.div
+                    className="px-5 py-3 border-b border-white/[0.06] flex items-center gap-2 bg-accent-500/[0.04]"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <motion.button
+                      className="btn-primary text-xs px-3 py-1.5"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={doneEditing}
+                    >
+                      <Check className="w-3 h-3" /> Done Editing
+                    </motion.button>
+                    <motion.button
+                      className="btn-secondary text-xs px-3 py-1.5"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={cancelEditing}
+                    >
+                      <X className="w-3 h-3" /> Cancel
+                    </motion.button>
+                    <motion.button
+                      className="btn-gradient text-xs px-3 py-1.5"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={handleAiImprove}
+                      disabled={aiImproving}
+                    >
+                      <Sparkles className={`w-3 h-3 ${aiImproving ? 'animate-spin' : ''}`} />
+                      {aiImproving ? 'Improving...' : 'AI Improve'}
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* AI Improving overlay */}
+              <AnimatePresence>
+                {aiImproving && (
+                  <motion.div
+                    className="absolute inset-0 z-10 flex items-center justify-center bg-surface-900/60 backdrop-blur-sm rounded-2xl"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <div className="text-center">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
+                      >
+                        <Sparkles className="w-8 h-8 text-accent-400 mx-auto" />
+                      </motion.div>
+                      <p className="text-sm text-white font-semibold mt-3">AI is improving your rubric...</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="overflow-x-auto relative">
                 <table className="w-full min-w-[700px]">
                   <thead>
                     <tr className="border-b border-white/[0.06]">
-                      <th className="text-left text-xs font-bold text-surface-200 px-4 py-3 w-32 bg-white/[0.03]">Criteria</th>
-                      {rubricPreview.levels.map(l => (
-                        <th key={l} className="text-center text-xs font-bold text-surface-200 px-4 py-3 bg-white/[0.03]">{l}</th>
-                      ))}
+                      <th className="text-left text-xs font-bold text-surface-200 px-4 py-3 w-32 bg-white/[0.03]">
+                        Criteria
+                      </th>
+                      {editableLevels.map((l, li) => {
+                        const pts = getLevelPoints(editableLevels, li)
+                        return (
+                          <th key={li} className="text-center text-xs font-bold text-surface-200 px-4 py-3 bg-white/[0.03] relative">
+                            {editing ? (
+                              <div className="flex items-center gap-1 justify-center">
+                                <input
+                                  value={l}
+                                  onChange={e => updateLevel(li, e.target.value)}
+                                  className="bg-transparent border border-transparent focus:border-accent-500/40 focus:bg-white/[0.05] rounded-lg px-2 py-1 text-xs text-center text-surface-200 outline-none transition-all w-full min-w-[80px]"
+                                />
+                                {editableLevels.length > 2 && (
+                                  <button
+                                    onClick={() => removeLevel(li)}
+                                    className="text-surface-500 hover:text-red-400 transition-colors flex-shrink-0"
+                                    title="Remove level"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </button>
+                                )}
+                              </div>
+                            ) : (
+                              <span>{l}</span>
+                            )}
+                            <span className="block text-[10px] text-surface-500 font-normal mt-0.5">{pts} pts</span>
+                          </th>
+                        )
+                      })}
+                      {editing && (
+                        <th className="px-2 py-3 bg-white/[0.03]">
+                          <motion.button
+                            className="text-surface-500 hover:text-accent-400 transition-colors p-1 rounded-lg hover:bg-white/[0.06]"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={addLevel}
+                            title="Add level"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </motion.button>
+                        </th>
+                      )}
                     </tr>
                   </thead>
                   <tbody>
-                    {rubricPreview.criteria.map((criteria, ri) => (
+                    {editableCriteria.map((criterion, ri) => (
                       <motion.tr
-                        key={criteria}
+                        key={ri}
                         className="border-b border-white/[0.04]"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 + ri * 0.06 }}
                       >
-                        <td className="px-4 py-3 text-sm font-semibold text-accent-400 bg-accent-500/10">{criteria}</td>
-                        {rubricPreview.cells[ri].map((cell, ci) => (
+                        <td className="px-4 py-3 text-sm font-semibold text-accent-400 bg-accent-500/10">
+                          {editing ? (
+                            <div className="flex items-center gap-1">
+                              <input
+                                value={criterion}
+                                onChange={e => updateCriterion(ri, e.target.value)}
+                                className="bg-transparent border border-transparent focus:border-accent-500/40 focus:bg-white/[0.05] rounded-lg px-2 py-1 text-sm font-semibold text-accent-400 outline-none transition-all w-full"
+                              />
+                              {editableCriteria.length > 2 && (
+                                <button
+                                  onClick={() => removeCriterion(ri)}
+                                  className="text-surface-500 hover:text-red-400 transition-colors flex-shrink-0"
+                                  title="Remove criterion"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            criterion
+                          )}
+                        </td>
+                        {editableCells[ri]?.map((cell, ci) => (
                           <td key={ci} className="px-4 py-3 text-xs text-surface-400 leading-relaxed border-l border-white/[0.04]">
-                            {cell}
+                            {editing ? (
+                              <textarea
+                                value={cell}
+                                onChange={e => updateCell(ri, ci, e.target.value)}
+                                rows={3}
+                                className="bg-transparent border border-transparent focus:border-accent-500/40 focus:bg-white/[0.05] rounded-lg px-2 py-1.5 text-xs text-surface-400 outline-none transition-all w-full resize-none leading-relaxed"
+                              />
+                            ) : (
+                              cell
+                            )}
                           </td>
                         ))}
+                        {editing && <td />}
                       </motion.tr>
                     ))}
                   </tbody>
                 </table>
+
+                {/* Add Criterion button */}
+                <AnimatePresence>
+                  {editing && (
+                    <motion.div
+                      className="px-4 py-3 border-t border-white/[0.04]"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                    >
+                      <motion.button
+                        className="btn-secondary text-xs px-3 py-1.5 w-full justify-center"
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.99 }}
+                        onClick={addCriterion}
+                      >
+                        <Plus className="w-3 h-3" /> Add Criterion
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>
