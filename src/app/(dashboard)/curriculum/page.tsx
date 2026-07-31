@@ -2,112 +2,308 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Map, Plus, ChevronRight, ChevronDown, Calendar, Target,
-  BookOpen, Sparkles, Check, Clock, Layers, GripVertical,
-  ArrowRight, Edit3, Trash2, Copy, Eye, Brain, AlertTriangle,
-  TrendingUp, Flag, BarChart2
+  Map, Plus, ChevronDown, Calendar, Target,
+  BookOpen, Sparkles, Check, Clock, Layers,
+  Edit3, Copy, Eye, Brain, AlertTriangle,
+  TrendingUp, Flag, BarChart2, ChevronLeft,
+  ChevronRight, Zap, Download, RefreshCw,
+  GripVertical, Star, FileText, Users, Lock,
+  Unlock, CheckSquare, ArrowRight, X, Filter,
+  BookMarked, Trophy, PenTool
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
-const units = [
+type UnitStatus = 'completed' | 'in-progress' | 'upcoming' | 'draft'
+type ViewMode = 'list' | 'timeline' | 'calendar'
+type PaceStatus = 'on-track' | 'ahead' | 'behind'
+
+interface Lesson {
+  id: string
+  title: string
+  type: 'lecture' | 'lab' | 'discussion' | 'assessment' | 'project'
+  duration: string
+  completed: boolean
+  aiGenerated: boolean
+}
+
+interface Unit {
+  id: string
+  title: string
+  weeks: string
+  weeksNum: number
+  startWeek: number
+  status: UnitStatus
+  color: string
+  standards: number
+  lessons: number
+  progress: number
+  paceStatus: PaceStatus
+  description: string
+  objectives: string[]
+  topics: string[]
+  lessonList: Lesson[]
+  assessments: string[]
+}
+
+const units: Unit[] = [
   {
-    id: '1', title: 'Cell Biology & Organization', weeks: '3 weeks', status: 'completed' as const,
-    color: '#10b981', standards: 4, lessons: 8, progress: 100,
-    topics: ['Cell Structure', 'Cell Transport', 'Cell Division', 'Photosynthesis'],
+    id: '1',
+    title: 'Cell Biology & Organization',
+    weeks: '3 weeks', weeksNum: 3, startWeek: 1,
+    status: 'completed',
+    color: '#10b981',
+    standards: 4, lessons: 8, progress: 100,
+    paceStatus: 'on-track',
+    description: 'Foundations of cellular structure, function, and the processes that sustain life at the cellular level.',
+    objectives: [
+      'Describe the structure and function of cell organelles',
+      'Compare prokaryotic and eukaryotic cells',
+      'Explain the mechanisms of cell transport',
+      'Model the process of mitosis and meiosis',
+    ],
+    topics: ['Cell Structure', 'Cell Transport', 'Cell Division', 'Photosynthesis', 'Cellular Respiration'],
+    lessonList: [
+      { id: '1-1', title: 'Cell Organelles Overview', type: 'lecture', duration: '50 min', completed: true, aiGenerated: false },
+      { id: '1-2', title: 'Prokaryotes vs Eukaryotes', type: 'discussion', duration: '45 min', completed: true, aiGenerated: true },
+      { id: '1-3', title: 'Cell Transport Lab', type: 'lab', duration: '90 min', completed: true, aiGenerated: false },
+      { id: '1-4', title: 'Photosynthesis Deep Dive', type: 'lecture', duration: '50 min', completed: true, aiGenerated: true },
+      { id: '1-5', title: 'Cellular Respiration', type: 'lecture', duration: '50 min', completed: true, aiGenerated: false },
+      { id: '1-6', title: 'Cell Cycle & Mitosis', type: 'lab', duration: '90 min', completed: true, aiGenerated: true },
+      { id: '1-7', title: 'Review Session', type: 'discussion', duration: '50 min', completed: true, aiGenerated: false },
+      { id: '1-8', title: 'Unit 1 Assessment', type: 'assessment', duration: '60 min', completed: true, aiGenerated: false },
+    ],
+    assessments: ['Cell Organelle Quiz', 'Transport Lab Report', 'Unit 1 Test'],
   },
   {
-    id: '2', title: 'Genetics & Heredity', weeks: '4 weeks', status: 'in-progress' as const,
-    color: '#6366f1', standards: 5, lessons: 10, progress: 60,
-    topics: ['DNA Structure', 'Protein Synthesis', 'Mendelian Genetics', 'Genetic Disorders', 'Biotechnology'],
+    id: '2',
+    title: 'Genetics & Heredity',
+    weeks: '4 weeks', weeksNum: 4, startWeek: 4,
+    status: 'in-progress',
+    color: '#6366f1',
+    standards: 5, lessons: 10, progress: 60,
+    paceStatus: 'behind',
+    description: 'Comprehensive study of DNA structure, gene expression, Mendelian genetics, and modern biotechnology applications.',
+    objectives: [
+      'Explain the structure of DNA and how it encodes genetic information',
+      'Trace the process from gene to protein through transcription and translation',
+      'Apply Mendelian inheritance patterns to predict offspring traits',
+      'Evaluate the ethical implications of genetic technologies',
+    ],
+    topics: ['DNA Structure', 'Protein Synthesis', 'Mendelian Genetics', 'Genetic Disorders', 'Biotechnology', 'CRISPR'],
+    lessonList: [
+      { id: '2-1', title: 'DNA Structure & Replication', type: 'lecture', duration: '50 min', completed: true, aiGenerated: false },
+      { id: '2-2', title: 'Transcription & Translation', type: 'lecture', duration: '50 min', completed: true, aiGenerated: true },
+      { id: '2-3', title: 'Protein Synthesis Lab', type: 'lab', duration: '90 min', completed: true, aiGenerated: false },
+      { id: '2-4', title: 'Mendelian Genetics', type: 'lecture', duration: '50 min', completed: true, aiGenerated: false },
+      { id: '2-5', title: 'Punnett Square Practice', type: 'discussion', duration: '45 min', completed: true, aiGenerated: true },
+      { id: '2-6', title: 'Genetics Problem Set', type: 'assessment', duration: '60 min', completed: false, aiGenerated: false },
+      { id: '2-7', title: 'Genetic Disorders Case Studies', type: 'project', duration: '90 min', completed: false, aiGenerated: true },
+      { id: '2-8', title: 'Biotechnology Overview', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '2-9', title: 'CRISPR Ethics Discussion', type: 'discussion', duration: '45 min', completed: false, aiGenerated: true },
+      { id: '2-10', title: 'Unit 2 Assessment', type: 'assessment', duration: '60 min', completed: false, aiGenerated: false },
+    ],
+    assessments: ['DNA Quiz', 'Genetics Problem Set', 'Case Study Presentation', 'Unit 2 Test'],
   },
   {
-    id: '3', title: 'Evolution & Natural Selection', weeks: '3 weeks', status: 'upcoming' as const,
-    color: '#f97316', standards: 3, lessons: 7, progress: 0,
-    topics: ['Evidence for Evolution', 'Natural Selection', 'Speciation'],
+    id: '3',
+    title: 'Evolution & Natural Selection',
+    weeks: '3 weeks', weeksNum: 3, startWeek: 8,
+    status: 'upcoming',
+    color: '#f97316',
+    standards: 3, lessons: 7, progress: 0,
+    paceStatus: 'on-track',
+    description: 'Exploration of evolutionary theory, the mechanisms of natural selection, and the evidence supporting common descent.',
+    objectives: [
+      'Evaluate the lines of evidence supporting evolutionary theory',
+      'Explain the mechanism of natural selection and its requirements',
+      'Analyze how populations change over time through microevolution',
+      'Construct phylogenetic trees to show evolutionary relationships',
+    ],
+    topics: ['Evidence for Evolution', 'Natural Selection', 'Speciation', 'Phylogenetics', 'Population Genetics'],
+    lessonList: [
+      { id: '3-1', title: 'Evidence for Evolution', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '3-2', title: 'Darwin\'s Theory', type: 'discussion', duration: '45 min', completed: false, aiGenerated: true },
+      { id: '3-3', title: 'Natural Selection Simulation', type: 'lab', duration: '90 min', completed: false, aiGenerated: false },
+      { id: '3-4', title: 'Mechanisms of Evolution', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '3-5', title: 'Speciation Case Studies', type: 'project', duration: '90 min', completed: false, aiGenerated: true },
+      { id: '3-6', title: 'Phylogenetic Trees', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '3-7', title: 'Unit 3 Assessment', type: 'assessment', duration: '60 min', completed: false, aiGenerated: false },
+    ],
+    assessments: ['Evolution Quiz', 'Species Analysis', 'Unit 3 Test'],
   },
   {
-    id: '4', title: 'Ecology & Ecosystems', weeks: '3 weeks', status: 'upcoming' as const,
-    color: '#22d3ee', standards: 4, lessons: 9, progress: 0,
-    topics: ['Energy Flow', 'Nutrient Cycles', 'Population Dynamics', 'Human Impact'],
+    id: '4',
+    title: 'Ecology & Ecosystems',
+    weeks: '3 weeks', weeksNum: 3, startWeek: 11,
+    status: 'upcoming',
+    color: '#22d3ee',
+    standards: 4, lessons: 9, progress: 0,
+    paceStatus: 'on-track',
+    description: 'Investigation of ecological relationships, energy flow through ecosystems, and human impacts on natural systems.',
+    objectives: [
+      'Trace the flow of energy through trophic levels in an ecosystem',
+      'Explain how matter cycles through Earth\'s biogeochemical cycles',
+      'Analyze how changes in population size affect community structure',
+      'Evaluate human impacts on biodiversity and ecosystem services',
+    ],
+    topics: ['Energy Flow', 'Nutrient Cycles', 'Population Dynamics', 'Community Ecology', 'Human Impact', 'Conservation'],
+    lessonList: [
+      { id: '4-1', title: 'Ecosystem Components', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '4-2', title: 'Energy Flow & Food Webs', type: 'lecture', duration: '50 min', completed: false, aiGenerated: true },
+      { id: '4-3', title: 'Biogeochemical Cycles', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '4-4', title: 'Carbon Cycle Lab', type: 'lab', duration: '90 min', completed: false, aiGenerated: false },
+      { id: '4-5', title: 'Population Dynamics', type: 'lecture', duration: '50 min', completed: false, aiGenerated: true },
+      { id: '4-6', title: 'Predator-Prey Simulation', type: 'lab', duration: '90 min', completed: false, aiGenerated: false },
+      { id: '4-7', title: 'Human Impact Case Study', type: 'project', duration: '90 min', completed: false, aiGenerated: true },
+      { id: '4-8', title: 'Conservation Debate', type: 'discussion', duration: '45 min', completed: false, aiGenerated: false },
+      { id: '4-9', title: 'Unit 4 Assessment', type: 'assessment', duration: '60 min', completed: false, aiGenerated: false },
+    ],
+    assessments: ['Ecosystem Quiz', 'Cycle Models', 'Human Impact Report', 'Unit 4 Test'],
   },
   {
-    id: '5', title: 'Human Body Systems', weeks: '4 weeks', status: 'upcoming' as const,
-    color: '#ec4899', standards: 6, lessons: 12, progress: 0,
-    topics: ['Circulatory', 'Respiratory', 'Nervous', 'Digestive', 'Immune', 'Endocrine'],
+    id: '5',
+    title: 'Human Body Systems',
+    weeks: '4 weeks', weeksNum: 4, startWeek: 14,
+    status: 'draft',
+    color: '#ec4899',
+    standards: 6, lessons: 12, progress: 0,
+    paceStatus: 'on-track',
+    description: 'Comprehensive exploration of human anatomy and physiology across major organ systems, integrating structure and function.',
+    objectives: [
+      'Describe the structure and function of major organ systems',
+      'Explain how organ systems work together to maintain homeostasis',
+      'Analyze the causes and effects of diseases affecting specific organ systems',
+      'Design an experiment to test a hypothesis about body system function',
+    ],
+    topics: ['Circulatory System', 'Respiratory System', 'Nervous System', 'Digestive System', 'Immune System', 'Endocrine System'],
+    lessonList: [
+      { id: '5-1', title: 'Introduction to Organ Systems', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '5-2', title: 'Circulatory System', type: 'lecture', duration: '50 min', completed: false, aiGenerated: true },
+      { id: '5-3', title: 'Heart Rate Lab', type: 'lab', duration: '90 min', completed: false, aiGenerated: false },
+      { id: '5-4', title: 'Respiratory System', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '5-5', title: 'Nervous System & Brain', type: 'lecture', duration: '50 min', completed: false, aiGenerated: true },
+      { id: '5-6', title: 'Reflex Arc Lab', type: 'lab', duration: '90 min', completed: false, aiGenerated: false },
+      { id: '5-7', title: 'Digestive System', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '5-8', title: 'Immune System Basics', type: 'lecture', duration: '50 min', completed: false, aiGenerated: true },
+      { id: '5-9', title: 'Endocrine System', type: 'lecture', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '5-10', title: 'Disease Case Studies', type: 'project', duration: '120 min', completed: false, aiGenerated: true },
+      { id: '5-11', title: 'Systems Integration Review', type: 'discussion', duration: '50 min', completed: false, aiGenerated: false },
+      { id: '5-12', title: 'Final Unit Assessment', type: 'assessment', duration: '80 min', completed: false, aiGenerated: false },
+    ],
+    assessments: ['Systems Quiz x3', 'Case Study Project', 'Final Unit Test'],
   },
 ]
 
-const statusColors = {
-  'completed': { bg: 'bg-success-500/15', text: 'text-success-400', label: 'Completed' },
-  'in-progress': { bg: 'bg-accent-500/15', text: 'text-accent-400', label: 'In Progress' },
-  'upcoming': { bg: 'bg-surface-500/15', text: 'text-surface-400', label: 'Upcoming' },
-}
+const statusConfig = {
+  completed:   { bg: 'bg-success-500/15', text: 'text-success-400', border: 'border-success-500/20', label: 'Completed' },
+  'in-progress': { bg: 'bg-accent-500/15', text: 'text-accent-400', border: 'border-accent-500/20', label: 'In Progress' },
+  upcoming:    { bg: 'bg-surface-500/15', text: 'text-surface-400', border: 'border-white/[0.06]', label: 'Upcoming' },
+  draft:       { bg: 'bg-warning-500/15', text: 'text-warning-400', border: 'border-warning-500/20', label: 'Draft' },
+} as const
 
-const yearOverview = [
-  { quarter: 'Q1 (Aug-Oct)', units: 2, weeks: 7, progress: 100 },
-  { quarter: 'Q2 (Nov-Jan)', units: 1, weeks: 4, progress: 60 },
-  { quarter: 'Q3 (Feb-Apr)', units: 1, weeks: 3, progress: 0 },
-  { quarter: 'Q4 (Apr-Jun)', units: 1, weeks: 4, progress: 0 },
+const lessonTypeConfig = {
+  lecture:    { color: '#6366f1', bg: 'bg-accent-500/15', label: 'Lecture' },
+  lab:        { color: '#10b981', bg: 'bg-success-500/15', label: 'Lab' },
+  discussion: { color: '#f97316', bg: 'bg-orange-500/15', label: 'Discussion' },
+  assessment: { color: '#f43f5e', bg: 'bg-danger-400/15', label: 'Assessment' },
+  project:    { color: '#8b5cf6', bg: 'bg-purple-500/15', label: 'Project' },
+} as const
+
+const paceConfig = {
+  'on-track': { color: 'text-success-400', bg: 'bg-success-500/15', label: 'On Track' },
+  ahead:      { color: 'text-electric-400', bg: 'bg-electric-400/15', label: 'Ahead' },
+  behind:     { color: 'text-warning-400', bg: 'bg-warning-500/15', label: 'Behind' },
+} as const
+
+const quarterData = [
+  { quarter: 'Q1', label: 'Aug-Oct', units: 2, weeks: 7, progress: 100, color: '#10b981' },
+  { quarter: 'Q2', label: 'Nov-Jan', units: 1, weeks: 4, progress: 60, color: '#6366f1' },
+  { quarter: 'Q3', label: 'Feb-Apr', units: 1, weeks: 3, progress: 0, color: '#f97316' },
+  { quarter: 'Q4', label: 'Apr-Jun', units: 1, weeks: 4, progress: 0, color: '#22d3ee' },
+]
+
+const standardsCoverage = [
+  { label: 'LS1: Molecules to Organisms', covered: 8, total: 8, color: '#10b981' },
+  { label: 'LS2: Ecosystems', covered: 0, total: 6, color: '#22d3ee' },
+  { label: 'LS3: Heredity', covered: 3, total: 5, color: '#6366f1' },
+  { label: 'LS4: Biological Evolution', covered: 0, total: 4, color: '#f97316' },
+  { label: 'PS1: Matter & Energy', covered: 2, total: 3, color: '#ec4899' },
 ]
 
 export default function CurriculumPage() {
   const [expandedUnit, setExpandedUnit] = useState<string | null>('2')
-  const [view, setView] = useState<'timeline' | 'list'>('list')
+  const [view, setView] = useState<ViewMode>('list')
+  const [selectedUnit, setSelectedUnit] = useState<string | null>(null)
+  const [showLessons, setShowLessons] = useState<Record<string, boolean>>({})
+  const [timelineMonth, setTimelineMonth] = useState(0)
 
   const totalLessons = units.reduce((acc, u) => acc + u.lessons, 0)
   const totalStandards = units.reduce((acc, u) => acc + u.standards, 0)
+  const completedLessons = units.flatMap(u => u.lessonList).filter(l => l.completed).length
   const overallProgress = Math.round(units.reduce((acc, u) => acc + u.progress, 0) / units.length)
+
+  function toggleLessons(unitId: string) {
+    setShowLessons(prev => ({ ...prev, [unitId]: !prev[unitId] }))
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <FadeUp>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
-              <Map className="w-5 h-5 text-white" />
+              <Map className="w-6 h-6 text-white" />
             </motion.div>
             <div>
               <h2 className="text-xl font-black text-white">Curriculum Planner</h2>
-              <p className="text-xs text-surface-400">AP Biology · {units.length} units · {totalLessons} lessons</p>
+              <p className="text-xs text-surface-400">AP Biology · {units.length} units · {totalLessons} lessons · AY 2025-26</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
-              <button
-                onClick={() => setView('list')}
-                className={`px-3 py-1 rounded-full text-xs transition-all ${view === 'list' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}
-              >
-                List
-              </button>
-              <button
-                onClick={() => setView('timeline')}
-                className={`px-3 py-1 rounded-full text-xs transition-all ${view === 'timeline' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}
-              >
-                Timeline
-              </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5 text-xs">
+              {(['list', 'timeline', 'calendar'] as ViewMode[]).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`px-3 py-1 rounded-full transition-all capitalize ${
+                    view === v ? 'bg-white/[0.1] text-white font-semibold' : 'text-surface-500 hover:text-surface-300'
+                  }`}
+                >
+                  {v}
+                </button>
+              ))}
             </div>
-            <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <motion.button
+              className="btn-gradient text-xs"
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
               <Sparkles className="w-3.5 h-3.5" /> AI Plan
             </motion.button>
             <button className="btn-secondary text-xs px-3 py-1.5">
               <Plus className="w-3.5 h-3.5" /> Add Unit
             </button>
+            <button className="btn-secondary text-xs px-3 py-1.5">
+              <Download className="w-3.5 h-3.5" /> Export
+            </button>
           </div>
         </div>
       </FadeUp>
 
+      {/* Stats */}
       <FadeUp delay={0.05}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Units', value: units.length, icon: Layers, color: '#6366f1' },
-            { label: 'Lessons', value: totalLessons, icon: BookOpen, color: '#14b8a6' },
-            { label: 'Standards', value: totalStandards, icon: Target, color: '#f97316' },
-            { label: 'Progress', value: `${overallProgress}%`, icon: Check, color: '#10b981' },
+            { label: 'Total Units', value: units.length.toString(), sub: '17 weeks total', icon: Layers, color: '#6366f1' },
+            { label: 'Lessons Planned', value: totalLessons.toString(), sub: `${completedLessons} completed`, icon: BookOpen, color: '#14b8a6' },
+            { label: 'Standards Covered', value: totalStandards.toString(), sub: 'NGSS aligned', icon: Target, color: '#f97316' },
+            { label: 'Overall Progress', value: `${overallProgress}%`, sub: 'on-track for year', icon: TrendingUp, color: '#10b981' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -115,178 +311,474 @@ export default function CurriculumPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -2 }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '18' }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '20' }}>
                   <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
                 </div>
                 <span className="text-xs text-surface-400">{stat.label}</span>
               </div>
-              <p className="text-xl font-black text-white">{stat.value}</p>
+              <p className="text-2xl font-black text-white">{stat.value}</p>
+              <p className="text-[10px] text-surface-500 mt-0.5">{stat.sub}</p>
             </motion.div>
           ))}
         </div>
       </FadeUp>
 
-      {/* AI Pacing Insight */}
+      {/* AI Pacing Alert */}
       <FadeUp delay={0.08}>
-        <div className="glass-card p-4 border border-accent-500/20">
+        <div className="glass-card p-4 border border-warning-500/20">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
-              <Brain className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-warning-500/20">
+              <Brain className="w-4.5 h-4.5 text-warning-400" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-bold text-white">AI Pacing Alert</span>
-                <span className="text-[10px] bg-warning-400/15 text-warning-400 px-1.5 py-0.5 rounded-md font-bold">Attention</span>
+                <span className="text-sm font-bold text-white">AI Pacing Alert</span>
+                <span className="text-[10px] bg-warning-500/20 text-warning-400 px-2 py-0.5 rounded-full font-semibold">Attention Needed</span>
               </div>
-              <p className="text-xs text-surface-400">Unit 2 (Genetics &amp; Heredity) is running 3 days behind schedule. At current pace, you may need to compress Evolution unit. Consider skipping the optional Biotechnology lab or moving it to enrichment.</p>
-              <div className="flex items-center gap-2 mt-2">
-                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">Adjust Pacing</button>
-                <span className="text-surface-600">·</span>
-                <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Dismiss</button>
+              <p className="text-xs text-surface-400 leading-relaxed">
+                Unit 2 (Genetics & Heredity) is running <span className="text-warning-400 font-semibold">3 days behind schedule</span>. At the current pace, the Evolution unit may need compression by 2 days. Recommended: skip the optional Biotechnology extension lab, or move it to the enrichment track.
+              </p>
+              <div className="flex items-center gap-3 mt-2">
+                <motion.button className="btn-gradient text-[10px] px-2.5 py-1" whileHover={{ scale: 1.02 }}>
+                  <Zap className="w-2.5 h-2.5" /> Auto-Adjust Pacing
+                </motion.button>
+                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold">View alternatives</button>
+                <button className="text-xs text-surface-500 hover:text-surface-300 ml-auto">Dismiss</button>
               </div>
             </div>
           </div>
         </div>
       </FadeUp>
 
+      {/* Year Overview */}
       <FadeUp delay={0.1}>
         <div className="glass-card p-5">
-          <h3 className="text-sm font-bold text-white mb-3">Year Overview</h3>
-          <div className="flex gap-2">
-            {yearOverview.map((q, i) => (
-              <div key={q.quarter} className="flex-1">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[10px] text-surface-400">{q.quarter}</span>
-                  <span className="text-[10px] text-surface-500">{q.progress}%</span>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white">Year-at-a-Glance</h3>
+            <span className="text-xs text-surface-500">Academic Year 2025–2026</span>
+          </div>
+          <div className="grid grid-cols-4 gap-3">
+            {quarterData.map((q, i) => (
+              <motion.div
+                key={q.quarter}
+                className="space-y-2"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 + i * 0.06 }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-white">{q.quarter}</p>
+                    <p className="text-[10px] text-surface-500">{q.label}</p>
+                  </div>
+                  <span className="text-[10px] font-bold" style={{ color: q.color }}>{q.progress}%</span>
                 </div>
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: q.progress === 100 ? '#10b981' : q.progress > 0 ? '#6366f1' : '#374151' }}
+                    style={{ backgroundColor: q.color }}
                     initial={{ width: 0 }}
                     animate={{ width: `${q.progress}%` }}
-                    transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}
+                    transition={{ delay: 0.3 + i * 0.1, duration: 0.7 }}
                   />
                 </div>
-                <p className="text-[10px] text-surface-500 mt-1">{q.units} units · {q.weeks} wks</p>
-              </div>
+                <p className="text-[10px] text-surface-500">{q.units} unit{q.units > 1 ? 's' : ''} · {q.weeks} wks</p>
+              </motion.div>
             ))}
           </div>
-        </div>
-      </FadeUp>
 
-      {/* Standards Coverage */}
-      <FadeUp delay={0.12}>
-        <div className="glass-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-white">Standards Coverage</h3>
-            <span className="text-xs text-surface-500">AP Biology · NGSS</span>
-          </div>
-          <div className="space-y-2.5">
-            {[
-              { label: 'LS1: From Molecules to Organisms', covered: 8, total: 8, color: '#10b981' },
-              { label: 'LS2: Ecosystems', covered: 0, total: 6, color: '#22d3ee' },
-              { label: 'LS3: Heredity', covered: 3, total: 5, color: '#6366f1' },
-              { label: 'LS4: Biological Evolution', covered: 0, total: 4, color: '#f97316' },
-            ].map((std, i) => (
-              <div key={std.label}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-surface-300">{std.label}</span>
-                  <span className="text-[10px] text-surface-500">{std.covered}/{std.total}</span>
-                </div>
-                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: std.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${(std.covered / std.total) * 100}%` }}
-                    transition={{ delay: 0.4 + i * 0.08, duration: 0.6 }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </FadeUp>
-
-      <div className="space-y-3">
-        {units.map((unit, i) => {
-          const status = statusColors[unit.status]
-          const isExpanded = expandedUnit === unit.id
-          return (
-            <motion.div
-              key={unit.id}
-              className="glass-card overflow-hidden"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.06 }}
-            >
-              <button
-                className="w-full flex items-center gap-4 p-5 text-left"
-                onClick={() => setExpandedUnit(isExpanded ? null : unit.id)}
-              >
-                <div className="w-1 h-10 rounded-full" style={{ backgroundColor: unit.color }} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-sm font-bold text-white truncate">{unit.title}</h4>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${status.bg} ${status.text}`}>
-                      {status.label}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-surface-500">
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{unit.weeks}</span>
-                    <span>{unit.lessons} lessons</span>
-                    <span>{unit.standards} standards</span>
-                  </div>
-                </div>
-                <div className="w-20">
-                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${unit.progress}%`, backgroundColor: unit.color }} />
-                  </div>
-                  <p className="text-[10px] text-surface-500 text-right mt-0.5">{unit.progress}%</p>
-                </div>
-                <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
-                  <ChevronDown className="w-4 h-4 text-surface-500" />
+          {/* Visual timeline bar */}
+          <div className="mt-4 pt-4 border-t border-white/[0.06]">
+            <div className="flex gap-1 h-8">
+              {units.map((unit, i) => (
+                <motion.div
+                  key={unit.id}
+                  className="rounded-md flex items-center justify-center text-[9px] font-bold text-white overflow-hidden cursor-pointer"
+                  style={{
+                    flex: unit.weeksNum,
+                    backgroundColor: unit.color + '30',
+                    borderLeft: `3px solid ${unit.color}`,
+                    opacity: unit.status === 'draft' ? 0.5 : 1,
+                  }}
+                  initial={{ scaleX: 0, originX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 0.2 + i * 0.08, duration: 0.5 }}
+                  whileHover={{ backgroundColor: unit.color + '50' }}
+                  onClick={() => setExpandedUnit(unit.id === expandedUnit ? null : unit.id)}
+                >
+                  <span className="truncate px-1">U{unit.id}</span>
                 </motion.div>
-              </button>
-              <AnimatePresence>
-                {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
+              ))}
+            </div>
+            <div className="flex text-[9px] text-surface-600 mt-1 gap-1">
+              {units.map(u => (
+                <div key={u.id} style={{ flex: u.weeksNum }} className="text-center truncate">{u.weeks}</div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Main: Unit list */}
+        <div className="xl:col-span-2 space-y-3">
+          <AnimatePresence>
+            {units.map((unit, i) => {
+              const statusCfg = statusConfig[unit.status]
+              const paceCfg = paceConfig[unit.paceStatus]
+              const isExpanded = expandedUnit === unit.id
+              const lessonsVisible = showLessons[unit.id]
+              const completedLessonsCount = unit.lessonList.filter(l => l.completed).length
+              return (
+                <motion.div
+                  key={unit.id}
+                  className={`glass-card overflow-hidden border ${statusCfg.border}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12 + i * 0.06 }}
+                >
+                  {/* Unit header */}
+                  <button
+                    className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.02] transition-colors"
+                    onClick={() => setExpandedUnit(isExpanded ? null : unit.id)}
                   >
-                    <div className="px-5 pb-5 pt-0 border-t border-white/[0.06]">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4 mb-4">
-                        {unit.topics.map((topic, ti) => (
-                          <motion.div
-                            key={topic}
-                            className="flex items-center gap-2 px-3 py-2 bg-white/[0.03] rounded-lg border border-white/[0.06]"
-                            initial={{ opacity: 0, x: -8 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: ti * 0.05 }}
-                          >
-                            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: unit.color }} />
-                            <span className="text-xs text-surface-300">{topic}</span>
-                          </motion.div>
-                        ))}
+                    <div className="w-1.5 h-12 rounded-full flex-shrink-0" style={{ backgroundColor: unit.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <h4 className="text-sm font-black text-white">{unit.title}</h4>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${statusCfg.bg} ${statusCfg.text}`}>
+                          {statusCfg.label}
+                        </span>
+                        {unit.paceStatus !== 'on-track' && (
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${paceCfg.bg} ${paceCfg.color}`}>
+                            {paceCfg.label}
+                          </span>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button className="btn-secondary text-xs px-3 py-1.5"><Eye className="w-3 h-3" /> View Lessons</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5"><Edit3 className="w-3 h-3" /> Edit</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5"><Copy className="w-3 h-3" /> Duplicate</button>
+                      <div className="flex items-center gap-4 text-xs text-surface-500">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {unit.weeks}</span>
+                        <span>{unit.lessons} lessons</span>
+                        <span>{unit.standards} standards</span>
+                        {unit.status === 'in-progress' && (
+                          <span className="text-accent-400 font-semibold">{completedLessonsCount}/{unit.lessons} done</span>
+                        )}
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )
-        })}
+                    <div className="w-24 flex-shrink-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-surface-500">{unit.progress}%</span>
+                      </div>
+                      <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: unit.color }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${unit.progress}%` }}
+                          transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
+                        />
+                      </div>
+                    </div>
+                    <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                      <ChevronDown className="w-4 h-4 text-surface-500 flex-shrink-0" />
+                    </motion.div>
+                  </button>
+
+                  {/* Expanded content */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="border-t border-white/[0.06] p-5 space-y-4">
+                          {/* Description */}
+                          <p className="text-xs text-surface-400 leading-relaxed">{unit.description}</p>
+
+                          {/* Learning objectives */}
+                          <div>
+                            <h5 className="text-xs font-bold text-surface-300 mb-2 flex items-center gap-1.5">
+                              <Target className="w-3.5 h-3.5" /> Learning Objectives
+                            </h5>
+                            <div className="space-y-1.5">
+                              {unit.objectives.map((obj, oi) => (
+                                <motion.div
+                                  key={oi}
+                                  className="flex items-start gap-2"
+                                  initial={{ opacity: 0, x: -6 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: oi * 0.05 }}
+                                >
+                                  <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ backgroundColor: unit.color + '25' }}>
+                                    <Check className="w-2.5 h-2.5" style={{ color: unit.color }} />
+                                  </div>
+                                  <p className="text-xs text-surface-400 leading-relaxed">{obj}</p>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Topics */}
+                          <div>
+                            <h5 className="text-xs font-bold text-surface-300 mb-2 flex items-center gap-1.5">
+                              <BookOpen className="w-3.5 h-3.5" /> Key Topics
+                            </h5>
+                            <div className="flex flex-wrap gap-1.5">
+                              {unit.topics.map(topic => (
+                                <span key={topic} className="text-[10px] px-2 py-1 rounded-lg text-surface-300" style={{ backgroundColor: unit.color + '15', border: `1px solid ${unit.color}25` }}>
+                                  {topic}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Lesson list toggle */}
+                          <div>
+                            <button
+                              className="flex items-center gap-2 text-xs font-bold text-surface-300 hover:text-white mb-2 transition-colors"
+                              onClick={() => toggleLessons(unit.id)}
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              {lessonsVisible ? 'Hide' : 'Show'} Lessons ({unit.lessons})
+                              <motion.span animate={{ rotate: lessonsVisible ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                                <ChevronDown className="w-3.5 h-3.5" />
+                              </motion.span>
+                            </button>
+                            <AnimatePresence>
+                              {lessonsVisible && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0 }}
+                                  animate={{ height: 'auto', opacity: 1 }}
+                                  exit={{ height: 0, opacity: 0 }}
+                                  className="overflow-hidden space-y-1.5"
+                                >
+                                  {unit.lessonList.map((lesson, li) => {
+                                    const lType = lessonTypeConfig[lesson.type]
+                                    return (
+                                      <motion.div
+                                        key={lesson.id}
+                                        className="flex items-center gap-3 px-3 py-2 bg-white/[0.03] rounded-lg border border-white/[0.04] hover:border-white/[0.10] transition-colors"
+                                        initial={{ opacity: 0, x: -6 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: li * 0.04 }}
+                                      >
+                                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                          lesson.completed ? 'bg-success-500/25' : 'bg-white/[0.06]'
+                                        }`}>
+                                          {lesson.completed
+                                            ? <Check className="w-3 h-3 text-success-400" />
+                                            : <span className="text-[9px] text-surface-500 font-bold">{li + 1}</span>
+                                          }
+                                        </div>
+                                        <span className="text-xs text-surface-300 flex-1">{lesson.title}</span>
+                                        <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${lType.bg}`} style={{ color: lType.color }}>{lType.label}</span>
+                                        <span className="text-[10px] text-surface-600">{lesson.duration}</span>
+                                        {lesson.aiGenerated && (
+                                          <Sparkles className="w-3 h-3 text-accent-400 flex-shrink-0" />
+                                        )}
+                                      </motion.div>
+                                    )
+                                  })}
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+
+                          {/* Assessments */}
+                          <div>
+                            <h5 className="text-xs font-bold text-surface-300 mb-2 flex items-center gap-1.5">
+                              <CheckSquare className="w-3.5 h-3.5" /> Assessments
+                            </h5>
+                            <div className="flex flex-wrap gap-2">
+                              {unit.assessments.map(a => (
+                                <span key={a} className="text-[10px] px-2 py-1 bg-danger-400/10 text-danger-400 border border-danger-400/20 rounded-lg">{a}</span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-2 pt-1">
+                            <motion.button
+                              className="btn-gradient text-xs"
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
+                            >
+                              <Sparkles className="w-3 h-3" /> Generate Lessons
+                            </motion.button>
+                            <button className="btn-secondary text-xs px-3 py-1.5"><Eye className="w-3 h-3" /> Preview</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5"><Edit3 className="w-3 h-3" /> Edit</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5"><Copy className="w-3 h-3" /> Duplicate</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5 ml-auto text-danger-400 hover:bg-danger-400/10">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+
+          {/* Add unit CTA */}
+          <motion.button
+            className="w-full glass-card p-4 border-2 border-dashed border-white/[0.08] hover:border-accent-500/30 flex items-center justify-center gap-2 text-surface-500 hover:text-white transition-all"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+          >
+            <Plus className="w-4 h-4" />
+            <span className="text-sm font-semibold">Add New Unit</span>
+          </motion.button>
+        </div>
+
+        {/* Sidebar: Standards coverage + AI tools */}
+        <div className="space-y-4">
+          {/* Standards coverage */}
+          <FadeInWhenVisible>
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-bold text-white">Standards Coverage</h3>
+                <span className="text-xs text-surface-500">NGSS</span>
+              </div>
+              <div className="space-y-3">
+                {standardsCoverage.map((std, i) => {
+                  const pct = Math.round((std.covered / std.total) * 100)
+                  return (
+                    <motion.div
+                      key={std.label}
+                      initial={{ opacity: 0, x: 8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] text-surface-300 leading-tight">{std.label}</span>
+                        <span className="text-[10px] text-surface-500 flex-shrink-0 ml-2">{std.covered}/{std.total}</span>
+                      </div>
+                      <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: std.color }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
+                        />
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-surface-400">Overall Coverage</span>
+                  <span className="font-bold text-white">52%</span>
+                </div>
+                <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden mt-1.5">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
+                    initial={{ width: 0 }}
+                    animate={{ width: '52%' }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                  />
+                </div>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {/* AI Curriculum Tools */}
+          <FadeInWhenVisible delay={0.05}>
+            <div className="glass-card p-5">
+              <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-accent-400" /> AI Curriculum Tools
+              </h3>
+              <div className="space-y-2">
+                {[
+                  { icon: Zap, label: 'Generate Full Unit Plan', color: '#6366f1', desc: 'Complete unit with lessons, assessments & rubrics' },
+                  { icon: RefreshCw, label: 'Rebalance Pacing', color: '#f97316', desc: 'Auto-adjust week distribution to meet year-end goals' },
+                  { icon: Target, label: 'Fill Standards Gaps', color: '#10b981', desc: 'Identify and close alignment gaps automatically' },
+                  { icon: Users, label: 'Differentiation Layer', color: '#ec4899', desc: 'Add IEP/504 accommodations to every lesson' },
+                  { icon: BarChart2, label: 'Assessment Audit', color: '#14b8a6', desc: 'Balance formative/summative across the year' },
+                ].map((tool, i) => (
+                  <motion.button
+                    key={tool.label}
+                    className="w-full flex items-start gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors text-left group"
+                    initial={{ opacity: 0, x: 8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 + i * 0.05 }}
+                    whileHover={{ x: 2 }}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: tool.color + '20' }}>
+                      <tool.icon className="w-3.5 h-3.5" style={{ color: tool.color }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-white group-hover:text-accent-300 transition-colors">{tool.label}</p>
+                      <p className="text-[10px] text-surface-500 leading-snug">{tool.desc}</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-surface-600 group-hover:text-accent-400 flex-shrink-0 mt-1 transition-colors" />
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {/* Lesson type legend */}
+          <FadeInWhenVisible delay={0.1}>
+            <div className="glass-card p-4">
+              <h4 className="text-xs font-bold text-surface-300 mb-3 flex items-center gap-1.5">
+                <PenTool className="w-3 h-3" /> Lesson Types
+              </h4>
+              <div className="space-y-1.5">
+                {Object.entries(lessonTypeConfig).map(([type, cfg]) => (
+                  <div key={type} className="flex items-center gap-2">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${cfg.bg}`} style={{ color: cfg.color }}>{cfg.label}</span>
+                    <span className="text-[10px] text-surface-500 capitalize">{type}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-2">
+                <Sparkles className="w-3 h-3 text-accent-400" />
+                <span className="text-[10px] text-surface-500">AI-generated lessons marked with ✦</span>
+              </div>
+            </div>
+          </FadeInWhenVisible>
+
+          {/* Upcoming milestones */}
+          <FadeInWhenVisible delay={0.12}>
+            <div className="glass-card p-4">
+              <h4 className="text-xs font-bold text-surface-300 mb-3 flex items-center gap-1.5">
+                <Flag className="w-3 h-3" /> Upcoming Milestones
+              </h4>
+              <div className="space-y-2">
+                {[
+                  { date: 'Aug 12', label: 'Unit 2 Genetics Problem Set', type: 'assessment', urgent: true },
+                  { date: 'Aug 19', label: 'Unit 2 Case Study Presentations', type: 'project', urgent: false },
+                  { date: 'Aug 26', label: 'Unit 2 Final Assessment', type: 'assessment', urgent: false },
+                  { date: 'Sep 2', label: 'Unit 3 Evolution begins', type: 'milestone', urgent: false },
+                ].map((m, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`w-1 h-8 rounded-full flex-shrink-0 ${
+                      m.urgent ? 'bg-danger-400' : m.type === 'assessment' ? 'bg-warning-400' :
+                      m.type === 'project' ? 'bg-purple-400' : 'bg-accent-400'
+                    }`} />
+                    <div>
+                      <p className="text-[10px] text-surface-500">{m.date}</p>
+                      <p className="text-xs text-surface-300">{m.label}</p>
+                    </div>
+                    {m.urgent && (
+                      <AlertTriangle className="w-3.5 h-3.5 text-danger-400 ml-auto flex-shrink-0" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeInWhenVisible>
+        </div>
       </div>
     </div>
   )
