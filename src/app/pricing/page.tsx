@@ -202,6 +202,59 @@ export default function PricingPage() {
           ))}
         </div>
 
+        {/* Trusted by section */}
+        <motion.div
+          className="mb-24 text-center"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <p className="text-xs font-semibold text-surface-500 uppercase tracking-widest mb-6">Trusted by educators at</p>
+          <div className="flex flex-wrap justify-center gap-8 items-center opacity-40">
+            {['Chicago Public Schools', 'NYC DOE', 'LAUSD', 'Houston ISD', 'Miami-Dade County'].map(school => (
+              <span key={school} className="text-sm font-bold text-surface-200">{school}</span>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Feature comparison highlights */}
+        <motion.div
+          className="mb-24"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-2xl font-black text-white text-center mb-3">Everything you need to teach smarter</h2>
+          <p className="text-center text-surface-400 text-sm mb-10 max-w-xl mx-auto">Every plan includes the core features that make TeachWeaver the most powerful AI teaching platform.</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { icon: Bot, label: 'AI Agent Swarm', desc: 'Autonomous agents that work while you sleep', color: '#6366f1' },
+              { icon: Sparkles, label: 'Magic Chat', desc: 'Real-time AI co-teacher for any question', color: '#8b5cf6' },
+              { icon: Shield, label: 'FERPA Compliant', desc: 'Student data never used for AI training', color: '#10b981' },
+              { icon: Globe, label: '10+ Languages', desc: 'Generate materials in any language', color: '#22d3ee' },
+              { icon: Users, label: 'Class Management', desc: 'Full gradebook, attendance, portfolios', color: '#f97316' },
+              { icon: Zap, label: 'Instant Generation', desc: 'Lesson plans in under 30 seconds', color: '#f59e0b' },
+              { icon: Star, label: 'Standards Aligned', desc: 'Auto-maps to CCSS, NGSS, state standards', color: '#ec4899' },
+              { icon: Check, label: '28 AI Tools', desc: 'Every tool type a teacher needs', color: '#14b8a6' },
+            ].map((f, i) => (
+              <motion.div
+                key={f.label}
+                className="glass-card p-4"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center mb-3" style={{ backgroundColor: f.color + '18' }}>
+                  <f.icon className="w-4 h-4" style={{ color: f.color }} />
+                </div>
+                <h4 className="text-sm font-bold text-white mb-1">{f.label}</h4>
+                <p className="text-xs text-surface-400 leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
         <motion.div
           className="max-w-2xl mx-auto"
           initial={{ opacity: 0 }}
