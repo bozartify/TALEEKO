@@ -8,7 +8,7 @@ import {
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
   Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
-  Brain, BookMarked, ClipboardList, Target
+  Brain, BookMarked, ClipboardList, Target, Type, Newspaper, Gamepad2
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -25,6 +25,9 @@ const navItems = [
   { href: '/word-wall',     icon: BookMarked,   label: 'Word Wall',       badge: 'AI' },
   { href: '/exit-tickets',  icon: Target,       label: 'Exit Tickets',    badge: 'AI' },
   { href: '/sub-plans',     icon: ClipboardList, label: 'Sub Plans',      badge: 'AI' },
+  { href: '/text-leveler',  icon: Type,          label: 'Text Leveler',   badge: 'AI' },
+  { href: '/newsletter',    icon: Newspaper,     label: 'Newsletter',     badge: 'AI' },
+  { href: '/game-builder',  icon: Gamepad2,      label: 'Game Builder',   badge: 'AI' },
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },
   { href: '/standards',  icon: Shield,          label: 'Standards' },
