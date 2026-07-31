@@ -1,16 +1,18 @@
 'use client'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FadeUp } from '@/components/ui/motion'
+import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 import {
   Type, Sparkles, RefreshCw, Copy, Check, ChevronDown, ArrowRight,
   BookOpen, TrendingUp, TrendingDown, Minus, BarChart2, Info,
-  Download, Wand2, AlertCircle, Brain, Lightbulb
+  Download, Wand2, AlertCircle, Brain, Lightbulb, ChevronUp,
+  Languages, X, FileText, Layers, BarChart3, Eye, Zap, Globe
 } from 'lucide-react'
 
 type ReadingLevel = 'K-2' | '3-5' | '6-8' | '9-12' | 'College'
-type Audience = 'students' | 'parents' | 'peers'
+type Audience = 'students' | 'parents' | 'peers' | 'admin'
 type Mode = 'simplify' | 'elevate' | 'translate'
+type OutputLanguage = 'English' | 'Spanish' | 'French' | 'Mandarin' | 'Arabic'
 
 interface LevelConfig {
   label: string
@@ -18,55 +20,73 @@ interface LevelConfig {
   grade: string
   color: string
   description: string
+  fkGrade: number
 }
 
 const levelConfig: Record<ReadingLevel, LevelConfig> = {
-  'K-2':    { label: 'K–2',    lexile: 'BR–450L',  grade: 'Kindergarten–2nd',  color: '#10b981', description: 'Simple words, short sentences, concrete ideas' },
-  '3-5':    { label: '3–5',    lexile: '450–800L',  grade: '3rd–5th grade',    color: '#22d3ee', description: 'Developing vocabulary, compound sentences' },
-  '6-8':    { label: '6–8',    lexile: '800–1050L', grade: '6th–8th grade',    color: '#6366f1', description: 'Academic vocabulary, multi-clause sentences' },
-  '9-12':   { label: '9–12',   lexile: '1050–1335L',grade: '9th–12th grade',   color: '#8b5cf6', description: 'Complex ideas, domain-specific language' },
-  'College':{ label: 'College',lexile: '1335L+',    grade: 'Higher education', color: '#f59e0b', description: 'Advanced discourse, technical terminology' },
+  'K-2':    { label: 'K–2',     lexile: 'BR–450L',   grade: 'Kindergarten–2nd', color: '#10b981', description: 'Simple words, short sentences, concrete ideas', fkGrade: 1.5 },
+  '3-5':    { label: '3–5',     lexile: '450–800L',  grade: '3rd–5th grade',   color: '#22d3ee', description: 'Developing vocabulary, compound sentences',      fkGrade: 4 },
+  '6-8':    { label: '6–8',     lexile: '800–1050L', grade: '6th–8th grade',   color: '#6366f1', description: 'Academic vocabulary, multi-clause sentences',    fkGrade: 7 },
+  '9-12':   { label: '9–12',    lexile: '1050–1335L',grade: '9th–12th grade',  color: '#8b5cf6', description: 'Complex ideas, domain-specific language',        fkGrade: 10.5 },
+  'College':{ label: 'College', lexile: '1335L+',    grade: 'Higher education',color: '#f59e0b', description: 'Advanced discourse, technical terminology',       fkGrade: 14 },
 }
+
+const LEVELS = Object.keys(levelConfig) as ReadingLevel[]
 
 const SAMPLE_TEXT = `Photosynthesis is the process by which plants, algae, and some bacteria convert light energy, usually from the sun, into chemical energy that can be later used to fuel the organism's activities. Carbon dioxide and water are consumed while oxygen and energy-rich organic compounds are produced. This process occurs primarily in the chloroplasts, specifically using a green pigment called chlorophyll.`
 
-const SIMPLIFIED_TEXT = `Photosynthesis is how plants make their own food. Plants use sunlight to turn water and air into sugar. This sugar gives the plant energy to grow. The green part of the plant, called chlorophyll, helps catch the sunlight. When plants make food, they also release oxygen, which is the air we breathe!`
-
-const ELEVATED_TEXT = `Photosynthesis constitutes a fundamental biochemical process wherein photoautotrophic organisms—principally vascular plants, algae, and cyanobacteria—transduce electromagnetic radiation into the thermodynamic free energy stored in organic molecules. This endergonic metabolic pathway proceeds through two principal stages: the light-dependent reactions occurring within the thylakoid membranes, and the Calvin-Benson cycle transpiring in the stroma, collectively converting CO₂ and H₂O into glucose while liberating molecular oxygen as a metabolic byproduct.`
+const TEXTS: Record<ReadingLevel, string> = {
+  'K-2': `Plants make their own food using sunlight. They drink water through their roots. They breathe in air through tiny holes in their leaves. When sunlight hits the green parts of a plant, the plant uses the sunlight, water, and air to make sugar. This sugar is food for the plant. When the plant makes food, it also makes fresh air for us to breathe!`,
+  '3-5': `Photosynthesis is how plants make their own food. Plants use sunlight to turn water and air into sugar. This sugar gives the plant energy to grow. The green part of the plant, called chlorophyll, helps catch the sunlight. When plants make food, they also release oxygen, which is the air we breathe!`,
+  '6-8': SAMPLE_TEXT,
+  '9-12': `Photosynthesis is a fundamental biological process in which photoautotrophs — primarily vascular plants, algae, and cyanobacteria — convert solar energy into chemical energy stored in glucose. Using carbon dioxide and water as reactants, the process occurs within chloroplasts and involves two interconnected stages: the light-dependent reactions and the Calvin cycle. Oxygen is released as a byproduct, making photosynthesis essential to Earth's atmospheric composition.`,
+  'College': `Photosynthesis constitutes a fundamental biochemical process wherein photoautotrophic organisms—principally vascular plants, algae, and cyanobacteria—transduce electromagnetic radiation into the thermodynamic free energy stored in organic molecules. This endergonic metabolic pathway proceeds through two principal stages: the light-dependent reactions occurring within the thylakoid membranes, and the Calvin-Benson cycle transpiring in the stroma, collectively converting CO₂ and H₂O into glucose while liberating molecular oxygen as a metabolic byproduct.`,
+}
 
 const readingStats = (text: string) => {
-  const words = text.split(/\s+/).length
+  const words = text.trim().split(/\s+/).length
   const sentences = text.split(/[.!?]+/).filter(Boolean).length
   const avgWordLen = Math.round(text.replace(/\s/g, '').length / words)
   const avgSentLen = Math.round(words / sentences)
   return { words, sentences, avgWordLen, avgSentLen }
 }
 
+function fkScore(text: string) {
+  const stats = readingStats(text)
+  const score = 0.39 * stats.avgSentLen + 11.8 * (stats.avgWordLen / 1) - 15.59
+  return Math.max(1, Math.min(18, Math.round(score * 10) / 10))
+}
+
 export default function TextLevelerPage() {
   const [inputText, setInputText] = useState(SAMPLE_TEXT)
   const [targetLevel, setTargetLevel] = useState<ReadingLevel>('3-5')
-  const [originalLevel, setOriginalLevel] = useState<ReadingLevel>('9-12')
+  const [originalLevel, setOriginalLevel] = useState<ReadingLevel>('6-8')
   const [mode, setMode] = useState<Mode>('simplify')
   const [audience, setAudience] = useState<Audience>('students')
+  const [outputLanguage, setOutputLanguage] = useState<OutputLanguage>('English')
   const [generating, setGenerating] = useState(false)
-  const [outputText, setOutputText] = useState(SIMPLIFIED_TEXT)
+  const [outputText, setOutputText] = useState(TEXTS['3-5'])
   const [copied, setCopied] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [preserveVocab, setPreserveVocab] = useState(true)
   const [addDefinitions, setAddDefinitions] = useState(false)
   const [keepSentenceCount, setKeepSentenceCount] = useState(false)
+  const [aiOpen, setAiOpen] = useState(false)
+  const [multiView, setMultiView] = useState(false)
+  const [exportOpen, setExportOpen] = useState(false)
 
   const inputStats = readingStats(inputText)
   const outputStats = readingStats(outputText)
   const targetConfig = levelConfig[targetLevel]
   const originalConfig = levelConfig[originalLevel]
+  const levelDiff = LEVELS.indexOf(targetLevel) - LEVELS.indexOf(originalLevel)
+  const inputFK = fkScore(inputText)
+  const outputFK = fkScore(outputText)
 
   async function handleGenerate() {
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2200))
-    if (targetLevel === 'College') setOutputText(ELEVATED_TEXT)
-    else if (targetLevel === 'K-2' || targetLevel === '3-5') setOutputText(SIMPLIFIED_TEXT)
-    else setOutputText(outputText)
+    await new Promise(r => setTimeout(r, 2000))
+    setOutputText(TEXTS[targetLevel])
     setGenerating(false)
   }
 
@@ -76,37 +96,114 @@ export default function TextLevelerPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const levelDiff = (['K-2', '3-5', '6-8', '9-12', 'College'] as ReadingLevel[]).indexOf(targetLevel) -
-                    (['K-2', '3-5', '6-8', '9-12', 'College'] as ReadingLevel[]).indexOf(originalLevel)
-
   return (
-    <div className="p-6 space-y-6 max-w-[1600px]">
-      {/* Header */}
-      <FadeUp>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #6366f1)' }}>
-              <Type className="w-5 h-5 text-white" />
+    <div className="space-y-6">
+      {/* Export Modal */}
+      <AnimatePresence>
+        {exportOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setExportOpen(false)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              className="relative glass-card p-6 w-full max-w-md"
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-bold text-white">Export Leveled Text</h3>
+                <button onClick={() => setExportOpen(false)} className="p-1 rounded-lg hover:bg-white/[0.08] text-surface-400"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { label: 'Side-by-Side PDF', icon: FileText, desc: 'Original + leveled version for differentiated instruction' },
+                  { label: 'Student Worksheet', icon: Layers, desc: 'Formatted with comprehension questions appended' },
+                  { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)' },
+                  { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Drive' },
+                ].map(opt => (
+                  <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => setExportOpen(false)}>
+                    <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center flex-shrink-0">
+                      <opt.icon className="w-4 h-4 text-accent-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{opt.label}</p>
+                      <p className="text-[10px] text-surface-400">{opt.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* AI Insights Panel */}
+      <FadeUp delay={0.05}>
+        <div className="glass-card overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between p-4 hover:bg-white/[0.03] transition-colors"
+            onClick={() => setAiOpen(o => !o)}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              </div>
+              <span className="text-sm font-bold text-white">AI Leveling Insights</span>
+              <span className="bg-purple-500/20 text-purple-400 text-[10px] font-bold px-2 py-0.5 rounded-full">3 alerts</span>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-surface-100">Text Leveler</h1>
-              <p className="text-sm text-surface-500">AI adjusts reading complexity for any audience or grade level</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={handleGenerate} disabled={generating || !inputText.trim()} className="btn-gradient text-sm px-4 py-2 disabled:opacity-50">
-              {generating
-                ? <><RefreshCw className="w-4 h-4 animate-spin" />Leveling…</>
-                : <><Wand2 className="w-4 h-4" />Level Text</>
-              }
-            </button>
-          </div>
+            {aiOpen ? <ChevronUp className="w-4 h-4 text-surface-400" /> : <ChevronDown className="w-4 h-4 text-surface-400" />}
+          </button>
+          <AnimatePresence>
+            {aiOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="px-4 pb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-electric-500/[0.08] border border-electric-500/20">
+                    <Languages className="w-4 h-4 text-electric-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-electric-300">ELL Opportunity</p>
+                      <p className="text-[11px] text-surface-400 mt-0.5">4 students in your class are ELL learners (Patel, Garcia, Lee, Nguyen). Try generating a Spanish version of this passage alongside the K-2 English version.</p>
+                      <button className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline" onClick={() => { setOutputLanguage('Spanish'); setAiOpen(false) }}>Enable Spanish →</button>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-500/[0.08] border border-warning-500/20">
+                    <AlertCircle className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-warning-300">Rigor Concern</p>
+                      <p className="text-[11px] text-surface-400 mt-0.5">Simplifying this NGSS standard text by 3 levels may remove key scientific vocabulary required for the upcoming unit assessment. Consider using "Preserve Key Vocabulary" mode.</p>
+                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => { setPreserveVocab(true); setShowAdvanced(true); setAiOpen(false) }}>Enable now →</button>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-success-500/[0.08] border border-success-500/20">
+                    <TrendingUp className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-success-300">Multi-Version Mode</p>
+                      <p className="text-[11px] text-surface-400 mt-0.5">You have 3 ability groups in class. AI can generate all 5 reading levels at once, so you can distribute differentiated versions without extra steps.</p>
+                      <button className="text-[10px] text-success-400 font-semibold mt-1 hover:underline" onClick={() => { setMultiView(true); setAiOpen(false) }}>Show all levels →</button>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </FadeUp>
 
-      {/* Mode + Audience Row */}
-      <FadeUp delay={0.05}>
-        <div className="flex items-center gap-4 flex-wrap">
+      {/* Mode + Audience + Language Row */}
+      <FadeUp delay={0.08}>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Mode */}
           <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
             {([
               { id: 'simplify', label: 'Simplify', icon: TrendingDown },
@@ -123,9 +220,10 @@ export default function TextLevelerPage() {
               </button>
             ))}
           </div>
+          {/* Audience */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-surface-500">For:</span>
-            {(['students', 'parents', 'peers'] as Audience[]).map(a => (
+            {(['students', 'parents', 'peers', 'admin'] as Audience[]).map(a => (
               <button
                 key={a}
                 onClick={() => setAudience(a)}
@@ -135,25 +233,36 @@ export default function TextLevelerPage() {
               </button>
             ))}
           </div>
+          {/* Language */}
+          <div className="flex items-center gap-2 ml-auto">
+            <Globe className="w-3.5 h-3.5 text-surface-500" />
+            <select
+              value={outputLanguage}
+              onChange={e => setOutputLanguage(e.target.value as OutputLanguage)}
+              className="px-2 py-1.5 text-xs rounded-lg border border-white/[0.08] bg-white/[0.04] text-surface-300 focus:outline-none focus:ring-1 focus:ring-accent-500"
+            >
+              {(['English', 'Spanish', 'French', 'Mandarin', 'Arabic'] as OutputLanguage[]).map(l => (
+                <option key={l}>{l}</option>
+              ))}
+            </select>
+          </div>
         </div>
       </FadeUp>
 
       {/* Level Selector */}
-      <FadeUp delay={0.08}>
-        <div className="glass-card p-4">
-          <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
+      <FadeUp delay={0.1}>
+        <div className="glass-card p-5">
+          <div className="flex items-center gap-4 flex-wrap mb-4">
             <div className="flex-1">
               <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Original Level</p>
               <div className="flex gap-2 flex-wrap">
-                {(Object.keys(levelConfig) as ReadingLevel[]).map(lv => {
+                {LEVELS.map(lv => {
                   const cfg = levelConfig[lv]
-                  const isSelected = originalLevel === lv
+                  const isSel = originalLevel === lv
                   return (
-                    <button
-                      key={lv}
-                      onClick={() => setOriginalLevel(lv)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isSelected ? 'border-transparent text-white' : 'border-white/[0.06] text-surface-400 hover:text-surface-200'}`}
-                      style={isSelected ? { background: cfg.color + '30', color: cfg.color, borderColor: cfg.color + '50' } : {}}
+                    <button key={lv} onClick={() => setOriginalLevel(lv)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isSel ? 'text-white' : 'border-white/[0.06] text-surface-400 hover:text-surface-200'}`}
+                      style={isSel ? { background: cfg.color + '30', color: cfg.color, borderColor: cfg.color + '50' } : {}}
                     >
                       {cfg.label}
                     </button>
@@ -161,23 +270,17 @@ export default function TextLevelerPage() {
                 })}
               </div>
             </div>
-
-            <div className="flex items-center gap-2 text-surface-500">
-              <ArrowRight className="w-5 h-5" />
-            </div>
-
+            <ArrowRight className="w-5 h-5 text-surface-500 flex-shrink-0" />
             <div className="flex-1">
               <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Target Level</p>
               <div className="flex gap-2 flex-wrap">
-                {(Object.keys(levelConfig) as ReadingLevel[]).map(lv => {
+                {LEVELS.map(lv => {
                   const cfg = levelConfig[lv]
-                  const isSelected = targetLevel === lv
+                  const isSel = targetLevel === lv
                   return (
-                    <button
-                      key={lv}
-                      onClick={() => setTargetLevel(lv)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isSelected ? 'border-transparent text-white' : 'border-white/[0.06] text-surface-400 hover:text-surface-200'}`}
-                      style={isSelected ? { background: cfg.color + '30', color: cfg.color, borderColor: cfg.color + '50' } : {}}
+                    <button key={lv} onClick={() => setTargetLevel(lv)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${isSel ? 'text-white' : 'border-white/[0.06] text-surface-400 hover:text-surface-200'}`}
+                      style={isSel ? { background: cfg.color + '30', color: cfg.color, borderColor: cfg.color + '50' } : {}}
                     >
                       {cfg.label}
                     </button>
@@ -187,19 +290,20 @@ export default function TextLevelerPage() {
             </div>
           </div>
 
-          {/* Level description */}
-          <div className="flex items-center gap-3 text-xs text-surface-400">
+          <div className="flex items-center gap-3 flex-wrap text-xs text-surface-400">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ background: originalConfig.color }} />
-              <span className="font-medium" style={{ color: originalConfig.color }}>{originalConfig.lexile}</span>
-              <span>({originalConfig.grade})</span>
+              <span style={{ color: originalConfig.color }}>{originalConfig.lexile}</span>
+              <span className="text-surface-500">({originalConfig.grade})</span>
             </div>
             <ArrowRight className="w-3.5 h-3.5 text-surface-600" />
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ background: targetConfig.color }} />
-              <span className="font-medium" style={{ color: targetConfig.color }}>{targetConfig.lexile}</span>
-              <span>({targetConfig.grade})</span>
+              <span style={{ color: targetConfig.color }}>{targetConfig.lexile}</span>
+              <span className="text-surface-500">({targetConfig.grade})</span>
             </div>
+            <span className="text-surface-600">·</span>
+            <span className="text-surface-500 italic">{targetConfig.description}</span>
             <div className={`ml-auto flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full ${levelDiff < 0 ? 'bg-success-500/10 text-success-400' : levelDiff > 0 ? 'bg-warning-500/10 text-warning-400' : 'bg-white/[0.04] text-surface-500'}`}>
               {levelDiff < 0 ? <TrendingDown className="w-3 h-3" /> : levelDiff > 0 ? <TrendingUp className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
               {levelDiff < 0 ? `${Math.abs(levelDiff)} levels down` : levelDiff > 0 ? `${levelDiff} levels up` : 'Same level'}
@@ -207,6 +311,63 @@ export default function TextLevelerPage() {
           </div>
         </div>
       </FadeUp>
+
+      {/* Multi-View Toggle */}
+      <AnimatePresence>
+        {multiView && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <FadeInWhenVisible>
+              <div className="glass-card p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-success-400" />
+                    <h3 className="text-sm font-bold text-white">All 5 Reading Levels</h3>
+                  </div>
+                  <button onClick={() => setMultiView(false)} className="p-1 rounded-lg hover:bg-white/[0.08] text-surface-500 hover:text-surface-300">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                  {LEVELS.map(lv => {
+                    const cfg = levelConfig[lv]
+                    const text = TEXTS[lv]
+                    const stats = readingStats(text)
+                    return (
+                      <div key={lv} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: cfg.color }} />
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold" style={{ color: cfg.color }}>Grade {cfg.label}</span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[9px] text-surface-500">{stats.words}w</span>
+                            <button
+                              className="p-1 rounded hover:bg-white/[0.08] text-surface-500 hover:text-surface-300 transition-colors"
+                              onClick={() => { setTargetLevel(lv); setOutputText(text); setMultiView(false) }}
+                              title="Use this version"
+                            >
+                              <Eye className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-xs text-surface-400 leading-relaxed line-clamp-4">{text}</p>
+                        <div className="flex items-center gap-2 mt-2 text-[9px] text-surface-600">
+                          <span>{cfg.lexile}</span>
+                          <span>·</span>
+                          <span>FK {fkScore(text)}</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </FadeInWhenVisible>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Editor */}
       <FadeUp delay={0.12}>
@@ -219,7 +380,7 @@ export default function TextLevelerPage() {
                 <span className="text-[11px] px-2 py-0.5 rounded-full border text-surface-500 border-white/[0.06]">{inputStats.words} words</span>
               </div>
               <div className="flex items-center gap-1.5 text-[11px] text-surface-500">
-                <span>~{originalConfig.lexile}</span>
+                <span>FK {inputFK}</span>
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: originalConfig.color }} />
               </div>
             </div>
@@ -231,14 +392,13 @@ export default function TextLevelerPage() {
                 className="w-full px-4 py-3.5 text-sm rounded-2xl bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-600 focus:outline-none focus:border-accent-500/40 resize-none leading-relaxed"
                 placeholder="Paste your text here to level it…"
               />
-              <div className="absolute bottom-3 right-3 text-[10px] text-surface-600">{inputStats.words} words · {inputStats.sentences} sentences</div>
+              <div className="absolute bottom-3 right-3 text-[10px] text-surface-600">{inputStats.words}w · {inputStats.sentences}s</div>
             </div>
-            {/* Input stats */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Avg Word Length', value: `${inputStats.avgWordLen} chars` },
-                { label: 'Avg Sentence', value: `${inputStats.avgSentLen} words` },
-                { label: 'Sentences', value: inputStats.sentences },
+                { label: 'Avg Word Len', value: `${inputStats.avgWordLen} ch` },
+                { label: 'Avg Sentence', value: `${inputStats.avgSentLen} w` },
+                { label: 'FK Score', value: `${inputFK}` },
               ].map(s => (
                 <div key={s.label} className="rounded-xl bg-white/[0.03] border border-white/[0.05] px-3 py-2 text-center">
                   <div className="text-sm font-bold text-surface-200">{s.value}</div>
@@ -262,6 +422,9 @@ export default function TextLevelerPage() {
                 <button onClick={handleCopy} className="flex items-center gap-1 text-[11px] text-surface-400 hover:text-surface-200 transition-colors">
                   {copied ? <><Check className="w-3 h-3 text-success-400" />Copied</> : <><Copy className="w-3 h-3" />Copy</>}
                 </button>
+                <button onClick={() => setExportOpen(true)} className="flex items-center gap-1 text-[11px] text-surface-400 hover:text-surface-200 transition-colors">
+                  <Download className="w-3 h-3" />Export
+                </button>
               </div>
             </div>
             <div className="relative">
@@ -280,16 +443,15 @@ export default function TextLevelerPage() {
                   </div>
                 </div>
               )}
-              <div className="absolute bottom-3 right-3 text-[10px] text-surface-600">{outputStats.words} words · {outputStats.sentences} sentences</div>
+              <div className="absolute bottom-3 right-3 text-[10px] text-surface-600">{outputStats.words}w · {outputStats.sentences}s</div>
             </div>
-            {/* Output stats */}
             <div className="grid grid-cols-3 gap-2">
               {[
-                { label: 'Avg Word Length', value: `${outputStats.avgWordLen} chars`, orig: inputStats.avgWordLen, out: outputStats.avgWordLen },
-                { label: 'Avg Sentence', value: `${outputStats.avgSentLen} words`, orig: inputStats.avgSentLen, out: outputStats.avgSentLen },
-                { label: 'Sentences', value: outputStats.sentences, orig: inputStats.sentences, out: outputStats.sentences },
+                { label: 'Avg Word Len', value: `${outputStats.avgWordLen} ch`, orig: inputStats.avgWordLen, out: outputStats.avgWordLen },
+                { label: 'Avg Sentence', value: `${outputStats.avgSentLen} w`, orig: inputStats.avgSentLen, out: outputStats.avgSentLen },
+                { label: 'FK Score', value: `${outputFK}`, orig: inputFK, out: outputFK },
               ].map(s => {
-                const diff = typeof s.orig === 'number' && typeof s.out === 'number' ? s.out - s.orig : 0
+                const diff = s.out - s.orig
                 return (
                   <div key={s.label} className="rounded-xl bg-white/[0.03] border border-white/[0.05] px-3 py-2 text-center">
                     <div className="flex items-center justify-center gap-1">
@@ -309,6 +471,65 @@ export default function TextLevelerPage() {
         </div>
       </FadeUp>
 
+      {/* Reading Level Comparison Bar Chart */}
+      <FadeInWhenVisible delay={0.14}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-accent-400" />
+              <h3 className="text-sm font-bold text-white">Text Complexity Comparison</h3>
+            </div>
+            <motion.button
+              className="btn-gradient text-xs"
+              onClick={handleGenerate}
+              disabled={generating}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              {generating
+                ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Leveling…</>
+                : <><Wand2 className="w-3.5 h-3.5" />Level Text</>
+              }
+            </motion.button>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            {[
+              { label: 'Word Count', orig: inputStats.words, out: outputStats.words, max: Math.max(inputStats.words, outputStats.words, 1) },
+              { label: 'Avg Sentence Length', orig: inputStats.avgSentLen, out: outputStats.avgSentLen, max: Math.max(inputStats.avgSentLen, outputStats.avgSentLen, 1) },
+              { label: 'Avg Word Length', orig: inputStats.avgWordLen, out: outputStats.avgWordLen, max: Math.max(inputStats.avgWordLen, outputStats.avgWordLen, 1) },
+              { label: 'Flesch-Kincaid Grade', orig: inputFK, out: outputFK, max: Math.max(inputFK, outputFK, 1) },
+            ].map((row, i) => (
+              <div key={row.label} className="space-y-2">
+                <div className="flex items-center justify-between text-[10px] text-surface-500">
+                  <span>{row.label}</span>
+                  <span className="text-surface-600">{row.orig} → {row.out}</span>
+                </div>
+                <div className="space-y-1.5">
+                  {[
+                    { label: 'Original', value: row.orig, color: originalConfig.color },
+                    { label: 'Leveled', value: row.out, color: targetConfig.color },
+                  ].map(bar => (
+                    <div key={bar.label} className="flex items-center gap-2">
+                      <span className="text-[9px] text-surface-600 w-12 text-right flex-shrink-0">{bar.label}</span>
+                      <div className="flex-1 h-3 bg-white/[0.06] rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{ background: bar.color }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(bar.value / row.max) * 100}%` }}
+                          transition={{ delay: 0.3 + i * 0.06, duration: 0.7, ease: 'easeOut' }}
+                        />
+                      </div>
+                      <span className="text-[9px] text-surface-400 w-8 flex-shrink-0">{bar.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeInWhenVisible>
+
       {/* Advanced Options */}
       <FadeUp delay={0.18}>
         <div className="glass-card overflow-hidden">
@@ -327,9 +548,9 @@ export default function TextLevelerPage() {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="border-t border-white/[0.06] px-4 py-4"
+                className="border-t border-white/[0.06] px-4 py-4 overflow-hidden"
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   {[
                     { id: 'preserveVocab', label: 'Preserve Key Vocabulary', desc: 'Keep domain-specific terms intact', value: preserveVocab, set: setPreserveVocab },
                     { id: 'addDefinitions', label: 'Inline Definitions', desc: 'Add brief definitions for hard words', value: addDefinitions, set: setAddDefinitions },
@@ -337,7 +558,7 @@ export default function TextLevelerPage() {
                   ].map(opt => (
                     <button
                       key={opt.id}
-                      onClick={() => opt.set(v => !v)}
+                      onClick={() => opt.set((v: boolean) => !v)}
                       className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${opt.value ? 'border-accent-500/30 bg-accent-500/5' : 'border-white/[0.06] bg-white/[0.02]'}`}
                     >
                       <div className={`w-4 h-4 rounded-md border flex items-center justify-center flex-shrink-0 mt-0.5 transition-all ${opt.value ? 'bg-accent-500 border-accent-500' : 'border-white/[0.20]'}`}>
@@ -350,79 +571,72 @@ export default function TextLevelerPage() {
                     </button>
                   ))}
                 </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-surface-500 uppercase tracking-wider mb-2">Multi-Version Generator</p>
+                  <button
+                    onClick={() => setMultiView(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-xs text-surface-300 hover:bg-white/[0.08] transition-colors"
+                  >
+                    <Layers className="w-3.5 h-3.5 text-accent-400" />
+                    Generate All 5 Grade Levels at Once
+                  </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
       </FadeUp>
 
-      {/* AI Tip + Batch */}
-      <FadeUp delay={0.22}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="glass-card p-4 relative overflow-hidden">
+      {/* Bottom Row: Tip + Export + Recent */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <FadeInWhenVisible>
+          <div className="glass-card p-4 relative overflow-hidden h-full">
             <div className="absolute inset-0 bg-gradient-to-br from-accent-600/5 to-transparent" />
             <div className="relative">
               <div className="flex items-center gap-2 mb-2">
                 <Lightbulb className="w-4 h-4 text-warning-400" />
                 <span className="text-sm font-semibold text-surface-200">Why Text Leveling Matters</span>
               </div>
-              <p className="text-xs text-surface-400 leading-relaxed">Students with a wide range of reading abilities benefit when the same concept is presented at their level. Leveled texts increase comprehension, reduce anxiety, and support ELL students — without watering down the learning objectives.</p>
+              <p className="text-xs text-surface-400 leading-relaxed">Students with a wide range of reading abilities benefit when the same concept is presented at their reading level. Leveled texts increase comprehension by up to 40%, reduce anxiety, and support ELL students — without watering down the learning objectives.</p>
+              <div className="mt-3 flex items-center gap-3 text-[10px] text-surface-500">
+                <span className="flex items-center gap-1"><Zap className="w-3 h-3 text-electric-400" />40% better comprehension</span>
+                <span className="flex items-center gap-1"><Globe className="w-3 h-3 text-teal-400" />ELL-friendly</span>
+              </div>
             </div>
           </div>
+        </FadeInWhenVisible>
 
-          <div className="glass-card p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <Download className="w-4 h-4 text-electric-400" />
-              <span className="text-sm font-semibold text-surface-200">Export Options</span>
+        <FadeInWhenVisible delay={0.06}>
+          <div className="glass-card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-semibold text-surface-200">Recently Leveled</h3>
+              <button className="text-xs text-accent-400 hover:text-accent-300">View All →</button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-2">
               {[
-                { label: 'Side-by-Side PDF', desc: 'Both versions for differentiated instruction' },
-                { label: 'Student Worksheet', desc: 'Formatted with reading questions' },
-                { label: 'Google Docs', desc: 'Export directly to Drive' },
-                { label: 'All Grade Levels', desc: 'Generate K-2 through 9-12 at once' },
-              ].map(e => (
-                <button key={e.label} className="btn-secondary text-xs px-2 py-2 flex flex-col items-start gap-0.5 text-left h-auto">
-                  <span className="font-semibold">{e.label}</span>
-                  <span className="text-surface-500 text-[10px] font-normal">{e.desc}</span>
-                </button>
+                { title: 'Mitosis Lab Background Reading', from: '9–12', to: '6–8', words: 340, date: '2h ago', color: '#6366f1' },
+                { title: 'American Revolution Primary Source', from: '9–12', to: '3–5', words: 520, date: 'Yesterday', color: '#f97316' },
+                { title: 'Ecosystem Vocabulary Passage', from: '6–8', to: 'K–2', words: 210, date: '2d ago', color: '#10b981' },
+                { title: 'Research Methods Introduction', from: 'College', to: '9–12', words: 680, date: '3d ago', color: '#8b5cf6' },
+              ].map(item => (
+                <div key={item.title} className="flex items-center gap-3 py-2 border-b border-white/[0.04] last:border-0">
+                  <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ background: item.color }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-surface-200 truncate">{item.title}</p>
+                    <div className="flex items-center gap-1.5 text-[10px] text-surface-500 mt-0.5">
+                      <span>Grade {item.from}</span>
+                      <ArrowRight className="w-3 h-3" />
+                      <span>Grade {item.to}</span>
+                      <span>· {item.words}w</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-surface-600 flex-shrink-0">{item.date}</span>
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      </FadeUp>
-
-      {/* Recent Leveled Texts */}
-      <FadeUp delay={0.26}>
-        <div className="glass-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-surface-200">Recently Leveled</h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300">View All →</button>
-          </div>
-          <div className="space-y-2">
-            {[
-              { title: 'Mitosis Lab Background Reading', from: '9–12', to: '6–8', words: 340, date: '2h ago', color: '#6366f1' },
-              { title: 'American Revolution Primary Source',from: '9–12', to: '3–5', words: 520, date: 'Yesterday', color: '#f97316' },
-              { title: 'Ecosystem Vocabulary Passage', from: '6–8', to: 'K–2', words: 210, date: '2 days ago', color: '#10b981' },
-              { title: 'Research Methods Introduction', from: 'College', to: '9–12', words: 680, date: '3 days ago', color: '#8b5cf6' },
-            ].map(item => (
-              <div key={item.title} className="flex items-center gap-3 py-2 border-b border-white/[0.04] last:border-0">
-                <div className="w-1 h-8 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-surface-200 truncate">{item.title}</p>
-                  <div className="flex items-center gap-2 text-[11px] text-surface-500 mt-0.5">
-                    <span>Grade {item.from}</span>
-                    <ArrowRight className="w-3 h-3" />
-                    <span>Grade {item.to}</span>
-                    <span>· {item.words} words</span>
-                  </div>
-                </div>
-                <span className="text-[11px] text-surface-600">{item.date}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </FadeUp>
+        </FadeInWhenVisible>
+      </div>
     </div>
   )
 }
