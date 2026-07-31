@@ -20,6 +20,7 @@ const navItems = [
   { href: '/students',   icon: Users,           label: 'Students' },
   { href: '/assignments', icon: CheckSquare,    label: 'Assignments' },
   { href: '/courses',    icon: FolderOpen,       label: 'Courses' },
+  { href: '/lesson-planner', icon: BookOpen,     label: 'Lesson Planner', badge: 'AI' },
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },
   { href: '/standards',  icon: Shield,          label: 'Standards' },
