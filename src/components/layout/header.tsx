@@ -36,6 +36,8 @@ const titles: Record<string, string> = {
   '/game-builder':   'Game Builder',
   '/standards-unpacker': 'Standards Unpacker',
   '/discussion-prompts': 'Discussion Prompts',
+  '/5e-lesson':          '5E Lesson Builder',
+  '/writing-prompts':    'Writing Prompts',
   '/attendance':     'Attendance',
   '/groups':         'Student Groups',
   '/library':        'Content Library',

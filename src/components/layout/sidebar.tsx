@@ -9,7 +9,7 @@ import {
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
   Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
   Brain, BookMarked, ClipboardList, Target, Type, Newspaper, Gamepad2,
-  Layers, MessageCircle
+  Layers, MessageCircle, FlaskConical, Pencil
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -31,6 +31,8 @@ const navItems = [
   { href: '/game-builder',  icon: Gamepad2,      label: 'Game Builder',   badge: 'AI' },
   { href: '/standards-unpacker', icon: Layers,  label: 'Standards Unpacker', badge: 'AI' },
   { href: '/discussion-prompts', icon: MessageCircle, label: 'Discussion Prompts', badge: 'AI' },
+  { href: '/5e-lesson',   icon: FlaskConical,  label: '5E Lesson Builder', badge: 'AI' },
+  { href: '/writing-prompts', icon: Pencil,    label: 'Writing Prompts',   badge: 'AI' },
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },
   { href: '/standards',  icon: Shield,          label: 'Standards' },
