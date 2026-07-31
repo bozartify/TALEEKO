@@ -1,73 +1,110 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, ChevronDown, Download, Filter, Plus, Search,
   TrendingUp, TrendingDown, Minus, Sparkles,
   AlertTriangle, Brain, Users, Award, BarChart2, CheckCircle,
-  ChevronRight, FileText, Eye
+  ChevronRight, FileText, Eye, X, Star, Flag, Clock,
+  ChevronLeft, Info, Edit3, Percent, Save,
+  MessageSquare, Bell, ArrowUp, ArrowDown, Target,
+  PieChart, List, Grid, SortAsc, Layers
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
+type GradeView = 'grid' | 'list' | 'analysis'
+type SortKey = 'name' | 'overall' | 'trend'
+
+interface Assignment {
+  id: string
+  name: string
+  type: 'Essay' | 'Quiz' | 'Lab' | 'Exam' | 'Project' | 'Homework'
+  maxScore: number
+  weight: number
+  dueDate: string
+  category: string
+}
+
+interface StudentRecord {
+  id: string
+  name: string
+  avatar: string
+  scores: (number | null)[]
+  trend: 'up' | 'down' | 'flat'
+  notes: string
+  iep: boolean
+  missingCount: number
+}
+
 const classes = ['All Classes', 'AP Biology', '10th English', 'Algebra II', 'World History']
 
-const assignments = [
-  { id: '1', name: 'Essay: The Great Gatsby', type: 'Essay', maxScore: 100, weight: 20, dueDate: 'Jul 10' },
-  { id: '2', name: 'Ch. 5 Quiz', type: 'Quiz', maxScore: 50, weight: 10, dueDate: 'Jul 8' },
-  { id: '3', name: 'Lab Report: Photosynthesis', type: 'Lab', maxScore: 75, weight: 15, dueDate: 'Jul 5' },
-  { id: '4', name: 'Midterm Exam', type: 'Exam', maxScore: 200, weight: 30, dueDate: 'Jun 28' },
-  { id: '5', name: 'Group Presentation', type: 'Project', maxScore: 100, weight: 15, dueDate: 'Jun 25' },
-  { id: '6', name: 'Homework Ch.4', type: 'Homework', maxScore: 20, weight: 10, dueDate: 'Jun 20' },
+const categories = [
+  { name: 'Tests & Exams', weight: 40, color: '#ef4444' },
+  { name: 'Labs & Projects', weight: 30, color: '#6366f1' },
+  { name: 'Quizzes', weight: 20, color: '#f97316' },
+  { name: 'Homework', weight: 10, color: '#22d3ee' },
 ]
 
-const students = [
-  { id: '1', name: 'Emma Wilson', avatar: 'EW', scores: [92, 45, 68, 178, 88, 19], trend: 'up' },
-  { id: '2', name: 'Liam Chen', avatar: 'LC', scores: [88, 48, 72, 185, 95, 20], trend: 'up' },
-  { id: '3', name: 'Sofia Rodriguez', avatar: 'SR', scores: [78, 38, 60, 145, 82, 16], trend: 'down' },
-  { id: '4', name: 'Noah Thompson', avatar: 'NT', scores: [95, 50, 74, 192, 91, 20], trend: 'up' },
-  { id: '5', name: 'Ava Patel', avatar: 'AP', scores: [85, 42, 65, 168, 87, 18], trend: 'flat' },
-  { id: '6', name: 'Mason Kim', avatar: 'MK', scores: [72, 35, 55, 130, 76, 14], trend: 'down' },
-  { id: '7', name: 'Isabella Jones', avatar: 'IJ', scores: [90, 47, 70, 180, 93, 19], trend: 'up' },
-  { id: '8', name: 'Ethan Davis', avatar: 'ED', scores: [82, 40, 62, 155, 80, 17], trend: 'flat' },
+const assignments: Assignment[] = [
+  { id: '1', name: 'Essay: The Great Gatsby', type: 'Essay', maxScore: 100, weight: 20, dueDate: 'Jul 10', category: 'Labs & Projects' },
+  { id: '2', name: 'Ch. 5 Quiz', type: 'Quiz', maxScore: 50, weight: 10, dueDate: 'Jul 8', category: 'Quizzes' },
+  { id: '3', name: 'Lab Report: Photosynthesis', type: 'Lab', maxScore: 75, weight: 15, dueDate: 'Jul 5', category: 'Labs & Projects' },
+  { id: '4', name: 'Midterm Exam', type: 'Exam', maxScore: 200, weight: 30, dueDate: 'Jun 28', category: 'Tests & Exams' },
+  { id: '5', name: 'Group Presentation', type: 'Project', maxScore: 100, weight: 15, dueDate: 'Jun 25', category: 'Labs & Projects' },
+  { id: '6', name: 'Homework Ch.4', type: 'Homework', maxScore: 20, weight: 10, dueDate: 'Jun 20', category: 'Homework' },
+]
+
+const students: StudentRecord[] = [
+  { id: '1', name: 'Emma Wilson', avatar: 'EW', scores: [92, 45, 68, 178, 88, 19], trend: 'up', notes: '', iep: false, missingCount: 0 },
+  { id: '2', name: 'Liam Chen', avatar: 'LC', scores: [88, 48, 72, 185, 95, 20], trend: 'up', notes: '', iep: false, missingCount: 0 },
+  { id: '3', name: 'Sofia Rodriguez', avatar: 'SR', scores: [78, 38, 60, 145, 82, 16], trend: 'down', notes: 'Parent conference scheduled for Aug 5.', iep: true, missingCount: 1 },
+  { id: '4', name: 'Noah Thompson', avatar: 'NT', scores: [95, 50, 74, 192, 91, 20], trend: 'up', notes: '', iep: false, missingCount: 0 },
+  { id: '5', name: 'Ava Patel', avatar: 'AP', scores: [85, 42, 65, 168, 87, 18], trend: 'flat', notes: '', iep: false, missingCount: 0 },
+  { id: '6', name: 'Mason Kim', avatar: 'MK', scores: [72, 35, 55, 130, 76, 14], trend: 'down', notes: 'Struggling with lab reports. Needs extra support.', iep: true, missingCount: 2 },
+  { id: '7', name: 'Isabella Jones', avatar: 'IJ', scores: [90, 47, 70, 180, 93, 19], trend: 'up', notes: '', iep: false, missingCount: 0 },
+  { id: '8', name: 'Ethan Davis', avatar: 'ED', scores: [82, 40, 62, 155, 80, 17], trend: 'flat', notes: '', iep: false, missingCount: 0 },
 ]
 
 const aiInsights = [
-  {
-    id: '1', type: 'warning', icon: AlertTriangle, color: '#f59e0b',
-    title: '2 students at risk of failing',
-    desc: 'Sofia Rodriguez and Mason Kim are trending below 75%. Early intervention recommended.',
-    action: 'View Students',
-  },
-  {
-    id: '2', type: 'info', icon: BarChart2, color: '#6366f1',
-    title: 'Midterm Exam had lowest class average (87.6%)',
-    desc: 'Consider a targeted review session on topics covered in questions 15–22 where most students lost points.',
-    action: 'See Details',
-  },
-  {
-    id: '3', type: 'success', icon: Award, color: '#10b981',
-    title: 'Top performers improving fast',
-    desc: 'Noah Thompson and Emma Wilson have shown consistent improvement over 4 consecutive assignments.',
-    action: 'Celebrate',
-  },
+  { id: '1', type: 'warning', icon: AlertTriangle, color: '#f59e0b', title: '2 students at risk of failing', desc: 'Sofia Rodriguez (71%) and Mason Kim (68%) are below the 75% threshold. Consider early intervention before the next assessment cycle.', action: 'View Intervention Plan' },
+  { id: '2', type: 'info', icon: BarChart2, color: '#6366f1', title: 'Midterm had lowest class average (87.6%)', desc: 'Most points were lost on questions 15–22 (organic chemistry). A targeted 20-min review session could recover 3–5% for struggling students.', action: 'Generate Review Lesson' },
+  { id: '3', type: 'success', icon: Award, color: '#10b981', title: 'Top performers showing consistent growth', desc: 'Noah Thompson and Emma Wilson have improved on each of the last 4 assignments. Recommend enrichment materials to keep engagement high.', action: 'View Enrichment Ideas' },
 ]
 
-function getGrade(score: number, max: number): { letter: string; color: string } {
-  const pct = (score / max) * 100
-  if (pct >= 90) return { letter: 'A', color: '#10b981' }
-  if (pct >= 80) return { letter: 'B', color: '#22d3ee' }
-  if (pct >= 70) return { letter: 'C', color: '#f59e0b' }
-  if (pct >= 60) return { letter: 'D', color: '#f97316' }
-  return { letter: 'F', color: '#ef4444' }
+const gradeScale = [
+  { letter: 'A+', min: 97, color: '#10b981' },
+  { letter: 'A',  min: 93, color: '#10b981' },
+  { letter: 'A-', min: 90, color: '#10b981' },
+  { letter: 'B+', min: 87, color: '#22d3ee' },
+  { letter: 'B',  min: 83, color: '#22d3ee' },
+  { letter: 'B-', min: 80, color: '#22d3ee' },
+  { letter: 'C+', min: 77, color: '#f59e0b' },
+  { letter: 'C',  min: 73, color: '#f59e0b' },
+  { letter: 'C-', min: 70, color: '#f59e0b' },
+  { letter: 'D',  min: 60, color: '#f97316' },
+  { letter: 'F',  min: 0,  color: '#ef4444' },
+]
+
+const assignmentTypeColors: Record<string, string> = {
+  Essay: '#8b5cf6', Quiz: '#f97316', Lab: '#14b8a6',
+  Exam: '#ef4444', Project: '#6366f1', Homework: '#22d3ee',
 }
 
-function getOverallPct(scores: number[]): number {
-  const totalWeighted = scores.reduce((acc, score, i) => {
-    const pct = score / assignments[i].maxScore
-    return acc + pct * assignments[i].weight
-  }, 0)
-  const totalWeight = assignments.reduce((acc, a) => acc + a.weight, 0)
-  return (totalWeighted / totalWeight) * 100
+function getLetterGrade(pct: number): { letter: string; color: string } {
+  const entry = gradeScale.find(g => pct >= g.min)
+  return entry ?? { letter: 'F', color: '#ef4444' }
+}
+
+function getOverallPct(scores: (number | null)[]): number {
+  let totalWeighted = 0
+  let totalWeight = 0
+  scores.forEach((score, i) => {
+    if (score !== null) {
+      totalWeighted += (score / assignments[i].maxScore) * assignments[i].weight
+      totalWeight += assignments[i].weight
+    }
+  })
+  return totalWeight > 0 ? (totalWeighted / totalWeight) * 100 : 0
 }
 
 export default function GradebookPage() {
@@ -75,43 +112,115 @@ export default function GradebookPage() {
   const [search, setSearch] = useState('')
   const [showInsights, setShowInsights] = useState(true)
   const [editingCell, setEditingCell] = useState<string | null>(null)
-
-  const filteredStudents = students.filter(s =>
-    s.name.toLowerCase().includes(search.toLowerCase())
+  const [gradeView, setGradeView] = useState<GradeView>('grid')
+  const [sortKey, setSortKey] = useState<SortKey>('name')
+  const [sortAsc, setSortAsc] = useState(true)
+  const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null)
+  const [showWeightPanel, setShowWeightPanel] = useState(false)
+  const [curveAmount, setCurveAmount] = useState(0)
+  const [localScores, setLocalScores] = useState<Record<string, (number | null)[]>>(
+    () => Object.fromEntries(students.map(s => [s.id, s.scores]))
   )
+
+  const filteredStudents = useMemo(() => {
+    let list = students.filter(s =>
+      s.name.toLowerCase().includes(search.toLowerCase())
+    )
+    list = [...list].sort((a, b) => {
+      if (sortKey === 'name') return sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
+      if (sortKey === 'overall') {
+        const da = getOverallPct(localScores[a.id])
+        const db = getOverallPct(localScores[b.id])
+        return sortAsc ? da - db : db - da
+      }
+      if (sortKey === 'trend') {
+        const order = { up: 2, flat: 1, down: 0 }
+        return sortAsc ? order[a.trend] - order[b.trend] : order[b.trend] - order[a.trend]
+      }
+      return 0
+    })
+    return list
+  }, [search, sortKey, sortAsc, localScores])
 
   const classAvg = Math.round(
-    students.reduce((acc, s) => acc + getOverallPct(s.scores), 0) / students.length
+    students.reduce((acc, s) => acc + getOverallPct(localScores[s.id]), 0) / students.length
   )
 
-  const atRisk = students.filter(s => getOverallPct(s.scores) < 75).length
-  const passing = students.filter(s => getOverallPct(s.scores) >= 70).length
+  const atRisk = students.filter(s => getOverallPct(localScores[s.id]) < 75).length
+  const passing = students.filter(s => getOverallPct(localScores[s.id]) >= 70).length
+  const missing = students.reduce((acc, s) => acc + s.missingCount, 0)
+  const iepCount = students.filter(s => s.iep).length
+
+  const gradeDist = gradeScale.slice(0, -1).map(g => {
+    const count = students.filter(s => {
+      const pct = getOverallPct(localScores[s.id])
+      const next = gradeScale[gradeScale.indexOf(g) + 1]
+      return pct >= g.min && (!next || pct < next.min + (g.min - next.min))
+    }).length
+    return { ...g, count }
+  })
+
+  const aCount = students.filter(s => getOverallPct(localScores[s.id]) >= 90).length
+  const bCount = students.filter(s => { const p = getOverallPct(localScores[s.id]); return p >= 80 && p < 90 }).length
+  const cCount = students.filter(s => { const p = getOverallPct(localScores[s.id]); return p >= 70 && p < 80 }).length
+  const dCount = students.filter(s => { const p = getOverallPct(localScores[s.id]); return p >= 60 && p < 70 }).length
+  const fCount = students.filter(s => getOverallPct(localScores[s.id]) < 60).length
+
+  function toggleSort(key: SortKey) {
+    if (sortKey === key) setSortAsc(!sortAsc)
+    else { setSortKey(key); setSortAsc(true) }
+  }
+
+  function updateScore(studentId: string, assignIdx: number, value: number) {
+    setLocalScores(prev => {
+      const next = { ...prev, [studentId]: [...prev[studentId]] }
+      next[studentId][assignIdx] = value
+      return next
+    })
+  }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <FadeUp>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
-              <BookOpen className="w-5 h-5 text-white" />
+              <BookOpen className="w-6 h-6 text-white" />
             </motion.div>
             <div>
               <h2 className="text-xl font-black text-white">Gradebook</h2>
-              <p className="text-xs text-surface-400">{students.length} students · {assignments.length} assignments · Class avg: {classAvg}%</p>
+              <p className="text-xs text-surface-400">{students.length} students · {assignments.length} assignments · Class avg {classAvg}%</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
+              {([['grid', Grid], ['list', List], ['analysis', PieChart]] as [GradeView, typeof Grid][]).map(([v, Icon]) => (
+                <button
+                  key={v}
+                  onClick={() => setGradeView(v)}
+                  className={`p-1.5 rounded-full transition-all ${gradeView === v ? 'bg-white/[0.1] text-white' : 'text-surface-500 hover:text-surface-300'}`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowWeightPanel(!showWeightPanel)}
+              className="btn-secondary text-xs px-3 py-1.5"
+            >
+              <Percent className="w-3.5 h-3.5" /> Weights
+            </button>
             <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Sparkles className="w-3.5 h-3.5" />
-              AI Grade Analysis
+              <Sparkles className="w-3.5 h-3.5" /> AI Analysis
             </motion.button>
             <button className="btn-secondary text-xs px-3 py-1.5">
-              <Download className="w-3.5 h-3.5" /> Export CSV
+              <Download className="w-3.5 h-3.5" /> Export
             </button>
             <button className="btn-secondary text-xs px-3 py-1.5">
               <Plus className="w-3.5 h-3.5" /> Assignment
@@ -120,14 +229,14 @@ export default function GradebookPage() {
         </div>
       </FadeUp>
 
-      {/* Stat Cards */}
+      {/* Stats */}
       <FadeUp delay={0.04}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Students', value: students.length, icon: Users, color: '#6366f1', sub: 'enrolled' },
-            { label: 'Class Avg', value: `${classAvg}%`, icon: BarChart2, color: '#14b8a6', sub: 'weighted avg' },
-            { label: 'At-Risk', value: atRisk, icon: AlertTriangle, color: '#ef4444', sub: 'need support' },
-            { label: 'Passing', value: passing, icon: CheckCircle, color: '#10b981', sub: `${Math.round((passing/students.length)*100)}% of class` },
+            { label: 'Students', value: students.length.toString(), sub: `${iepCount} IEP/504`, icon: Users, color: '#6366f1' },
+            { label: 'Class Average', value: `${classAvg}%`, sub: getLetterGrade(classAvg).letter + ' grade', icon: BarChart2, color: '#14b8a6' },
+            { label: 'Missing Work', value: missing.toString(), sub: `items across ${students.filter(s => s.missingCount > 0).length} students`, icon: AlertTriangle, color: '#ef4444' },
+            { label: 'Passing Rate', value: `${Math.round((passing / students.length) * 100)}%`, sub: `${passing} of ${students.length} students`, icon: CheckCircle, color: '#10b981' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -135,19 +244,87 @@ export default function GradebookPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -2 }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '18' }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '20' }}>
                   <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
                 </div>
                 <span className="text-xs text-surface-400">{stat.label}</span>
               </div>
-              <p className="text-xl font-black text-white">{stat.value}</p>
+              <p className="text-2xl font-black text-white">{stat.value}</p>
               <p className="text-[10px] text-surface-500 mt-0.5">{stat.sub}</p>
             </motion.div>
           ))}
         </div>
       </FadeUp>
+
+      {/* Category Weight Panel */}
+      <AnimatePresence>
+        {showWeightPanel && (
+          <motion.div
+            className="glass-card p-5 border border-accent-500/20"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Layers className="w-4 h-4 text-accent-400" /> Category Weighting
+              </h3>
+              <button onClick={() => setShowWeightPanel(false)} className="text-surface-500 hover:text-surface-300">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {categories.map((cat, i) => (
+                <div key={cat.name} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                    <span className="text-xs text-surface-300">{cat.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: cat.color }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${cat.weight}%` }}
+                        transition={{ delay: i * 0.1, duration: 0.5 }}
+                      />
+                    </div>
+                    <span className="text-xs font-black text-white w-10 text-right">{cat.weight}%</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {assignments.filter(a => a.category === cat.name).map(a => (
+                      <span key={a.id} className="text-[9px] px-1.5 py-0.5 rounded-md" style={{ backgroundColor: cat.color + '18', color: cat.color }}>
+                        {a.type}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-surface-400">Grade Curve:</span>
+                <input
+                  type="range"
+                  min={-5}
+                  max={10}
+                  value={curveAmount}
+                  onChange={e => setCurveAmount(Number(e.target.value))}
+                  className="w-24 accent-accent-500"
+                />
+                <span className={`text-xs font-bold ${curveAmount > 0 ? 'text-success-400' : curveAmount < 0 ? 'text-danger-400' : 'text-surface-400'}`}>
+                  {curveAmount > 0 ? '+' : ''}{curveAmount}%
+                </span>
+              </div>
+              <button className="btn-gradient text-xs ml-auto"><Save className="w-3 h-3" /> Save Changes</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* AI Insights */}
       <FadeUp delay={0.07}>
@@ -158,13 +335,13 @@ export default function GradebookPage() {
                 <Brain className="w-3.5 h-3.5 text-white" />
               </div>
               <h3 className="text-sm font-bold text-white">AI Grade Insights</h3>
-              <span className="text-[10px] bg-accent-500/15 text-accent-400 px-1.5 py-0.5 rounded-md font-bold">3 alerts</span>
+              <span className="text-[10px] bg-accent-500/15 text-accent-400 px-2 py-0.5 rounded-full font-bold">{aiInsights.length} alerts</span>
             </div>
             <button
               onClick={() => setShowInsights(!showInsights)}
               className="text-xs text-surface-500 hover:text-surface-300 transition-colors"
             >
-              {showInsights ? 'Hide' : 'Show'}
+              {showInsights ? 'Collapse' : 'Expand'}
             </button>
           </div>
           <AnimatePresence>
@@ -179,20 +356,25 @@ export default function GradebookPage() {
                   {aiInsights.map((insight, i) => (
                     <motion.div
                       key={insight.id}
-                      className="p-3 rounded-xl border"
+                      className="p-4 rounded-xl border"
                       style={{ backgroundColor: insight.color + '0c', borderColor: insight.color + '30' }}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.07 }}
+                      whileHover={{ y: -2 }}
                     >
                       <div className="flex items-start gap-2.5 mb-2">
-                        <insight.icon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: insight.color }} />
-                        <p className="text-xs font-semibold text-white leading-tight">{insight.title}</p>
+                        <insight.icon className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: insight.color }} />
+                        <p className="text-xs font-bold text-white leading-tight">{insight.title}</p>
                       </div>
-                      <p className="text-[10px] text-surface-400 mb-2 leading-relaxed">{insight.desc}</p>
-                      <button className="text-[10px] font-semibold flex items-center gap-1 transition-opacity hover:opacity-80" style={{ color: insight.color }}>
+                      <p className="text-[11px] text-surface-400 mb-3 leading-relaxed">{insight.desc}</p>
+                      <motion.button
+                        className="text-[10px] font-semibold flex items-center gap-1"
+                        style={{ color: insight.color }}
+                        whileHover={{ x: 2 }}
+                      >
                         {insight.action} <ChevronRight className="w-2.5 h-2.5" />
-                      </button>
+                      </motion.button>
                     </motion.div>
                   ))}
                 </div>
@@ -202,208 +384,422 @@ export default function GradebookPage() {
         </div>
       </FadeUp>
 
+      {/* Filters + Search */}
       <FadeUp delay={0.1}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search students..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pl-9 pr-4 py-2 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500/40 w-52"
-            />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search students..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9 pr-4 py-2 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500/40 w-52"
+              />
+            </div>
+            <div className="flex items-center gap-1 flex-wrap">
+              {classes.map(c => (
+                <button
+                  key={c}
+                  onClick={() => setSelectedClass(c)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    selectedClass === c ? 'bg-white/[0.08] text-white' : 'text-surface-400 hover:text-surface-200'
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            {classes.map(c => (
+          <div className="flex items-center gap-2 text-xs text-surface-500">
+            <span>Sort:</span>
+            {(['name', 'overall', 'trend'] as SortKey[]).map(k => (
               <button
-                key={c}
-                onClick={() => setSelectedClass(c)}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  selectedClass === c
-                    ? 'bg-white/[0.08] text-white'
-                    : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
+                key={k}
+                onClick={() => toggleSort(k)}
+                className={`px-2 py-1 rounded-lg transition-colors capitalize flex items-center gap-1 ${
+                  sortKey === k ? 'bg-white/[0.08] text-white' : 'hover:text-surface-300'
                 }`}
               >
-                {c}
+                {k}
+                {sortKey === k && (sortAsc ? <ArrowUp className="w-2.5 h-2.5" /> : <ArrowDown className="w-2.5 h-2.5" />)}
               </button>
             ))}
           </div>
         </div>
       </FadeUp>
 
-      <FadeUp delay={0.12}>
-        <div className="glass-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px]">
-              <thead>
-                <tr className="border-b border-white/[0.06]">
-                  <th className="text-left text-xs font-semibold text-surface-300 px-4 py-3 sticky left-0 bg-surface-900/80 backdrop-blur-sm z-10 w-48">Student</th>
-                  {assignments.map(a => (
-                    <th key={a.id} className="text-center text-xs font-semibold text-surface-300 px-3 py-3 min-w-[90px]">
-                      <div className="flex flex-col items-center gap-0.5">
-                        <span className="truncate max-w-[80px]">{a.name}</span>
-                        <span className="text-[9px] text-surface-500 font-normal">/{a.maxScore} · {a.dueDate}</span>
-                      </div>
-                    </th>
-                  ))}
-                  <th className="text-center text-xs font-semibold text-surface-300 px-4 py-3">Overall</th>
-                  <th className="text-center text-xs font-semibold text-surface-300 px-3 py-3">Trend</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student, si) => {
-                  const overall = getOverallPct(student.scores)
-                  const { letter, color } = getGrade(overall, 100)
-                  const isAtRisk = overall < 75
-                  return (
-                    <motion.tr
-                      key={student.id}
-                      className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors ${isAtRisk ? 'bg-danger-500/[0.03]' : ''}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: si * 0.03 }}
-                    >
-                      <td className="px-4 py-3 sticky left-0 bg-surface-900/60 backdrop-blur-sm z-10">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold ${isAtRisk ? 'bg-danger-500/20 text-danger-300' : 'bg-accent-500/20 text-accent-300'}`}>
-                            {student.avatar}
-                          </div>
-                          <div>
-                            <span className="text-sm font-medium text-white">{student.name}</span>
-                            {isAtRisk && (
-                              <span className="ml-2 text-[9px] bg-danger-500/15 text-danger-400 px-1.5 py-0.5 rounded font-bold">At Risk</span>
-                            )}
-                          </div>
-                        </div>
-                      </td>
-                      {student.scores.map((score, ai) => {
-                        const { color: sc } = getGrade(score, assignments[ai].maxScore)
-                        const cellKey = `${student.id}-${ai}`
-                        return (
-                          <td key={ai} className="text-center px-3 py-3">
-                            {editingCell === cellKey ? (
-                              <input
-                                type="number"
-                                defaultValue={score}
-                                autoFocus
-                                onBlur={() => setEditingCell(null)}
-                                className="w-14 text-center text-xs bg-white/[0.06] border border-accent-500/40 rounded px-1 py-0.5 text-white focus:outline-none"
-                              />
-                            ) : (
-                              <button
-                                onClick={() => setEditingCell(cellKey)}
-                                className="text-xs font-medium hover:opacity-70 transition-opacity"
-                                style={{ color: sc }}
+      <AnimatePresence mode="wait">
+        {gradeView === 'grid' && (
+          <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <FadeUp delay={0.12}>
+              <div className="glass-card overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[1000px]">
+                    <thead>
+                      <tr className="border-b border-white/[0.06]">
+                        <th className="text-left text-xs font-semibold text-surface-300 px-4 py-3 sticky left-0 bg-surface-900/80 backdrop-blur-sm z-10 w-52">
+                          <button onClick={() => toggleSort('name')} className="flex items-center gap-1 hover:text-white transition-colors">
+                            Student {sortKey === 'name' && (sortAsc ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)}
+                          </button>
+                        </th>
+                        {assignments.map(a => (
+                          <th key={a.id} className="text-center text-xs font-semibold text-surface-300 px-3 py-3 min-w-[100px]">
+                            <div className="flex flex-col items-center gap-0.5">
+                              <span
+                                className="text-[10px] px-1.5 py-0.5 rounded font-semibold"
+                                style={{ backgroundColor: assignmentTypeColors[a.type] + '20', color: assignmentTypeColors[a.type] }}
                               >
-                                {score}
+                                {a.type}
+                              </span>
+                              <span className="truncate max-w-[90px] text-white">{a.name}</span>
+                              <span className="text-[9px] text-surface-500">/{a.maxScore} · {a.dueDate}</span>
+                            </div>
+                          </th>
+                        ))}
+                        <th className="text-center text-xs font-semibold text-surface-300 px-4 py-3">
+                          <button onClick={() => toggleSort('overall')} className="flex items-center gap-1 hover:text-white">
+                            Overall {sortKey === 'overall' && (sortAsc ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />)}
+                          </button>
+                        </th>
+                        <th className="text-center text-xs font-semibold text-surface-300 px-3 py-3">
+                          <button onClick={() => toggleSort('trend')} className="flex items-center gap-1 hover:text-white">
+                            Trend
+                          </button>
+                        </th>
+                        <th className="text-center text-xs font-semibold text-surface-300 px-3 py-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredStudents.map((student, si) => {
+                        const scores = localScores[student.id]
+                        const overall = getOverallPct(scores) + curveAmount
+                        const { letter, color } = getLetterGrade(Math.min(100, overall))
+                        const isAtRisk = overall < 75
+                        return (
+                          <motion.tr
+                            key={student.id}
+                            className={`border-b border-white/[0.04] transition-colors hover:bg-white/[0.02] ${isAtRisk ? 'bg-danger-500/[0.03]' : ''}`}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: si * 0.03 }}
+                          >
+                            <td className="px-4 py-3 sticky left-0 bg-surface-900/60 backdrop-blur-sm z-10">
+                              <div className="flex items-center gap-2.5">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
+                                  isAtRisk ? 'bg-danger-500/25 text-danger-300' : 'bg-accent-500/20 text-accent-300'
+                                }`}>
+                                  {student.avatar}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs font-semibold text-white">{student.name}</span>
+                                    {student.iep && <span className="text-[9px] bg-electric-400/20 text-electric-400 px-1 py-0.5 rounded font-bold">IEP</span>}
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    {isAtRisk && <span className="text-[9px] bg-danger-500/15 text-danger-400 px-1 py-0.5 rounded font-bold">At Risk</span>}
+                                    {student.missingCount > 0 && <span className="text-[9px] bg-warning-500/15 text-warning-400 px-1 py-0.5 rounded font-bold">{student.missingCount} missing</span>}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            {scores.map((score, ai) => {
+                              const cellKey = `${student.id}-${ai}`
+                              const pct = score !== null ? (score / assignments[ai].maxScore) * 100 : 0
+                              const { color: sc } = getLetterGrade(pct)
+                              return (
+                                <td key={ai} className="text-center px-3 py-3">
+                                  {editingCell === cellKey ? (
+                                    <input
+                                      type="number"
+                                      defaultValue={score ?? ''}
+                                      autoFocus
+                                      min={0}
+                                      max={assignments[ai].maxScore}
+                                      onBlur={e => { updateScore(student.id, ai, Number(e.target.value)); setEditingCell(null) }}
+                                      onKeyDown={e => { if (e.key === 'Enter') { updateScore(student.id, ai, Number((e.target as HTMLInputElement).value)); setEditingCell(null) } }}
+                                      className="w-14 text-center text-xs bg-white/[0.08] border border-accent-500/40 rounded px-1 py-0.5 text-white focus:outline-none"
+                                    />
+                                  ) : (
+                                    <button
+                                      onClick={() => setEditingCell(cellKey)}
+                                      className="text-xs font-bold hover:scale-110 transition-transform"
+                                      style={{ color: score !== null ? sc : '#6b7280' }}
+                                    >
+                                      {score !== null ? score : <span className="text-[10px] text-surface-600">—</span>}
+                                    </button>
+                                  )}
+                                </td>
+                              )
+                            })}
+                            <td className="text-center px-4 py-3">
+                              <span
+                                className="text-sm font-black px-2.5 py-1 rounded-lg"
+                                style={{ color, backgroundColor: color + '1a' }}
+                              >
+                                {Math.round(Math.min(100, overall))}% {letter}
+                              </span>
+                            </td>
+                            <td className="text-center px-3 py-3">
+                              {student.trend === 'up' && <TrendingUp className="w-4 h-4 text-success-400 mx-auto" />}
+                              {student.trend === 'down' && <TrendingDown className="w-4 h-4 text-danger-400 mx-auto" />}
+                              {student.trend === 'flat' && <Minus className="w-4 h-4 text-surface-500 mx-auto" />}
+                            </td>
+                            <td className="text-center px-3 py-3">
+                              <button
+                                onClick={() => setSelectedStudent(student)}
+                                className="p-1.5 rounded-lg hover:bg-white/[0.08] text-surface-500 hover:text-white transition-colors"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
                               </button>
-                            )}
-                          </td>
+                            </td>
+                          </motion.tr>
                         )
                       })}
-                      <td className="text-center px-4 py-3">
-                        <span className="text-sm font-bold px-2 py-0.5 rounded" style={{ color, backgroundColor: color + '18' }}>
-                          {Math.round(overall)}% {letter}
-                        </span>
-                      </td>
-                      <td className="text-center px-3 py-3">
-                        {student.trend === 'up' && <TrendingUp className="w-4 h-4 text-success-400 mx-auto" />}
-                        {student.trend === 'down' && <TrendingDown className="w-4 h-4 text-danger-400 mx-auto" />}
-                        {student.trend === 'flat' && <Minus className="w-4 h-4 text-surface-500 mx-auto" />}
-                      </td>
-                    </motion.tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div className="px-4 py-2 border-t border-white/[0.06] flex items-center justify-between">
-            <span className="text-[10px] text-surface-500">Click any score to edit inline</span>
-            <div className="flex items-center gap-2">
-              <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
-                <Eye className="w-3 h-3" /> View All
-              </button>
-              <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
-                <FileText className="w-3 h-3" /> Export PDF
-              </button>
-            </div>
-          </div>
-        </div>
-      </FadeUp>
-
-      <FadeInWhenVisible delay={0.15}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="glass-card p-5">
-            <h4 className="text-xs font-semibold text-surface-400 mb-3">Grade Distribution</h4>
-            <div className="space-y-2">
-              {['A', 'B', 'C', 'D', 'F'].map((grade, i) => {
-                const counts = [3, 2, 1, 1, 1]
-                const colors = ['#10b981', '#22d3ee', '#f59e0b', '#f97316', '#ef4444']
-                const pct = (counts[i] / students.length) * 100
-                return (
-                  <div key={grade} className="flex items-center gap-2">
-                    <span className="text-xs font-bold w-4" style={{ color: colors[i] }}>{grade}</span>
-                    <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: colors[i] }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ delay: 0.5 + i * 0.1, duration: 0.6 }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-surface-500 w-6 text-right">{counts[i]}</span>
+                    </tbody>
+                  </table>
+                </div>
+                <div className="px-4 py-2.5 border-t border-white/[0.06] flex items-center justify-between">
+                  <span className="text-[10px] text-surface-500">Click any score to edit inline · Enter to confirm</span>
+                  <div className="flex items-center gap-3">
+                    <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
+                      <FileText className="w-3 h-3" /> Export PDF
+                    </button>
+                    <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
+                      <Download className="w-3 h-3" /> Export CSV
+                    </button>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-          <div className="glass-card p-5">
-            <h4 className="text-xs font-semibold text-surface-400 mb-3">Assignment Averages</h4>
-            <div className="space-y-2">
-              {assignments.slice(0, 5).map((a, i) => {
-                const avg = Math.round(students.reduce((acc, s) => acc + s.scores[i], 0) / students.length)
-                const pct = (avg / a.maxScore) * 100
-                const { color } = getGrade(avg, a.maxScore)
-                return (
-                  <div key={a.id} className="flex items-center gap-2">
-                    <span className="text-[10px] text-surface-400 w-20 truncate">{a.name}</span>
-                    <div className="flex-1 h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                </div>
+              </div>
+            </FadeUp>
+          </motion.div>
+        )}
+
+        {gradeView === 'list' && (
+          <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-2">
+            {filteredStudents.map((student, si) => {
+              const scores = localScores[student.id]
+              const overall = Math.min(100, getOverallPct(scores) + curveAmount)
+              const { letter, color } = getLetterGrade(overall)
+              const isAtRisk = overall < 75
+              return (
+                <motion.div
+                  key={student.id}
+                  className="glass-card p-4 flex items-center gap-4"
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: si * 0.04 }}
+                >
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-black flex-shrink-0 ${
+                    isAtRisk ? 'bg-danger-500/20 text-danger-300' : 'bg-accent-500/20 text-accent-300'
+                  }`}>
+                    {student.avatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-bold text-white">{student.name}</span>
+                      {student.iep && <span className="text-[9px] bg-electric-400/15 text-electric-400 px-1.5 py-0.5 rounded font-bold">IEP</span>}
+                      {isAtRisk && <span className="text-[9px] bg-danger-500/15 text-danger-400 px-1.5 py-0.5 rounded font-bold">At Risk</span>}
+                      {student.missingCount > 0 && <span className="text-[9px] bg-warning-500/15 text-warning-400 px-1.5 py-0.5 rounded font-bold">{student.missingCount} missing</span>}
+                    </div>
+                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden w-48">
                       <motion.div
                         className="h-full rounded-full"
                         style={{ backgroundColor: color }}
                         initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ delay: 0.5 + i * 0.1, duration: 0.6 }}
+                        animate={{ width: `${overall}%` }}
+                        transition={{ duration: 0.5 }}
                       />
                     </div>
-                    <span className="text-[10px] font-medium" style={{ color }}>{Math.round(pct)}%</span>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-          <div className="glass-card p-5">
-            <h4 className="text-xs font-semibold text-surface-400 mb-3">Quick Stats</h4>
-            <div className="space-y-3">
-              {[
-                { label: 'Highest Score', value: '96%', color: '#10b981' },
-                { label: 'Lowest Score', value: '65%', color: '#ef4444' },
-                { label: 'Class Average', value: `${classAvg}%`, color: '#ffffff' },
-                { label: 'Missing Work', value: '3 items', color: '#f59e0b' },
-                { label: 'At-Risk Students', value: `${atRisk} students`, color: '#ef4444' },
-                { label: 'Passing Rate', value: `${Math.round((passing/students.length)*100)}%`, color: '#10b981' },
-              ].map(stat => (
-                <div key={stat.label} className="flex items-center justify-between">
-                  <span className="text-xs text-surface-400">{stat.label}</span>
-                  <span className="text-sm font-bold" style={{ color: stat.color }}>{stat.value}</span>
+                  <div className="flex items-center gap-4 flex-shrink-0">
+                    {student.trend === 'up' && <TrendingUp className="w-4 h-4 text-success-400" />}
+                    {student.trend === 'down' && <TrendingDown className="w-4 h-4 text-danger-400" />}
+                    {student.trend === 'flat' && <Minus className="w-4 h-4 text-surface-500" />}
+                    <span className="text-lg font-black px-3 py-1 rounded-lg" style={{ color, backgroundColor: color + '1a' }}>
+                      {Math.round(overall)}% {letter}
+                    </span>
+                    <button onClick={() => setSelectedStudent(student)} className="btn-secondary text-xs px-2 py-1">
+                      <Eye className="w-3 h-3" />
+                    </button>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </motion.div>
+        )}
+
+        {gradeView === 'analysis' && (
+          <motion.div key="analysis" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <FadeInWhenVisible>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Grade distribution */}
+                <div className="glass-card p-5">
+                  <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><BarChart2 className="w-3.5 h-3.5" /> Grade Distribution</h4>
+                  <div className="space-y-2.5">
+                    {[
+                      { letter: 'A (90-100%)', count: aCount, color: '#10b981' },
+                      { letter: 'B (80-89%)', count: bCount, color: '#22d3ee' },
+                      { letter: 'C (70-79%)', count: cCount, color: '#f59e0b' },
+                      { letter: 'D (60-69%)', count: dCount, color: '#f97316' },
+                      { letter: 'F (<60%)', count: fCount, color: '#ef4444' },
+                    ].map((g, i) => (
+                      <div key={g.letter} className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold w-20 flex-shrink-0" style={{ color: g.color }}>{g.letter}</span>
+                        <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ backgroundColor: g.color }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(g.count / students.length) * 100}%` }}
+                            transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                          />
+                        </div>
+                        <span className="text-xs font-black text-white w-5 text-right">{g.count}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </FadeInWhenVisible>
+
+                {/* Assignment averages */}
+                <div className="glass-card p-5">
+                  <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><Target className="w-3.5 h-3.5" /> Assignment Averages</h4>
+                  <div className="space-y-2.5">
+                    {assignments.map((a, i) => {
+                      const avg = students.reduce((acc, s) => {
+                        const sc = localScores[s.id][i]
+                        return acc + (sc !== null ? sc : 0)
+                      }, 0) / students.length
+                      const pct = (avg / a.maxScore) * 100
+                      const { color } = getLetterGrade(pct)
+                      return (
+                        <div key={a.id}>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] text-surface-400 truncate max-w-[120px]">{a.name}</span>
+                            <span className="text-[10px] font-bold" style={{ color }}>{Math.round(pct)}%</span>
+                          </div>
+                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                            <motion.div
+                              className="h-full rounded-full"
+                              style={{ backgroundColor: color }}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Quick stats + missing work */}
+                <div className="space-y-3">
+                  <div className="glass-card p-5">
+                    <h4 className="text-xs font-bold text-surface-300 mb-3 flex items-center gap-2"><Info className="w-3.5 h-3.5" /> Quick Stats</h4>
+                    <div className="space-y-2">
+                      {[
+                        { label: 'Highest Score', value: `${Math.round(Math.max(...students.map(s => getOverallPct(localScores[s.id]))))}%`, color: '#10b981' },
+                        { label: 'Lowest Score', value: `${Math.round(Math.min(...students.map(s => getOverallPct(localScores[s.id]))))}%`, color: '#ef4444' },
+                        { label: 'Median', value: `${classAvg}%`, color: '#ffffff' },
+                        { label: 'Standard Dev', value: '8.2%', color: '#6366f1' },
+                        { label: 'Missing Items', value: `${missing}`, color: '#f59e0b' },
+                        { label: 'At-Risk', value: `${atRisk} students`, color: '#ef4444' },
+                      ].map(s => (
+                        <div key={s.label} className="flex items-center justify-between">
+                          <span className="text-xs text-surface-400">{s.label}</span>
+                          <span className="text-xs font-bold" style={{ color: s.color }}>{s.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="glass-card p-5">
+                    <h4 className="text-xs font-bold text-surface-300 mb-3 flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> Missing Work</h4>
+                    {students.filter(s => s.missingCount > 0).map(s => (
+                      <div key={s.id} className="flex items-center justify-between py-1.5 border-b border-white/[0.04] last:border-0">
+                        <span className="text-xs text-surface-300">{s.name}</span>
+                        <span className="text-[10px] bg-warning-500/15 text-warning-400 px-1.5 py-0.5 rounded font-bold">{s.missingCount} item{s.missingCount > 1 ? 's' : ''}</span>
+                      </div>
+                    ))}
+                    {missing === 0 && <p className="text-xs text-surface-500">All work submitted</p>}
+                  </div>
+                </div>
+              </div>
+            </FadeInWhenVisible>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Student Detail Panel */}
+      <AnimatePresence>
+        {selectedStudent && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedStudent(null)} />
+            <motion.div
+              className="relative glass-card p-6 w-full max-w-lg z-10 max-h-[80vh] overflow-y-auto"
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+            >
+              <button onClick={() => setSelectedStudent(null)} className="absolute top-4 right-4 text-surface-500 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-accent-500/20 flex items-center justify-center text-sm font-black text-accent-300">
+                  {selectedStudent.avatar}
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">{selectedStudent.name}</h3>
+                  <div className="flex items-center gap-2">
+                    {selectedStudent.iep && <span className="text-[9px] bg-electric-400/15 text-electric-400 px-1.5 py-0.5 rounded font-bold">IEP/504</span>}
+                    <span className="text-xs text-surface-500">
+                      {Math.round(getOverallPct(localScores[selectedStudent.id]) + curveAmount)}% ·{' '}
+                      {getLetterGrade(Math.round(getOverallPct(localScores[selectedStudent.id]) + curveAmount)).letter}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div className="space-y-3 mb-4">
+                {assignments.map((a, i) => {
+                  const score = localScores[selectedStudent.id][i]
+                  const pct = score !== null ? (score / a.maxScore) * 100 : 0
+                  const { color } = getLetterGrade(pct)
+                  return (
+                    <div key={a.id}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs text-surface-300">{a.name}</span>
+                        <span className="text-xs font-bold" style={{ color }}>
+                          {score !== null ? `${score}/${a.maxScore}` : 'Missing'}
+                        </span>
+                      </div>
+                      <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                        <motion.div className="h-full rounded-full" style={{ backgroundColor: color, width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+              {selectedStudent.notes && (
+                <div className="p-3 bg-white/[0.04] rounded-xl border border-white/[0.06] mb-4">
+                  <p className="text-[10px] text-surface-500 mb-1">Teacher Notes</p>
+                  <p className="text-xs text-surface-300">{selectedStudent.notes}</p>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button className="btn-gradient text-xs flex-1"><MessageSquare className="w-3 h-3" /> Message</button>
+                <button className="btn-secondary text-xs flex-1"><Bell className="w-3 h-3" /> Set Alert</button>
+                <button className="btn-secondary text-xs flex-1"><FileText className="w-3 h-3" /> Report</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
