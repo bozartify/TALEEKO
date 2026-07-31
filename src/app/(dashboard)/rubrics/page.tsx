@@ -15,7 +15,7 @@ const sampleRubrics = [
   },
   {
     id: '2', title: 'Lab Report Assessment', subject: 'Science', grade: '7th',
-    criteria: 5, levels: 3, lastUsed: 'Yesterday', uses: 8, color: '#8b5cf6',
+    criteria: 5, levels: 3, lastUsed: 'Yesterday', uses: 8, color: '#b0623f',
     tags: ['Lab', 'Scientific Method'],
   },
   {
@@ -30,7 +30,7 @@ const sampleRubrics = [
   },
   {
     id: '5', title: 'Oral Presentation Rubric', subject: 'Any', grade: 'All',
-    criteria: 5, levels: 4, lastUsed: '2 weeks ago', uses: 20, color: '#6366f1',
+    criteria: 5, levels: 4, lastUsed: '2 weeks ago', uses: 20, color: '#dd9a33',
     tags: ['Speaking', 'Communication'],
   },
   {
@@ -86,7 +86,7 @@ export default function RubricsPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -136,7 +136,7 @@ export default function RubricsPage() {
           >
             <motion.div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             >

@@ -129,7 +129,7 @@ export function CommandPalette() {
                             idx === selected ? 'bg-accent-500/10 text-white' : 'text-surface-300 hover:bg-white/[0.03]'
                           }`}
                         >
-                          <cmd.icon className="w-4 h-4 flex-shrink-0" style={{ color: idx === selected ? '#818cf8' : undefined }} />
+                          <cmd.icon className="w-4 h-4 flex-shrink-0" style={{ color: idx === selected ? '#e8ad4b' : undefined }} />
                           <span className="text-sm flex-1">{cmd.label}</span>
                           {idx === selected && <ArrowRight className="w-3 h-3 text-accent-400" />}
                         </button>

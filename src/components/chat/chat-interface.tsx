@@ -163,7 +163,7 @@ export default function ChatInterface() {
           <div className="flex flex-col items-center justify-center h-full gap-6 py-12">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center animate-float"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
+              style={{ background: 'linear-gradient(135deg,#dd9a33,#c67954)' }}
             >
               <Sparkles className="w-8 h-8 text-white" />
             </div>
@@ -192,7 +192,7 @@ export default function ChatInterface() {
             {msg.role === 'assistant' && (
               <div
                 className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5"
-                style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
+                style={{ background: 'linear-gradient(135deg,#dd9a33,#c67954)' }}
               >
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
@@ -251,7 +251,7 @@ export default function ChatInterface() {
               onClick={() => sendMessage(input)}
               disabled={!input.trim()}
               className="w-9 h-9 rounded-xl flex items-center justify-center transition-all flex-shrink-0 disabled:opacity-40"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
+              style={{ background: 'linear-gradient(135deg,#dd9a33,#c67954)' }}
             >
               <Send className="w-4 h-4 text-white" />
             </button>

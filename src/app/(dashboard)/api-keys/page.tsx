@@ -76,7 +76,7 @@ export default function ApiKeysPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #bc7d24)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >

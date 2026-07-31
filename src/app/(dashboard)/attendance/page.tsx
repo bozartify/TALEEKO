@@ -15,7 +15,7 @@ const statusConfig: Record<Status, { icon: typeof Check; label: string; colorCla
   present: { icon: Check, label: 'P', colorClass: 'text-success-400', bgClass: 'bg-success-400/15', hex: '#10b981' },
   absent:  { icon: X, label: 'A', colorClass: 'text-danger-400', bgClass: 'bg-danger-400/15', hex: '#ef4444' },
   late:    { icon: Clock, label: 'L', colorClass: 'text-warning-400', bgClass: 'bg-warning-400/15', hex: '#f59e0b' },
-  excused: { icon: Circle, label: 'E', colorClass: 'text-electric-400', bgClass: 'bg-electric-400/15', hex: '#22d3ee' },
+  excused: { icon: Circle, label: 'E', colorClass: 'text-electric-400', bgClass: 'bg-electric-400/15', hex: '#829c6e' },
 }
 
 const classes = ['AP Biology', '10th English', 'Algebra II']
@@ -284,8 +284,8 @@ export default function AttendancePage() {
             { label: 'Present', value: presentCount, color: '#10b981', icon: Check },
             { label: 'Absent', value: absentCount, color: '#ef4444', icon: X },
             { label: 'Late', value: lateCount, color: '#f59e0b', icon: Clock },
-            { label: 'Excused', value: excusedCount, color: '#22d3ee', icon: Circle },
-            { label: 'Attendance Rate', value: `${attendanceRate}%`, color: '#8b5cf6', icon: TrendingUp },
+            { label: 'Excused', value: excusedCount, color: '#829c6e', icon: Circle },
+            { label: 'Attendance Rate', value: `${attendanceRate}%`, color: '#b0623f', icon: TrendingUp },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

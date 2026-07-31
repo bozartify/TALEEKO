@@ -16,7 +16,7 @@ const units = [
   },
   {
     id: '2', title: 'Genetics & Heredity', weeks: '4 weeks', status: 'in-progress' as const,
-    color: '#6366f1', standards: 5, lessons: 10, progress: 60,
+    color: '#dd9a33', standards: 5, lessons: 10, progress: 60,
     topics: ['DNA Structure', 'Protein Synthesis', 'Mendelian Genetics', 'Genetic Disorders', 'Biotechnology'],
   },
   {
@@ -26,7 +26,7 @@ const units = [
   },
   {
     id: '4', title: 'Ecology & Ecosystems', weeks: '3 weeks', status: 'upcoming' as const,
-    color: '#22d3ee', standards: 4, lessons: 9, progress: 0,
+    color: '#829c6e', standards: 4, lessons: 9, progress: 0,
     topics: ['Energy Flow', 'Nutrient Cycles', 'Population Dynamics', 'Human Impact'],
   },
   {
@@ -64,7 +64,7 @@ export default function CurriculumPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #b0623f)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -103,7 +103,7 @@ export default function CurriculumPage() {
       <FadeUp delay={0.05}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Units', value: units.length, icon: Layers, color: '#6366f1' },
+            { label: 'Units', value: units.length, icon: Layers, color: '#dd9a33' },
             { label: 'Lessons', value: totalLessons, icon: BookOpen, color: '#14b8a6' },
             { label: 'Standards', value: totalStandards, icon: Target, color: '#f97316' },
             { label: 'Progress', value: `${overallProgress}%`, icon: Check, color: '#10b981' },
@@ -140,7 +140,7 @@ export default function CurriculumPage() {
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: q.progress === 100 ? '#10b981' : q.progress > 0 ? '#6366f1' : '#374151' }}
+                    style={{ backgroundColor: q.progress === 100 ? '#10b981' : q.progress > 0 ? '#dd9a33' : '#374151' }}
                     initial={{ width: 0 }}
                     animate={{ width: `${q.progress}%` }}
                     transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
         description: body.description,
         subject: body.subject,
         grade: body.grade,
-        color: body.color ?? '#8b5cf6',
+        color: body.color ?? '#b0623f',
         teacherId: DEMO_TEACHER_ID,
       },
     })

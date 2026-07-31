@@ -11,7 +11,7 @@ const courses = [
   {
     id: '1', title: 'AI in the Classroom: A Teacher\'s Guide', category: 'AI & Technology',
     duration: '4 hours', modules: 8, enrolled: 2400, rating: 4.9,
-    progress: 75, color: '#6366f1', status: 'in-progress' as const,
+    progress: 75, color: '#dd9a33', status: 'in-progress' as const,
     instructor: 'Dr. Maria Santos',
   },
   {
@@ -35,13 +35,13 @@ const courses = [
   {
     id: '5', title: 'Project-Based Learning Design', category: 'Pedagogy',
     duration: '4 hours', modules: 8, enrolled: 1500, rating: 4.6,
-    progress: 0, color: '#22d3ee', status: 'not-started' as const,
+    progress: 0, color: '#829c6e', status: 'not-started' as const,
     instructor: 'Sarah Kim, M.Ed.',
   },
   {
     id: '6', title: 'Inclusive Classroom Strategies', category: 'Special Education',
     duration: '5 hours', modules: 10, enrolled: 2100, rating: 4.8,
-    progress: 0, color: '#8b5cf6', status: 'not-started' as const,
+    progress: 0, color: '#b0623f', status: 'not-started' as const,
     instructor: 'Dr. Rachel Moore',
   },
 ]
@@ -90,7 +90,7 @@ export default function ProfessionalDevPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: 'Courses Completed', value: completedCount, icon: Check, color: '#10b981' },
-            { label: 'Hours Logged', value: totalHours, icon: Clock, color: '#6366f1' },
+            { label: 'Hours Logged', value: totalHours, icon: Clock, color: '#dd9a33' },
             { label: 'Certificates', value: completedCount, icon: Award, color: '#f59e0b' },
             { label: 'Current Streak', value: '12 days', icon: TrendingUp, color: '#ec4899' },
           ].map((stat, i) => (

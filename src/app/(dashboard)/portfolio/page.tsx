@@ -13,7 +13,7 @@ const students = [
   {
     id: '1', name: 'Emma Rodriguez', grade: '7th', class: 'Science',
     avg: 92, trend: 'up' as const, streak: 15, awards: 3,
-    avatar: 'ER', color: '#8b5cf6',
+    avatar: 'ER', color: '#b0623f',
     skills: [
       { name: 'Scientific Method', level: 95 },
       { name: 'Lab Safety', level: 90 },
@@ -93,7 +93,7 @@ export default function PortfolioPage() {
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+                style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
                 whileHover={{ rotate: 8, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >

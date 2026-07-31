@@ -29,7 +29,7 @@ const plans = [
     desc: 'For power-user educators',
     monthlyPrice: 19,
     yearlyPrice: 15,
-    color: '#6366f1',
+    color: '#dd9a33',
     popular: true,
     features: [
       'Unlimited AI generations',
@@ -50,7 +50,7 @@ const plans = [
     desc: 'For teams and departments',
     monthlyPrice: 49,
     yearlyPrice: 39,
-    color: '#8b5cf6',
+    color: '#b0623f',
     features: [
       'Everything in Professional',
       'Up to 10 teacher seats',
@@ -69,7 +69,7 @@ const plans = [
     desc: 'For whole-school adoption',
     monthlyPrice: 99,
     yearlyPrice: 79,
-    color: '#22d3ee',
+    color: '#829c6e',
     features: [
       'Everything in Department',
       'Up to 100 teacher seats',
@@ -104,7 +104,7 @@ export default function PricingPage() {
       <nav className="fixed top-0 inset-x-0 z-50 bg-surface-950/70 backdrop-blur-2xl border-b border-white/[0.04]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #dd9a33, #b0623f)' }}>
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
             <span className="font-black text-white text-lg">TeachWeaver</span>

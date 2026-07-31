@@ -13,7 +13,7 @@ type SortOption = 'newest' | 'oldest' | 'most-used' | 'a-z'
 type FilterTab = 'all' | ContentType
 
 const typeConfig: Record<ContentType, { label: string; color: string; bg: string; icon: React.ElementType }> = {
-  lesson:     { label: 'Lesson Plan',  color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)', icon: BookOpen },
+  lesson:     { label: 'Lesson Plan',  color: '#b0623f', bg: 'rgba(139,92,246,0.12)', icon: BookOpen },
   quiz:       { label: 'Quiz',         color: '#f97316', bg: 'rgba(249,115,22,0.12)', icon: Brain },
   worksheet:  { label: 'Worksheet',    color: '#14b8a6', bg: 'rgba(20,184,166,0.12)', icon: FileText },
   activity:   { label: 'Activity',     color: '#eab308', bg: 'rgba(234,179,8,0.12)',  icon: Zap },
@@ -124,7 +124,7 @@ export default function LibraryPage() {
   const aiPct = Math.round((sampleItems.filter(i => i.aiGenerated).length / sampleItems.length) * 100)
 
   const stats = [
-    { label: 'Total Items', value: sampleItems.length.toString(), icon: FolderOpen, color: '#8b5cf6' },
+    { label: 'Total Items', value: sampleItems.length.toString(), icon: FolderOpen, color: '#b0623f' },
     { label: 'This Week', value: thisWeekCount.toString(), icon: TrendingUp, color: '#14b8a6' },
     { label: 'Most Popular', value: popularSubject, icon: Star, color: '#f97316' },
     { label: 'AI-Generated', value: `${aiPct}%`, icon: Sparkles, color: '#ec4899' },
@@ -137,7 +137,7 @@ export default function LibraryPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >

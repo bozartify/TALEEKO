@@ -54,7 +54,7 @@ export default function IntegrationsPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #22d3ee)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #829c6e)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >

@@ -33,7 +33,7 @@ const students = [
 function getGrade(score: number, max: number): { letter: string; color: string } {
   const pct = (score / max) * 100
   if (pct >= 90) return { letter: 'A', color: '#10b981' }
-  if (pct >= 80) return { letter: 'B', color: '#22d3ee' }
+  if (pct >= 80) return { letter: 'B', color: '#829c6e' }
   if (pct >= 70) return { letter: 'C', color: '#f59e0b' }
   if (pct >= 60) return { letter: 'D', color: '#f97316' }
   return { letter: 'F', color: '#ef4444' }
@@ -196,7 +196,7 @@ export default function GradebookPage() {
             <div className="space-y-2">
               {['A', 'B', 'C', 'D', 'F'].map((grade, i) => {
                 const counts = [3, 2, 1, 1, 1]
-                const colors = ['#10b981', '#22d3ee', '#f59e0b', '#f97316', '#ef4444']
+                const colors = ['#10b981', '#829c6e', '#f59e0b', '#f97316', '#ef4444']
                 const pct = (counts[i] / students.length) * 100
                 return (
                   <div key={grade} className="flex items-center gap-2">

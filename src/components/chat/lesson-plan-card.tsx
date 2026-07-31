@@ -17,7 +17,7 @@ export default function LessonPlanCard({ data }: Props) {
       {/* Header */}
       <div className="p-4 border-b border-white/[0.06]" style={{ background: 'linear-gradient(135deg,rgba(99,102,241,0.08),rgba(167,139,250,0.04))' }}>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#dd9a33,#c67954)' }}>
             <BookOpen className="w-4 h-4 text-white" />
           </div>
           <div>

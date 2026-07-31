@@ -56,7 +56,7 @@ export default function OnboardingPage() {
             <div className="h-2 w-full bg-white/[0.06] rounded-full overflow-hidden">
               <motion.div
                 className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #6366f1, #a78bfa, #22d3ee)' }}
+                style={{ background: 'linear-gradient(90deg, #dd9a33, #c67954, #829c6e)' }}
                 initial={{ width: '0%' }}
                 animate={{ width: `${((step + 1) / 4) * 100}%` }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
@@ -77,7 +77,7 @@ export default function OnboardingPage() {
               <div className="text-center py-12">
                 <motion.div
                   className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8"
-                  style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
+                  style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}
                   initial={{ scale: 0, rotate: -20 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}

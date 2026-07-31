@@ -47,15 +47,15 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onNavigate}>
           <motion.div
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
+            style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}
             whileHover={{ scale: 1.08, rotate: 5 }}
             transition={{ type: 'spring', stiffness: 400, damping: 17 }}
           >
             <GraduationCap className="w-[18px] h-[18px] text-white" />
           </motion.div>
           <div className="flex flex-col">
-            <span className="text-[15px] font-bold text-white tracking-tight">TeachWeaver</span>
-            <span className="text-[10px] text-surface-500 font-medium tracking-wider uppercase">AI Platform</span>
+            <span className="display text-[17px] text-surface-50 leading-none">TeachWeaver</span>
+            <span className="text-[10px] text-surface-500 font-medium tracking-[0.16em] uppercase mt-1">AI Platform</span>
           </div>
         </Link>
       </div>
@@ -89,22 +89,18 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
         })}
 
         <div className="mt-5 pt-5 border-t border-white/[0.06]">
-          <div className="relative rounded-2xl p-4 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-accent-600/20 via-neon-500/10 to-electric-400/10 rounded-2xl" />
-            <div className="absolute inset-0 border border-accent-500/20 rounded-2xl" />
-            <div className="relative">
-              <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
-              >
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <p className="text-[13px] font-bold text-white mb-1">Try Magic Chat</p>
-              <p className="text-[11px] text-surface-400 mb-3 leading-relaxed">Generate any teaching material in seconds</p>
-              <Link href="/magic-chat" className="btn-primary text-xs px-3 py-2 w-full justify-center" onClick={onNavigate}>
-                Open Chat
-              </Link>
+          <div
+            className="relative rounded-xl p-4"
+            style={{ background: 'var(--panel-raised)', border: '1px solid rgba(221,154,51,0.2)' }}
+          >
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-3 bg-accent-500/15">
+              <Sparkles className="w-4 h-4 text-accent-400" />
             </div>
+            <p className="text-[13px] font-semibold text-surface-50 mb-1">Try Magic Chat</p>
+            <p className="text-[11px] text-surface-400 mb-3 leading-relaxed">Generate any teaching material in seconds.</p>
+            <Link href="/magic-chat" className="btn-primary text-xs px-3 py-2 w-full justify-center" onClick={onNavigate}>
+              Open Chat
+            </Link>
           </div>
         </div>
       </nav>
@@ -123,7 +119,7 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
         <div className="flex items-center gap-3 px-3 py-2.5 mt-1">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold flex-shrink-0 ring-2 ring-white/[0.06]"
-            style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
+            style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}
           >
             {getInitials(teacher.name)}
           </div>
@@ -169,9 +165,8 @@ export default function Sidebar() {
             <motion.aside
               className="fixed left-0 top-0 h-full w-[280px] z-50 flex flex-col lg:hidden"
               style={{
-                background: 'rgba(16, 18, 28, 0.95)',
-                backdropFilter: 'blur(24px) saturate(1.3)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.06)',
+                background: '#1e1a14',
+                borderRight: '1px solid rgba(240, 224, 197, 0.09)',
               }}
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}

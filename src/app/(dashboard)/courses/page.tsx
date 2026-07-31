@@ -7,7 +7,7 @@ import { FadeUp } from '@/components/ui/motion'
 const courses = [
   {
     id: '1', title: '7th Grade Biology', subject: 'Science', grade: '7th',
-    color: '#8b5cf6', lessons: 12, description: 'Life science, cells, ecosystems, and genetics',
+    color: '#b0623f', lessons: 12, description: 'Life science, cells, ecosystems, and genetics',
     lastUpdated: 'Today'
   },
   {

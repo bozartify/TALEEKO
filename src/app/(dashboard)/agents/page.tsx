@@ -25,7 +25,7 @@ interface Agent {
 }
 
 const INITIAL_AGENTS: Agent[] = [
-  { id: 'a1', name: 'Curriculum Architect', role: 'Vertical · Planning',   icon: Layers,        color: '#6366f1', status: 'running',  task: 'Mapping 7th-grade biology unit to NGSS standards', progress: 72, autonomy: 'autonomous', tasksDone: 148 },
+  { id: 'a1', name: 'Curriculum Architect', role: 'Vertical · Planning',   icon: Layers,        color: '#dd9a33', status: 'running',  task: 'Mapping 7th-grade biology unit to NGSS standards', progress: 72, autonomy: 'autonomous', tasksDone: 148 },
   { id: 'a2', name: 'Assessment Engine',    role: 'Vertical · Evaluation', icon: ClipboardList, color: '#f97316', status: 'running',  task: 'Generating differentiated quiz variants (3 tiers)', progress: 45, autonomy: 'semi',       tasksDone: 92 },
   { id: 'a3', name: 'Grading Assistant',    role: 'Horizontal · Feedback', icon: CheckCircle2,  color: '#14b8a6', status: 'awaiting', task: 'Batch-graded 28 essays — needs human sign-off',     progress: 100, autonomy: 'supervised', tasksDone: 310 },
   { id: 'a4', name: 'Differentiation Spec', role: 'Horizontal · Access',   icon: Target,        color: '#f43f5e', status: 'running',  task: 'Adapting materials for 4 IEP profiles',            progress: 60, autonomy: 'semi',       tasksDone: 67 },
@@ -129,7 +129,7 @@ export default function AgentsPage() {
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-11 h-11 rounded-2xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
+                style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}
                 animate={{ boxShadow: ['0 0 0px rgba(99,102,241,0.4)', '0 0 24px rgba(99,102,241,0.6)', '0 0 0px rgba(99,102,241,0.4)'] }}
                 transition={{ duration: 2.5, repeat: Infinity }}
               >

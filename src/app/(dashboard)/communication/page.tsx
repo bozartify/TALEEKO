@@ -13,7 +13,7 @@ const conversations = [
   {
     id: '1', parent: 'Maria Rodriguez', student: 'Emma Rodriguez', avatar: 'MR',
     lastMessage: 'Thank you for the update on Emma\'s progress in Science!',
-    time: '2h ago', unread: 0, class: '7th Science', color: '#8b5cf6'
+    time: '2h ago', unread: 0, class: '7th Science', color: '#b0623f'
   },
   {
     id: '2', parent: 'David Kim', student: 'James Kim', avatar: 'DK',
@@ -23,7 +23,7 @@ const conversations = [
   {
     id: '3', parent: 'Fatima Patel', student: 'Sofia Patel', avatar: 'FP',
     lastMessage: 'Sofia mentioned she needs extra help with the lab report.',
-    time: 'Yesterday', unread: 1, class: '7th Science', color: '#8b5cf6'
+    time: 'Yesterday', unread: 1, class: '7th Science', color: '#b0623f'
   },
   {
     id: '4', parent: 'John Williams', student: 'Noah Williams', avatar: 'JW',

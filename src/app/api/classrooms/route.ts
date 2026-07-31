@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         subject,
         grade,
         period: period || null,
-        color: color || '#6366f1',
+        color: color || '#dd9a33',
         teacherId: DEMO_TEACHER_ID,
       },
       include: { students: true },

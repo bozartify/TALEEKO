@@ -14,7 +14,7 @@ const reportTypes = [
     title: 'Student Progress Report',
     desc: 'Comprehensive individual student performance across all assessments',
     icon: TrendingUp,
-    color: '#6366f1',
+    color: '#dd9a33',
     fields: ['Student', 'Date Range', 'Include: Grades, Attendance, Comments'],
   },
   {
@@ -22,7 +22,7 @@ const reportTypes = [
     title: 'Class Performance Summary',
     desc: 'Aggregate class data with distribution charts and insights',
     icon: Users,
-    color: '#8b5cf6',
+    color: '#b0623f',
     fields: ['Class', 'Subject', 'Assessment Type'],
   },
   {
@@ -54,7 +54,7 @@ const reportTypes = [
     title: 'AI Usage Report',
     desc: 'Track AI tool usage, generation counts, and time saved',
     icon: Sparkles,
-    color: '#22d3ee',
+    color: '#829c6e',
     fields: ['Date Range', 'Tool Category', 'Include: Costs, Time Saved'],
   },
 ]
@@ -88,7 +88,7 @@ export default function ReportsPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #bc7d24)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -122,7 +122,7 @@ export default function ReportsPage() {
           >
             <motion.div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #b0623f)' }}
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             >

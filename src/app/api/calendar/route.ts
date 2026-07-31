@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
         date: new Date(date),
         endDate: endDate ? new Date(endDate) : null,
         type: type || 'class',
-        color: color || '#6366f1',
+        color: color || '#dd9a33',
         teacherId: DEMO_TEACHER_ID,
       },
     })

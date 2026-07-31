@@ -83,7 +83,7 @@ export default function LoginPage() {
           >
             <motion.div
               className="w-12 h-12 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
+              style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -151,7 +151,7 @@ export default function LoginPage() {
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ background: `linear-gradient(135deg, ${['#6366f1','#f97316','#14b8a6'][i]}, ${['#a78bfa','#ea580c','#0d9488'][i]})` }}
+                    style={{ background: `linear-gradient(135deg, ${['#dd9a33','#f97316','#14b8a6'][i]}, ${['#c67954','#ea580c','#0d9488'][i]})` }}
                   >
                     {t.name.split(' ').map(n => n[0]).join('')}
                   </div>
@@ -177,7 +177,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="text-center mb-8 lg:hidden">
             <Link href="/" className="inline-flex items-center gap-2">
-              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
+              <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #dd9a33, #c67954)' }}>
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-black text-white">TeachWeaver</span>

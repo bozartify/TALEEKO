@@ -4,7 +4,7 @@ interface Props { data: Record<string, unknown> }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
   const pct = Math.round((value / 10) * 100)
-  const color = value >= 8 ? '#10b981' : value >= 6 ? '#8b5cf6' : value >= 4 ? '#f59e0b' : '#f43f5e'
+  const color = value >= 8 ? '#10b981' : value >= 6 ? '#b0623f' : value >= 4 ? '#f59e0b' : '#f43f5e'
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
@@ -44,7 +44,7 @@ export default function AnalysisCard({ data }: Props) {
           <div className="flex items-center gap-4 p-4 bg-white/[0.03] rounded-xl border border-white/[0.04]">
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}
+              style={{ background: 'linear-gradient(135deg,#dd9a33,#c67954)' }}
             >
               {Number(data.overallScore).toFixed(1)}
             </div>

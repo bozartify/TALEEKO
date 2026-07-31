@@ -65,17 +65,9 @@ export default function DashboardPage() {
           </div>
           <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-black text-white">Good morning, Alex!</h2>
-                <motion.span
-                  className="text-2xl"
-                  animate={{ rotate: [0, 15, -5, 10, 0] }}
-                  transition={{ duration: 1.5, delay: 0.5 }}
-                >
-                  ☀️
-                </motion.span>
-              </div>
-              <p className="text-surface-400 text-sm">You have 3 lessons to review, 2 quizzes ready to assign, and 1 agent awaiting approval.</p>
+              <p className="text-xs uppercase tracking-[0.16em] text-accent-400 mb-2">Thursday, July 31</p>
+              <h2 className="display text-3xl text-surface-50 mb-1.5">Good morning, Alex.</h2>
+              <p className="text-surface-400 text-sm">Three lessons to review, two quizzes ready to assign, and one agent awaiting your approval.</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
@@ -112,8 +104,8 @@ export default function DashboardPage() {
                   {s.trend}
                 </span>
               </div>
-              <div className="text-2xl font-black text-white">{s.value}</div>
-              <div className="text-xs font-semibold text-surface-300 mt-0.5">{s.label}</div>
+              <div className="display text-3xl text-surface-50">{s.value}</div>
+              <div className="text-xs font-semibold text-surface-300 mt-1">{s.label}</div>
               <div className="text-xs text-surface-500 mt-1">{s.delta}</div>
             </motion.div>
           </StaggerItem>
@@ -220,7 +212,7 @@ export default function DashboardPage() {
                       style={{
                         height: `${Math.max((d.value / maxActivity) * 56, 4)}px`,
                         background: d.value >= 6
-                          ? 'linear-gradient(180deg, #6366f1, #4f46e5)'
+                          ? 'linear-gradient(180deg, #dd9a33, #bc7d24)'
                           : 'rgba(255,255,255,0.06)',
                       }}
                     />

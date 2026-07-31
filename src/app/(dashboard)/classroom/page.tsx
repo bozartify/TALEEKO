@@ -11,7 +11,7 @@ import {
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
 const classes = [
-  { name: '7th Grade Science', students: 28, lessons: 12, color: '#8b5cf6', subject: 'Biology & Earth Science', period: '1st Period', avgScore: 88, trend: 'up' as const },
+  { name: '7th Grade Science', students: 28, lessons: 12, color: '#b0623f', subject: 'Biology & Earth Science', period: '1st Period', avgScore: 88, trend: 'up' as const },
   { name: '8th Grade History', students: 31, lessons: 9,  color: '#f97316', subject: 'American History',        period: '3rd Period', avgScore: 82, trend: 'up' as const },
   { name: '9th Grade Math',    students: 25, lessons: 15, color: '#14b8a6', subject: 'Algebra I',              period: '5th Period', avgScore: 79, trend: 'down' as const },
   { name: '10th Grade English',students: 29, lessons: 8,  color: '#f43f5e', subject: 'Literature & Writing',   period: '7th Period', avgScore: 85, trend: 'up' as const },
