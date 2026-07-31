@@ -185,6 +185,64 @@ export default function LandingPage() {
         </StaggerList>
       </section>
 
+      {/* Trust bar */}
+      <div className="py-6 px-6 border-y border-white/[0.04]">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-8">
+          <span className="text-xs text-surface-500 font-semibold uppercase tracking-wider">Trusted by teachers at</span>
+          {['New York City DOE', 'Chicago Public Schools', 'LAUSD', 'Houston ISD', 'Miami-Dade County'].map(school => (
+            <span key={school} className="text-sm font-bold text-surface-400 opacity-50">{school}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* How it works */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <FadeInWhenVisible className="text-center mb-14">
+            <h2 className="text-4xl font-black text-white mb-4">From idea to lesson in 60 seconds</h2>
+            <p className="text-lg text-surface-400">Three steps. Zero friction. No more Sunday night lesson planning.</p>
+          </FadeInWhenVisible>
+          <div className="grid md:grid-cols-3 gap-6 relative">
+            {/* Connector line */}
+            <div className="hidden md:block absolute top-8 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-accent-500/40 to-transparent" />
+            {[
+              {
+                step: '01', icon: '✍️', title: 'Describe what you need',
+                desc: 'Type a prompt like "7th grade photosynthesis lesson with a lab activity, 45 minutes" — no templates, no forms.',
+                color: '#6366f1',
+              },
+              {
+                step: '02', icon: '⚡', title: 'AI generates in seconds',
+                desc: 'TeachWeaver creates a complete, standards-aligned lesson plan, quiz, or worksheet tailored to your grade and subject.',
+                color: '#8b5cf6',
+              },
+              {
+                step: '03', icon: '🎓', title: 'Teach, share, export',
+                desc: 'Assign directly to students, export to Google Docs or PDF, or keep building with unlimited refinements.',
+                color: '#a78bfa',
+              },
+            ].map((s, i) => (
+              <FadeInWhenVisible key={s.step} delay={i * 0.1}>
+                <motion.div
+                  className="glass-card p-6 text-center relative"
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                >
+                  <div className="text-4xl mb-4">{s.icon}</div>
+                  <div
+                    className="text-xs font-black uppercase tracking-widest mb-2"
+                    style={{ color: s.color }}
+                  >
+                    Step {s.step}
+                  </div>
+                  <h3 className="text-lg font-black text-white mb-3">{s.title}</h3>
+                  <p className="text-sm text-surface-400 leading-relaxed">{s.desc}</p>
+                </motion.div>
+              </FadeInWhenVisible>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Tools Grid */}
       <section id="tools" className="py-24 px-6 relative">
         <div className="absolute inset-0 bg-white/[0.01]" />
