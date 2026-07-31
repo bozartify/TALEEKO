@@ -8,7 +8,7 @@ import {
   BarChart2, Settings, FolderOpen, Lightbulb, Bot, PenTool,
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
   Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
-  Brain
+  Brain, BookMarked, ClipboardList, Target
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -22,6 +22,9 @@ const navItems = [
   { href: '/courses',    icon: FolderOpen,       label: 'Courses' },
   { href: '/lesson-planner', icon: BookOpen,     label: 'Lesson Planner', badge: 'AI' },
   { href: '/quiz-builder',   icon: CheckSquare,  label: 'Quiz Builder',   badge: 'AI' },
+  { href: '/word-wall',     icon: BookMarked,   label: 'Word Wall',       badge: 'AI' },
+  { href: '/exit-tickets',  icon: Target,       label: 'Exit Tickets',    badge: 'AI' },
+  { href: '/sub-plans',     icon: ClipboardList, label: 'Sub Plans',      badge: 'AI' },
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },
   { href: '/standards',  icon: Shield,          label: 'Standards' },

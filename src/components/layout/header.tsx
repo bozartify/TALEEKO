@@ -28,6 +28,22 @@ const titles: Record<string, string> = {
   '/curriculum':     'Curriculum',
   '/analytics':      'Analytics',
   '/settings':       'Settings',
+  '/word-wall':      'Word Wall',
+  '/exit-tickets':   'Exit Tickets',
+  '/sub-plans':      'Sub Plans',
+  '/attendance':     'Attendance',
+  '/groups':         'Student Groups',
+  '/library':        'Content Library',
+  '/templates':      'Templates',
+  '/report-cards':   'Report Cards',
+  '/differentiation': 'Differentiation',
+  '/accommodations': 'IEP / 504 Plans',
+  '/professional-dev': 'PD Courses',
+  '/parent-portal':  'Parent Portal',
+  '/integrations':   'Integrations',
+  '/api-keys':       'API Keys',
+  '/notifications':  'Notifications',
+  '/help':           'Help',
 }
 
 const LANGUAGES = [
