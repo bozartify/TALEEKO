@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Download, Sparkles, Calendar, Users, BarChart2,
   TrendingUp, BookOpen, ClipboardList, Filter, ChevronDown,
-  FileSpreadsheet, File, Loader2, Check, ArrowRight
+  FileSpreadsheet, File, Loader2, Check, ArrowRight, Clock, Star
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -109,6 +109,35 @@ export default function ReportsPage() {
               History
             </button>
           </div>
+        </div>
+      </FadeUp>
+
+      {/* Stat Cards */}
+      <FadeUp delay={0.05}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Reports Generated', value: '24', icon: FileText, color: '#6366f1', sub: 'This semester' },
+            { label: 'Scheduled', value: '3', icon: Calendar, color: '#14b8a6', sub: 'Auto-run reports' },
+            { label: 'Avg Time Saved', value: '4.2h', icon: Clock, color: '#f97316', sub: 'Per report' },
+            { label: 'Shared', value: '18', icon: Star, color: '#10b981', sub: 'With stakeholders' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              className="glass-card p-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '18' }}>
+                  <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
+                </div>
+                <span className="text-xs text-surface-400">{stat.label}</span>
+              </div>
+              <p className="text-xl font-black text-white">{stat.value}</p>
+              <p className="text-[10px] text-surface-500 mt-0.5">{stat.sub}</p>
+            </motion.div>
+          ))}
         </div>
       </FadeUp>
 

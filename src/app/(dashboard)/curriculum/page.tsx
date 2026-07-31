@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Map, Plus, ChevronRight, ChevronDown, Calendar, Target,
   BookOpen, Sparkles, Check, Clock, Layers, GripVertical,
-  ArrowRight, Edit3, Trash2, Copy, Eye
+  ArrowRight, Edit3, Trash2, Copy, Eye, Brain, AlertTriangle,
+  TrendingUp, Flag, BarChart2
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -127,6 +128,29 @@ export default function CurriculumPage() {
         </div>
       </FadeUp>
 
+      {/* AI Pacing Insight */}
+      <FadeUp delay={0.08}>
+        <div className="glass-card p-4 border border-accent-500/20">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
+              <Brain className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-bold text-white">AI Pacing Alert</span>
+                <span className="text-[10px] bg-warning-400/15 text-warning-400 px-1.5 py-0.5 rounded-md font-bold">Attention</span>
+              </div>
+              <p className="text-xs text-surface-400">Unit 2 (Genetics &amp; Heredity) is running 3 days behind schedule. At current pace, you may need to compress Evolution unit. Consider skipping the optional Biotechnology lab or moving it to enrichment.</p>
+              <div className="flex items-center gap-2 mt-2">
+                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">Adjust Pacing</button>
+                <span className="text-surface-600">·</span>
+                <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Dismiss</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
       <FadeUp delay={0.1}>
         <div className="glass-card p-5">
           <h3 className="text-sm font-bold text-white mb-3">Year Overview</h3>
@@ -147,6 +171,40 @@ export default function CurriculumPage() {
                   />
                 </div>
                 <p className="text-[10px] text-surface-500 mt-1">{q.units} units · {q.weeks} wks</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeUp>
+
+      {/* Standards Coverage */}
+      <FadeUp delay={0.12}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white">Standards Coverage</h3>
+            <span className="text-xs text-surface-500">AP Biology · NGSS</span>
+          </div>
+          <div className="space-y-2.5">
+            {[
+              { label: 'LS1: From Molecules to Organisms', covered: 8, total: 8, color: '#10b981' },
+              { label: 'LS2: Ecosystems', covered: 0, total: 6, color: '#22d3ee' },
+              { label: 'LS3: Heredity', covered: 3, total: 5, color: '#6366f1' },
+              { label: 'LS4: Biological Evolution', covered: 0, total: 4, color: '#f97316' },
+            ].map((std, i) => (
+              <div key={std.label}>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs text-surface-300">{std.label}</span>
+                  <span className="text-[10px] text-surface-500">{std.covered}/{std.total}</span>
+                </div>
+                <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: std.color }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(std.covered / std.total) * 100}%` }}
+                    transition={{ delay: 0.4 + i * 0.08, duration: 0.6 }}
+                  />
+                </div>
               </div>
             ))}
           </div>
