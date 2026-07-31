@@ -21,6 +21,7 @@ const titles: Record<string, string> = {
   '/assignments':       'Assignments',
   '/lesson-planner':    'Lesson Planner',
   '/quiz-builder':      'Quiz Builder',
+  '/feedback-writer':   'Feedback Writer',
   '/gradebook':      'Gradebook',
   '/reports':        'Reports & Exports',
   '/curriculum':     'Curriculum',

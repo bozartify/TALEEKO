@@ -25,6 +25,7 @@ const navItems = [
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },
   { href: '/standards',  icon: Shield,          label: 'Standards' },
+  { href: '/feedback-writer', icon: MessageSquare, label: 'Feedback Writer', badge: 'AI' },
   { href: '/communication', icon: MessageSquare, label: 'Communication' },
   { href: '/calendar',   icon: Calendar,        label: 'Calendar' },
   { href: '/portfolio',  icon: GraduationCap,   label: 'Portfolios' },
