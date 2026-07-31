@@ -17,6 +17,8 @@ const navItems = [
   { href: '/magic-chat', icon: Sparkles,        label: 'Magic Chat', badge: 'AI' },
   { href: '/agents',     icon: Bot,             label: 'Agent Swarm', badge: 'NEW' },
   { href: '/classroom',  icon: Users,           label: 'Classroom' },
+  { href: '/students',   icon: Users,           label: 'Students' },
+  { href: '/assignments', icon: CheckSquare,    label: 'Assignments' },
   { href: '/courses',    icon: FolderOpen,       label: 'Courses' },
   { href: '/workspace',  icon: Lightbulb,       label: 'Workspace' },
   { href: '/rubrics',    icon: PenTool,         label: 'Rubrics' },

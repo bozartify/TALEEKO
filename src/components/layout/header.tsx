@@ -17,6 +17,11 @@ const titles: Record<string, string> = {
   '/communication':  'Communication',
   '/calendar':       'Calendar',
   '/portfolio':      'Student Portfolios',
+  '/students':       'Students',
+  '/assignments':    'Assignments',
+  '/gradebook':      'Gradebook',
+  '/reports':        'Reports & Exports',
+  '/curriculum':     'Curriculum',
   '/analytics':      'Analytics',
   '/settings':       'Settings',
 }
