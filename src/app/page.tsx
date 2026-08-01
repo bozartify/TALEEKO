@@ -6,6 +6,10 @@ import {
   Zap, BarChart2, ArrowRight, CheckCircle, Star, ChevronRight
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
+import ShaderHero from '@/components/visuals/shader-hero'
+import ClassroomSim from '@/components/visuals/classroom-sim'
+import HoursReclaimed from '@/components/visuals/hours-reclaimed'
+import TiltCard from '@/components/visuals/tilt-card'
 
 const tools = [
   { icon: BookOpen,      label: 'Lesson Plans',    desc: 'Full, standards-aligned plans in a single prompt.', tint: 'bg-accent-500/12',  iconColor: 'text-accent-400' },
@@ -64,10 +68,21 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="relative pt-36 pb-20 px-6 overflow-hidden">
-        {/* One warm light source, top-left — a desk lamp, not a neon fog. */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-20 left-1/4 w-[560px] h-[420px] bg-accent-500/[0.06] rounded-full blur-[130px]" />
-        </div>
+        {/* Live WebGL: threads of marigold light woven in dark air. */}
+        <ShaderHero className="absolute inset-0 w-full h-full pointer-events-none" intensity={1.9} />
+        {/* Legibility scrim — heavy behind the type, opening up to the right
+            so the weave stays visible where nothing has to be read. */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              'linear-gradient(90deg, rgba(23,20,15,0.93) 0%, rgba(23,20,15,0.86) 34%, rgba(23,20,15,0.42) 60%, rgba(23,20,15,0.06) 100%)',
+          }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+          style={{ background: 'linear-gradient(180deg, transparent, #17140f)' }}
+        />
 
         <div className="max-w-4xl mx-auto relative">
           <FadeUp delay={0.1}>
@@ -129,8 +144,8 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {tools.map((tool, i) => (
               <FadeInWhenVisible key={tool.label} delay={i * 0.06}>
-                <motion.div whileHover={{ y: -3, transition: { duration: 0.2 } }}>
-                  <Link href="/dashboard" className="glass-card group block p-6 h-full transition-all duration-200">
+                <TiltCard className="h-full" max={8} lift={22}>
+                  <Link href="/dashboard" className="glass-card group block p-6 h-full transition-colors duration-200">
                     <div className={`w-11 h-11 rounded-lg flex items-center justify-center mb-4 ${tool.tint}`}>
                       <tool.icon className={`w-5 h-5 ${tool.iconColor}`} />
                     </div>
@@ -140,9 +155,34 @@ export default function LandingPage() {
                       Open it <ChevronRight className="w-3 h-3" />
                     </div>
                   </Link>
-                </motion.div>
+                </TiltCard>
               </FadeInWhenVisible>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Live simulation + evidence */}
+      <section id="evidence" className="py-24 px-6 border-t border-white/[0.05]">
+        <div className="max-w-6xl mx-auto">
+          <FadeInWhenVisible className="max-w-2xl mb-14">
+            <p className="text-xs uppercase tracking-[0.18em] text-accent-400 mb-4">Attention, modelled</p>
+            <h2 className="display text-4xl md:text-5xl text-surface-50 mb-4">A room holds together, or it doesn&apos;t</h2>
+            <p className="text-lg text-surface-400 leading-relaxed">
+              Every dot is a student with their own curiosity, attention, and one classmate they lean on.
+              Attention decays on its own. Ask a question and watch it come back.
+            </p>
+          </FadeInWhenVisible>
+
+          <div className="grid lg:grid-cols-2 gap-10 items-start">
+            <FadeInWhenVisible>
+              <ClassroomSim />
+            </FadeInWhenVisible>
+            <FadeInWhenVisible delay={0.12}>
+              <div className="glass-card p-6">
+                <HoursReclaimed />
+              </div>
+            </FadeInWhenVisible>
           </div>
         </div>
       </section>
