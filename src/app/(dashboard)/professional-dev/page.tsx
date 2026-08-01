@@ -17,19 +17,19 @@ const courses = [
   {
     id: '2', title: 'Differentiated Instruction Mastery', category: 'Pedagogy',
     duration: '6 hours', modules: 12, enrolled: 1800, rating: 4.8,
-    progress: 100, color: '#10b981', status: 'completed' as const,
+    progress: 100, color: '#86b06a', status: 'completed' as const,
     instructor: 'Prof. James Walker',
   },
   {
     id: '3', title: 'Data-Driven Decision Making', category: 'Assessment',
     duration: '3 hours', modules: 6, enrolled: 950, rating: 4.7,
-    progress: 30, color: '#f97316', status: 'in-progress' as const,
+    progress: 30, color: '#c67954', status: 'in-progress' as const,
     instructor: 'Dr. Lisa Chang',
   },
   {
     id: '4', title: 'Social-Emotional Learning Integration', category: 'SEL',
     duration: '5 hours', modules: 10, enrolled: 3200, rating: 4.9,
-    progress: 0, color: '#ec4899', status: 'not-started' as const,
+    progress: 0, color: '#d97b63', status: 'not-started' as const,
     instructor: 'Dr. Amir Hassan',
   },
   {
@@ -69,7 +69,7 @@ export default function ProfessionalDevPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
+              style={{ background: 'linear-gradient(135deg, #e6b34d, #bc7d24)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -89,10 +89,10 @@ export default function ProfessionalDevPage() {
       <FadeUp delay={0.05}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'Courses Completed', value: completedCount, icon: Check, color: '#10b981' },
+            { label: 'Courses Completed', value: completedCount, icon: Check, color: '#86b06a' },
             { label: 'Hours Logged', value: totalHours, icon: Clock, color: '#dd9a33' },
-            { label: 'Certificates', value: completedCount, icon: Award, color: '#f59e0b' },
-            { label: 'Current Streak', value: '12 days', icon: TrendingUp, color: '#ec4899' },
+            { label: 'Certificates', value: completedCount, icon: Award, color: '#e6b34d' },
+            { label: 'Current Streak', value: '12 days', icon: TrendingUp, color: '#d97b63' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}

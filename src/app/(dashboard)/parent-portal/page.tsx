@@ -30,12 +30,12 @@ const recentGrades = [
 ]
 
 const subjectGrades = [
-  { subject: 'AP Biology', letter: 'A-', percentage: 91, color: '#10b981' },
+  { subject: 'AP Biology', letter: 'A-', percentage: 91, color: '#86b06a' },
   { subject: '10th English', letter: 'B+', percentage: 87, color: '#dd9a33' },
   { subject: 'Algebra II', letter: 'A', percentage: 94, color: '#829c6e' },
-  { subject: 'World History', letter: 'B', percentage: 83, color: '#f59e0b' },
+  { subject: 'World History', letter: 'B', percentage: 83, color: '#e6b34d' },
   { subject: 'PE', letter: 'A', percentage: 97, color: '#b0623f' },
-  { subject: 'Art Studio', letter: 'A-', percentage: 92, color: '#f43f5e' },
+  { subject: 'Art Studio', letter: 'A-', percentage: 92, color: '#d97b63' },
 ]
 
 const attendanceDays: Record<number, 'present' | 'absent' | 'late' | 'excused'> = {
@@ -47,9 +47,9 @@ const attendanceDays: Record<number, 'present' | 'absent' | 'late' | 'excused'> 
 }
 
 const attendanceColors: Record<string, string> = {
-  present: '#10b981',
-  absent: '#ef4444',
-  late: '#f59e0b',
+  present: '#86b06a',
+  absent: '#c25a44',
+  late: '#e6b34d',
   excused: '#829c6e',
 }
 
@@ -84,11 +84,11 @@ const messages = [
 ]
 
 function getGradeColor(grade: string): string {
-  if (grade.startsWith('A')) return '#10b981'
+  if (grade.startsWith('A')) return '#86b06a'
   if (grade.startsWith('B')) return '#829c6e'
-  if (grade.startsWith('C')) return '#f59e0b'
-  if (grade.startsWith('D')) return '#f97316'
-  return '#ef4444'
+  if (grade.startsWith('C')) return '#e6b34d'
+  if (grade.startsWith('D')) return '#c67954'
+  return '#c25a44'
 }
 
 export default function ParentPortalPage() {
@@ -118,7 +118,7 @@ export default function ParentPortalPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #b0623f, #6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg, #b0623f, #914d30)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -400,9 +400,9 @@ export default function ParentPortalPage() {
 
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: 'Days Present', value: '24', color: '#10b981' },
-                { label: 'Days Absent', value: '1', color: '#ef4444' },
-                { label: 'Days Late', value: '1', color: '#f59e0b' },
+                { label: 'Days Present', value: '24', color: '#86b06a' },
+                { label: 'Days Absent', value: '1', color: '#c25a44' },
+                { label: 'Days Late', value: '1', color: '#e6b34d' },
               ].map((s, i) => (
                 <motion.div
                   key={s.label}

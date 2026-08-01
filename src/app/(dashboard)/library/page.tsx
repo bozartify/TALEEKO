@@ -14,10 +14,10 @@ type FilterTab = 'all' | ContentType
 
 const typeConfig: Record<ContentType, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   lesson:     { label: 'Lesson Plan',  color: '#b0623f', bg: 'rgba(139,92,246,0.12)', icon: BookOpen },
-  quiz:       { label: 'Quiz',         color: '#f97316', bg: 'rgba(249,115,22,0.12)', icon: Brain },
-  worksheet:  { label: 'Worksheet',    color: '#14b8a6', bg: 'rgba(20,184,166,0.12)', icon: FileText },
-  activity:   { label: 'Activity',     color: '#eab308', bg: 'rgba(234,179,8,0.12)',  icon: Zap },
-  assessment: { label: 'Assessment',   color: '#ec4899', bg: 'rgba(236,72,153,0.12)', icon: ClipboardCheck },
+  quiz:       { label: 'Quiz',         color: '#c67954', bg: 'rgba(249,115,22,0.12)', icon: Brain },
+  worksheet:  { label: 'Worksheet',    color: '#829c6e', bg: 'rgba(20,184,166,0.12)', icon: FileText },
+  activity:   { label: 'Activity',     color: '#e6b34d', bg: 'rgba(234,179,8,0.12)',  icon: Zap },
+  assessment: { label: 'Assessment',   color: '#d97b63', bg: 'rgba(236,72,153,0.12)', icon: ClipboardCheck },
 }
 
 const sampleItems = [
@@ -125,9 +125,9 @@ export default function LibraryPage() {
 
   const stats = [
     { label: 'Total Items', value: sampleItems.length.toString(), icon: FolderOpen, color: '#b0623f' },
-    { label: 'This Week', value: thisWeekCount.toString(), icon: TrendingUp, color: '#14b8a6' },
-    { label: 'Most Popular', value: popularSubject, icon: Star, color: '#f97316' },
-    { label: 'AI-Generated', value: `${aiPct}%`, icon: Sparkles, color: '#ec4899' },
+    { label: 'This Week', value: thisWeekCount.toString(), icon: TrendingUp, color: '#829c6e' },
+    { label: 'Most Popular', value: popularSubject, icon: Star, color: '#c67954' },
+    { label: 'AI-Generated', value: `${aiPct}%`, icon: Sparkles, color: '#d97b63' },
   ]
 
   return (
@@ -137,7 +137,7 @@ export default function LibraryPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >

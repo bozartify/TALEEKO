@@ -18,7 +18,7 @@ const conversations = [
   {
     id: '2', parent: 'David Kim', student: 'James Kim', avatar: 'DK',
     lastMessage: 'Can we schedule a meeting about the history project?',
-    time: '4h ago', unread: 2, class: '8th History', color: '#f97316'
+    time: '4h ago', unread: 2, class: '8th History', color: '#c67954'
   },
   {
     id: '3', parent: 'Fatima Patel', student: 'Sofia Patel', avatar: 'FP',
@@ -28,12 +28,12 @@ const conversations = [
   {
     id: '4', parent: 'John Williams', student: 'Noah Williams', avatar: 'JW',
     lastMessage: 'Is there extra credit available for the history class?',
-    time: '2d ago', unread: 0, class: '8th History', color: '#f97316'
+    time: '2d ago', unread: 0, class: '8th History', color: '#c67954'
   },
   {
     id: '5', parent: 'Linda Chen', student: 'Liam Chen', avatar: 'LC',
     lastMessage: 'Thanks for sending the study guide. Very helpful!',
-    time: '3d ago', unread: 0, class: '10th English', color: '#f43f5e'
+    time: '3d ago', unread: 0, class: '10th English', color: '#d97b63'
   },
 ]
 

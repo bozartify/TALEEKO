@@ -82,7 +82,7 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-4">
                       <motion.div
                         className="w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black text-xl"
-                        style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+                        style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
                         whileHover={{ scale: 1.05, rotate: 3 }}
                         transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                       >

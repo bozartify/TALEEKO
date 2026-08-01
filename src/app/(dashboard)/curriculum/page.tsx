@@ -11,7 +11,7 @@ import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 const units = [
   {
     id: '1', title: 'Cell Biology & Organization', weeks: '3 weeks', status: 'completed' as const,
-    color: '#10b981', standards: 4, lessons: 8, progress: 100,
+    color: '#86b06a', standards: 4, lessons: 8, progress: 100,
     topics: ['Cell Structure', 'Cell Transport', 'Cell Division', 'Photosynthesis'],
   },
   {
@@ -21,7 +21,7 @@ const units = [
   },
   {
     id: '3', title: 'Evolution & Natural Selection', weeks: '3 weeks', status: 'upcoming' as const,
-    color: '#f97316', standards: 3, lessons: 7, progress: 0,
+    color: '#c67954', standards: 3, lessons: 7, progress: 0,
     topics: ['Evidence for Evolution', 'Natural Selection', 'Speciation'],
   },
   {
@@ -31,7 +31,7 @@ const units = [
   },
   {
     id: '5', title: 'Human Body Systems', weeks: '4 weeks', status: 'upcoming' as const,
-    color: '#ec4899', standards: 6, lessons: 12, progress: 0,
+    color: '#d97b63', standards: 6, lessons: 12, progress: 0,
     topics: ['Circulatory', 'Respiratory', 'Nervous', 'Digestive', 'Immune', 'Endocrine'],
   },
 ]
@@ -104,9 +104,9 @@ export default function CurriculumPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { label: 'Units', value: units.length, icon: Layers, color: '#dd9a33' },
-            { label: 'Lessons', value: totalLessons, icon: BookOpen, color: '#14b8a6' },
-            { label: 'Standards', value: totalStandards, icon: Target, color: '#f97316' },
-            { label: 'Progress', value: `${overallProgress}%`, icon: Check, color: '#10b981' },
+            { label: 'Lessons', value: totalLessons, icon: BookOpen, color: '#829c6e' },
+            { label: 'Standards', value: totalStandards, icon: Target, color: '#c67954' },
+            { label: 'Progress', value: `${overallProgress}%`, icon: Check, color: '#86b06a' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -140,7 +140,7 @@ export default function CurriculumPage() {
                 <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ backgroundColor: q.progress === 100 ? '#10b981' : q.progress > 0 ? '#dd9a33' : '#374151' }}
+                    style={{ backgroundColor: q.progress === 100 ? '#86b06a' : q.progress > 0 ? '#dd9a33' : '#362e23' }}
                     initial={{ width: 0 }}
                     animate={{ width: `${q.progress}%` }}
                     transition={{ delay: 0.3 + i * 0.1, duration: 0.6 }}

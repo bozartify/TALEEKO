@@ -32,7 +32,7 @@ const students = [
   {
     id: '2', name: 'James Kim', grade: '8th', class: 'History',
     avg: 87, trend: 'up' as const, streak: 8, awards: 2,
-    avatar: 'JK', color: '#f97316',
+    avatar: 'JK', color: '#c67954',
     skills: [
       { name: 'Historical Analysis', level: 90 },
       { name: 'Essay Writing', level: 85 },
@@ -51,7 +51,7 @@ const students = [
   {
     id: '3', name: 'Aisha Thompson', grade: '9th', class: 'Math',
     avg: 95, trend: 'up' as const, streak: 22, awards: 5,
-    avatar: 'AT', color: '#14b8a6',
+    avatar: 'AT', color: '#829c6e',
     skills: [
       { name: 'Problem Solving', level: 98 },
       { name: 'Algebraic Thinking', level: 95 },
@@ -93,7 +93,7 @@ export default function PortfolioPage() {
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+                style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
                 whileHover={{ rotate: 8, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >

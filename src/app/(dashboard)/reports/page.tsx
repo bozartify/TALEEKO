@@ -30,7 +30,7 @@ const reportTypes = [
     title: 'Curriculum Coverage Report',
     desc: 'Standards alignment and coverage gaps analysis',
     icon: BookOpen,
-    color: '#14b8a6',
+    color: '#829c6e',
     fields: ['Course', 'Standards Framework', 'Time Period'],
   },
   {
@@ -38,7 +38,7 @@ const reportTypes = [
     title: 'Engagement Analytics',
     desc: 'AI-analyzed engagement patterns and intervention recommendations',
     icon: BarChart2,
-    color: '#f97316',
+    color: '#c67954',
     fields: ['Class', 'Metric Type', 'Comparison Period'],
   },
   {
@@ -46,7 +46,7 @@ const reportTypes = [
     title: 'Assessment Results',
     desc: 'Detailed quiz and test results with item analysis',
     icon: ClipboardList,
-    color: '#ec4899',
+    color: '#d97b63',
     fields: ['Assessment', 'Include: Statistics, Item Analysis, Student Breakdown'],
   },
   {

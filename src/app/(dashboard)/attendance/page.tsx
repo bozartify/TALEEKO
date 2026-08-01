@@ -12,9 +12,9 @@ type Status = 'present' | 'absent' | 'late' | 'excused'
 const statusCycle: Status[] = ['present', 'absent', 'late', 'excused']
 
 const statusConfig: Record<Status, { icon: typeof Check; label: string; colorClass: string; bgClass: string; hex: string }> = {
-  present: { icon: Check, label: 'P', colorClass: 'text-success-400', bgClass: 'bg-success-400/15', hex: '#10b981' },
-  absent:  { icon: X, label: 'A', colorClass: 'text-danger-400', bgClass: 'bg-danger-400/15', hex: '#ef4444' },
-  late:    { icon: Clock, label: 'L', colorClass: 'text-warning-400', bgClass: 'bg-warning-400/15', hex: '#f59e0b' },
+  present: { icon: Check, label: 'P', colorClass: 'text-success-400', bgClass: 'bg-success-400/15', hex: '#86b06a' },
+  absent:  { icon: X, label: 'A', colorClass: 'text-danger-400', bgClass: 'bg-danger-400/15', hex: '#c25a44' },
+  late:    { icon: Clock, label: 'L', colorClass: 'text-warning-400', bgClass: 'bg-warning-400/15', hex: '#e6b34d' },
   excused: { icon: Circle, label: 'E', colorClass: 'text-electric-400', bgClass: 'bg-electric-400/15', hex: '#829c6e' },
 }
 
@@ -120,7 +120,7 @@ export default function AttendancePage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
+              style={{ background: 'linear-gradient(135deg, #86b06a, #587f41)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -281,9 +281,9 @@ export default function AttendancePage() {
       <FadeInWhenVisible delay={0.15}>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[
-            { label: 'Present', value: presentCount, color: '#10b981', icon: Check },
-            { label: 'Absent', value: absentCount, color: '#ef4444', icon: X },
-            { label: 'Late', value: lateCount, color: '#f59e0b', icon: Clock },
+            { label: 'Present', value: presentCount, color: '#86b06a', icon: Check },
+            { label: 'Absent', value: absentCount, color: '#c25a44', icon: X },
+            { label: 'Late', value: lateCount, color: '#e6b34d', icon: Clock },
             { label: 'Excused', value: excusedCount, color: '#829c6e', icon: Circle },
             { label: 'Attendance Rate', value: `${attendanceRate}%`, color: '#b0623f', icon: TrendingUp },
           ].map((stat, i) => (

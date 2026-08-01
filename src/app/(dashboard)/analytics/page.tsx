@@ -26,11 +26,11 @@ const monthlyTrend = [
 
 const topTools = [
   { name: 'Lesson Plans',   uses: 24, pct: 85, color: '#b0623f', icon: BookOpen },
-  { name: 'Quiz Generator', uses: 18, pct: 65, color: '#f97316', icon: FileText },
-  { name: 'Worksheets',     uses: 12, pct: 43, color: '#14b8a6', icon: FileText },
-  { name: 'Magic Chat',     uses: 31, pct: 100, color: '#6d28d9', icon: MessageSquare },
-  { name: 'Activities',     uses: 8,  pct: 29, color: '#f59e0b', icon: Zap },
-  { name: 'AI Analysis',    uses: 5,  pct: 18, color: '#f43f5e', icon: Brain },
+  { name: 'Quiz Generator', uses: 18, pct: 65, color: '#c67954', icon: FileText },
+  { name: 'Worksheets',     uses: 12, pct: 43, color: '#829c6e', icon: FileText },
+  { name: 'Magic Chat',     uses: 31, pct: 100, color: '#914d30', icon: MessageSquare },
+  { name: 'Activities',     uses: 8,  pct: 29, color: '#e6b34d', icon: Zap },
+  { name: 'AI Analysis',    uses: 5,  pct: 18, color: '#d97b63', icon: Brain },
 ]
 
 const heatmapData = [
@@ -42,9 +42,9 @@ const heatmapDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
 
 const engagementByClass = [
   { name: '7th Science', engagement: 94, completion: 88, color: '#b0623f' },
-  { name: '8th History', engagement: 87, completion: 82, color: '#f97316' },
-  { name: '9th Math',    engagement: 91, completion: 79, color: '#14b8a6' },
-  { name: '10th English',engagement: 78, completion: 85, color: '#f43f5e' },
+  { name: '8th History', engagement: 87, completion: 82, color: '#c67954' },
+  { name: '9th Math',    engagement: 91, completion: 79, color: '#829c6e' },
+  { name: '10th English',engagement: 78, completion: 85, color: '#d97b63' },
 ]
 
 const aiInsights = [
@@ -149,7 +149,7 @@ export default function AnalyticsPage() {
                     className="w-full rounded-t-lg"
                     style={{
                       height: `${Math.max((d.lessons / maxLessons) * 100, 4)}px`,
-                      background: d.lessons > 0 ? 'linear-gradient(180deg,#b0623f,#6d28d9)' : 'rgba(255,255,255,0.06)',
+                      background: d.lessons > 0 ? 'linear-gradient(180deg,#b0623f,#914d30)' : 'rgba(255,255,255,0.06)',
                     }}
                     whileHover={{ filter: 'brightness(1.1)', transition: { duration: 0.15 } }}
                   />
@@ -184,7 +184,7 @@ export default function AnalyticsPage() {
                     initial={{ height: 0 }}
                     animate={{ height: `${(d.value / maxMonthly) * 100}px` }}
                     transition={{ delay: 0.4 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }}
+                    style={{ background: 'linear-gradient(180deg,#86b06a,#587f41)' }}
                   />
                   <span className="text-xs text-surface-500">{d.month}</span>
                 </motion.div>
@@ -257,10 +257,10 @@ export default function AnalyticsPage() {
                           transition={{ delay: 0.4 + (ri * 7 + ci) * 0.02, duration: 0.3 }}
                           style={{
                             backgroundColor: val === 0 ? 'rgba(255,255,255,0.06)' :
-                              val === 1 ? '#c4b5fd' :
+                              val === 1 ? '#efc06b' :
                               val === 2 ? '#c67954' :
                               val === 3 ? '#b0623f' :
-                              val === 4 ? '#914d30' : '#6d28d9',
+                              val === 4 ? '#914d30' : '#914d30',
                           }}
                           title={`${heatmapDays[ci]} ${heatmapHours[ri]}: ${val} sessions`}
                         />
@@ -276,10 +276,10 @@ export default function AnalyticsPage() {
                       className="w-3 h-3 rounded-sm"
                       style={{
                         backgroundColor: v === 0 ? 'rgba(255,255,255,0.06)' :
-                          v === 1 ? '#c4b5fd' :
+                          v === 1 ? '#efc06b' :
                           v === 2 ? '#c67954' :
                           v === 3 ? '#b0623f' :
-                          v === 4 ? '#914d30' : '#6d28d9',
+                          v === 4 ? '#914d30' : '#914d30',
                       }}
                     />
                   ))}
@@ -379,7 +379,7 @@ export default function AnalyticsPage() {
       <FadeUp delay={0.45}>
         <div className="glass-card p-5 border-white/[0.06]">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}>
               <Brain className="w-4 h-4 text-white" />
             </div>
             <div>

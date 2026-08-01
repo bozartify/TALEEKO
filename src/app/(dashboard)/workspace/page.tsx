@@ -17,10 +17,10 @@ const toolCategories = [
     description: 'Generate teaching materials in seconds',
     tools: [
       { href: '/magic-chat?mode=lesson',    icon: BookOpen,       label: 'Lesson Plan Generator',  desc: 'Full lesson plans with objectives, activities, and assessments', color: '#b0623f', uses: 24, favorite: true },
-      { href: '/magic-chat?mode=quiz',      icon: ClipboardList,  label: 'Quiz & Assessment',      desc: 'Generate quizzes with multiple question types and auto answer keys', color: '#f97316', uses: 18, favorite: true },
-      { href: '/magic-chat?mode=worksheet', icon: FileText,       label: 'Student Worksheet',      desc: 'Build targeted practice sheets and exercises for any topic', color: '#14b8a6', uses: 12, favorite: false },
-      { href: '/magic-chat?mode=activity',  icon: Zap,            label: 'Classroom Activity',     desc: 'Design engaging individual, partner, or group activities', color: '#f59e0b', uses: 8, favorite: false },
-      { href: '/magic-chat',                icon: Presentation,   label: 'Slide Deck Creator',     desc: 'Auto-generate presentation outlines with speaker notes', color: '#ec4899', uses: 5, favorite: false },
+      { href: '/magic-chat?mode=quiz',      icon: ClipboardList,  label: 'Quiz & Assessment',      desc: 'Generate quizzes with multiple question types and auto answer keys', color: '#c67954', uses: 18, favorite: true },
+      { href: '/magic-chat?mode=worksheet', icon: FileText,       label: 'Student Worksheet',      desc: 'Build targeted practice sheets and exercises for any topic', color: '#829c6e', uses: 12, favorite: false },
+      { href: '/magic-chat?mode=activity',  icon: Zap,            label: 'Classroom Activity',     desc: 'Design engaging individual, partner, or group activities', color: '#e6b34d', uses: 8, favorite: false },
+      { href: '/magic-chat',                icon: Presentation,   label: 'Slide Deck Creator',     desc: 'Auto-generate presentation outlines with speaker notes', color: '#d97b63', uses: 5, favorite: false },
       { href: '/magic-chat',                icon: BookMarked,     label: 'Study Guide Builder',    desc: 'Create comprehensive study guides from any topic', color: '#6b8557', uses: 3, favorite: false },
     ]
   },
@@ -28,21 +28,21 @@ const toolCategories = [
     title: 'Analysis & Insights',
     description: 'Understand and improve your teaching',
     tools: [
-      { href: '/magic-chat',  icon: BarChart2,     label: 'Lesson Analyzer',     desc: 'Get AI feedback and improvement suggestions on any lesson', color: '#0ea5e9', uses: 5, favorite: false },
-      { href: '/analytics',   icon: TrendingUp,    label: 'Usage Analytics',     desc: 'Track your teaching productivity and material performance', color: '#f43f5e', uses: 9, favorite: true },
+      { href: '/magic-chat',  icon: BarChart2,     label: 'Lesson Analyzer',     desc: 'Get AI feedback and improvement suggestions on any lesson', color: '#6b8557', uses: 5, favorite: false },
+      { href: '/analytics',   icon: TrendingUp,    label: 'Usage Analytics',     desc: 'Track your teaching productivity and material performance', color: '#d97b63', uses: 9, favorite: true },
       { href: '/magic-chat',  icon: Shield,        label: 'Standards Checker',   desc: 'Verify alignment with Common Core, NGSS, and state standards', color: '#b0623f', uses: 4, favorite: false },
-      { href: '/magic-chat',  icon: HeartPulse,    label: 'Engagement Predictor',desc: 'AI predicts student engagement levels for your materials', color: '#10b981', uses: 2, favorite: false },
+      { href: '/magic-chat',  icon: HeartPulse,    label: 'Engagement Predictor',desc: 'AI predicts student engagement levels for your materials', color: '#86b06a', uses: 2, favorite: false },
     ]
   },
   {
     title: 'AI Assistants',
     description: 'Your always-on AI co-teachers',
     tools: [
-      { href: '/magic-chat', icon: Sparkles,       label: 'Magic Chat',          desc: 'Your always-on AI co-teacher for any question or request', color: '#6d28d9', uses: 31, favorite: true },
+      { href: '/magic-chat', icon: Sparkles,       label: 'Magic Chat',          desc: 'Your always-on AI co-teacher for any question or request', color: '#914d30', uses: 31, favorite: true },
       { href: '/magic-chat', icon: MessageSquare,  label: 'Feedback Writer',     desc: 'Generate personalized student feedback and report comments', color: '#dd9a33', uses: 7, favorite: false },
-      { href: '/magic-chat', icon: Wand2,          label: 'Content Rewriter',    desc: 'Adapt any material for different reading levels or needs', color: '#14b8a6', uses: 6, favorite: false },
-      { href: '/magic-chat', icon: PenTool,        label: 'Rubric Builder',      desc: 'Create detailed assessment rubrics for any assignment type', color: '#0891b2', uses: 4, favorite: false },
-      { href: '/magic-chat', icon: Languages,      label: 'Multi-Language Gen',  desc: 'Generate materials in 10+ languages with cultural context', color: '#f97316', uses: 3, favorite: false },
+      { href: '/magic-chat', icon: Wand2,          label: 'Content Rewriter',    desc: 'Adapt any material for different reading levels or needs', color: '#829c6e', uses: 6, favorite: false },
+      { href: '/magic-chat', icon: PenTool,        label: 'Rubric Builder',      desc: 'Create detailed assessment rubrics for any assignment type', color: '#6b8557', uses: 4, favorite: false },
+      { href: '/magic-chat', icon: Languages,      label: 'Multi-Language Gen',  desc: 'Generate materials in 10+ languages with cultural context', color: '#c67954', uses: 3, favorite: false },
       { href: '/agents',     icon: Bot,            label: 'Agent Swarm',         desc: 'Deploy autonomous AI agents for curriculum planning at scale', color: '#b0623f', uses: 1, favorite: false },
     ]
   },
@@ -50,11 +50,11 @@ const toolCategories = [
     title: 'Subject-Specific Tools',
     description: 'Specialized for each discipline',
     tools: [
-      { href: '/magic-chat', icon: Calculator,    label: 'Math Problem Gen',    desc: 'Generate step-by-step math problems with worked solutions', color: '#f59e0b', uses: 4, favorite: false },
-      { href: '/magic-chat', icon: Microscope,    label: 'Science Lab Builder', desc: 'Create virtual lab experiments and investigation guides', color: '#10b981', uses: 3, favorite: false },
-      { href: '/magic-chat', icon: Globe,         label: 'History Timeline',    desc: 'Build interactive timelines and primary source activities', color: '#f97316', uses: 2, favorite: false },
+      { href: '/magic-chat', icon: Calculator,    label: 'Math Problem Gen',    desc: 'Generate step-by-step math problems with worked solutions', color: '#e6b34d', uses: 4, favorite: false },
+      { href: '/magic-chat', icon: Microscope,    label: 'Science Lab Builder', desc: 'Create virtual lab experiments and investigation guides', color: '#86b06a', uses: 3, favorite: false },
+      { href: '/magic-chat', icon: Globe,         label: 'History Timeline',    desc: 'Build interactive timelines and primary source activities', color: '#c67954', uses: 2, favorite: false },
       { href: '/magic-chat', icon: BookOpen,      label: 'Reading Companion',   desc: 'Generate comprehension guides and vocabulary builders', color: '#b0623f', uses: 5, favorite: false },
-      { href: '/magic-chat', icon: Music,         label: 'Arts & Creative',     desc: 'Generate creative writing prompts and art project guides', color: '#ec4899', uses: 1, favorite: false },
+      { href: '/magic-chat', icon: Music,         label: 'Arts & Creative',     desc: 'Generate creative writing prompts and art project guides', color: '#d97b63', uses: 1, favorite: false },
       { href: '/magic-chat', icon: GraduationCap, label: 'College Prep',        desc: 'SAT/ACT prep materials and college application helpers', color: '#dd9a33', uses: 2, favorite: false },
     ]
   },
@@ -86,7 +86,7 @@ export default function WorkspacePage() {
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+                style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
                 whileHover={{ rotate: 10, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >

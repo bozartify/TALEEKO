@@ -29,7 +29,7 @@ const recentActivity = [
   { id: 2, text: 'Submitted Photosynthesis Lab Report', date: '1 day ago', color: 'bg-accent-500', icon: FileText },
   { id: 3, text: 'Earned "Top Performer" badge', date: '2 days ago', color: 'bg-warning-400', icon: Award },
   { id: 4, text: 'Completed DNA Replication Reading', date: '3 days ago', color: 'bg-electric-400', icon: BookOpen },
-  { id: 5, text: 'Participated in group discussion', date: '4 days ago', color: 'bg-cyan-400', icon: MessageSquare },
+  { id: 5, text: 'Participated in group discussion', date: '4 days ago', color: 'bg-electric-400', icon: MessageSquare },
 ]
 
 const skills = [
@@ -37,7 +37,7 @@ const skills = [
   { name: 'Communication', value: 76, color: 'bg-electric-400' },
   { name: 'Collaboration', value: 92, color: 'bg-success-400' },
   { name: 'Creativity', value: 81, color: 'bg-warning-400' },
-  { name: 'Problem Solving', value: 85, color: 'bg-cyan-400' },
+  { name: 'Problem Solving', value: 85, color: 'bg-electric-400' },
 ]
 
 const grades = [
@@ -71,7 +71,7 @@ type Tab = 'overview' | 'grades' | 'portfolio' | 'notes'
 
 function getGradeColor(letter: string) {
   if (letter.startsWith('A')) return 'bg-success-400/15 text-success-400'
-  if (letter.startsWith('B')) return 'bg-cyan-400/15 text-cyan-400'
+  if (letter.startsWith('B')) return 'bg-electric-400/15 text-electric-400'
   if (letter.startsWith('C')) return 'bg-warning-400/15 text-warning-400'
   if (letter.startsWith('D')) return 'bg-orange-400/15 text-orange-400'
   return 'bg-red-400/15 text-red-400'
@@ -296,7 +296,7 @@ export default function StudentDetailPage() {
                         <td className="px-5 py-3">
                           <span className={`text-sm font-bold ${
                             g.score >= 90 ? 'text-success-400' :
-                            g.score >= 80 ? 'text-cyan-400' :
+                            g.score >= 80 ? 'text-electric-400' :
                             g.score >= 70 ? 'text-warning-400' : 'text-orange-400'
                           }`}>{g.score}%</span>
                         </td>

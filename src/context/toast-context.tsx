@@ -32,10 +32,10 @@ const icons: Record<ToastVariant, React.ElementType> = {
 }
 
 const iconColors: Record<ToastVariant, string> = {
-  success: 'text-emerald-400',
+  success: 'text-success-400',
   error: 'text-red-400',
   warning: 'text-amber-400',
-  default: 'text-blue-400',
+  default: 'text-electric-400',
 }
 
 function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string) => void }) {

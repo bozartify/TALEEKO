@@ -22,20 +22,20 @@ interface CalEvent {
 
 const events: CalEvent[] = [
   { day: 3,  title: 'Photosynthesis Lab',    type: 'lesson',   time: '9:00 AM',  class: '7th Science', color: '#b0623f' },
-  { day: 3,  title: 'Math Quiz Ch.6',        type: 'quiz',     time: '1:00 PM',  class: '9th Math',    color: '#f97316' },
-  { day: 5,  title: 'American Revolution',   type: 'lesson',   time: '10:00 AM', class: '8th History', color: '#14b8a6' },
-  { day: 7,  title: 'Parent Conferences',    type: 'meeting',  time: '3:00 PM',  color: '#f43f5e' },
-  { day: 10, title: 'Essay Due',             type: 'deadline', class: '10th English', color: '#ef4444' },
+  { day: 3,  title: 'Math Quiz Ch.6',        type: 'quiz',     time: '1:00 PM',  class: '9th Math',    color: '#c67954' },
+  { day: 5,  title: 'American Revolution',   type: 'lesson',   time: '10:00 AM', class: '8th History', color: '#829c6e' },
+  { day: 7,  title: 'Parent Conferences',    type: 'meeting',  time: '3:00 PM',  color: '#d97b63' },
+  { day: 10, title: 'Essay Due',             type: 'deadline', class: '10th English', color: '#c25a44' },
   { day: 12, title: 'NGSS Review Session',   type: 'lesson',   time: '11:00 AM', class: '7th Science', color: '#b0623f' },
   { day: 14, title: 'Science Fair Prep',     type: 'event',    time: '2:00 PM',  class: '7th Science', color: '#dd9a33' },
-  { day: 15, title: 'Quiz: Quadratics',      type: 'quiz',     time: '9:00 AM',  class: '9th Math',    color: '#f97316' },
-  { day: 17, title: 'Staff Meeting',         type: 'meeting',  time: '4:00 PM',  color: '#0891b2' },
-  { day: 18, title: 'Lab Report Due',        type: 'deadline', class: '7th Science', color: '#ef4444' },
-  { day: 20, title: 'Romeo & Juliet Act 3',  type: 'lesson',   time: '10:00 AM', class: '10th English', color: '#f43f5e' },
-  { day: 22, title: 'Department Review',     type: 'meeting',  time: '3:30 PM',  color: '#0891b2' },
-  { day: 24, title: 'Ecosystem Unit Test',   type: 'quiz',     time: '9:00 AM',  class: '7th Science', color: '#f97316' },
+  { day: 15, title: 'Quiz: Quadratics',      type: 'quiz',     time: '9:00 AM',  class: '9th Math',    color: '#c67954' },
+  { day: 17, title: 'Staff Meeting',         type: 'meeting',  time: '4:00 PM',  color: '#6b8557' },
+  { day: 18, title: 'Lab Report Due',        type: 'deadline', class: '7th Science', color: '#c25a44' },
+  { day: 20, title: 'Romeo & Juliet Act 3',  type: 'lesson',   time: '10:00 AM', class: '10th English', color: '#d97b63' },
+  { day: 22, title: 'Department Review',     type: 'meeting',  time: '3:30 PM',  color: '#6b8557' },
+  { day: 24, title: 'Ecosystem Unit Test',   type: 'quiz',     time: '9:00 AM',  class: '7th Science', color: '#c67954' },
   { day: 25, title: 'Science Fair',          type: 'event',    time: 'All Day',  class: 'All Classes', color: '#b0623f' },
-  { day: 28, title: 'Progress Reports Due',  type: 'deadline', color: '#ef4444' },
+  { day: 28, title: 'Progress Reports Due',  type: 'deadline', color: '#c25a44' },
 ]
 
 const eventTypeConfig = {
@@ -74,7 +74,7 @@ export default function CalendarPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -121,7 +121,7 @@ export default function CalendarPage() {
           <div className="flex items-center gap-3 text-xs">
             {Object.entries(eventTypeConfig).map(([key, cfg]) => (
               <span key={key} className="flex items-center gap-1 text-surface-400">
-                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: key === 'lesson' ? '#b0623f' : key === 'quiz' ? '#f97316' : key === 'meeting' ? '#0ea5e9' : key === 'deadline' ? '#ef4444' : '#dd9a33' }} />
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: key === 'lesson' ? '#b0623f' : key === 'quiz' ? '#c67954' : key === 'meeting' ? '#6b8557' : key === 'deadline' ? '#c25a44' : '#dd9a33' }} />
                 {cfg.label}
               </span>
             ))}

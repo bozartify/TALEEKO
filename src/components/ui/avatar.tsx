@@ -23,8 +23,8 @@ const statusDotSize = {
 }
 
 const statusColors = {
-  online: 'bg-green-500',
-  offline: 'bg-gray-500',
+  online: 'bg-success-500',
+  offline: 'bg-surface-500',
   busy: 'bg-red-500',
   away: 'bg-amber-500',
 }

@@ -10,7 +10,7 @@ import { FadeUp, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion
 const sampleRubrics = [
   {
     id: '1', title: 'Essay Writing Rubric', subject: 'English', grade: '10th',
-    criteria: 4, levels: 4, lastUsed: 'Today', uses: 12, color: '#f43f5e',
+    criteria: 4, levels: 4, lastUsed: 'Today', uses: 12, color: '#d97b63',
     tags: ['Writing', 'Analytical'],
   },
   {
@@ -20,12 +20,12 @@ const sampleRubrics = [
   },
   {
     id: '3', title: 'Math Problem Solving', subject: 'Math', grade: '9th',
-    criteria: 3, levels: 4, lastUsed: '3 days ago', uses: 15, color: '#14b8a6',
+    criteria: 3, levels: 4, lastUsed: '3 days ago', uses: 15, color: '#829c6e',
     tags: ['Problem Solving', 'Show Work'],
   },
   {
     id: '4', title: 'History Research Project', subject: 'History', grade: '8th',
-    criteria: 6, levels: 4, lastUsed: '1 week ago', uses: 5, color: '#f97316',
+    criteria: 6, levels: 4, lastUsed: '1 week ago', uses: 5, color: '#c67954',
     tags: ['Research', 'Citation'],
   },
   {
@@ -35,7 +35,7 @@ const sampleRubrics = [
   },
   {
     id: '6', title: 'Group Project Collaboration', subject: 'Any', grade: 'All',
-    criteria: 4, levels: 3, lastUsed: '2 weeks ago', uses: 9, color: '#ec4899',
+    criteria: 4, levels: 3, lastUsed: '2 weeks ago', uses: 9, color: '#d97b63',
     tags: ['Collaboration', 'Teamwork'],
   },
 ]
@@ -86,7 +86,7 @@ export default function RubricsPage() {
           <div className="flex items-center gap-3">
             <motion.div
               className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
               whileHover={{ rotate: 8, scale: 1.08 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
             >
@@ -136,7 +136,7 @@ export default function RubricsPage() {
           >
             <motion.div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+              style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
             >

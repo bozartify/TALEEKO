@@ -151,7 +151,7 @@ export default function LoginPage() {
                 >
                   <div
                     className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ background: `linear-gradient(135deg, ${['#dd9a33','#f97316','#14b8a6'][i]}, ${['#c67954','#ea580c','#0d9488'][i]})` }}
+                    style={{ background: `linear-gradient(135deg, ${['#dd9a33','#c67954','#829c6e'][i]}, ${['#c67954','#b0623f','#6b8557'][i]})` }}
                   >
                     {t.name.split(' ').map(n => n[0]).join('')}
                   </div>

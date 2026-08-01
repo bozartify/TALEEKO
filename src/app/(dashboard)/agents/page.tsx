@@ -26,11 +26,11 @@ interface Agent {
 
 const INITIAL_AGENTS: Agent[] = [
   { id: 'a1', name: 'Curriculum Architect', role: 'Vertical · Planning',   icon: Layers,        color: '#dd9a33', status: 'running',  task: 'Mapping 7th-grade biology unit to NGSS standards', progress: 72, autonomy: 'autonomous', tasksDone: 148 },
-  { id: 'a2', name: 'Assessment Engine',    role: 'Vertical · Evaluation', icon: ClipboardList, color: '#f97316', status: 'running',  task: 'Generating differentiated quiz variants (3 tiers)', progress: 45, autonomy: 'semi',       tasksDone: 92 },
-  { id: 'a3', name: 'Grading Assistant',    role: 'Horizontal · Feedback', icon: CheckCircle2,  color: '#14b8a6', status: 'awaiting', task: 'Batch-graded 28 essays — needs human sign-off',     progress: 100, autonomy: 'supervised', tasksDone: 310 },
-  { id: 'a4', name: 'Differentiation Spec', role: 'Horizontal · Access',   icon: Target,        color: '#f43f5e', status: 'running',  task: 'Adapting materials for 4 IEP profiles',            progress: 60, autonomy: 'semi',       tasksDone: 67 },
-  { id: 'a5', name: 'Parent Comms Agent',   role: 'Horizontal · Outreach', icon: MessageSquare, color: '#0ea5e9', status: 'awaiting', task: 'Drafted 12 progress emails — awaiting approval',    progress: 100, autonomy: 'supervised', tasksDone: 204 },
-  { id: 'a6', name: 'Standards Aligner',    role: 'Vertical · Compliance', icon: ShieldCheck,   color: '#a855f7', status: 'idle',     task: 'Idle — waiting for new lesson input',              progress: 0,   autonomy: 'autonomous', tasksDone: 51 },
+  { id: 'a2', name: 'Assessment Engine',    role: 'Vertical · Evaluation', icon: ClipboardList, color: '#c67954', status: 'running',  task: 'Generating differentiated quiz variants (3 tiers)', progress: 45, autonomy: 'semi',       tasksDone: 92 },
+  { id: 'a3', name: 'Grading Assistant',    role: 'Horizontal · Feedback', icon: CheckCircle2,  color: '#829c6e', status: 'awaiting', task: 'Batch-graded 28 essays — needs human sign-off',     progress: 100, autonomy: 'supervised', tasksDone: 310 },
+  { id: 'a4', name: 'Differentiation Spec', role: 'Horizontal · Access',   icon: Target,        color: '#d97b63', status: 'running',  task: 'Adapting materials for 4 IEP profiles',            progress: 60, autonomy: 'semi',       tasksDone: 67 },
+  { id: 'a5', name: 'Parent Comms Agent',   role: 'Horizontal · Outreach', icon: MessageSquare, color: '#6b8557', status: 'awaiting', task: 'Drafted 12 progress emails — awaiting approval',    progress: 100, autonomy: 'supervised', tasksDone: 204 },
+  { id: 'a6', name: 'Standards Aligner',    role: 'Vertical · Compliance', icon: ShieldCheck,   color: '#b0623f', status: 'idle',     task: 'Idle — waiting for new lesson input',              progress: 0,   autonomy: 'autonomous', tasksDone: 51 },
 ]
 
 interface Approval {

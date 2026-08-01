@@ -38,7 +38,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
             className="h-full rounded-full"
             style={{
               width: `${(lessons.filter(l => l.status === 'published').length / lessons.length) * 100}%`,
-              background: 'linear-gradient(135deg,#b0623f,#6d28d9)'
+              background: 'linear-gradient(135deg,#b0623f,#914d30)'
             }}
           />
         </div>

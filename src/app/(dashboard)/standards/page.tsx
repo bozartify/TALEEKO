@@ -10,11 +10,11 @@ import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
 const frameworks = [
   { id: 'ccss', name: 'Common Core (CCSS)', icon: '\u{1F1FA}\u{1F1F8}', standards: 1465, aligned: 42, color: '#b0623f' },
-  { id: 'ngss', name: 'NGSS Science', icon: '\u{1F52C}', standards: 286, aligned: 18, color: '#14b8a6' },
-  { id: 'ib',   name: 'International Baccalaureate', icon: '\u{1F30D}', standards: 340, aligned: 8, color: '#f97316' },
+  { id: 'ngss', name: 'NGSS Science', icon: '\u{1F52C}', standards: 286, aligned: 18, color: '#829c6e' },
+  { id: 'ib',   name: 'International Baccalaureate', icon: '\u{1F30D}', standards: 340, aligned: 8, color: '#c67954' },
   { id: 'cam',  name: 'Cambridge (IGCSE)', icon: '\u{1F1EC}\u{1F1E7}', standards: 280, aligned: 5, color: '#dd9a33' },
-  { id: 'ap',   name: 'AP Curriculum', icon: '\u{1F4DA}', standards: 192, aligned: 12, color: '#f43f5e' },
-  { id: 'state',name: 'State Standards', icon: '\u{1F4CB}', standards: 890, aligned: 15, color: '#0891b2' },
+  { id: 'ap',   name: 'AP Curriculum', icon: '\u{1F4DA}', standards: 192, aligned: 12, color: '#d97b63' },
+  { id: 'state',name: 'State Standards', icon: '\u{1F4CB}', standards: 890, aligned: 15, color: '#6b8557' },
 ]
 
 const ccssStandards = [
@@ -76,7 +76,7 @@ export default function StandardsPage() {
             <div className="flex items-center gap-3">
               <motion.div
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#b0623f,#6d28d9)' }}
+                style={{ background: 'linear-gradient(135deg,#b0623f,#914d30)' }}
                 whileHover={{ rotate: 8, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
@@ -185,7 +185,7 @@ export default function StandardsPage() {
               <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg,#b0623f,#6d28d9)' }}
+                  style={{ background: 'linear-gradient(90deg,#b0623f,#914d30)' }}
                   initial={{ width: 0 }}
                   animate={{ width: `${alignmentStats.coverage}%` }}
                   transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}

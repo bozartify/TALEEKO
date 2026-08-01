@@ -12,17 +12,17 @@ const courses = [
   },
   {
     id: '2', title: 'American History 8', subject: 'History', grade: '8th',
-    color: '#f97316', lessons: 9, description: 'Colonial era through Reconstruction',
+    color: '#c67954', lessons: 9, description: 'Colonial era through Reconstruction',
     lastUpdated: 'Yesterday'
   },
   {
     id: '3', title: 'Algebra I', subject: 'Mathematics', grade: '9th',
-    color: '#14b8a6', lessons: 15, description: 'Linear equations, systems, and functions',
+    color: '#829c6e', lessons: 15, description: 'Linear equations, systems, and functions',
     lastUpdated: '2 days ago'
   },
   {
     id: '4', title: 'English Literature 10', subject: 'English', grade: '10th',
-    color: '#f43f5e', lessons: 8, description: 'Classic and contemporary literature analysis',
+    color: '#d97b63', lessons: 8, description: 'Classic and contemporary literature analysis',
     lastUpdated: '1 week ago'
   },
 ]

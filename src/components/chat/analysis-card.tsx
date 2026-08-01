@@ -4,7 +4,7 @@ interface Props { data: Record<string, unknown> }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
   const pct = Math.round((value / 10) * 100)
-  const color = value >= 8 ? '#10b981' : value >= 6 ? '#b0623f' : value >= 4 ? '#f59e0b' : '#f43f5e'
+  const color = value >= 8 ? '#86b06a' : value >= 6 ? '#b0623f' : value >= 4 ? '#e6b34d' : '#d97b63'
   return (
     <div>
       <div className="flex items-center justify-between mb-1">

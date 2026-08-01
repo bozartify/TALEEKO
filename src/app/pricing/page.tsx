@@ -13,7 +13,7 @@ const plans = [
     desc: 'For individual teachers getting started',
     monthlyPrice: 0,
     yearlyPrice: 0,
-    color: '#6b7280',
+    color: '#94856f',
     features: [
       '5 AI generations per day',
       '1 active course',
