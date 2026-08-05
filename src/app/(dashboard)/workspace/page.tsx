@@ -9,7 +9,8 @@ import {
   Shield, HeartPulse, Music, Calculator, Microscope, BookMarked,
   Languages, Presentation, Users, Brain, Bot, Clock, Plus,
   ThumbsUp, ThumbsDown, X, Check, ArrowRight, Flame, Target,
-  Award, RefreshCw, Eye, Download
+  Award, RefreshCw, Eye, Download, ChevronDown, CheckCircle,
+  BookmarkCheck, Folder, FolderPlus, Trash2, Share2
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -81,24 +82,53 @@ const toolCategories: ToolCategory[] = [
 ]
 
 const recentlyUsed: { label: string; icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>; color: string; time: string }[] = [
-  { label: 'Lesson Plan Generator', icon: BookOpen, color: '#8b5cf6', time: '2 hours ago' },
-  { label: 'Quiz & Assessment', icon: ClipboardList, color: '#f97316', time: '5 hours ago' },
-  { label: 'Magic Chat', icon: Sparkles, color: '#6d28d9', time: 'Yesterday' },
-  { label: 'Rubric Builder', icon: PenTool, color: '#0891b2', time: 'Yesterday' },
+  { label: 'Lesson Plan Generator', icon: BookOpen,    color: '#8b5cf6', time: '2 hours ago' },
+  { label: 'Quiz & Assessment',     icon: ClipboardList, color: '#f97316', time: '5 hours ago' },
+  { label: 'Magic Chat',            icon: Sparkles,    color: '#6d28d9', time: 'Yesterday' },
+  { label: 'Rubric Builder',        icon: PenTool,     color: '#0891b2', time: 'Yesterday' },
+  { label: 'Student Worksheet',     icon: FileText,    color: '#14b8a6', time: '2 days ago' },
+  { label: 'Feedback Writer',       icon: MessageSquare, color: '#6366f1', time: '2 days ago' },
 ]
 
 const recentCreations = [
-  { title: 'Ch.6 Photosynthesis Quiz', tool: 'Quiz & Assessment', date: 'Jul 30', type: 'Quiz', color: '#f97316' },
-  { title: 'Lab Safety Lesson Plan', tool: 'Lesson Plan Generator', date: 'Jul 29', type: 'Lesson', color: '#8b5cf6' },
-  { title: 'Cell Structure Worksheet', tool: 'Student Worksheet', date: 'Jul 28', type: 'Worksheet', color: '#14b8a6' },
-  { title: 'Algebra Unit Rubric', tool: 'Rubric Builder', date: 'Jul 27', type: 'Rubric', color: '#0891b2' },
-  { title: 'Climate Change Activity', tool: 'Classroom Activity', date: 'Jul 25', type: 'Activity', color: '#f59e0b' },
+  { title: 'Ch.6 Photosynthesis Quiz',     tool: 'Quiz & Assessment',     date: 'Jul 30', type: 'Quiz',      color: '#f97316' },
+  { title: 'Lab Safety Lesson Plan',        tool: 'Lesson Plan Generator', date: 'Jul 29', type: 'Lesson',    color: '#8b5cf6' },
+  { title: 'Cell Structure Worksheet',      tool: 'Student Worksheet',     date: 'Jul 28', type: 'Worksheet', color: '#14b8a6' },
+  { title: 'Algebra Unit Rubric',           tool: 'Rubric Builder',        date: 'Jul 27', type: 'Rubric',    color: '#0891b2' },
+  { title: 'Climate Change Activity',       tool: 'Classroom Activity',    date: 'Jul 25', type: 'Activity',  color: '#f59e0b' },
+  { title: 'Emma D. Progress Report',       tool: 'Feedback Writer',       date: 'Jul 24', type: 'Report',    color: '#6366f1' },
+  { title: 'Mitosis Exit Ticket',           tool: 'Quiz & Assessment',     date: 'Jul 23', type: 'Quiz',      color: '#f97316' },
+  { title: 'Differentiation: Group 2',      tool: 'Content Rewriter',      date: 'Jul 22', type: 'Adapted',   color: '#10b981' },
 ]
 
 const aiSuggested = [
-  { label: 'Exit Ticket for Thursday', desc: 'Based on your upcoming photosynthesis lesson', icon: Target, color: '#6366f1', tool: 'Quiz & Assessment' },
-  { label: 'IEP Accommodation Guide', desc: 'Sofia Rodriguez needs differentiated materials', icon: Users, color: '#10b981', tool: 'Content Rewriter' },
-  { label: 'Standards Alignment Check', desc: 'NGSS gap detected in current unit plan', icon: Shield, color: '#f59e0b', tool: 'Standards Checker' },
+  { label: 'Exit Ticket for Thursday',    desc: 'Based on your upcoming photosynthesis lesson',   icon: Target,     color: '#6366f1', tool: 'Quiz & Assessment' },
+  { label: 'IEP Accommodation Guide',     desc: 'Sofia Rodriguez needs differentiated materials', icon: Users,      color: '#10b981', tool: 'Content Rewriter' },
+  { label: 'Standards Alignment Check',   desc: 'NGSS gap detected in current unit plan',         icon: Shield,     color: '#f59e0b', tool: 'Standards Checker' },
+  { label: 'Sub Plan for Friday',         desc: 'You have a PD day scheduled — prep now',         icon: BookMarked, color: '#ec4899', tool: 'Lesson Plan Generator' },
+]
+
+const ACHIEVEMENTS = [
+  { label: '7-Day Streak',  icon: Flame,  color: '#f97316', desc: 'Used AI tools 7 days in a row', unlocked: true  },
+  { label: 'Content Pro',   icon: Award,  color: '#8b5cf6', desc: 'Created 25+ materials',          unlocked: true  },
+  { label: 'Top Educator',  icon: Star,   color: '#f59e0b', desc: 'Achieved 4.8+ tool rating avg',  unlocked: true  },
+  { label: 'Agent Master',  icon: Bot,    color: '#22d3ee', desc: 'Used Agent Swarm 5+ times',       unlocked: false },
+]
+
+const STREAK_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const STREAK_ACTIVE = [true, true, true, true, true, false, false]
+
+interface Collection {
+  id: string
+  name: string
+  tools: string[]
+  color: string
+}
+
+const INITIAL_COLLECTIONS: Collection[] = [
+  { id: 'c1', name: 'Science Unit Toolkit',  tools: ['Lesson Plan Generator', 'Quiz & Assessment', 'Science Lab Builder'], color: '#10b981' },
+  { id: 'c2', name: 'Daily Essentials',      tools: ['Magic Chat', 'Feedback Writer', 'Exit Ticket'],                     color: '#6366f1' },
+  { id: 'c3', name: 'Assessment Suite',      tools: ['Rubric Builder', 'Quiz & Assessment', 'Usage Analytics'],            color: '#f97316' },
 ]
 
 type SortMode = 'category' | 'popular' | 'favorites'
@@ -112,17 +142,55 @@ export default function WorkspacePage() {
     return favs
   })
   const [feedbackId, setFeedbackId] = useState<string | null>(null)
+  const [aiOpen, setAiOpen] = useState(true)
+  const [toastMsg, setToastMsg] = useState('')
+  const [collections, setCollections] = useState<Collection[]>(INITIAL_COLLECTIONS)
+  const [newColName, setNewColName] = useState('')
+  const [collectionOpen, setCollectionOpen] = useState(false)
+  const [deleteColId, setDeleteColId] = useState<string | null>(null)
 
   const allTools = toolCategories.flatMap(c => c.tools)
   const totalUses = allTools.reduce((a, t) => a + t.uses, 0)
 
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
+
   const toggleFavorite = (label: string) => {
     setFavorites(prev => {
       const next = new Set(prev)
-      if (next.has(label)) next.delete(label)
-      else next.add(label)
+      if (next.has(label)) {
+        next.delete(label)
+        showToast(`Removed ${label} from favorites`)
+      } else {
+        next.add(label)
+        showToast(`Added ${label} to favorites`)
+      }
       return next
     })
+  }
+
+  const handleCreateCollection = () => {
+    if (!newColName.trim()) return
+    const colors = ['#8b5cf6', '#14b8a6', '#ec4899', '#22d3ee', '#f59e0b']
+    const col: Collection = {
+      id: `c${Date.now()}`,
+      name: newColName.trim(),
+      tools: [],
+      color: colors[collections.length % colors.length],
+    }
+    setCollections(prev => [col, ...prev])
+    setNewColName('')
+    setCollectionOpen(false)
+    showToast(`Collection "${col.name}" created`)
+  }
+
+  const handleDeleteCollection = (id: string) => {
+    const col = collections.find(c => c.id === id)
+    setCollections(prev => prev.filter(c => c.id !== id))
+    setDeleteColId(null)
+    if (col) showToast(`Deleted "${col.name}"`)
   }
 
   const filtered = search
@@ -209,66 +277,184 @@ export default function WorkspacePage() {
         </div>
       </FadeUp>
 
-      {/* AI Suggestions for You */}
+      {/* Productivity Streak & Achievements */}
       <FadeUp delay={0.05}>
-        <div className="glass-card p-5 border border-accent-500/15">
-          <div className="flex items-center justify-between mb-4">
+        <div className="glass-card p-5">
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* Streak tracker */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
+                  <Flame className="w-3.5 h-3.5 text-white" />
+                </div>
+                <div>
+                  <span className="text-sm font-bold text-white">7-Day Streak</span>
+                  <span className="text-[10px] text-surface-500 ml-2">Keep it going!</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 mb-3">
+                {STREAK_DAYS.map((day, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <motion.div
+                      className="w-full h-8 rounded-lg flex items-center justify-center"
+                      style={{
+                        background: STREAK_ACTIVE[i]
+                          ? 'linear-gradient(135deg,#f97316,#ef4444)'
+                          : 'rgba(255,255,255,0.04)',
+                        border: STREAK_ACTIVE[i] ? 'none' : '1px solid rgba(255,255,255,0.06)',
+                      }}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.05 + i * 0.04 }}
+                    >
+                      {STREAK_ACTIVE[i]
+                        ? <Flame className="w-3.5 h-3.5 text-white" />
+                        : <span className="w-1.5 h-1.5 rounded-full bg-surface-600 block" />
+                      }
+                    </motion.div>
+                    <span className={`text-[9px] font-semibold ${STREAK_ACTIVE[i] ? 'text-orange-400' : 'text-surface-600'}`}>{day}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center justify-between text-[10px] text-surface-500">
+                <span>Weekly goal: 5/5 days</span>
+                <span className="text-success-400 font-semibold">Goal reached!</span>
+              </div>
+              <div className="mt-2 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg,#10b981,#34d399)' }}
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
+                />
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="hidden lg:block w-px bg-white/[0.06]" />
+
+            {/* Achievements */}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+                  <Award className="w-3.5 h-3.5 text-white" />
+                </div>
+                <span className="text-sm font-bold text-white">Achievements</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-semibold ml-1">3 / 4 unlocked</span>
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {ACHIEVEMENTS.map((ach, i) => (
+                  <motion.div
+                    key={ach.label}
+                    className="flex flex-col items-center gap-1.5 p-2 rounded-xl text-center"
+                    style={{
+                      background: ach.unlocked ? ach.color + '10' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${ach.unlocked ? ach.color + '30' : 'rgba(255,255,255,0.06)'}`,
+                      opacity: ach.unlocked ? 1 : 0.45,
+                    }}
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: ach.unlocked ? 1 : 0.45 }}
+                    transition={{ delay: 0.1 + i * 0.06 }}
+                    title={ach.desc}
+                  >
+                    <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: ach.color + '20' }}>
+                      <ach.icon className="w-3.5 h-3.5" style={{ color: ach.unlocked ? ach.color : '#6b7280' }} />
+                    </div>
+                    <span className="text-[9px] font-semibold leading-tight" style={{ color: ach.unlocked ? '#e2e8f0' : '#6b7280' }}>{ach.label}</span>
+                    {!ach.unlocked && <span className="text-[8px] text-surface-600">Locked</span>}
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
+      {/* AI Suggestions for You — collapsible */}
+      <FadeUp delay={0.06}>
+        <div className="glass-card border border-accent-500/15 overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
+            onClick={() => setAiOpen(o => !o)}
+          >
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
                 <Brain className="w-3.5 h-3.5 text-white" />
               </div>
               <span className="text-sm font-bold text-white">AI-Suggested for You</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-accent-500/15 text-accent-400 font-semibold">{aiSuggested.length} new</span>
             </div>
-            <button className="text-xs text-surface-500 hover:text-surface-300 flex items-center gap-1">
-              <RefreshCw className="w-3 h-3" /> Refresh
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {aiSuggested.map((s, i) => (
-              <motion.div
-                key={s.label}
-                className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] transition-all cursor-pointer group"
-                initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.07 }}
-                whileHover={{ y: -2 }}
+            <div className="flex items-center gap-2">
+              <button
+                className="text-xs text-surface-500 hover:text-surface-300 flex items-center gap-1"
+                onClick={e => { e.stopPropagation(); showToast('AI suggestions refreshed') }}
               >
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.color + '18' }}>
-                  <s.icon className="w-4 h-4" style={{ color: s.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-white group-hover:text-accent-300 transition-colors">{s.label}</p>
-                  <p className="text-[10px] text-surface-500 mt-0.5">{s.desc}</p>
-                  <span className="text-[9px] mt-1.5 inline-block px-1.5 py-0.5 rounded-full bg-white/[0.06] text-surface-400">{s.tool}</span>
+                <RefreshCw className="w-3 h-3" /> Refresh
+              </button>
+              <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
+                <ChevronDown className="w-4 h-4 text-surface-500" />
+              </motion.div>
+            </div>
+          </button>
+          <AnimatePresence initial={false}>
+            {aiOpen && (
+              <motion.div
+                key="ai-panel"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {aiSuggested.map((s, i) => (
+                    <motion.div
+                      key={s.label}
+                      className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] transition-all cursor-pointer group"
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.07 }}
+                      whileHover={{ y: -2 }}
+                    >
+                      <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: s.color + '18' }}>
+                        <s.icon className="w-4 h-4" style={{ color: s.color }} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white group-hover:text-accent-300 transition-colors">{s.label}</p>
+                        <p className="text-[10px] text-surface-500 mt-0.5">{s.desc}</p>
+                        <span className="text-[9px] mt-1.5 inline-block px-1.5 py-0.5 rounded-full bg-white/[0.06] text-surface-400">{s.tool}</span>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
-            ))}
-          </div>
+            )}
+          </AnimatePresence>
         </div>
       </FadeUp>
 
       {/* Recently Used */}
-      <FadeUp delay={0.06}>
+      <FadeUp delay={0.07}>
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Recently Used</h3>
             <button className="text-xs text-surface-500 hover:text-surface-300">View History</button>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {recentlyUsed.map((tool, i) => (
               <motion.div
                 key={tool.label}
                 className="glass-card p-3 cursor-pointer group"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.06 + i * 0.04 }}
+                transition={{ delay: 0.07 + i * 0.04 }}
                 whileHover={{ y: -2 }}
               >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: tool.color + '18' }}>
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: tool.color + '18' }}>
                     <tool.icon className="w-4 h-4" style={{ color: tool.color }} />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-white truncate group-hover:text-accent-300 transition-colors">{tool.label}</p>
-                    <p className="text-[10px] text-surface-500 flex items-center gap-1"><Clock className="w-2.5 h-2.5" />{tool.time}</p>
+                  <div>
+                    <p className="text-[10px] font-bold text-white leading-tight group-hover:text-accent-300 transition-colors">{tool.label}</p>
+                    <p className="text-[9px] text-surface-600 flex items-center justify-center gap-0.5 mt-0.5"><Clock className="w-2.5 h-2.5" />{tool.time}</p>
                   </div>
                 </div>
               </motion.div>
@@ -408,7 +594,7 @@ export default function WorkspacePage() {
                           <div className="w-1.5 h-6 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                           <div>
                             <span className="text-sm font-medium text-white block">{item.title}</span>
-                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold`} style={{ color: item.color, backgroundColor: item.color + '15' }}>{item.type}</span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{ color: item.color, backgroundColor: item.color + '15' }}>{item.type}</span>
                           </div>
                         </div>
                       </td>
@@ -422,6 +608,12 @@ export default function WorkspacePage() {
                         <div className="flex items-center justify-end gap-1">
                           <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
                           <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
+                          <button
+                            className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
+                            onClick={() => showToast(`Shared "${item.title}"`)}
+                          >
+                            <Share2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </motion.tr>
@@ -430,6 +622,144 @@ export default function WorkspacePage() {
               </table>
             </div>
           </div>
+        </div>
+      </FadeInWhenVisible>
+
+      {/* Collections */}
+      <FadeInWhenVisible delay={0.12}>
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-white">My Collections</h3>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-surface-400">{collections.length}</span>
+            </div>
+            <motion.button
+              className="flex items-center gap-1.5 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors"
+              onClick={() => setCollectionOpen(o => !o)}
+              whileHover={{ scale: 1.03 }}
+            >
+              <FolderPlus className="w-3.5 h-3.5" /> New Collection
+            </motion.button>
+          </div>
+
+          {/* New collection form */}
+          <AnimatePresence>
+            {collectionOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden mb-3"
+              >
+                <div className="glass-card p-4 border border-accent-500/20">
+                  <p className="text-xs font-semibold text-white mb-3">Create New Collection</p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Collection name..."
+                      value={newColName}
+                      onChange={e => setNewColName(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && handleCreateCollection()}
+                      className="flex-1 px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                    />
+                    <motion.button
+                      className="btn-gradient text-xs px-4"
+                      onClick={handleCreateCollection}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Create
+                    </motion.button>
+                    <button
+                      className="p-2 rounded-xl bg-white/[0.04] border border-white/[0.06] text-surface-500 hover:text-surface-300 transition-colors"
+                      onClick={() => setCollectionOpen(false)}
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {collections.map((col, i) => (
+              <motion.div
+                key={col.id}
+                className="glass-card p-4 group relative"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05 + i * 0.06 }}
+                whileHover={{ y: -2 }}
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: col.color + '18' }}>
+                    <Folder className="w-4.5 h-4.5" style={{ color: col.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-white truncate group-hover:text-accent-300 transition-colors">{col.name}</p>
+                    <p className="text-[10px] text-surface-500">{col.tools.length} tool{col.tools.length !== 1 ? 's' : ''}</p>
+                  </div>
+                  <button
+                    className="p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-danger-400/15 text-surface-500 hover:text-danger-400 transition-all"
+                    onClick={() => setDeleteColId(col.id)}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {col.tools.length > 0
+                    ? col.tools.slice(0, 3).map(t => (
+                        <span key={t} className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-surface-400">{t}</span>
+                      ))
+                    : <span className="text-[10px] text-surface-600 italic">No tools yet — drag tools here</span>
+                  }
+                  {col.tools.length > 3 && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/[0.06] text-surface-500">+{col.tools.length - 3}</span>
+                  )}
+                </div>
+                <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-1">
+                  <button className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
+                  <button className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Delete collection confirm */}
+          <AnimatePresence>
+            {deleteColId && (
+              <motion.div
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setDeleteColId(null)}
+              >
+                <motion.div
+                  className="glass-card p-6 max-w-sm w-full mx-4"
+                  initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-danger-400/15 mb-4">
+                    <Trash2 className="w-5 h-5 text-danger-400" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white mb-1">Delete Collection?</h4>
+                  <p className="text-xs text-surface-400 mb-5">
+                    &ldquo;{collections.find(c => c.id === deleteColId)?.name}&rdquo; will be permanently deleted. Tools inside won&apos;t be affected.
+                  </p>
+                  <div className="flex gap-2">
+                    <button className="flex-1 btn-secondary text-xs py-2" onClick={() => setDeleteColId(null)}>Cancel</button>
+                    <button
+                      className="flex-1 text-xs font-semibold py-2 rounded-xl bg-danger-400/20 text-danger-400 hover:bg-danger-400/30 transition-colors"
+                      onClick={() => handleDeleteCollection(deleteColId)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </FadeInWhenVisible>
 
@@ -480,6 +810,23 @@ export default function WorkspacePage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)', border: '1px solid rgba(99,102,241,0.3)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
