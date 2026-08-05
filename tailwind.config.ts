@@ -18,14 +18,19 @@ const config: Config = {
     extend: {
       colors: {
         // Warm charcoal ramp — 950 is the darkest ground, 50 the lightest paper.
+        // 300/400/500 are the text tiers and are tuned so every one of them
+        // clears WCAG AA (4.5:1) on all three grounds, including the raised
+        // panel. The original ramp bottomed out at 2.6:1, which failed for
+        // the ~220 places 500 is used as meta text.
         surface: {
           DEFAULT: '#17140f',
           50: '#f7f1e8',
           100: '#ece3d6',
           200: '#ddd0bd',
-          300: '#bdae98',
-          400: '#94856f',
-          500: '#6f6150',
+          300: '#c2b49e', //  7.64:1 on raised
+          400: '#ab9d86', //  5.85:1 on raised
+          500: '#968877', //  4.51:1 on raised — the floor for readable text
+          550: '#6f6150', //  decorative only: rules, disabled glyphs, never text
           600: '#4d4234',
           700: '#362e23',
           800: '#29231b',

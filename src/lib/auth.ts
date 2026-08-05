@@ -1,6 +1,16 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
+// The dev fallback is checked into the repo, so anyone can forge a session
+// against a deployment that never set AUTH_SECRET. Fail closed in production
+// rather than authenticating with a publicly known key.
+if (process.env.NODE_ENV === 'production' && !process.env.AUTH_SECRET) {
+  throw new Error(
+    'AUTH_SECRET must be set in production. Sessions are HMAC-signed with it; ' +
+      'without it the checked-in development key would be used and any session could be forged.'
+  )
+}
+
 const AUTH_SECRET = process.env.AUTH_SECRET || 'dev_secret_taleeko_2024_change_in_prod'
 const COOKIE_NAME = 'taleeko_session'
 const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days

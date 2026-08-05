@@ -34,17 +34,55 @@ function isPublicPath(pathname: string): boolean {
 }
 
 function isProtectedPath(pathname: string): boolean {
+  // Every /api route that isn't explicitly public requires a session. These
+  // were previously unlisted, so they fell through the protected check and
+  // were served unauthenticated — including /api/chat, which spends
+  // Anthropic API credits on every call.
+  if (pathname.startsWith('/api/')) return true
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-function validateToken(token: string): boolean {
-  // Inline validation to avoid importing Node crypto in edge runtime
-  // We do a structural check here; full HMAC validation happens server-side
+/**
+ * Verify the session cookie's HMAC signature.
+ *
+ * This previously did a structural check only — base64-decode the payload and
+ * look at `exp` — on the assumption that "full HMAC validation happens
+ * server-side". Nothing downstream performed that validation, so any token
+ * whose payload merely *parsed* was accepted: forging one was a matter of
+ * base64-encoding `{"userId":"...","exp":<future>}` and appending arbitrary
+ * bytes as the signature.
+ *
+ * Node's crypto module isn't available in the edge runtime, but Web Crypto is,
+ * so we verify properly here. Must stay byte-compatible with sign() in
+ * lib/auth.ts: HMAC-SHA256 over the base64url payload, hex-encoded.
+ */
+async function validateToken(token: string): Promise<boolean> {
   const parts = token.split('.')
   if (parts.length !== 2) return false
+  const [payloadB64, signature] = parts
 
   try {
-    const json = Buffer.from(parts[0], 'base64url').toString('utf-8')
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(AUTH_SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    )
+    const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(payloadB64))
+    const expected = Array.from(new Uint8Array(mac))
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+
+    // Length-independent comparison; both sides are fixed-length hex here.
+    if (signature.length !== expected.length) return false
+    let diff = 0
+    for (let i = 0; i < expected.length; i++) {
+      diff |= signature.charCodeAt(i) ^ expected.charCodeAt(i)
+    }
+    if (diff !== 0) return false
+
+    const json = atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/'))
     const payload = JSON.parse(json)
     if (!payload.userId || !payload.exp) return false
     if (Date.now() > payload.exp) return false
@@ -54,7 +92,7 @@ function validateToken(token: string): boolean {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths
@@ -66,7 +104,12 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath(pathname)) {
     const token = request.cookies.get(COOKIE_NAME)?.value
 
-    if (!token || !validateToken(token)) {
+    if (!token || !(await validateToken(token))) {
+      // API callers get a status they can act on; a redirect to an HTML login
+      // page would arrive at fetch() as an opaque 200.
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+      }
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
