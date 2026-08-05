@@ -6,7 +6,8 @@ import {
   Type, Sparkles, RefreshCw, Copy, Check, ChevronDown, ArrowRight,
   BookOpen, TrendingUp, TrendingDown, Minus, BarChart2, Info,
   Download, Wand2, AlertCircle, Brain, Lightbulb, ChevronUp,
-  Languages, X, FileText, Layers, BarChart3, Eye, Zap, Globe
+  Languages, X, FileText, Layers, BarChart3, Eye, Zap, Globe,
+  CheckCircle, Users, Clock
 } from 'lucide-react'
 
 type ReadingLevel = 'K-2' | '3-5' | '6-8' | '9-12' | 'College'
@@ -74,6 +75,12 @@ export default function TextLevelerPage() {
   const [aiOpen, setAiOpen] = useState(false)
   const [multiView, setMultiView] = useState(false)
   const [exportOpen, setExportOpen] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const inputStats = readingStats(inputText)
   const outputStats = readingStats(outputText)
@@ -88,16 +95,82 @@ export default function TextLevelerPage() {
     await new Promise(r => setTimeout(r, 2000))
     setOutputText(TEXTS[targetLevel])
     setGenerating(false)
+    showToast(`Leveled to Grade ${targetConfig.label} — ${TEXTS[targetLevel].trim().split(/\s+/).length} words generated`)
   }
 
   function handleCopy() {
     navigator.clipboard.writeText(outputText)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+    showToast('Leveled text copied to clipboard')
   }
 
   return (
     <div className="space-y-6">
+      {/* Hero */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Type className="w-5 h-5 text-white" />
+              </motion.div>
+              <div>
+                <h2 className="text-xl font-black text-white">Text Leveler</h2>
+                <p className="text-xs text-surface-400">AI-powered reading level adapter · 5 grade bands · 5 languages · Differentiation in seconds</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.button
+                className="btn-gradient text-xs"
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                onClick={() => setMultiView(true)}
+              >
+                <Layers className="w-3.5 h-3.5" /> All Levels
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setExportOpen(true)}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
+      {/* Stat cards */}
+      <FadeUp delay={0.03}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { label: 'Words Leveled', value: '4,812', icon: Type, color: '#6366f1', sub: 'This semester' },
+            { label: 'ELL Adaptations', value: '34', icon: Globe, color: '#22d3ee', sub: 'Multi-language outputs' },
+            { label: 'Grade Levels', value: 5, icon: Layers, color: '#10b981', sub: 'K–2 through College' },
+            { label: 'Time Saved', value: '8.2 hrs', icon: Clock, color: '#f59e0b', sub: 'vs. manual leveling' },
+          ].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              className="glass-card p-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -2 }}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '18' }}>
+                  <stat.icon className="w-3.5 h-3.5" style={{ color: stat.color }} />
+                </div>
+                <span className="text-xs text-surface-400">{stat.label}</span>
+              </div>
+              <p className="text-xl font-black text-white">{stat.value}</p>
+              <p className="text-[10px] text-surface-500 mt-0.5">{stat.sub}</p>
+            </motion.div>
+          ))}
+        </div>
+      </FadeUp>
+
       {/* Export Modal */}
       <AnimatePresence>
         {exportOpen && (
@@ -127,7 +200,7 @@ export default function TextLevelerPage() {
                   { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)' },
                   { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Drive' },
                 ].map(opt => (
-                  <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => setExportOpen(false)}>
+                  <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { setExportOpen(false); showToast(`Exporting: ${opt.label}…`) }}>
                     <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-4 h-4 text-accent-400" />
                     </div>
@@ -174,7 +247,7 @@ export default function TextLevelerPage() {
                     <div>
                       <p className="text-xs font-bold text-electric-300">ELL Opportunity</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">4 students in your class are ELL learners (Patel, Garcia, Lee, Nguyen). Try generating a Spanish version of this passage alongside the K-2 English version.</p>
-                      <button className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline" onClick={() => { setOutputLanguage('Spanish'); setAiOpen(false) }}>Enable Spanish →</button>
+                      <button className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline" onClick={() => { setOutputLanguage('Spanish'); setAiOpen(false); showToast('Language set to Spanish') }}>Enable Spanish →</button>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-500/[0.08] border border-warning-500/20">
@@ -182,7 +255,7 @@ export default function TextLevelerPage() {
                     <div>
                       <p className="text-xs font-bold text-warning-300">Rigor Concern</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Simplifying this NGSS standard text by 3 levels may remove key scientific vocabulary required for the upcoming unit assessment. Consider using "Preserve Key Vocabulary" mode.</p>
-                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => { setPreserveVocab(true); setShowAdvanced(true); setAiOpen(false) }}>Enable now →</button>
+                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => { setPreserveVocab(true); setShowAdvanced(true); setAiOpen(false); showToast('Preserve Key Vocabulary enabled') }}>Enable now →</button>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-500/[0.08] border border-success-500/20">
@@ -190,7 +263,7 @@ export default function TextLevelerPage() {
                     <div>
                       <p className="text-xs font-bold text-success-300">Multi-Version Mode</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">You have 3 ability groups in class. AI can generate all 5 reading levels at once, so you can distribute differentiated versions without extra steps.</p>
-                      <button className="text-[10px] text-success-400 font-semibold mt-1 hover:underline" onClick={() => { setMultiView(true); setAiOpen(false) }}>Show all levels →</button>
+                      <button className="text-[10px] text-success-400 font-semibold mt-1 hover:underline" onClick={() => { setMultiView(true); setAiOpen(false); showToast('Showing all 5 grade levels') }}>Show all levels →</button>
                     </div>
                   </div>
                 </div>
@@ -346,7 +419,7 @@ export default function TextLevelerPage() {
                             <span className="text-[9px] text-surface-500">{stats.words}w</span>
                             <button
                               className="p-1 rounded hover:bg-white/[0.08] text-surface-500 hover:text-surface-300 transition-colors"
-                              onClick={() => { setTargetLevel(lv); setOutputText(text); setMultiView(false) }}
+                              onClick={() => { setTargetLevel(lv); setOutputText(text); setMultiView(false); showToast(`Switched to Grade ${cfg.label} version`) }}
                               title="Use this version"
                             >
                               <Eye className="w-3 h-3" />
@@ -637,6 +710,23 @@ export default function TextLevelerPage() {
           </div>
         </FadeInWhenVisible>
       </div>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)', border: '1px solid rgba(99,102,241,0.3)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
