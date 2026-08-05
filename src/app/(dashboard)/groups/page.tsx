@@ -5,7 +5,8 @@ import {
   Users, Plus, Sparkles, Edit3, UserPlus, Shuffle, ChevronDown,
   Target, BookOpen, Star, Zap, Brain, TrendingUp, MessageSquare,
   CheckCircle, BarChart2, ArrowRight, Layers, Clock, Filter,
-  Trophy, AlertTriangle, ChevronRight
+  Trophy, AlertTriangle, ChevronRight, X, MoreHorizontal,
+  Download, Archive, Search, Trash2, ChevronUp
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -33,7 +34,7 @@ interface Student {
   status: 'excelling' | 'on-track' | 'at-risk'
 }
 
-const groups: Group[] = [
+const INITIAL_GROUPS: Group[] = [
   {
     id: '1',
     name: 'Lab Partners A',
@@ -147,12 +148,12 @@ const groups: Group[] = [
   },
 ]
 
-const typeConfig: Record<GroupType, { label: string; bg: string; text: string; icon: React.ElementType }> = {
-  Lab:        { label: 'Lab',        bg: 'bg-accent-500/15',   text: 'text-accent-400',  icon: Zap },
-  Reading:    { label: 'Reading',    bg: 'bg-success-400/15',  text: 'text-success-400', icon: BookOpen },
-  Support:    { label: 'Support',    bg: 'bg-warning-400/15',  text: 'text-warning-400', icon: Target },
-  Project:    { label: 'Project',    bg: 'bg-neon-400/15',     text: 'text-neon-400',    icon: Star },
-  Discussion: { label: 'Discussion', bg: 'bg-electric-400/15', text: 'text-electric-400',icon: MessageSquare },
+const typeConfig: Record<GroupType, { label: string; bg: string; text: string; icon: React.ElementType; color: string }> = {
+  Lab:        { label: 'Lab',        bg: 'bg-accent-500/15',   text: 'text-accent-400',  icon: Zap,           color: '#6366f1' },
+  Reading:    { label: 'Reading',    bg: 'bg-success-400/15',  text: 'text-success-400', icon: BookOpen,      color: '#10b981' },
+  Support:    { label: 'Support',    bg: 'bg-warning-400/15',  text: 'text-warning-400', icon: Target,        color: '#f59e0b' },
+  Project:    { label: 'Project',    bg: 'bg-neon-400/15',     text: 'text-neon-400',    icon: Star,          color: '#22d3ee' },
+  Discussion: { label: 'Discussion', bg: 'bg-electric-400/15', text: 'text-electric-400',icon: MessageSquare, color: '#22d3ee' },
 }
 
 const statusConfig = {
@@ -161,7 +162,7 @@ const statusConfig = {
   'at-risk':  { bg: 'bg-danger-400/15',   text: 'text-danger-400',   label: 'At Risk' },
 }
 
-const aiInsights = [
+const AI_INSIGHTS = [
   {
     color: '#f59e0b',
     icon: AlertTriangle,
@@ -180,51 +181,114 @@ const aiInsights = [
     color: '#6366f1',
     icon: Brain,
     title: 'Optimal regrouping suggestion',
-    desc: 'Based on recent assessment data, Emma and Noah pairing could boost Noah\'s engagement.',
+    desc: "Based on recent assessment data, Emma and Noah pairing could boost Noah's engagement.",
     action: 'Review Suggestion',
   },
 ]
 
+const PERF_TREND = [78, 80, 79, 82, 81, 84, 83, 81]
+const TREND_LABELS = ['Jun 17', 'Jun 24', 'Jul 1', 'Jul 8', 'Jul 15', 'Jul 22', 'Jul 29', 'Aug 5']
+const TYPE_COLORS: Record<GroupType, string> = { Lab: '#6366f1', Reading: '#10b981', Support: '#f97316', Project: '#8b5cf6', Discussion: '#ec4899' }
+const NEW_COLORS = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6', '#22d3ee', '#f59e0b']
+
 export default function GroupsPage() {
+  const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS)
   const [expandedGroup, setExpandedGroup] = useState<string | null>('1')
   const [filter, setFilter] = useState<'all' | GroupType>('all')
+  const [search, setSearch] = useState('')
+  const [aiOpen, setAiOpen] = useState(true)
+  const [actionMenu, setActionMenu] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newType, setNewType] = useState<GroupType>('Lab')
+  const [newColor, setNewColor] = useState(NEW_COLORS[0])
+  const [deleteTarget, setDeleteTarget] = useState<Group | null>(null)
 
-  const filtered = filter === 'all' ? groups : groups.filter(g => g.type === filter)
   const totalStudents = new Set(groups.flatMap(g => g.students.map(s => s.name))).size
   const atRiskGroups = groups.filter(g => g.avgPerformance < 70).length
-  const activeToday = groups.filter(g => g.lastActive === 'Today' || g.lastActive === '2 hours ago' || g.lastActive === '4 hours ago').length
+  const activeToday = groups.filter(g => ['Today', '2 hours ago', '4 hours ago'].includes(g.lastActive)).length
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  const handleCreateGroup = () => {
+    if (!newName.trim()) return
+    const g: Group = {
+      id: `g${Date.now()}`,
+      name: newName.trim(),
+      color: newColor,
+      type: newType,
+      purpose: 'New group — add a description',
+      lastActive: 'Just now',
+      avgPerformance: 0,
+      trend: 'stable',
+      completedTasks: 0,
+      totalTasks: 0,
+      students: [],
+    }
+    setGroups(prev => [g, ...prev])
+    setNewName('')
+    setCreateOpen(false)
+    showToast(`Created "${g.name}"`)
+  }
+
+  const handleDelete = (group: Group) => {
+    setGroups(prev => prev.filter(g => g.id !== group.id))
+    setDeleteTarget(null)
+    showToast(`Deleted "${group.name}"`)
+  }
+
+  const filtered = groups.filter(g => {
+    const matchType = filter === 'all' || g.type === filter
+    const matchSearch = !search || g.name.toLowerCase().includes(search.toLowerCase()) || g.purpose.toLowerCase().includes(search.toLowerCase())
+    return matchType && matchSearch
+  })
 
   return (
     <div className="space-y-6">
+      {/* Hero */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Users className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Student Groups</h2>
-              <p className="text-xs text-surface-400">{groups.length} groups · {totalStudents} unique students</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Users className="w-5 h-5 text-white" />
+              </motion.div>
+              <div>
+                <h2 className="text-xl font-black text-white">Student Groups</h2>
+                <p className="text-xs text-surface-400">{groups.length} groups · {totalStudents} unique students enrolled</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Sparkles className="w-3.5 h-3.5" />
-              AI Smart Group
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Shuffle className="w-3.5 h-3.5" />
-              Random
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Plus className="w-3.5 h-3.5" />
-              New Group
-            </button>
+            <div className="flex items-center gap-2">
+              <motion.button
+                className="btn-gradient text-xs"
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                onClick={() => showToast('AI Smart Grouping is analyzing your class data…')}
+              >
+                <Sparkles className="w-3.5 h-3.5" /> AI Smart Group
+              </motion.button>
+              <button
+                className="btn-secondary text-xs px-3 py-1.5"
+                onClick={() => showToast('Groups shuffled randomly')}
+              >
+                <Shuffle className="w-3.5 h-3.5" /> Random
+              </button>
+              <motion.button
+                className="btn-secondary text-xs px-3 py-1.5"
+                onClick={() => setCreateOpen(true)}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              >
+                <Plus className="w-3.5 h-3.5" /> New Group
+              </motion.button>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -236,7 +300,7 @@ export default function GroupsPage() {
             { label: 'Total Groups', value: groups.length, icon: Layers, color: '#6366f1', sub: 'Across all classes' },
             { label: 'Active Today', value: activeToday, icon: CheckCircle, color: '#10b981', sub: 'Meeting or working' },
             { label: 'Need Attention', value: atRiskGroups, icon: AlertTriangle, color: '#f97316', sub: 'Below 70% avg' },
-            { label: 'Avg Performance', value: `${Math.round(groups.reduce((a, g) => a + g.avgPerformance, 0) / groups.length)}%`, icon: BarChart2, color: '#8b5cf6', sub: 'Across all groups' },
+            { label: 'Avg Performance', value: `${Math.round(groups.reduce((a, g) => a + g.avgPerformance, 0) / Math.max(groups.length, 1))}%`, icon: BarChart2, color: '#8b5cf6', sub: 'Across all groups' },
           ].map((stat, i) => (
             <motion.div
               key={stat.label}
@@ -244,6 +308,7 @@ export default function GroupsPage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
+              whileHover={{ y: -2 }}
             >
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: stat.color + '18' }}>
@@ -258,47 +323,70 @@ export default function GroupsPage() {
         </div>
       </FadeUp>
 
-      {/* AI Insights */}
-      <FadeUp delay={0.08}>
-        <div className="glass-card p-5">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8b5cf618' }}>
-              <Brain className="w-3.5 h-3.5 text-neon-400" />
+      {/* AI Insights — collapsible */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card border border-accent-500/15 overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
+            onClick={() => setAiOpen(o => !o)}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#8b5cf618' }}>
+                <Brain className="w-3.5 h-3.5 text-neon-400" />
+              </div>
+              <span className="text-sm font-bold text-white">AI Group Insights</span>
+              <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-neon-400/15 text-neon-400 font-medium">{AI_INSIGHTS.length} insights</span>
             </div>
-            <span className="text-sm font-bold text-white">AI Group Insights</span>
-            <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full bg-neon-400/15 text-neon-400 font-medium">3 insights</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {aiInsights.map((insight, i) => {
-              const Icon = insight.icon
-              return (
-                <motion.div
-                  key={i}
-                  className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.1] transition-all group cursor-pointer"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.06 }}
-                  whileHover={{ y: -1 }}
-                >
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: insight.color + '20' }}>
-                    <Icon className="w-4 h-4" style={{ color: insight.color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-white leading-tight mb-1">{insight.title}</p>
-                    <p className="text-[11px] text-surface-400 leading-relaxed">{insight.desc}</p>
-                    <button className="mt-2 text-[11px] font-medium flex items-center gap-1 group-hover:gap-1.5 transition-all" style={{ color: insight.color }}>
-                      {insight.action}
-                      <ArrowRight className="w-3 h-3" />
-                    </button>
-                  </div>
-                </motion.div>
-              )
-            })}
-          </div>
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
+              <ChevronDown className="w-4 h-4 text-surface-500" />
+            </motion.div>
+          </button>
+          <AnimatePresence initial={false}>
+            {aiOpen && (
+              <motion.div
+                key="ai-insights"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {AI_INSIGHTS.map((insight, i) => {
+                    const Icon = insight.icon
+                    return (
+                      <motion.div
+                        key={i}
+                        className="flex gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.1] transition-all group cursor-pointer"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 + i * 0.06 }}
+                        whileHover={{ y: -1 }}
+                      >
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: insight.color + '20' }}>
+                          <Icon className="w-4 h-4" style={{ color: insight.color }} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-bold text-white leading-tight mb-1">{insight.title}</p>
+                          <p className="text-[11px] text-surface-400 leading-relaxed">{insight.desc}</p>
+                          <button
+                            className="mt-2 text-[11px] font-medium flex items-center gap-1 group-hover:gap-1.5 transition-all"
+                            style={{ color: insight.color }}
+                            onClick={() => showToast(insight.action)}
+                          >
+                            {insight.action} <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </FadeUp>
 
-      {/* Filter */}
+      {/* Filter + Search */}
       <FadeUp delay={0.1}>
         <div className="flex items-center gap-2 flex-wrap">
           {(['all', 'Lab', 'Reading', 'Support', 'Project', 'Discussion'] as const).map(f => (
@@ -314,10 +402,19 @@ export default function GroupsPage() {
               {f === 'all' ? 'All Groups' : f}
             </button>
           ))}
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
+            <div className="relative">
+              <Search className="w-3 h-3 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search groups..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-8 pr-3 py-1.5 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 w-36 transition-all"
+              />
+            </div>
             <button className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors">
-              <Filter className="w-3.5 h-3.5" />
-              Sort
+              <Filter className="w-3.5 h-3.5" /> Sort
             </button>
           </div>
         </div>
@@ -329,17 +426,19 @@ export default function GroupsPage() {
           const isExpanded = expandedGroup === group.id
           const typeStyle = typeConfig[group.type]
           const TypeIcon = typeStyle.icon
-          const progressPct = Math.round((group.completedTasks / group.totalTasks) * 100)
+          const progressPct = group.totalTasks > 0 ? Math.round((group.completedTasks / group.totalTasks) * 100) : 0
+          const menuOpen = actionMenu === group.id
 
           return (
             <motion.div
               key={group.id}
-              className="glass-card overflow-hidden"
+              className="glass-card overflow-hidden relative"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.12 + i * 0.05 }}
             >
               <div className="h-0.5" style={{ backgroundColor: group.color }} />
+
               <button
                 className="w-full p-5 text-left"
                 onClick={() => setExpandedGroup(isExpanded ? null : group.id)}
@@ -355,9 +454,56 @@ export default function GroupsPage() {
                     </div>
                     <p className="text-xs text-surface-500 mt-0.5 leading-relaxed truncate">{group.purpose}</p>
                   </div>
-                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} className="flex-shrink-0 mt-0.5">
-                    <ChevronDown className="w-4 h-4 text-surface-500" />
-                  </motion.div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <div className="relative">
+                      <button
+                        className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
+                        onClick={e => { e.stopPropagation(); setActionMenu(menuOpen ? null : group.id) }}
+                      >
+                        <MoreHorizontal className="w-4 h-4" />
+                      </button>
+                      <AnimatePresence>
+                        {menuOpen && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setActionMenu(null)} />
+                            <motion.div
+                              className="absolute right-0 top-8 z-20 w-44 glass-card py-1 shadow-2xl border border-white/[0.08]"
+                              initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                            >
+                              {[
+                                { label: 'Edit Group', icon: Edit3, color: '#6366f1' },
+                                { label: 'Add Student', icon: UserPlus, color: '#10b981' },
+                                { label: 'Message All', icon: MessageSquare, color: '#f59e0b' },
+                                { label: 'Export Roster', icon: Download, color: '#22d3ee' },
+                                { label: 'Archive', icon: Archive, color: '#8b5cf6' },
+                                { label: 'Delete', icon: Trash2, color: '#ef4444' },
+                              ].map(item => (
+                                <button
+                                  key={item.label}
+                                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs text-surface-300 hover:text-white hover:bg-white/[0.05] transition-colors text-left ${item.label === 'Delete' ? 'text-danger-400 hover:text-danger-300 border-t border-white/[0.06] mt-1 pt-2' : ''}`}
+                                  onClick={e => {
+                                    e.stopPropagation()
+                                    setActionMenu(null)
+                                    if (item.label === 'Delete') { setDeleteTarget(group) }
+                                    else showToast(`${item.label}: ${group.name}`)
+                                  }}
+                                >
+                                  <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
+                                  {item.label}
+                                </button>
+                              ))}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <motion.div animate={{ rotate: isExpanded ? 180 : 0 }}>
+                      <ChevronDown className="w-4 h-4 text-surface-500" />
+                    </motion.div>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 mb-3">
@@ -366,10 +512,7 @@ export default function GroupsPage() {
                       <div
                         key={s.name}
                         className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[8px] font-bold ring-2 ring-surface-900"
-                        style={{
-                          background: `linear-gradient(135deg, ${group.color}, ${group.color}99)`,
-                          zIndex: 5 - si,
-                        }}
+                        style={{ background: `linear-gradient(135deg, ${group.color}, ${group.color}99)`, zIndex: 5 - si }}
                         title={s.name}
                       >
                         {s.initials}
@@ -388,7 +531,6 @@ export default function GroupsPage() {
                   </div>
                 </div>
 
-                {/* Progress + Avg */}
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
@@ -447,32 +589,31 @@ export default function GroupsPage() {
                             </motion.div>
                           )
                         })}
+                        {group.students.length === 0 && (
+                          <p className="text-xs text-surface-600 text-center py-4">No students yet — add students above</p>
+                        )}
                       </div>
 
                       {group.nextMeeting && (
                         <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.05]">
                           <Clock className="w-3.5 h-3.5 text-surface-500" />
-                          <span className="text-xs text-surface-400">Next: </span>
+                          <span className="text-xs text-surface-400">Next:</span>
                           <span className="text-xs font-semibold text-white">{group.nextMeeting}</span>
                         </div>
                       )}
 
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05]">
-                        <button className="btn-secondary text-xs px-3 py-1.5">
-                          <UserPlus className="w-3 h-3" />
-                          Add Student
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Add student dialog')}>
+                          <UserPlus className="w-3 h-3" /> Add Student
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5">
-                          <Edit3 className="w-3 h-3" />
-                          Edit Group
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Edit group dialog')}>
+                          <Edit3 className="w-3 h-3" /> Edit Group
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5">
-                          <MessageSquare className="w-3 h-3" />
-                          Message
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Message sent to group')}>
+                          <MessageSquare className="w-3 h-3" /> Message
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5 ml-auto">
-                          <BarChart2 className="w-3 h-3" />
-                          Analytics
+                        <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => showToast('Opening analytics')}>
+                          <BarChart2 className="w-3 h-3" /> Analytics
                         </button>
                       </div>
                     </div>
@@ -482,12 +623,61 @@ export default function GroupsPage() {
             </motion.div>
           )
         })}
+        {filtered.length === 0 && (
+          <div className="lg:col-span-2 glass-card p-12 text-center">
+            <Users className="w-8 h-8 text-surface-600 mx-auto mb-3" />
+            <h4 className="text-sm font-bold text-surface-300 mb-1">No groups found</h4>
+            <p className="text-xs text-surface-500">Try adjusting the filter or search term</p>
+          </div>
+        )}
       </div>
 
       {/* Bottom Panels */}
       <FadeInWhenVisible delay={0.2}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Top Performing Groups */}
+          {/* Performance Trend */}
+          <div className="glass-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-success-400/15">
+                <TrendingUp className="w-3.5 h-3.5 text-success-400" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white block">Class Avg Trend</span>
+                <span className="text-[10px] text-surface-500">8 weeks</span>
+              </div>
+            </div>
+            <div className="flex items-end gap-1 h-16 mb-2">
+              {PERF_TREND.map((val, i) => {
+                const isLast = i === PERF_TREND.length - 1
+                const min = Math.min(...PERF_TREND)
+                const max = Math.max(...PERF_TREND)
+                const pct = ((val - min) / (max - min + 1)) * 100
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1" title={`${TREND_LABELS[i]}: ${val}%`}>
+                    <motion.div
+                      className="w-full rounded-sm"
+                      style={{
+                        height: `${Math.max(pct * 0.56 + 20, 8)}px`,
+                        background: isLast ? 'linear-gradient(to top,#10b981,#34d399)' : 'rgba(255,255,255,0.1)',
+                      }}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${Math.max(pct * 0.56 + 20, 8)}px` }}
+                      transition={{ delay: 0.25 + i * 0.04, duration: 0.4 }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-surface-600">
+              <span>{TREND_LABELS[0]}</span><span>{TREND_LABELS[TREND_LABELS.length - 1]}</span>
+            </div>
+            <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center justify-between">
+              <span className="text-xs text-surface-400">8-week avg</span>
+              <span className="text-xs font-bold text-success-400">+{PERF_TREND[PERF_TREND.length - 1] - PERF_TREND[0]}% ↑</span>
+            </div>
+          </div>
+
+          {/* Top Groups */}
           <div className="glass-card p-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-warning-400/15">
@@ -507,30 +697,20 @@ export default function GroupsPage() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Type Distribution */}
-          <div className="glass-card p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-accent-500/15">
-                <Layers className="w-3.5 h-3.5 text-accent-400" />
-              </div>
-              <span className="text-sm font-bold text-white">Group Types</span>
-            </div>
-            <div className="space-y-2.5">
+            <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-2">
               {(['Lab', 'Reading', 'Support', 'Project', 'Discussion'] as GroupType[]).map(type => {
                 const count = groups.filter(g => g.type === type).length
-                const pct = Math.round((count / groups.length) * 100)
-                const { text, bg } = typeConfig[type]
+                const pct = Math.round((count / Math.max(groups.length, 1)) * 100)
                 return (
                   <div key={type}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`text-xs font-medium ${text}`}>{type}</span>
-                      <span className="text-xs font-bold text-white">{count}</span>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-[10px] text-surface-400">{type}</span>
+                      <span className="text-[10px] font-semibold text-white">{count}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                    <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
                       <motion.div
-                        className={`h-full rounded-full ${bg.replace('/15', '/60')}`}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: TYPE_COLORS[type] }}
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{ delay: 0.3, duration: 0.4 }}
@@ -556,12 +736,13 @@ export default function GroupsPage() {
                 { label: 'Create activity for all groups', icon: BookOpen, color: '#10b981' },
                 { label: 'Send group progress report', icon: TrendingUp, color: '#f97316' },
                 { label: 'Shuffle all groups randomly', icon: Shuffle, color: '#8b5cf6' },
-                { label: 'Export group roster (CSV)', icon: Star, color: '#22d3ee' },
+                { label: 'Export group roster (CSV)', icon: Download, color: '#22d3ee' },
               ].map(action => (
                 <motion.button
                   key={action.label}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                   whileHover={{ x: 2 }}
+                  onClick={() => showToast(action.label)}
                 >
                   <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: action.color + '15' }}>
                     <action.icon className="w-3 h-3" style={{ color: action.color }} />
@@ -574,6 +755,146 @@ export default function GroupsPage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      {/* Create Group Modal */}
+      <AnimatePresence>
+        {createOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setCreateOpen(false)}
+          >
+            <motion.div
+              className="glass-card p-6 max-w-sm w-full mx-4"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                    <Users className="w-4 h-4 text-white" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white">New Group</h4>
+                </div>
+                <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => setCreateOpen(false)}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Group Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Lab Partners B"
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleCreateGroup()}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Group Type</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['Lab', 'Reading', 'Support', 'Project', 'Discussion'] as GroupType[]).map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setNewType(t)}
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
+                          newType === t ? `${typeConfig[t].bg} ${typeConfig[t].text} ring-1 ring-current` : 'bg-white/[0.04] text-surface-400 hover:text-surface-200'
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Color</label>
+                  <div className="flex items-center gap-2">
+                    {NEW_COLORS.map(c => (
+                      <button
+                        key={c}
+                        onClick={() => setNewColor(c)}
+                        className="w-6 h-6 rounded-full transition-transform hover:scale-110"
+                        style={{
+                          backgroundColor: c,
+                          outline: newColor === c ? '2px solid white' : '2px solid transparent',
+                          outlineOffset: '2px',
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button className="flex-1 btn-secondary text-xs py-2" onClick={() => setCreateOpen(false)}>Cancel</button>
+                <motion.button
+                  className="flex-1 btn-gradient text-xs py-2"
+                  onClick={handleCreateGroup}
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                >
+                  <Plus className="w-3.5 h-3.5" /> Create Group
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirm Modal */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              className="glass-card p-6 max-w-sm w-full mx-4"
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-danger-400/15 mb-4">
+                <Trash2 className="w-5 h-5 text-danger-400" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">Delete Group?</h4>
+              <p className="text-xs text-surface-400 mb-5">
+                &ldquo;{deleteTarget.name}&rdquo; and all its settings will be permanently deleted. Students remain in your roster.
+              </p>
+              <div className="flex gap-2">
+                <button className="flex-1 btn-secondary text-xs py-2" onClick={() => setDeleteTarget(null)}>Cancel</button>
+                <button
+                  className="flex-1 text-xs font-semibold py-2 rounded-xl bg-danger-400/20 text-danger-400 hover:bg-danger-400/30 transition-colors"
+                  onClick={() => handleDelete(deleteTarget)}
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)', border: '1px solid rgba(99,102,241,0.3)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
