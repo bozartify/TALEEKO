@@ -6,14 +6,14 @@ import {
   CheckCircle2, AlertTriangle, Users, Download, ChevronDown,
   BookOpen, FileText, Zap, BarChart2, Eye, Edit3, Copy, Trash2,
   TrendingUp, Star, Brain, X, Check, MessageSquare, Bell,
-  ArrowRight, Target, Percent, GripVertical, ChevronRight,
-  Award, BookMarked, Flag, Lock, Layers, PenTool, RefreshCw
+  ArrowRight, Target, Percent, ChevronRight, CheckCircle,
+  Award, BookMarked, Flag, Lock, Layers, PenTool, RefreshCw,
+  MoreHorizontal, Archive, Share2
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
 type AssignType = 'all' | 'quiz' | 'essay' | 'lab' | 'project' | 'homework'
 type StatusFilter = 'all' | 'active' | 'upcoming' | 'past'
-type AssignView = 'list' | 'create'
 
 interface RubricCriterion {
   label: string
@@ -40,7 +40,7 @@ interface Assignment {
   tags: string[]
 }
 
-const assignments: Assignment[] = [
+const INITIAL_ASSIGNMENTS: Assignment[] = [
   {
     id: '1', title: 'Lab Report: Photosynthesis', type: 'lab', class: 'AP Biology',
     dueDate: '2026-08-02', dueLabel: 'Today', status: 'active', submitted: 22, total: 28,
@@ -59,7 +59,7 @@ const assignments: Assignment[] = [
     id: '2', title: 'Essay: The Great Gatsby Ch. 5', type: 'essay', class: '10th English',
     dueDate: '2026-08-03', dueLabel: 'Tomorrow', status: 'upcoming', submitted: 0, total: 24,
     avgScore: null, points: 100, color: '#f43f5e', ai: true,
-    instructions: 'Analyze the symbolism of the green light in Chapter 5. Cite at least 3 textual examples and connect to Fitzgerald\'s broader themes.',
+    instructions: "Analyze the symbolism of the green light in Chapter 5. Cite at least 3 textual examples and connect to Fitzgerald's broader themes.",
     rubric: [
       { label: 'Thesis & Argument', pts: 25, desc: 'Clear, arguable thesis with logical structure' },
       { label: 'Textual Evidence', pts: 30, desc: 'At least 3 embedded quotes with analysis' },
@@ -143,28 +143,50 @@ const assignments: Assignment[] = [
 ]
 
 const typeConfig = {
-  quiz:     { label: 'Quiz',     icon: ClipboardList, color: '#f97316', bg: 'bg-warning-500/15 text-warning-400' },
-  essay:    { label: 'Essay',    icon: FileText,      color: '#f43f5e', bg: 'bg-danger-500/15 text-danger-400' },
-  lab:      { label: 'Lab',      icon: BookOpen,      color: '#8b5cf6', bg: 'bg-accent-500/15 text-accent-400' },
-  project:  { label: 'Project',  icon: Award,         color: '#f59e0b', bg: 'bg-warning-500/15 text-warning-400' },
-  homework: { label: 'HW',       icon: BookMarked,    color: '#14b8a6', bg: 'bg-success-500/15 text-success-400' },
+  quiz:     { label: 'Quiz',    icon: ClipboardList, color: '#f97316', bg: 'bg-warning-500/15 text-warning-400' },
+  essay:    { label: 'Essay',   icon: FileText,      color: '#f43f5e', bg: 'bg-danger-500/15 text-danger-400' },
+  lab:      { label: 'Lab',     icon: BookOpen,      color: '#8b5cf6', bg: 'bg-accent-500/15 text-accent-400' },
+  project:  { label: 'Project', icon: Award,         color: '#f59e0b', bg: 'bg-warning-500/15 text-warning-400' },
+  homework: { label: 'HW',      icon: BookMarked,    color: '#14b8a6', bg: 'bg-success-500/15 text-success-400' },
 }
 
-const aiSuggestions = [
+const AI_SUGGESTIONS = [
   { title: 'Differentiate Lab Report', desc: 'Generate 3 reading-level variants of the lab instructions for struggling readers.', color: '#8b5cf6' },
-  { title: 'Make-up Policy Alert', desc: '6 students haven\'t submitted the Photosynthesis Lab. Consider auto-sending a reminder today.', color: '#f59e0b' },
+  { title: 'Make-up Policy Alert', desc: "6 students haven't submitted the Photosynthesis Lab. Consider auto-sending a reminder today.", color: '#f59e0b' },
   { title: 'Similar Assignment Found', desc: 'Shakespeare Scene Analysis is similar to last year\'s Character Analysis — import rubric?', color: '#14b8a6' },
 ]
 
+const SCORE_TREND = [78, 81, 80, 85, 83, 87, 89, 88]
+const TREND_LABELS = ['Jun 17', 'Jun 24', 'Jul 1', 'Jul 8', 'Jul 15', 'Jul 22', 'Jul 29', 'Aug 5']
+
+const TYPE_COLORS: Record<string, string> = {
+  quiz: '#f97316', essay: '#f43f5e', lab: '#8b5cf6', project: '#f59e0b', homework: '#14b8a6',
+}
+
 export default function AssignmentsPage() {
+  const [assignments, setAssignments] = useState<Assignment[]>(INITIAL_ASSIGNMENTS)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<AssignType>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [view, setView] = useState<AssignView>('list')
   const [showRubric, setShowRubric] = useState<string | null>(null)
   const [classFilter, setClassFilter] = useState('all')
-  const [showAI, setShowAI] = useState(true)
+  const [aiOpen, setAiOpen] = useState(true)
+  const [actionMenu, setActionMenu] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  const [createOpen, setCreateOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null)
+  const [newTitle, setNewTitle] = useState('')
+  const [newType, setNewType] = useState<'quiz' | 'essay' | 'lab' | 'project' | 'homework'>('quiz')
+  const [newClass, setNewClass] = useState('AP Biology')
+  const [newPoints, setNewPoints] = useState('50')
+
+  const classes = ['all', ...Array.from(new Set(assignments.map(a => a.class)))]
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const filtered = useMemo(() => assignments.filter(a => {
     const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.class.toLowerCase().includes(search.toLowerCase())
@@ -172,7 +194,7 @@ export default function AssignmentsPage() {
     const matchStatus = statusFilter === 'all' || a.status === statusFilter
     const matchClass = classFilter === 'all' || a.class === classFilter
     return matchSearch && matchType && matchStatus && matchClass
-  }), [search, typeFilter, statusFilter, classFilter])
+  }), [assignments, search, typeFilter, statusFilter, classFilter])
 
   const active = assignments.filter(a => a.status === 'active').length
   const upcoming = assignments.filter(a => a.status === 'upcoming').length
@@ -184,36 +206,80 @@ export default function AssignmentsPage() {
     : 0
   const aiCount = assignments.filter(a => a.ai).length
   const missingTotal = assignments.filter(a => a.status === 'active').reduce((acc, a) => acc + (a.total - a.submitted), 0)
-  const classes = ['all', ...Array.from(new Set(assignments.map(a => a.class)))]
 
   const selectedRubric = showRubric ? assignments.find(a => a.id === showRubric) : null
+
+  const handleCreateAssignment = () => {
+    if (!newTitle.trim()) return
+    const colors = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6']
+    const a: Assignment = {
+      id: `a${Date.now()}`,
+      title: newTitle.trim(),
+      type: newType,
+      class: newClass,
+      dueDate: '',
+      dueLabel: 'TBD',
+      status: 'upcoming',
+      submitted: 0,
+      total: 0,
+      avgScore: null,
+      points: parseInt(newPoints) || 50,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      ai: false,
+      instructions: '',
+      rubric: [],
+      tags: [],
+    }
+    setAssignments(prev => [a, ...prev])
+    setNewTitle('')
+    setCreateOpen(false)
+    showToast(`Created "${a.title}"`)
+  }
+
+  const handleDelete = (a: Assignment) => {
+    setAssignments(prev => prev.filter(x => x.id !== a.id))
+    setDeleteTarget(null)
+    showToast(`Deleted "${a.title}"`)
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <ClipboardList className="w-6 h-6 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Assignments</h2>
-              <p className="text-xs text-surface-400">{assignments.length} total · {active} active · {upcoming} upcoming · {aiCount} AI-generated</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <motion.div
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <ClipboardList className="w-5 h-5 text-white" />
+              </motion.div>
+              <div>
+                <h2 className="text-xl font-black text-white">Assignments</h2>
+                <p className="text-xs text-surface-400">{assignments.length} total · {active} active · {upcoming} upcoming · {aiCount} AI-generated</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Sparkles className="w-3.5 h-3.5" /> AI Create
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5"><Calendar className="w-3.5 h-3.5" /> Schedule</button>
-            <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export</button>
-            <button className="btn-secondary text-xs px-3 py-1.5"><Plus className="w-3.5 h-3.5" /> New</button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <motion.button
+                className="btn-gradient text-xs"
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                onClick={() => showToast('AI Create launched')}
+              >
+                <Sparkles className="w-3.5 h-3.5" /> AI Create
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Schedule view opened')}><Calendar className="w-3.5 h-3.5" /> Schedule</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Exporting assignments…')}><Download className="w-3.5 h-3.5" /> Export</button>
+              <motion.button
+                className="btn-secondary text-xs px-3 py-1.5"
+                onClick={() => setCreateOpen(true)}
+                whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+              >
+                <Plus className="w-3.5 h-3.5" /> New
+              </motion.button>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -224,7 +290,7 @@ export default function AssignmentsPage() {
           {[
             { label: 'Total Assignments', value: assignments.length.toString(), sub: `${aiCount} AI-generated`, icon: ClipboardList, color: '#6366f1' },
             { label: 'Active Now', value: active.toString(), sub: `${missingTotal} missing submissions`, icon: Clock, color: '#f97316' },
-            { label: 'Submission Rate', value: `${Math.round((totalSubmitted / totalSlots) * 100)}%`, sub: `${totalSubmitted}/${totalSlots} submitted`, icon: CheckCircle2, color: '#10b981' },
+            { label: 'Submission Rate', value: `${totalSlots > 0 ? Math.round((totalSubmitted / totalSlots) * 100) : 0}%`, sub: `${totalSubmitted}/${totalSlots} submitted`, icon: CheckCircle2, color: '#10b981' },
             { label: 'Class Average', value: `${overallAvg}%`, sub: 'graded assignments', icon: BarChart2, color: '#22d3ee' },
           ].map((stat, i) => (
             <motion.div
@@ -248,47 +314,61 @@ export default function AssignmentsPage() {
         </div>
       </FadeUp>
 
-      {/* AI Insights */}
-      <AnimatePresence>
-        {showAI && (
-          <motion.div
-            className="glass-card p-5 border border-accent-500/15"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
+      {/* AI Insights — collapsible */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card border border-accent-500/15 overflow-hidden">
+          <button
+            className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
+            onClick={() => setAiOpen(o => !o)}
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
-                  <Brain className="w-3.5 h-3.5 text-white" />
-                </div>
-                <span className="text-sm font-bold text-white">AI Assignment Insights</span>
-                <span className="text-[10px] bg-accent-500/15 text-accent-400 px-1.5 py-0.5 rounded-full font-bold">{aiSuggestions.length}</span>
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
+                <Brain className="w-3.5 h-3.5 text-white" />
               </div>
-              <button onClick={() => setShowAI(false)} className="text-surface-500 hover:text-surface-300"><X className="w-3.5 h-3.5" /></button>
+              <span className="text-sm font-bold text-white">AI Assignment Insights</span>
+              <span className="text-[10px] bg-accent-500/15 text-accent-400 px-1.5 py-0.5 rounded-full font-bold">{AI_SUGGESTIONS.length}</span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              {aiSuggestions.map((s, i) => (
-                <motion.div
-                  key={s.title}
-                  className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer"
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                  whileHover={{ x: 2 }}
-                >
-                  <div className="w-1.5 h-1.5 rounded-full mb-2" style={{ backgroundColor: s.color }} />
-                  <p className="text-xs font-bold text-white mb-1">{s.title}</p>
-                  <p className="text-[10px] text-surface-400 leading-relaxed">{s.desc}</p>
-                  <button className="text-[10px] font-semibold mt-2 flex items-center gap-1" style={{ color: s.color }}>
-                    Take Action <ArrowRight className="w-2.5 h-2.5" />
-                  </button>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
+              <ChevronDown className="w-4 h-4 text-surface-500" />
+            </motion.div>
+          </button>
+          <AnimatePresence initial={false}>
+            {aiOpen && (
+              <motion.div
+                key="ai"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {AI_SUGGESTIONS.map((s, i) => (
+                    <motion.div
+                      key={s.title}
+                      className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] hover:border-white/[0.12] transition-colors cursor-pointer"
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.07 }}
+                      whileHover={{ x: 2 }}
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full mb-2" style={{ backgroundColor: s.color }} />
+                      <p className="text-xs font-bold text-white mb-1">{s.title}</p>
+                      <p className="text-[10px] text-surface-400 leading-relaxed">{s.desc}</p>
+                      <button
+                        className="text-[10px] font-semibold mt-2 flex items-center gap-1"
+                        style={{ color: s.color }}
+                        onClick={() => showToast(`Taking action: ${s.title}`)}
+                      >
+                        Take Action <ArrowRight className="w-2.5 h-2.5" />
+                      </button>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </FadeUp>
 
       {/* Filters */}
       <FadeUp delay={0.1}>
@@ -347,10 +427,11 @@ export default function AssignmentsPage() {
         </div>
       </FadeUp>
 
-      {/* Assignment results count */}
       <div className="flex items-center justify-between">
         <span className="text-xs text-surface-500">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''} shown</span>
-        <button className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3 h-3" /> Advanced Filter</button>
+        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Advanced filter opened')}>
+          <Filter className="w-3 h-3" /> Advanced Filter
+        </button>
       </div>
 
       {/* Assignment list */}
@@ -359,25 +440,26 @@ export default function AssignmentsPage() {
           {filtered.map((assignment, i) => {
             const type = typeConfig[assignment.type]
             const isExpanded = expandedId === assignment.id
-            const submittedPct = Math.round((assignment.submitted / assignment.total) * 100)
+            const submittedPct = assignment.total > 0 ? Math.round((assignment.submitted / assignment.total) * 100) : 0
             const missingCount = assignment.total - assignment.submitted
+            const menuOpen = actionMenu === assignment.id
+
             return (
               <motion.div
                 key={assignment.id}
-                className="glass-card overflow-hidden"
+                className="glass-card overflow-visible"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ delay: 0.05 + i * 0.04 }}
               >
-                <button
-                  className="w-full flex items-center gap-4 p-5 text-left hover:bg-white/[0.02] transition-colors"
+                <div
+                  className="flex items-center gap-4 p-5 cursor-pointer hover:bg-white/[0.02] transition-colors"
                   onClick={() => setExpandedId(isExpanded ? null : assignment.id)}
                 >
                   <div className="w-1.5 h-12 rounded-full flex-shrink-0" style={{ backgroundColor: assignment.color }} />
-
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: assignment.color + '18' }}>
-                    <type.icon className="w-4.5 h-4.5" style={{ color: assignment.color }} />
+                    <type.icon className="w-5 h-5" style={{ color: assignment.color }} />
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -432,10 +514,57 @@ export default function AssignmentsPage() {
                     {assignment.status === 'active' ? 'Active' : assignment.status === 'upcoming' ? 'Upcoming' : 'Complete'}
                   </div>
 
-                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown className="w-4 h-4 text-surface-500 flex-shrink-0" />
+                  {/* Action menu */}
+                  <div className="relative flex-shrink-0" onClick={e => e.stopPropagation()}>
+                    <button
+                      className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
+                      onClick={() => setActionMenu(menuOpen ? null : assignment.id)}
+                    >
+                      <MoreHorizontal className="w-4 h-4" />
+                    </button>
+                    <AnimatePresence>
+                      {menuOpen && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setActionMenu(null)} />
+                          <motion.div
+                            className="absolute right-0 top-8 z-20 w-44 glass-card py-1 shadow-2xl border border-white/[0.08]"
+                            initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                            transition={{ duration: 0.15 }}
+                          >
+                            {[
+                              { label: 'View Submissions', icon: Eye, color: '#6366f1' },
+                              { label: 'Edit Assignment', icon: Edit3, color: '#10b981' },
+                              { label: 'Duplicate', icon: Copy, color: '#f59e0b' },
+                              { label: 'Share', icon: Share2, color: '#22d3ee' },
+                              { label: 'Export', icon: Download, color: '#8b5cf6' },
+                              { label: 'Archive', icon: Archive, color: '#6b7280' },
+                              { label: 'Delete', icon: Trash2, color: '#ef4444' },
+                            ].map(item => (
+                              <button
+                                key={item.label}
+                                className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs text-surface-300 hover:text-white hover:bg-white/[0.05] transition-colors text-left ${item.label === 'Delete' ? 'text-danger-400 hover:text-danger-300 border-t border-white/[0.06] mt-1 pt-2' : ''}`}
+                                onClick={() => {
+                                  setActionMenu(null)
+                                  if (item.label === 'Delete') setDeleteTarget(assignment)
+                                  else showToast(`${item.label}: ${assignment.title}`)
+                                }}
+                              >
+                                <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
+                                {item.label}
+                              </button>
+                            ))}
+                          </motion.div>
+                        </>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
+                    <ChevronDown className="w-4 h-4 text-surface-500" />
                   </motion.div>
-                </button>
+                </div>
 
                 <AnimatePresence>
                   {isExpanded && (
@@ -447,13 +576,13 @@ export default function AssignmentsPage() {
                       className="overflow-hidden"
                     >
                       <div className="px-5 pb-5 border-t border-white/[0.06]">
-                        {/* Instructions */}
                         <div className="mt-4 mb-4 p-3 bg-white/[0.03] rounded-xl border border-white/[0.06]">
                           <p className="text-[10px] text-surface-500 mb-1 font-semibold uppercase tracking-wider">Instructions</p>
-                          <p className="text-xs text-surface-300 leading-relaxed">{assignment.instructions}</p>
+                          <p className="text-xs text-surface-300 leading-relaxed">
+                            {assignment.instructions || 'No instructions added yet.'}
+                          </p>
                         </div>
 
-                        {/* Stats grid */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
                           {[
                             { label: 'Points', value: assignment.points.toString(), color: assignment.color },
@@ -468,39 +597,39 @@ export default function AssignmentsPage() {
                           ))}
                         </div>
 
-                        {/* Rubric preview */}
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-[10px] text-surface-500 font-semibold uppercase tracking-wider">Rubric Preview</p>
-                            <button
-                              onClick={() => setShowRubric(assignment.id)}
-                              className="text-[10px] text-accent-400 hover:text-accent-300 font-semibold"
-                            >
-                              View Full Rubric →
-                            </button>
+                        {assignment.rubric.length > 0 && (
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-[10px] text-surface-500 font-semibold uppercase tracking-wider">Rubric Preview</p>
+                              <button onClick={() => setShowRubric(assignment.id)} className="text-[10px] text-accent-400 hover:text-accent-300 font-semibold">
+                                View Full Rubric →
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {assignment.rubric.map(r => (
+                                <span key={r.label} className="text-[10px] px-2 py-1 bg-white/[0.04] text-surface-300 rounded-lg border border-white/[0.06]">
+                                  {r.label} <span className="text-surface-500">({r.pts}pts)</span>
+                                </span>
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {assignment.rubric.map(r => (
-                              <span key={r.label} className="text-[10px] px-2 py-1 bg-white/[0.04] text-surface-300 rounded-lg border border-white/[0.06]">
-                                {r.label} <span className="text-surface-500">({r.pts}pts)</span>
-                              </span>
-                            ))}
-                          </div>
-                        </div>
+                        )}
 
-                        {/* Actions */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('Opening submissions')}>
                             <Eye className="w-3 h-3" /> View Submissions
                           </motion.button>
-                          <button className="btn-secondary text-xs px-3 py-1.5"><Edit3 className="w-3 h-3" /> Edit</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5"><Copy className="w-3 h-3" /> Duplicate</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5"><BarChart2 className="w-3 h-3" /> Analytics</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5"><MessageSquare className="w-3 h-3" /> Feedback</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Editing assignment')}><Edit3 className="w-3 h-3" /> Edit</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Assignment duplicated')}><Copy className="w-3 h-3" /> Duplicate</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening analytics')}><BarChart2 className="w-3 h-3" /> Analytics</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening feedback tools')}><MessageSquare className="w-3 h-3" /> Feedback</button>
                           {assignment.status === 'active' && (
-                            <button className="btn-secondary text-xs px-3 py-1.5"><Bell className="w-3 h-3" /> Remind</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Reminder sent to missing students')}><Bell className="w-3 h-3" /> Remind</button>
                           )}
-                          <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10 ml-auto">
+                          <button
+                            className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10 ml-auto"
+                            onClick={() => setDeleteTarget(assignment)}
+                          >
                             <Trash2 className="w-3 h-3" />
                           </button>
                         </div>
@@ -517,28 +646,140 @@ export default function AssignmentsPage() {
           <motion.div className="glass-card p-10 text-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <ClipboardList className="w-8 h-8 text-surface-600 mx-auto mb-3" />
             <p className="text-sm font-semibold text-surface-300">No assignments match your filters</p>
-            <button className="btn-secondary text-xs mt-3" onClick={() => { setSearch(''); setTypeFilter('all'); setStatusFilter('all'); setClassFilter('all') }}>
+            <button
+              className="btn-secondary text-xs mt-3"
+              onClick={() => { setSearch(''); setTypeFilter('all'); setStatusFilter('all'); setClassFilter('all') }}
+            >
               Clear All Filters
             </button>
           </motion.div>
         )}
       </div>
 
+      {/* Bottom Analytics Panel */}
+      <FadeInWhenVisible delay={0.15}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Score Trend */}
+          <div className="glass-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-success-400/15">
+                <TrendingUp className="w-3.5 h-3.5 text-success-400" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-white block">Score Trend</span>
+                <span className="text-[10px] text-surface-500">8-week class average</span>
+              </div>
+            </div>
+            <div className="flex items-end gap-1 h-16 mb-2">
+              {SCORE_TREND.map((val, i) => {
+                const isLast = i === SCORE_TREND.length - 1
+                const min = Math.min(...SCORE_TREND)
+                const max = Math.max(...SCORE_TREND)
+                const pct = ((val - min) / (max - min + 0.1)) * 100
+                return (
+                  <div key={i} className="flex-1" title={`${TREND_LABELS[i]}: ${val}%`}>
+                    <motion.div
+                      className="w-full rounded-sm"
+                      style={{
+                        height: `${Math.max(pct * 0.56 + 12, 8)}px`,
+                        background: isLast ? 'linear-gradient(to top,#6366f1,#a78bfa)' : 'rgba(255,255,255,0.1)',
+                      }}
+                      initial={{ height: 0 }}
+                      animate={{ height: `${Math.max(pct * 0.56 + 12, 8)}px` }}
+                      transition={{ delay: 0.25 + i * 0.04, duration: 0.4 }}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex items-center justify-between text-[10px] text-surface-600 mb-3">
+              <span>{TREND_LABELS[0]}</span><span>{TREND_LABELS[TREND_LABELS.length - 1]}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-surface-400">Current avg</span>
+              <span className="text-xs font-bold text-accent-400">{SCORE_TREND[SCORE_TREND.length - 1]}%</span>
+            </div>
+          </div>
+
+          {/* Type Breakdown */}
+          <div className="glass-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-accent-500/15">
+                <Layers className="w-3.5 h-3.5 text-accent-400" />
+              </div>
+              <span className="text-sm font-bold text-white">Assignment Types</span>
+            </div>
+            <div className="space-y-3">
+              {(['quiz', 'essay', 'lab', 'project', 'homework'] as const).map(t => {
+                const count = assignments.filter(a => a.type === t).length
+                const pct = Math.round((count / Math.max(assignments.length, 1)) * 100)
+                return (
+                  <div key={t}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: TYPE_COLORS[t] }} />
+                        <span className="text-xs text-surface-300 capitalize">{typeConfig[t].label}</span>
+                      </div>
+                      <span className="text-xs font-bold text-white">{count}</span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                      <motion.div
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: TYPE_COLORS[t] }}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${pct}%` }}
+                        transition={{ delay: 0.3, duration: 0.5 }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Upcoming Deadlines */}
+          <div className="glass-card p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-warning-400/15">
+                <Calendar className="w-3.5 h-3.5 text-warning-400" />
+              </div>
+              <span className="text-sm font-bold text-white">Upcoming Deadlines</span>
+            </div>
+            <div className="space-y-2.5">
+              {assignments
+                .filter(a => a.status !== 'past')
+                .slice(0, 5)
+                .map((a) => (
+                  <div key={a.id} className="flex items-center gap-2.5">
+                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: a.color }} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-white truncate">{a.title}</p>
+                      <p className="text-[10px] text-surface-500">{a.class}</p>
+                    </div>
+                    <span className={`text-[10px] font-bold flex-shrink-0 ${a.status === 'active' ? 'text-warning-400' : 'text-accent-400'}`}>{a.dueLabel}</span>
+                  </div>
+                ))}
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/[0.06]">
+              <button className="w-full text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors text-center" onClick={() => showToast('Opening full calendar view')}>
+                View Full Calendar →
+              </button>
+            </div>
+          </div>
+        </div>
+      </FadeInWhenVisible>
+
       {/* Rubric Modal */}
       <AnimatePresence>
         {showRubric && selectedRubric && (
           <motion.div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowRubric(null)} />
             <motion.div
               className="relative glass-card p-6 w-full max-w-lg z-10 max-h-[80vh] overflow-y-auto"
-              initial={{ scale: 0.95, y: 16 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 16 }}
+              initial={{ scale: 0.95, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 16 }}
             >
               <button onClick={() => setShowRubric(null)} className="absolute top-4 right-4 text-surface-500 hover:text-white">
                 <X className="w-4 h-4" />
@@ -555,9 +796,7 @@ export default function AssignmentsPage() {
                   <motion.div
                     key={r.label}
                     className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]"
-                    initial={{ opacity: 0, x: -6 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.06 }}
+                    initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}
                   >
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-xs font-bold text-white">{r.label}</span>
@@ -568,11 +807,155 @@ export default function AssignmentsPage() {
                 ))}
               </div>
               <div className="flex gap-2 mt-4">
-                <button className="btn-gradient text-xs flex-1"><Sparkles className="w-3 h-3" /> AI Improve</button>
-                <button className="btn-secondary text-xs flex-1"><Download className="w-3 h-3" /> Export</button>
-                <button className="btn-secondary text-xs flex-1"><Edit3 className="w-3 h-3" /> Edit</button>
+                <button className="btn-gradient text-xs flex-1" onClick={() => showToast('AI improving rubric…')}><Sparkles className="w-3 h-3" /> AI Improve</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Exporting rubric')}><Download className="w-3 h-3" /> Export</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Editing rubric')}><Edit3 className="w-3 h-3" /> Edit</button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Create Assignment Modal */}
+      <AnimatePresence>
+        {createOpen && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setCreateOpen(false)}
+          >
+            <motion.div
+              className="glass-card p-6 max-w-sm w-full mx-4"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,#f97316,#ea580c)' }}>
+                    <ClipboardList className="w-4 h-4 text-white" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white">New Assignment</h4>
+                </div>
+                <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white" onClick={() => setCreateOpen(false)}>
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Title</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Ch. 7 Quiz"
+                    value={newTitle}
+                    onChange={e => setNewTitle(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleCreateAssignment()}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Type</label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['quiz', 'essay', 'lab', 'project', 'homework'] as const).map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setNewType(t)}
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all ${
+                          newType === t ? 'ring-1 ring-current' : 'opacity-60 hover:opacity-80'
+                        } ${typeConfig[t].bg}`}
+                      >
+                        {typeConfig[t].label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Class</label>
+                    <select
+                      value={newClass}
+                      onChange={e => setNewClass(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                    >
+                      {Array.from(new Set(assignments.map(a => a.class))).map(c => (
+                        <option key={c} value={c} className="bg-surface-900">{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-surface-300 mb-1.5 block">Points</label>
+                    <input
+                      type="number"
+                      value={newPoints}
+                      onChange={e => setNewPoints(e.target.value)}
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:ring-2 focus:ring-accent-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-6">
+                <button className="flex-1 btn-secondary text-xs py-2" onClick={() => setCreateOpen(false)}>Cancel</button>
+                <motion.button
+                  className="flex-1 btn-gradient text-xs py-2"
+                  onClick={handleCreateAssignment}
+                  whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                >
+                  <Plus className="w-3.5 h-3.5" /> Create
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirm */}
+      <AnimatePresence>
+        {deleteTarget && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setDeleteTarget(null)}
+          >
+            <motion.div
+              className="glass-card p-6 max-w-sm w-full mx-4"
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-danger-400/15 mb-4">
+                <Trash2 className="w-5 h-5 text-danger-400" />
+              </div>
+              <h4 className="text-sm font-bold text-white mb-1">Delete Assignment?</h4>
+              <p className="text-xs text-surface-400 mb-5">
+                &ldquo;{deleteTarget.title}&rdquo; will be permanently deleted along with all submission records.
+              </p>
+              <div className="flex gap-2">
+                <button className="flex-1 btn-secondary text-xs py-2" onClick={() => setDeleteTarget(null)}>Cancel</button>
+                <button
+                  className="flex-1 text-xs font-semibold py-2 rounded-xl bg-danger-400/20 text-danger-400 hover:bg-danger-400/30 transition-colors"
+                  onClick={() => handleDelete(deleteTarget)}
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-sm font-semibold text-white"
+            style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81)', border: '1px solid rgba(99,102,241,0.3)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.95 }}
+            transition={{ duration: 0.25 }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>
