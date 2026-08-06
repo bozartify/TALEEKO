@@ -137,6 +137,12 @@ export default function AgentsPage() {
   const [agentTab, setAgentTab] = useState<AgentTab>('swarm')
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null)
   const [showDeploy, setShowDeploy] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const activeCount = agents.filter(a => a.status === 'running').length
   const awaitingCount = agents.filter(a => a.status === 'awaiting').length
@@ -164,6 +170,7 @@ export default function AgentsPage() {
     const item = approvals.find(a => a.id === id)
     setApprovals(prev => prev.filter(a => a.id !== id))
     if (item) {
+      showToast(approved ? `Approved: ${item.action}` : `Rejected: ${item.action}`)
       const newFeedItem: FeedItem = {
         id: `f${Date.now()}`,
         t: 'now',
@@ -191,12 +198,8 @@ export default function AgentsPage() {
     <div className="space-y-6">
       {/* Hero header */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent-500/[0.07] rounded-full blur-[100px]" />
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-purple-500/[0.05] rounded-full blur-[80px]" />
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <motion.div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
@@ -219,7 +222,7 @@ export default function AgentsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export Report</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Agent report exported to PDF')}><Download className="w-3.5 h-3.5" /> Export Report</button>
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
@@ -382,8 +385,8 @@ export default function AgentsPage() {
                                   </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1"><Settings className="w-2.5 h-2.5" /> Configure</button>
-                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1"><Eye className="w-2.5 h-2.5" /> View Log</button>
+                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => showToast(`${a.name} settings opened`)}><Settings className="w-2.5 h-2.5" /> Configure</button>
+                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => showToast(`${a.name} log opened`)}><Eye className="w-2.5 h-2.5" /> View Log</button>
                                 </div>
                               </div>
                             </motion.div>
@@ -527,6 +530,7 @@ export default function AgentsPage() {
                     className="w-full btn-gradient text-xs"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => showToast(`${tmpl.name} agent deployed`)}
                   >
                     <Play className="w-3 h-3" /> Deploy
                   </motion.button>
@@ -671,12 +675,31 @@ export default function AgentsPage() {
                   className="btn-gradient text-xs w-full"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowDeploy(false)}
+                  onClick={() => { showToast('New agent deployed to swarm'); setShowDeploy(false) }}
                 >
                   <Sparkles className="w-3.5 h-3.5" /> Deploy Agent
                 </motion.button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.12]"
+            style={{ background: 'linear-gradient(135deg, #0a0f1a, #111827)' }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 60, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          >
+            <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+              <CheckCircle2 className="w-3.5 h-3.5 text-accent-400" />
+            </div>
+            <span className="text-xs font-semibold text-white max-w-[220px]">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
