@@ -179,6 +179,12 @@ export default function LessonPlannerPage() {
   const [duration, setDuration] = useState('50')
 
   const totalTime = sections.reduce((acc, s) => acc + s.duration, 0)
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   function handleRegenerateSection(id: string) {
     setGeneratingSection(id)
@@ -192,65 +198,87 @@ export default function LessonPlannerPage() {
 
   function handleSave() {
     setSavedPulse(true)
+    showToast('Lesson plan saved successfully')
     setTimeout(() => setSavedPulse(false), 2000)
   }
 
   return (
     <div className="space-y-6">
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <BookOpen className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Lesson Planner</h2>
-              <p className="text-xs text-surface-400">AI-assisted lesson design · Standards aligned · Export ready</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <BookOpen className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-2xl font-black text-white">Lesson Planner</h2>
+                  <span className="text-[10px] bg-accent-500/20 text-accent-300 px-2 py-0.5 rounded-full font-bold border border-accent-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Standards aligned · Differentiated · Export ready</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.button
+                className="btn-gradient text-xs"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handleGenerateAll}
+                disabled={generatingAll}
+              >
+                {generatingAll ? (
+                  <>
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </motion.div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Generate Full Plan
+                  </>
+                )}
+              </motion.button>
+              <motion.button
+                className="btn-secondary text-xs"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSave}
+              >
+                {savedPulse ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
+                {savedPulse ? 'Saved!' : 'Save'}
+              </motion.button>
+              <button className="btn-secondary text-xs" onClick={() => showToast('Lesson plan exported to PDF')}>
+                <Download className="w-3.5 h-3.5" />
+                Export
+              </button>
+              <button className="btn-secondary text-xs" onClick={() => showToast('Share link copied to clipboard')}>
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <motion.button
-              className="btn-gradient text-xs"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleGenerateAll}
-              disabled={generatingAll}
-            >
-              {generatingAll ? (
-                <>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </motion.div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Generate Full Plan
-                </>
-              )}
-            </motion.button>
-            <motion.button
-              className="btn-secondary text-xs"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSave}
-            >
-              {savedPulse ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
-              {savedPulse ? 'Saved!' : 'Save'}
-            </motion.button>
-            <button className="btn-secondary text-xs">
-              <Download className="w-3.5 h-3.5" />
-              Export
-            </button>
-            <button className="btn-secondary text-xs">
-              <Share2 className="w-3.5 h-3.5" />
-            </button>
+          {/* Quick stat pills */}
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
+            {[
+              { label: 'Topic', value: topic, color: '#6366f1' },
+              { label: 'Grade', value: grade, color: '#8b5cf6' },
+              { label: 'Duration', value: `${duration} min`, color: '#14b8a6' },
+              { label: 'Sections', value: sections.length, color: '#f97316' },
+              { label: 'Planned', value: `${totalTime} min`, color: totalTime > parseInt(duration) ? '#ef4444' : '#10b981' },
+            ].map(pill => (
+              <div key={pill.label} className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: pill.color }} />
+                <span className="text-xs text-surface-400">{pill.label}</span>
+                <span className="text-xs font-black" style={{ color: pill.color }}>{pill.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -609,15 +637,16 @@ export default function LessonPlannerPage() {
               <p className="text-xs font-bold text-surface-300 mb-3">Quick Actions</p>
               <div className="space-y-2">
                 {[
-                  { label: 'Export to PDF', icon: FileText, color: '#ef4444' },
-                  { label: 'Share with Team', icon: Share2, color: '#6366f1' },
-                  { label: 'Duplicate Plan', icon: Clipboard, color: '#14b8a6' },
-                  { label: 'Add to Library', icon: Star, color: '#f59e0b' },
+                  { label: 'Export to PDF', icon: FileText, color: '#ef4444', toast: 'Lesson plan exported to PDF' },
+                  { label: 'Share with Team', icon: Share2, color: '#6366f1', toast: 'Share link copied to clipboard' },
+                  { label: 'Duplicate Plan', icon: Clipboard, color: '#14b8a6', toast: 'Lesson plan duplicated to drafts' },
+                  { label: 'Add to Library', icon: Star, color: '#f59e0b', toast: 'Added to your lesson library' },
                 ].map(action => (
                   <motion.button
                     key={action.label}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                     whileHover={{ x: 2 }}
+                    onClick={() => showToast(action.toast)}
                   >
                     <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: action.color + '15' }}>
                       <action.icon className="w-3 h-3" style={{ color: action.color }} />
@@ -643,6 +672,7 @@ export default function LessonPlannerPage() {
             {recentPlans.map((plan, i) => (
               <motion.button
                 key={plan.title}
+                onClick={() => showToast(`Opening "${plan.title}"`)}
                 className="glass-card p-4 text-left"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -666,6 +696,25 @@ export default function LessonPlannerPage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.12]"
+            style={{ background: 'linear-gradient(135deg, #0a0f1a, #111827)' }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 60, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          >
+            <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-3.5 h-3.5 text-accent-400" />
+            </div>
+            <span className="text-xs font-semibold text-white max-w-[220px]">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
