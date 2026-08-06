@@ -6,7 +6,7 @@ import {
   BookOpen, ClipboardList, Sparkles, Target, Bell, Video,
   MapPin, Star, Zap, X, Check, Filter, Download,
   AlertTriangle, Brain, Flag, Edit3, Trash2,
-  RefreshCw, ChevronDown, BookMarked, Eye
+  RefreshCw, ChevronDown, BookMarked, Eye, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -68,9 +68,9 @@ const classList = ['All Classes', 'AP Biology', '10th English', '9th Math', '8th
 const weekHours = ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM']
 
 const aiSuggestions = [
-  { icon: AlertTriangle, color: '#f59e0b', text: 'Essay and Lab Report deadlines are 2 days apart — students may be overwhelmed. Consider shifting Lab Report to Oct 14.' },
-  { icon: Zap, color: '#6366f1', text: 'No review session scheduled before Oct 24 Ecosystem Test. Add a 30-min review on Oct 22.' },
-  { icon: Brain, color: '#10b981', text: 'Oct 19 has no lesson events. Ideal day to run a differentiation activity or student work session.' },
+  { icon: AlertTriangle, color: '#f59e0b', text: 'Essay and Lab Report deadlines are 2 days apart — students may be overwhelmed. Consider shifting Lab Report to Oct 14.', toast: 'Lab Report deadline shifted to Oct 14' },
+  { icon: Zap, color: '#6366f1', text: 'No review session scheduled before Oct 24 Ecosystem Test. Add a 30-min review on Oct 22.', toast: 'Review session added for Oct 22' },
+  { icon: Brain, color: '#10b981', text: 'Oct 19 has no lesson events. Ideal day to run a differentiation activity or student work session.', toast: 'Differentiation activity scheduled for Oct 19' },
 ]
 
 export default function CalendarPage() {
@@ -84,6 +84,12 @@ export default function CalendarPage() {
   const [showSuggestions, setShowSuggestions] = useState(true)
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
@@ -122,48 +128,58 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Hero header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Calendar className="w-6 h-6 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Teaching Calendar</h2>
-              <p className="text-xs text-surface-400">{filteredEvents.length} events · {highPriorityCount} high priority · {deadlineCount} upcoming deadlines</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
+                <Calendar className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Teaching Calendar</h1>
+                  <span className="text-[10px] bg-accent-500/20 text-accent-400 px-2 py-0.5 rounded-full font-bold border border-accent-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">{filteredEvents.length} events this month · {highPriorityCount} high priority · {deadlineCount} upcoming deadlines</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
+                {(['month', 'week', 'agenda'] as const).map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setView(v)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize ${
+                      view === v ? 'bg-white/[0.08] text-white' : 'text-surface-400 hover:text-surface-200'
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShowNewEvent(true)}>
+                <Plus className="w-3.5 h-3.5" /> Add Event
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Calendar exported to PDF')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
-              {(['month', 'week', 'agenda'] as const).map(v => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all capitalize ${
-                    view === v ? 'bg-white/[0.08] text-white' : 'text-surface-400 hover:text-surface-200'
-                  }`}
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-            <motion.button
-              className="btn-primary text-xs"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setShowNewEvent(true)}
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Event
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Total Events', value: filteredEvents.length.toString(), color: '#a78bfa' },
+              { label: 'High Priority', value: highPriorityCount.toString(), color: '#f87171' },
+              { label: 'Deadlines', value: deadlineCount.toString(), color: '#fb923c' },
+              { label: 'Meetings', value: meetingCount.toString(), color: '#34d399' },
+              { label: 'Today', value: todayEvents.length.toString(), color: '#38bdf8' },
+            ].map(p => (
+              <div key={p.label} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                <span className="text-xs text-surface-400">{p.label}</span>
+                <span className="text-xs font-bold text-white">{p.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -268,7 +284,7 @@ export default function CalendarPage() {
                 >
                   <s.icon className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: s.color }} />
                   <p className="text-xs text-surface-300 leading-relaxed">{s.text}</p>
-                  <button className="flex-shrink-0 text-[10px] text-accent-400 hover:text-accent-300 font-semibold">Fix →</button>
+                  <button className="flex-shrink-0 text-[10px] text-accent-400 hover:text-accent-300 font-semibold" onClick={() => showToast(s.toast)}>Fix →</button>
                 </motion.div>
               ))}
             </div>
@@ -513,9 +529,9 @@ export default function CalendarPage() {
                                 <div className="px-4 pb-4 pt-1 border-t border-white/[0.06]">
                                   {evt.desc && <p className="text-xs text-surface-400 mb-3">{evt.desc}</p>}
                                   <div className="flex items-center gap-2">
-                                    <button className="btn-secondary text-[10px] px-2 py-1"><Edit3 className="w-2.5 h-2.5" /> Edit</button>
-                                    <button className="btn-secondary text-[10px] px-2 py-1"><Bell className="w-2.5 h-2.5" /> Remind</button>
-                                    <button className="btn-secondary text-[10px] px-2 py-1 text-danger-400 hover:bg-danger-400/10"><Trash2 className="w-2.5 h-2.5" /> Delete</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Editing "${evt.title}"`)}><Edit3 className="w-2.5 h-2.5" /> Edit</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Reminder set for "${evt.title}"`)}><Bell className="w-2.5 h-2.5" /> Remind</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`"${evt.title}" deleted`)}><Trash2 className="w-2.5 h-2.5" /> Delete</button>
                                   </div>
                                 </div>
                               </motion.div>
@@ -631,10 +647,10 @@ export default function CalendarPage() {
               <h4 className="text-xs font-bold text-surface-300 mb-3">Quick Add</h4>
               <div className="space-y-1.5">
                 {[
-                  { label: 'Add Lesson', type: 'lesson', color: '#8b5cf6' },
-                  { label: 'Add Quiz/Test', type: 'quiz', color: '#f97316' },
-                  { label: 'Add Deadline', type: 'deadline', color: '#ef4444' },
-                  { label: 'Add Meeting', type: 'meeting', color: '#0891b2' },
+                  { label: 'Add Lesson', type: 'lesson', color: '#8b5cf6', toast: 'New lesson added to calendar' },
+                  { label: 'Add Quiz/Test', type: 'quiz', color: '#f97316', toast: 'New quiz event added to calendar' },
+                  { label: 'Add Deadline', type: 'deadline', color: '#ef4444', toast: 'New deadline added to calendar' },
+                  { label: 'Add Meeting', type: 'meeting', color: '#0891b2', toast: 'New meeting added to calendar' },
                 ].map(item => (
                   <button
                     key={item.type}
@@ -703,7 +719,7 @@ export default function CalendarPage() {
                     className="btn-gradient text-xs flex-1"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => setShowNewEvent(false)}
+                    onClick={() => { showToast('Event added to calendar'); setShowNewEvent(false) }}
                   >
                     <Check className="w-3.5 h-3.5" /> Add Event
                   </motion.button>
@@ -711,6 +727,22 @@ export default function CalendarPage() {
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
