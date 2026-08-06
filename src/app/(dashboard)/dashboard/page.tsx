@@ -117,18 +117,19 @@ export default function DashboardPage() {
   const maxActivity = Math.max(...weeklyActivity.map(d => d.value))
   const greeting = getGreeting()
   const [activeTab, setActiveTab] = useState<DashTab>('overview')
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   return (
     <div className="space-y-6">
       {/* Welcome hero */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-72 h-72 bg-accent-500/[0.06] rounded-full blur-[80px]" />
-            <div className="absolute -bottom-20 -left-20 w-48 h-48 bg-electric-400/[0.04] rounded-full blur-[60px]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-32 bg-neon-400/[0.02] blur-[60px]" />
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06] relative overflow-hidden">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-2xl font-black text-white">{greeting.text}, Alex!</h2>
@@ -168,7 +169,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Achievements row */}
-          <div className="relative mt-5 pt-4 border-t border-white/[0.06] flex items-center gap-3 flex-wrap">
+          <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center gap-3 flex-wrap">
             <span className="text-[10px] font-semibold text-surface-500 uppercase tracking-wider mr-1">Achievements</span>
             {achievements.map((ach, i) => (
               <motion.div
@@ -318,7 +319,7 @@ export default function DashboardPage() {
                           }`}>
                             {lesson.status}
                           </span>
-                          <button className="p-1.5 rounded-lg text-surface-500 hover:text-surface-200 hover:bg-white/[0.06] transition-colors">
+                          <button className="p-1.5 rounded-lg text-surface-500 hover:text-surface-200 hover:bg-white/[0.06] transition-colors" onClick={() => showToast(`Opening "${lesson.title}"`)}>
                             <Eye className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -643,15 +644,34 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-bold text-white mb-1">{alert.title}</h4>
                     <p className="text-xs text-surface-400 mb-3">{alert.desc}</p>
                     <div className="flex items-center gap-3">
-                      <button className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all" style={{ backgroundColor: alert.color + '20', color: alert.color }}>
+                      <button className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all" style={{ backgroundColor: alert.color + '20', color: alert.color }} onClick={() => showToast(`${alert.action} — done`)}>
                         {alert.action}
                       </button>
-                      <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors">Dismiss</button>
+                      <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors" onClick={() => showToast('Alert dismissed')}>Dismiss</button>
                     </div>
                   </div>
                 </div>
               </motion.div>
             ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.12]"
+            style={{ background: 'linear-gradient(135deg, #0a0f1a, #111827)' }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 60, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          >
+            <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-3.5 h-3.5 text-accent-400" />
+            </div>
+            <span className="text-xs font-semibold text-white max-w-[220px]">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
