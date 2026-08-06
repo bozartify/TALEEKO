@@ -6,7 +6,7 @@ import {
   TrendingUp, Target, Users, ChevronRight, Sparkles,
   ChevronDown, GraduationCap, Layers, Brain, BarChart3,
   Monitor, Lightbulb, Flame, Zap, ArrowUpRight, Shield,
-  BookMarked, Cpu, PenTool, ListChecks, CircleDot
+  BookMarked, Cpu, PenTool, ListChecks, CircleDot, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -329,6 +329,11 @@ const weeklyGoal = { current: 3, target: 5, unit: 'hours' }
 export default function ProfessionalDevPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category>('All')
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const filtered = categoryFilter === 'All'
     ? courses
@@ -350,43 +355,42 @@ export default function ProfessionalDevPage() {
     <div className="space-y-8">
       {/* Header */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-amber-500/[0.06] rounded-full blur-[80px]" />
-            <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-indigo-500/[0.04] rounded-full blur-[60px]" />
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <motion.div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-                whileHover={{ rotate: 8, scale: 1.08 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              >
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
                 <GraduationCap className="w-6 h-6 text-white" />
-              </motion.div>
+              </div>
               <div>
-                <h2 className="text-2xl font-black text-white">Professional Development</h2>
-                <p className="text-sm text-surface-400 mt-0.5">
-                  Grow your teaching practice with expert-led courses and AI-powered learning paths.
-                </p>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-full">
-                    <Flame className="w-3 h-3" /> 12-day streak
-                  </span>
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-surface-400">
-                    <Star className="w-3 h-3 text-amber-400 fill-amber-400" /> Level 3 Learner
-                  </span>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Professional Development</h1>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold border border-amber-500/20">AI-Powered</span>
                 </div>
+                <p className="text-sm text-surface-400">Expert-led PD courses and AI-powered learning paths to grow your teaching practice</p>
               </div>
             </div>
-            <motion.button
-              className="btn-gradient flex-shrink-0"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Sparkles className="w-4 h-4" /> AI Recommendations
-            </motion.button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Browsing certificates…')}>
+                <Award className="w-3.5 h-3.5" /> Certificates
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Loading AI course recommendations…')}>
+                <Sparkles className="w-4 h-4" /> AI Recommendations
+              </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Courses', value: `${courses.length}` },
+              { label: 'In Progress', value: `${inProgressCount}` },
+              { label: 'PD Hours', value: `${totalHoursEarned}h` },
+              { label: 'Certificates', value: `${certificateCount}` },
+              { label: 'Streak', value: '12 days' },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-lg font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -625,7 +629,7 @@ export default function ProfessionalDevPage() {
                   <span className="flex items-center gap-1 text-xs text-surface-400">
                     <Clock className="w-3 h-3" /> {rec.hours}h
                   </span>
-                  <button className="btn-secondary text-[11px] py-1 px-3">
+                  <button className="btn-secondary text-[11px] py-1 px-3" onClick={() => showToast(`Enrolled in "${rec.title}"`)}>
                     Enroll <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>
@@ -811,6 +815,7 @@ export default function ProfessionalDevPage() {
                   }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => showToast(course.status === 'completed' ? `"${course.title}" certificate available` : course.status === 'in-progress' ? `Resuming "${course.title}"` : `Starting "${course.title}"…`)}
                 >
                   {course.status === 'completed' ? (
                     <><Check className="w-3.5 h-3.5" /> Completed</>
@@ -825,6 +830,21 @@ export default function ProfessionalDevPage() {
           ))}
         </AnimatePresence>
       </div>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

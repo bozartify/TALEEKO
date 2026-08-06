@@ -7,7 +7,7 @@ import {
   FileSpreadsheet, File, Loader2, Check, ArrowRight, Clock, Star,
   Plus, X, Mail, Share2, Send, RefreshCw, Eye, Lock, Globe,
   ChevronRight, Bell, Settings, Zap, Brain, Target, Layers,
-  AlertTriangle, PieChart, Activity
+  AlertTriangle, PieChart, Activity, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -175,6 +175,11 @@ export default function ReportsPage() {
   const [scheduleModal, setScheduleModal] = useState(false)
   const [shareModal, setShareModal] = useState<string | null>(null)
   const [scheduledList, setScheduledList] = useState(scheduledReports)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   function handleGenerate() {
     setGenerating(true)
@@ -212,7 +217,7 @@ export default function ReportsPage() {
               <button onClick={() => setScheduleModal(true)} className="btn-secondary text-xs px-3 py-1.5">
                 <Bell className="w-3.5 h-3.5" /> Schedule
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Report preferences saved')}>
                 <Settings className="w-3.5 h-3.5" /> Preferences
               </button>
               <motion.button
@@ -380,10 +385,10 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <button className="btn-secondary text-xs px-3 py-1.5"><Eye className="w-3.5 h-3.5" /> Preview</button>
-                      <button className="btn-secondary text-xs px-3 py-1.5"><File className="w-3.5 h-3.5" /> PDF</button>
-                      <button className="btn-secondary text-xs px-3 py-1.5"><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
-                      <button className="btn-gradient text-xs px-3 py-1.5"><Mail className="w-3.5 h-3.5" /> Email</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening report preview…')}><Eye className="w-3.5 h-3.5" /> Preview</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Downloading PDF…')}><File className="w-3.5 h-3.5" /> PDF</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Downloading XLSX…')}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
+                      <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast('Report emailed successfully!')}><Mail className="w-3.5 h-3.5" /> Email</button>
                     </div>
                   </div>
                 </motion.div>
@@ -644,7 +649,7 @@ export default function ReportsPage() {
                       <span className="text-xs font-bold text-white">{tmpl.label}</span>
                     </div>
                     <p className="text-[10px] text-surface-500 capitalize">{tmpl.freq} · {tmpl.recipients}</p>
-                    <button className="mt-3 text-[10px] font-bold flex items-center gap-1" style={{ color: tmpl.color }}>
+                    <button className="mt-3 text-[10px] font-bold flex items-center gap-1" style={{ color: tmpl.color }} onClick={() => showToast(`"${tmpl.label}" schedule created`)}>
                       Use Template <Plus className="w-3 h-3" />
                     </button>
                   </motion.button>
@@ -714,10 +719,10 @@ export default function ReportsPage() {
                             <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => setShareModal(report.id)}>
                               <Share2 className="w-3.5 h-3.5" />
                             </button>
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast(`Downloading "${report.title}"…`)}>
                               <Download className="w-3.5 h-3.5" />
                             </button>
-                            <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors">
+                            <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast(`"${report.title}" deleted`)}>
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -800,7 +805,7 @@ export default function ReportsPage() {
               </div>
               <div className="flex gap-3 mt-6">
                 <button onClick={() => setScheduleModal(false)} className="btn-secondary text-xs flex-1">Cancel</button>
-                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setScheduleModal(false)}>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setScheduleModal(false); showToast('Report schedule created!') }}>
                   <Bell className="w-3.5 h-3.5" /> Create Schedule
                 </motion.button>
               </div>
@@ -837,10 +842,25 @@ export default function ReportsPage() {
                   <input type="email" placeholder="Enter email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
                 </div>
               </div>
-              <motion.button className="btn-gradient text-xs w-full mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShareModal(null)}>
+              <motion.button className="btn-gradient text-xs w-full mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setShareModal(null); showToast('Report shared successfully!') }}>
                 <Send className="w-3.5 h-3.5" /> Send Report
               </motion.button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>

@@ -5,7 +5,7 @@ import {
   FileText, Sparkles, Download, Users, Search,
   Check, ChevronDown, Star, TrendingUp, TrendingDown,
   Eye, Copy, Printer, Mail, X, ChevronLeft, ChevronRight,
-  Award, Target, BarChart2, AlertTriangle, RefreshCw, Zap
+  Award, Target, BarChart2, AlertTriangle, RefreshCw, Zap, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -160,6 +160,12 @@ export default function ReportCardsPage() {
     })
   }
 
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
+
   const approvedCount = approvals.size
   const gradeDistribution = [
     { grade: 'A', count: students.filter(s => s.grade.startsWith('A')).length, color: '#10b981' },
@@ -172,40 +178,52 @@ export default function ReportCardsPage() {
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <FileText className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">AI Report Card Generator</h2>
-              <p className="text-xs text-surface-400">Generate personalized report cards with AI-written comments</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">AI Report Card Generator</h1>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Generate personalized report cards with AI-written subject comments in seconds</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+              {step !== 'select' && (
+                <button onClick={() => setStep('select')} className="btn-secondary text-xs px-3 py-1.5">Start Over</button>
+              )}
+              {step === 'preview' && (
+                <>
+                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Printing all report cards…')}>
+                    <Printer className="w-3.5 h-3.5" /> Print All
+                  </button>
+                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Exporting report cards as PDF…')}>
+                    <Download className="w-3.5 h-3.5" /> Export PDF
+                  </button>
+                  <button className="btn-gradient text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setShareOpen(true)}>
+                    <Mail className="w-3.5 h-3.5" /> Email Parents
+                  </button>
+                </>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {step !== 'select' && (
-              <button onClick={() => setStep('select')} className="btn-secondary text-xs px-3 py-1.5">
-                Start Over
-              </button>
-            )}
-            {step === 'preview' && (
-              <>
-                <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
-                  <Printer className="w-3.5 h-3.5" /> Print All
-                </button>
-                <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
-                  <Download className="w-3.5 h-3.5" /> Export PDF
-                </button>
-                <button className="btn-gradient text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setShareOpen(true)}>
-                  <Mail className="w-3.5 h-3.5" /> Email Parents
-                </button>
-              </>
-            )}
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Students', value: `${students.length}` },
+              { label: 'Selected', value: `${selectedStudents.size}` },
+              { label: 'Approved', value: `${approvedCount}` },
+              { label: 'Templates', value: `${reportTemplates.length}` },
+              { label: 'Period', value: 'Q2 2026' },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-lg font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -225,7 +243,9 @@ export default function ReportCardsPage() {
                   {approvedCount}/{selectedStudents.size} approved
                 </span>
               </div>
-              <ChevronDown className={`w-4 h-4 text-surface-400 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
+              <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ChevronDown className="w-4 h-4 text-surface-400" />
+              </motion.div>
             </button>
             <AnimatePresence>
               {aiOpen && (
@@ -243,7 +263,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-warning-300">Review Before Sending — Liam Chen</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Liam has an IEP. Ensure his report comments reference specific accommodations and IEP goals. The generated comments look accurate but confirm with your special education coordinator.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-warning-400 whitespace-nowrap">Review →</button>
+                      <button className="text-[10px] font-semibold text-warning-400 whitespace-nowrap" onClick={() => showToast('Reviewing Liam Chen\'s IEP report…')}>Review →</button>
                     </div>
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-danger-400/[0.08] border border-danger-400/15">
                       <TrendingDown className="w-4 h-4 text-danger-400 flex-shrink-0 mt-0.5" />
@@ -251,7 +271,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-danger-300">Low GPA — Proactive Outreach Recommended</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Mia Thompson (C+, 2.4 GPA) and Ava Patel (B-, 2.8 GPA) may benefit from a parent conference conversation alongside the report card.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-danger-400 whitespace-nowrap">Schedule →</button>
+                      <button className="text-[10px] font-semibold text-danger-400 whitespace-nowrap" onClick={() => showToast('Scheduling parent conferences for Mia & Ava…')}>Schedule →</button>
                     </div>
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-success-400/[0.08] border border-success-400/15">
                       <Award className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
@@ -259,7 +279,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-success-300">High Performers — Emma Davis & Ethan Kim</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Both students are near A/4.0 GPA. Their reports include enrichment recommendations. Consider noting advanced course eligibility for next year.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-success-400 whitespace-nowrap">Add Note →</button>
+                      <button className="text-[10px] font-semibold text-success-400 whitespace-nowrap" onClick={() => showToast('Enrichment note added to Emma & Ethan\'s reports')}>Add Note →</button>
                     </div>
                   </div>
                 </motion.div>
@@ -801,17 +821,32 @@ export default function ReportCardsPage() {
                 {['Send Approved Reports Now', 'Schedule for Monday 8 AM', 'Download All as ZIP', 'Print All Reports'].map(opt => (
                   <button
                     key={opt}
-                    onClick={() => setShareOpen(false)}
+                    onClick={() => { setShareOpen(false); showToast(opt) }}
                     className="w-full text-left px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] text-xs text-surface-300 hover:text-white transition-all"
                   >
                     {opt}
                   </button>
                 ))}
               </div>
-              <button onClick={() => setShareOpen(false)} className="btn-gradient text-xs px-4 py-2 w-full mt-3">
+              <button onClick={() => { setShareOpen(false); showToast('Report cards sent to all parents!') }} className="btn-gradient text-xs px-4 py-2 w-full mt-3">
                 <Mail className="w-3.5 h-3.5" /> Confirm & Send
               </button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>

@@ -208,44 +208,47 @@ export default function RubricsPage() {
 
       {/* ── Header ── */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <PenTool className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Rubric Builder</h2>
-              <p className="text-xs text-surface-400">{rubrics.length} rubrics · AI-powered assessment criteria</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
+                <PenTool className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Rubric Builder</h1>
+                  <span className="text-[10px] bg-violet-500/20 text-violet-400 px-2 py-0.5 rounded-full font-bold border border-violet-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Create standards-aligned rubrics with AI-generated criteria and inline editing</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
+                <button onClick={() => setView('gallery')} className={`p-1.5 rounded-full transition-all ${view === 'gallery' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}>
+                  <Grid3X3 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setView('preview')} className={`p-1.5 rounded-full transition-all ${view === 'preview' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}>
+                  <Eye className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShowTemplates(true)}>
+                <Sparkles className="w-3.5 h-3.5" /> Generate Rubric
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
-              <button
-                onClick={() => setView('gallery')}
-                className={`p-1.5 rounded-full transition-all ${view === 'gallery' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}
-              >
-                <Grid3X3 className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={() => setView('preview')}
-                className={`p-1.5 rounded-full transition-all ${view === 'preview' ? 'bg-white/[0.08] text-white' : 'text-surface-500'}`}
-              >
-                <Eye className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <motion.button
-              className="btn-gradient text-xs"
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              onClick={() => setShowTemplates(true)}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              Generate Rubric
-            </motion.button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Rubrics', value: `${rubrics.length}` },
+              { label: 'Total Uses', value: `${rubrics.reduce((s, r) => s + r.uses, 0)}` },
+              { label: 'Avg Criteria', value: `${Math.round(rubrics.reduce((s, r) => s + r.criteria, 0) / rubrics.length)}` },
+              { label: 'Most Used', value: `${Math.max(...rubrics.map(r => r.uses))}x` },
+              { label: 'Subjects', value: `${new Set(rubrics.map(r => r.subject)).size}` },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-lg font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>

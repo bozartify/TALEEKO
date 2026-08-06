@@ -94,6 +94,11 @@ export default function QuizBuilderPage() {
   const [showExplanation, setShowExplanation] = useState(false)
 
   const totalPoints = questions.reduce((a, q) => a + q.points, 0)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   function handleGenerate() {
     setGenerating(true)
@@ -302,60 +307,56 @@ export default function QuizBuilderPage() {
   return (
     <div className="space-y-6">
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <ClipboardList className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Quiz Builder</h2>
-              <p className="text-xs text-surface-400">AI-powered quiz creation · {questions.length} questions · {totalPoints} pts</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
+                <ClipboardList className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Quiz Builder</h1>
+                  <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full font-bold border border-orange-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Build interactive quizzes with AI-generated questions and live preview mode</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setPreviewMode(true)}>
+                <Eye className="w-3.5 h-3.5" /> Preview
+              </button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleGenerate} disabled={generating}>
+                {generating ? (
+                  <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}><Sparkles className="w-3.5 h-3.5" /></motion.div> Generating...</>
+                ) : (
+                  <><Sparkles className="w-3.5 h-3.5" /> AI Generate</>
+                )}
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={handleSave}>
+                {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
+                {saved ? 'Saved!' : 'Save'}
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Quiz exported as PDF')}>
+                <Download className="w-3.5 h-3.5" />
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Share link copied!')}>
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              className="btn-secondary text-xs px-3 py-1.5"
-              onClick={() => setPreviewMode(true)}
-            >
-              <Eye className="w-3.5 h-3.5" />
-              Preview
-            </button>
-            <motion.button
-              className="btn-gradient text-xs"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={handleGenerate}
-              disabled={generating}
-            >
-              {generating ? (
-                <>
-                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}>
-                    <Sparkles className="w-3.5 h-3.5" />
-                  </motion.div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-3.5 h-3.5" />
-                  AI Generate
-                </>
-              )}
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={handleSave}>
-              {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
-              {saved ? 'Saved!' : 'Save'}
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Download className="w-3.5 h-3.5" />
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Share2 className="w-3.5 h-3.5" />
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Questions', value: `${questions.length}` },
+              { label: 'Total Points', value: `${totalPoints}` },
+              { label: 'Time Limit', value: `${timeLimit}m` },
+              { label: 'Topic', value: topic },
+              { label: 'Grade', value: grade },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-lg font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -626,7 +627,7 @@ export default function QuizBuilderPage() {
                                   <div className="flex items-center gap-2 pt-1">
                                     <button
                                       className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors"
-                                      onClick={() => {}}
+                                      onClick={() => showToast('AI regenerating question…')}
                                     >
                                       <RotateCcw className="w-3 h-3" /> Regenerate with AI
                                     </button>
@@ -764,6 +765,7 @@ export default function QuizBuilderPage() {
                       key={cls.label}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-white/[0.06] hover:border-accent-500/30 hover:bg-accent-500/[0.04] transition-all group"
                       whileHover={{ x: 2 }}
+                      onClick={() => showToast(`Quiz assigned to ${cls.label}`)}
                     >
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: cls.color + '18' }}>
                         <cls.icon className="w-3.5 h-3.5" style={{ color: cls.color }} />
@@ -792,6 +794,7 @@ export default function QuizBuilderPage() {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.3 + i * 0.05 }}
                       whileHover={{ x: 2 }}
+                      onClick={() => showToast(`Opening "${qz.title}"…`)}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs font-semibold text-white truncate">{qz.title}</p>
@@ -812,6 +815,21 @@ export default function QuizBuilderPage() {
           </div>
         </div>
       )}
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
