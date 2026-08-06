@@ -6,7 +6,7 @@ import {
   Key, Copy, Trash2, Plus, ExternalLink, Eye, EyeOff, Check, Shield,
   Globe, Activity, Clock, AlertTriangle, ChevronRight, X, Lock, Zap,
   RefreshCw, Settings, Search, Filter, Download, ChevronDown,
-  Users, Terminal, Bell, FileText, BarChart2, Server, Wifi
+  Users, Terminal, Bell, FileText, BarChart2, Server, Wifi, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -131,6 +131,12 @@ export default function ApiKeysPage() {
   const [newKeyName, setNewKeyName] = useState('')
   const [selectedEnv, setSelectedEnv] = useState<'production' | 'development'>('development')
   const [selectedPerms, setSelectedPerms] = useState<string[]>(['read:students'])
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const totalCalls = usageData.reduce((sum, d) => sum + d.calls, 0)
 
@@ -146,6 +152,7 @@ export default function ApiKeysPage() {
     navigator.clipboard.writeText(key)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
+    showToast('API key copied to clipboard')
   }
 
   const togglePerm = (perm: string) => {
@@ -180,7 +187,7 @@ export default function ApiKeysPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export Logs</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs exported to CSV')}><Download className="w-3.5 h-3.5" /> Export Logs</button>
               <motion.button
                 className="btn-gradient text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
@@ -300,12 +307,13 @@ export default function ApiKeysPage() {
                         >
                           {copiedId === apiKey.id ? <Check className="w-3.5 h-3.5 text-success-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </motion.button>
-                        <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                        <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast(`${apiKey.name} settings opened`)}>
                           <Settings className="w-3.5 h-3.5" />
                         </button>
                         <motion.button
                           className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors"
                           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
+                          onClick={() => showToast(`${apiKey.name} revoked`)}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </motion.button>
@@ -327,7 +335,7 @@ export default function ApiKeysPage() {
                     <span className="text-xs font-bold text-white block mb-0.5">Security Best Practices</span>
                     <p className="text-xs text-surface-400 leading-relaxed">Rotate API keys every 90 days. Never expose production keys in client-side code. Use environment-specific keys and restrict permissions to the minimum required scope.</p>
                   </div>
-                  <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold flex-shrink-0">Learn More</button>
+                  <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold flex-shrink-0" onClick={() => showToast('Security guide opened')}>Learn More</button>
                 </div>
               </div>
             </FadeInWhenVisible>
@@ -339,7 +347,7 @@ export default function ApiKeysPage() {
           <motion.div key="webhooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Webhook Endpoints</h3>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Webhook form opened')}>
                 <Plus className="w-3.5 h-3.5" /> Add Webhook
               </motion.button>
             </div>
@@ -373,16 +381,16 @@ export default function ApiKeysPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" title="Test webhook">
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" title="Test webhook" onClick={() => showToast('Test event sent to webhook')}>
                         <Zap className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast('Webhook settings opened')}>
                         <Settings className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast('Webhook URL copied')}>
                         <Copy className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors">
+                      <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast('Webhook deleted')}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -417,8 +425,8 @@ export default function ApiKeysPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">API Request Logs</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
-                <button className="btn-secondary text-xs px-3 py-1.5"><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Filter panel opened')}><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs refreshed')}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
               </div>
             </div>
 
@@ -548,11 +556,11 @@ export default function ApiKeysPage() {
                   <div className="flex items-center gap-2">
                     {app.connected ? (
                       <>
-                        <button className="btn-secondary text-xs px-3 py-1.5 flex-1"><Settings className="w-3 h-3" /> Configure</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10"><X className="w-3 h-3" /> Disconnect</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5 flex-1" onClick={() => showToast(`${app.name} settings opened`)}><Settings className="w-3 h-3" /> Configure</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`${app.name} disconnected`)}><X className="w-3 h-3" /> Disconnect</button>
                       </>
                     ) : (
-                      <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                      <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast(`Connecting to ${app.name}...`)}>
                         <Plus className="w-3.5 h-3.5" /> Connect {app.name}
                       </motion.button>
                     )}
@@ -645,12 +653,31 @@ export default function ApiKeysPage() {
                 <motion.button
                   className="btn-gradient text-xs flex-1"
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  onClick={() => setCreateModal(false)}
+                  onClick={() => { showToast('API key generated — copy it now'); setCreateModal(false) }}
                 >
                   <Key className="w-3.5 h-3.5" /> Generate Key
                 </motion.button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.12]"
+            style={{ background: 'linear-gradient(135deg, #0a0f1a, #111827)' }}
+            initial={{ opacity: 0, x: 60, scale: 0.9 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 60, scale: 0.9 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+          >
+            <div className="w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+              <CheckCircle className="w-3.5 h-3.5 text-accent-400" />
+            </div>
+            <span className="text-xs font-semibold text-white max-w-[220px]">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
