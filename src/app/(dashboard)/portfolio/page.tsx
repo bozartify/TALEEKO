@@ -5,7 +5,7 @@ import {
   GraduationCap, Award, TrendingUp, Star, BookOpen, Target,
   ChevronRight, Download, Share2, Filter, Search, BarChart2,
   Clock, Flame, Trophy, Medal, Zap, Heart, Brain, Users,
-  FileText, CheckCircle2, Plus, X, MessageSquare, Eye,
+  FileText, CheckCircle2, CheckCircle, Plus, X, MessageSquare, Eye,
   Sparkles, ChevronDown, Calendar, Mail, MoreHorizontal,
   PenTool, Lightbulb, ArrowUpRight, Printer, Send, Check
 } from 'lucide-react'
@@ -186,6 +186,12 @@ export default function PortfolioPage() {
   const [newGoal, setNewGoal] = useState('')
   const [goalsDone, setGoalsDone] = useState<Record<string, boolean>>({})
   const [noteOpen, setNoteOpen] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const filtered = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -225,9 +231,9 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3 h-3" /> Export PDF</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Portfolio exported as PDF')}><Download className="w-3 h-3" /> Export PDF</button>
               <button onClick={() => setShareModal(true)} className="btn-secondary text-xs px-3 py-1.5"><Share2 className="w-3 h-3" /> Share</button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI summary generated for all students')}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Summary
               </motion.button>
             </div>
@@ -356,10 +362,10 @@ export default function PortfolioPage() {
                 {/* Action buttons */}
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5"><Mail className="w-3 h-3" /> Message Parent</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5"><BarChart2 className="w-3 h-3" /> Analytics</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5"><Printer className="w-3 h-3" /> Print</button>
-                  <button className="btn-gradient text-xs px-3 py-1.5 ml-auto"><Sparkles className="w-3 h-3" /> AI Insights</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Message sent to ${selectedStudent.name.split(' ')[0]}'s parent`)}><Mail className="w-3 h-3" /> Message Parent</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening analytics for ${selectedStudent.name}`)}><BarChart2 className="w-3 h-3" /> Analytics</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Printing portfolio for ${selectedStudent.name}`)}><Printer className="w-3 h-3" /> Print</button>
+                  <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={() => showToast(`AI insights generated for ${selectedStudent.name}`)}><Sparkles className="w-3 h-3" /> AI Insights</button>
                 </div>
                 <AnimatePresence>
                   {noteOpen && (
@@ -369,7 +375,7 @@ export default function PortfolioPage() {
                         <textarea rows={2} placeholder="Add a new note..." className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none" />
                         <div className="flex gap-2 mt-2">
                           <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setNoteOpen(false)}>Cancel</button>
-                          <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => setNoteOpen(false)}><Check className="w-3 h-3" /> Save Note</button>
+                          <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { showToast('Note saved successfully'); setNoteOpen(false) }}><Check className="w-3 h-3" /> Save Note</button>
                         </div>
                       </div>
                     </motion.div>
@@ -613,8 +619,8 @@ export default function PortfolioPage() {
                         by semester end if current pace is maintained.
                       </p>
                       <div className="flex items-center gap-2">
-                        <button className="btn-gradient text-xs px-3 py-1.5"><Zap className="w-3 h-3" /> Accelerate Plan</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3 h-3" /> Export Report</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Acceleration plan created for ${selectedStudent.name}`)}><Zap className="w-3 h-3" /> Accelerate Plan</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Growth report exported')}><Download className="w-3 h-3" /> Export Report</button>
                       </div>
                     </div>
                   </motion.div>
@@ -626,14 +632,14 @@ export default function PortfolioPage() {
                     <div className="glass-card p-5">
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="text-sm font-bold text-white flex items-center gap-2"><Trophy className="w-4 h-4 text-warning-400" /> Earned Achievements</h4>
-                        <button className="btn-gradient text-xs px-3 py-1.5"><Plus className="w-3 h-3" /> Award Badge</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Badge awarded to ${selectedStudent.name}`)}><Plus className="w-3 h-3" /> Award Badge</button>
                       </div>
                       {selectedStudent.achievements.length === 0 ? (
                         <div className="text-center py-8">
                           <Trophy className="w-8 h-8 text-surface-600 mx-auto mb-3" />
                           <p className="text-sm font-semibold text-surface-400">No achievements yet</p>
                           <p className="text-xs text-surface-500 mt-1">Award the first badge to motivate {selectedStudent.name.split(' ')[0]}</p>
-                          <button className="mt-3 btn-gradient text-xs px-3 py-1.5"><Plus className="w-3 h-3" /> Award First Badge</button>
+                          <button className="mt-3 btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`First badge awarded to ${selectedStudent.name}`)}><Plus className="w-3 h-3" /> Award First Badge</button>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -675,6 +681,7 @@ export default function PortfolioPage() {
                             className="glass-card p-3 text-center hover:border-warning-400/30 transition-all group"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.97 }}
+                            onClick={() => showToast(`"${b.label}" badge awarded to ${selectedStudent.name}`)}
                           >
                             <span className="text-2xl block mb-1">{b.icon}</span>
                             <p className="text-[9px] text-surface-400 group-hover:text-white transition-colors">{b.label}</p>
@@ -703,11 +710,11 @@ export default function PortfolioPage() {
               <p className="text-xs text-surface-400 mb-4">Share {selectedStudent.name}&apos;s portfolio with parents or administrators</p>
               <div className="space-y-2 mb-4">
                 {[
-                  { label: 'Email to parent', icon: Mail, color: '#6366f1' },
-                  { label: 'Generate shareable link', icon: Share2, color: '#14b8a6' },
-                  { label: 'Export as PDF', icon: Download, color: '#f97316' },
+                  { label: 'Email to parent', icon: Mail, color: '#6366f1', toast: `Portfolio emailed to ${selectedStudent.name.split(' ')[0]}'s parent` },
+                  { label: 'Generate shareable link', icon: Share2, color: '#14b8a6', toast: 'Shareable link copied to clipboard' },
+                  { label: 'Export as PDF', icon: Download, color: '#f97316', toast: 'Portfolio exported as PDF' },
                 ].map(o => (
-                  <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors">
+                  <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors" onClick={() => { showToast(o.toast); setShareModal(false) }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: o.color + '18' }}>
                       <o.icon className="w-4 h-4" style={{ color: o.color }} />
                     </div>
@@ -715,10 +722,26 @@ export default function PortfolioPage() {
                   </button>
                 ))}
               </div>
-              <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShareModal(false)}>
+              <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { showToast(`Portfolio for ${selectedStudent.name} shared`); setShareModal(false) }}>
                 <Send className="w-3.5 h-3.5" /> Share Now
               </motion.button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
