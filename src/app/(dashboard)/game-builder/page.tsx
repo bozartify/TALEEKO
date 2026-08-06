@@ -6,8 +6,8 @@ import {
   Gamepad2, Sparkles, Plus, Play, RefreshCw, Check, Star,
   Users, Clock, BarChart2, Zap, Trophy, Target, BookOpen,
   ChevronRight, Download, Share2, Edit, Copy, Brain, Layers,
-  Heart, Puzzle, Timer, Flag, Lock, ChevronDown, ChevronUp,
-  AlertCircle, TrendingUp, X, BarChart3, QrCode, Link
+  Heart, Puzzle, Timer, Flag, Lock, ChevronDown,
+  AlertCircle, TrendingUp, X, BarChart3, QrCode, Link, CheckCircle
 } from 'lucide-react'
 
 type GameType = 'quiz-race' | 'word-scramble' | 'memory-match' | 'escape-room' | 'bingo' | 'jeopardy'
@@ -102,6 +102,12 @@ export default function GameBuilderPage() {
   const PIN = '847291'
 
   const cfg = gameTypes[selectedType]
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   async function handleGenerate() {
     setGenerating(true)
@@ -161,7 +167,7 @@ export default function GameBuilderPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left">
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('Join link copied to clipboard'); setShareOpen(false) }}>
                   <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center">
                     <Link className="w-4 h-4 text-accent-400" />
                   </div>
@@ -170,7 +176,7 @@ export default function GameBuilderPage() {
                     <p className="text-[10px] text-surface-400">gamepin.io/join/847291</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left">
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('QR code downloaded'); setShareOpen(false) }}>
                   <div className="w-9 h-9 rounded-xl bg-success-500/10 flex items-center justify-center">
                     <QrCode className="w-4 h-4 text-success-400" />
                   </div>
@@ -179,7 +185,7 @@ export default function GameBuilderPage() {
                     <p className="text-[10px] text-surface-400">Project on board or print for students</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left">
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('Game shared to Google Classroom'); setShareOpen(false) }}>
                   <div className="w-9 h-9 rounded-xl bg-electric-500/10 flex items-center justify-center">
                     <Share2 className="w-4 h-4 text-electric-400" />
                   </div>
@@ -193,6 +199,49 @@ export default function GameBuilderPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hero header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Game Builder</h1>
+                  <span className="text-[10px] bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded-full font-bold border border-pink-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Build engaging educational games in minutes · {Object.keys(gameTypes).length} game types available</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShareOpen(true)}>
+                <Share2 className="w-3.5 h-3.5" /> Share Game
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Game library exported')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Games Created', value: '12', color: '#a78bfa' },
+              { label: 'Times Played', value: '47', color: '#34d399' },
+              { label: 'Avg Engagement', value: '89%', color: '#f472b6' },
+              { label: 'Questions', value: questions.length.toString(), color: '#38bdf8' },
+              { label: 'Top Score', value: '98%', color: '#fbbf24' },
+            ].map(p => (
+              <div key={p.label} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                <span className="text-xs text-surface-400">{p.label}</span>
+                <span className="text-xs font-bold text-white">{p.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeUp>
 
       {/* AI Insights */}
       <FadeUp delay={0.05}>
@@ -208,7 +257,9 @@ export default function GameBuilderPage() {
               <span className="text-sm font-bold text-white">AI Game Insights</span>
               <span className="bg-pink-500/20 text-pink-400 text-[10px] font-bold px-2 py-0.5 rounded-full">3 tips</span>
             </div>
-            {aiOpen ? <ChevronUp className="w-4 h-4 text-surface-400" /> : <ChevronDown className="w-4 h-4 text-surface-400" />}
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-4 h-4 text-surface-400" />
+            </motion.div>
           </button>
           <AnimatePresence>
             {aiOpen && (
@@ -225,7 +276,7 @@ export default function GameBuilderPage() {
                     <div>
                       <p className="text-xs font-bold text-warning-300">Difficulty Imbalance</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your current game is 50% hard questions — this risks disengaging lower-performing students. AI recommends 60% easy, 30% medium, 10% hard for optimal retention.</p>
-                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline">Auto-balance →</button>
+                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => showToast('Questions auto-balanced: 60% easy, 30% medium, 10% hard')}>Auto-balance →</button>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-500/[0.08] border border-success-500/20">
@@ -537,7 +588,7 @@ export default function GameBuilderPage() {
                         <Share2 className="w-4 h-4" />
                         Share
                       </button>
-                      <button className="btn-secondary text-sm px-4 py-2.5">
+                      <button className="btn-secondary text-sm px-4 py-2.5" onClick={() => showToast('Game exported as PDF')}>
                         <Download className="w-4 h-4" />
                         Export
                       </button>
@@ -597,11 +648,11 @@ export default function GameBuilderPage() {
                 {/* Play modes */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {[
-                    { icon: Play, label: 'Live Mode', desc: 'Play together in class with a real-time leaderboard', color: '#6366f1' },
-                    { icon: Timer, label: 'Homework Mode', desc: 'Students play on their own time — due date assignable', color: '#10b981' },
-                    { icon: Flag, label: 'Competition Mode', desc: 'Head-to-head class challenge with bracket standings', color: '#f97316' },
+                    { icon: Play, label: 'Live Mode', desc: 'Play together in class with a real-time leaderboard', color: '#6366f1', toast: 'Launching Live Mode…' },
+                    { icon: Timer, label: 'Homework Mode', desc: 'Students play on their own time — due date assignable', color: '#10b981', toast: 'Homework Mode assigned to students' },
+                    { icon: Flag, label: 'Competition Mode', desc: 'Head-to-head class challenge with bracket standings', color: '#f97316', toast: 'Competition bracket created' },
                   ].map(mode => (
-                    <div key={mode.label} className="glass-card p-4 hover:border-white/10 transition-colors cursor-pointer group">
+                    <div key={mode.label} className="glass-card p-4 hover:border-white/10 transition-colors cursor-pointer group" onClick={() => showToast(mode.toast)}>
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style={{ background: mode.color + '20' }}>
                         <mode.icon className="w-4 h-4" style={{ color: mode.color }} />
                       </div>
@@ -690,7 +741,7 @@ export default function GameBuilderPage() {
             <div className="glass-card p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-wider">Recent Games</h3>
-                <button className="text-xs text-accent-400 hover:text-accent-300">All →</button>
+                <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Opening game library')}>All →</button>
               </div>
               <div className="space-y-2">
                 {recentGames.map(game => {
@@ -715,6 +766,22 @@ export default function GameBuilderPage() {
           </FadeInWhenVisible>
         </div>
       </div>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
