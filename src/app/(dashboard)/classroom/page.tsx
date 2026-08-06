@@ -7,7 +7,7 @@ import {
   Search, Filter, Download, Award, TrendingUp, TrendingDown,
   AlertTriangle, Star, Target, Clock, MessageSquare, BarChart2,
   UserPlus, ChevronDown, X, Send, Bell, Sparkles, Brain, Eye,
-  Check, Flame, Activity, Calendar, FileText, Megaphone
+  Check, Flame, Activity, Calendar, FileText, Megaphone, CheckCircle, GraduationCap
 } from 'lucide-react'
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -103,6 +103,12 @@ export default function ClassroomPage() {
   const [announcementModal, setAnnouncementModal] = useState(false)
   const [aiPanelOpen, setAiPanelOpen] = useState(true)
   const [composeAnn, setComposeAnn] = useState({ title: '', body: '', class: 'All Classes', urgent: false })
+  const [toastMsg, setToastMsg] = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const filteredStudents = students.filter(s =>
     (!search || s.name.toLowerCase().includes(search.toLowerCase())) &&
@@ -116,6 +122,41 @@ export default function ClassroomPage() {
 
   return (
     <div className="space-y-6">
+      {/* Hero header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Classroom</h1>
+                  <span className="text-[10px] bg-accent-500/20 text-accent-400 px-2 py-0.5 rounded-full font-bold border border-accent-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">{totalStudents} students across {classes.length} active classes · All sessions running on schedule</p>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Students', value: totalStudents.toString(), color: '#a78bfa' },
+              { label: 'Classes', value: classes.length.toString(), color: '#34d399' },
+              { label: 'Avg Score', value: `${avgScore}%`, color: '#38bdf8' },
+              { label: 'Needs Attention', value: needsAttention.toString(), color: '#fbbf24' },
+              { label: 'Pending Items', value: totalPending.toString(), color: '#f87171' },
+            ].map(p => (
+              <div key={p.label} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                <span className="text-xs text-surface-400">{p.label}</span>
+                <span className="text-xs font-bold text-white">{p.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeUp>
+
       {/* Stats row */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
         {[
@@ -161,9 +202,9 @@ export default function ClassroomPage() {
               <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
                 <div className="px-5 pb-4 border-t border-white/[0.06] pt-4 space-y-3">
                   {[
-                    { color: '#ef4444', title: 'At-Risk Students', desc: 'Noah Williams (History) and Liam Chen (English) are showing declining performance. Parent contact recommended within 48 hours.', cta: 'Send Alert' },
-                    { color: '#f59e0b', title: 'Engagement Dip in 9th Math', desc: 'Engagement metrics for 9th Grade Math dropped 14% this week. Consider adding an interactive activity to Thursday\'s lesson.', cta: 'AI Suggestion' },
-                    { color: '#6366f1', title: 'Assignment Gap Detected', desc: '3 students in 8th History have not submitted the Revolutionary War essay. Automated reminder can be sent in one click.', cta: 'Send Reminder' },
+                    { color: '#ef4444', title: 'At-Risk Students', desc: 'Noah Williams (History) and Liam Chen (English) are showing declining performance. Parent contact recommended within 48 hours.', cta: 'Send Alert', toast: 'Alert sent to parents of at-risk students' },
+                    { color: '#f59e0b', title: 'Engagement Dip in 9th Math', desc: 'Engagement metrics for 9th Grade Math dropped 14% this week. Consider adding an interactive activity to Thursday\'s lesson.', cta: 'AI Suggestion', toast: 'AI lesson suggestion generated for 9th Math' },
+                    { color: '#6366f1', title: 'Assignment Gap Detected', desc: '3 students in 8th History have not submitted the Revolutionary War essay. Automated reminder can be sent in one click.', cta: 'Send Reminder', toast: 'Reminder sent to 3 students in 8th History' },
                   ].map((alert, i) => (
                     <div key={alert.title} className="flex items-start gap-3 p-3.5 rounded-2xl" style={{ backgroundColor: alert.color + '08', border: `1px solid ${alert.color}25` }}>
                       <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: alert.color }} />
@@ -171,7 +212,7 @@ export default function ClassroomPage() {
                         <span className="text-xs font-bold text-white block mb-0.5">{alert.title}</span>
                         <p className="text-[10px] text-surface-400 leading-relaxed">{alert.desc}</p>
                       </div>
-                      <button className="text-[10px] font-bold flex-shrink-0 flex items-center gap-1 mt-0.5" style={{ color: alert.color }}>
+                      <button className="text-[10px] font-bold flex-shrink-0 flex items-center gap-1 mt-0.5" style={{ color: alert.color }} onClick={() => showToast(alert.toast)}>
                         {alert.cta} <ChevronRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -205,14 +246,17 @@ export default function ClassroomPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn-secondary text-xs px-3 py-1.5">
+            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Exporting classroom data...')}>
               <Download className="w-3 h-3" /> Export
             </button>
             <motion.button
               className="btn-gradient text-xs"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => tab === 'announcements' && setAnnouncementModal(true)}
+              onClick={() => {
+                if (tab === 'announcements') setAnnouncementModal(true)
+                else showToast(tab === 'classes' ? 'New class form coming soon' : 'New student form coming soon')
+              }}
             >
               <Plus className="w-3.5 h-3.5" />
               {tab === 'classes' ? 'Add Class' : tab === 'students' ? 'Add Student' : 'New Announcement'}
@@ -314,13 +358,13 @@ export default function ClassroomPage() {
                             >
                               <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center gap-2 flex-wrap">
                                 <Link href="/courses" className="btn-outline text-xs px-3 py-1.5" onClick={e => e.stopPropagation()}>View Roster</Link>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => e.stopPropagation()}>
+                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`AI lesson plan generated for ${cls.name}`) }}>
                                   <Sparkles className="w-3 h-3" /> AI Plan
                                 </button>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => e.stopPropagation()}>
+                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Message sent to ${cls.students} students in ${cls.name}`) }}>
                                   <Mail className="w-3 h-3" /> Message
                                 </button>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => e.stopPropagation()}>
+                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Opening analytics for ${cls.name}`) }}>
                                   <BarChart2 className="w-3 h-3" /> Analytics
                                 </button>
                               </div>
@@ -387,15 +431,16 @@ export default function ClassroomPage() {
                     <h4 className="text-sm font-bold text-white mb-3">Quick Actions</h4>
                     <div className="space-y-2">
                       {[
-                        { label: 'Send Class Update', icon: Bell, color: '#6366f1' },
-                        { label: 'Generate AI Lesson', icon: Sparkles, color: '#8b5cf6' },
-                        { label: 'Export Grades', icon: Download, color: '#14b8a6' },
-                        { label: 'View Analytics', icon: BarChart2, color: '#f97316' },
+                        { label: 'Send Class Update', icon: Bell, color: '#6366f1', toast: 'Class update sent to all students' },
+                        { label: 'Generate AI Lesson', icon: Sparkles, color: '#8b5cf6', toast: 'AI lesson plan generated successfully' },
+                        { label: 'Export Grades', icon: Download, color: '#14b8a6', toast: 'Grades exported to CSV' },
+                        { label: 'View Analytics', icon: BarChart2, color: '#f97316', toast: 'Opening class analytics dashboard' },
                       ].map((action, i) => (
                         <motion.button
                           key={action.label}
                           className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                           whileHover={{ x: 2 }}
+                          onClick={() => showToast(action.toast)}
                         >
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: action.color + '18' }}>
                             <action.icon className="w-3.5 h-3.5" style={{ color: action.color }} />
@@ -505,8 +550,8 @@ export default function ClassroomPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Mail className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Viewing profile for ${s.name}`)}><Eye className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Message sent to ${s.name}'s parent`)}><Mail className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
                       </motion.tr>
@@ -554,12 +599,12 @@ export default function ClassroomPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.06]">
-                      <button className="btn-secondary text-xs px-3 py-1.5"><Eye className="w-3 h-3" /> Preview</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${a.title}"`)}><Eye className="w-3 h-3" /> Preview</button>
                       {!a.sent && (
-                        <button className="btn-gradient text-xs px-3 py-1.5"><Send className="w-3 h-3" /> Send Now</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`"${a.title}" sent to ${a.class}`)}><Send className="w-3 h-3" /> Send Now</button>
                       )}
-                      <button className="btn-secondary text-xs px-3 py-1.5"><FileText className="w-3 h-3" /> Edit</button>
-                      <button className="ml-auto btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10">
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Editing "${a.title}"`)}><FileText className="w-3 h-3" /> Edit</button>
+                      <button className="ml-auto btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`Announcement deleted`)}>
                         <X className="w-3 h-3" /> Delete
                       </button>
                     </div>
@@ -584,6 +629,7 @@ export default function ClassroomPage() {
                           key={tmpl.label}
                           className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                           initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
+                          onClick={() => showToast(`"${tmpl.label}" template loaded`)}
                         >
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: tmpl.color + '18' }}>
                             <tmpl.icon className="w-3.5 h-3.5" style={{ color: tmpl.color }} />
@@ -607,7 +653,7 @@ export default function ClassroomPage() {
                       placeholder="e.g. Remind students about the science fair deadline on Friday..."
                       className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
                     />
-                    <motion.button className="btn-gradient text-xs w-full mt-3" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <motion.button className="btn-gradient text-xs w-full mt-3" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('AI-drafted announcement ready for review')}>
                       <Sparkles className="w-3.5 h-3.5" /> Draft with AI
                     </motion.button>
                   </div>
@@ -678,12 +724,28 @@ export default function ClassroomPage() {
                 </label>
               </div>
               <div className="flex items-center gap-3 mt-6">
-                <button className="btn-secondary text-xs flex-1">Save Draft</button>
-                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setAnnouncementModal(false)}>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { showToast('Announcement saved as draft'); setAnnouncementModal(false) }}>Save Draft</button>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { showToast(`Announcement sent to ${composeAnn.class}`); setAnnouncementModal(false) }}>
                   <Send className="w-3.5 h-3.5" /> Send Now
                 </motion.button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
