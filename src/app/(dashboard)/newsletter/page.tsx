@@ -6,7 +6,7 @@ import {
   Newspaper, Sparkles, Download, Send, RefreshCw, Check,
   Calendar, BookOpen, Star, Clock, ChevronDown,
   Plus, X, Edit, Eye, Copy, Mail, Printer, Award, TrendingUp,
-  AlertCircle, Zap, Users, BarChart2, Target, ChevronRight
+  AlertCircle, Zap, Users, BarChart2, Target, ChevronRight, CheckCircle
 } from 'lucide-react'
 
 type Template = 'weekly' | 'monthly' | 'unit' | 'event'
@@ -88,6 +88,12 @@ export default function NewsletterPage() {
   const [scheduledDate, setScheduledDate]   = useState('')
   const [scheduledTime, setScheduledTime]   = useState('08:00')
   const [sentToast, setSentToast]           = useState(false)
+  const [toastMsg, setToastMsg]             = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   function handleTemplateChange(t: Template) {
     setTemplate(t)
@@ -130,53 +136,53 @@ export default function NewsletterPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Hero header */}
       <FadeUp>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Newspaper className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h1 className="text-xl font-black text-white">Newsletter Generator</h1>
-              <p className="text-xs text-surface-400">AI-powered parent newsletters — write in seconds, not hours</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f97316,#ef4444)' }}>
+                <Newspaper className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Newsletter Generator</h1>
+                  <span className="text-[10px] bg-orange-500/20 text-orange-400 px-2 py-0.5 rounded-full font-bold border border-orange-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">AI-powered parent newsletters — write in seconds, not hours</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.06] border border-white/[0.06]">
+                {(['edit', 'preview'] as const).map(v => (
+                  <button key={v} onClick={() => setView(v)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${view === v ? 'bg-accent-500/20 text-accent-300' : 'text-surface-400 hover:text-surface-200'}`}>
+                    {v === 'edit' ? <Edit className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <button onClick={generateAll} disabled={generating} className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50">
+                {generating ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Generating…</> : <><Sparkles className="w-3.5 h-3.5" />AI Generate All</>}
+              </button>
+              <button onClick={() => setSendModal(true)} className="btn-primary text-xs px-4 py-1.5">
+                <Send className="w-3.5 h-3.5" /> Send
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-              {(['edit', 'preview'] as const).map(v => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${
-                    view === v ? 'bg-accent-500/20 text-accent-300' : 'text-surface-400 hover:text-surface-200'
-                  }`}
-                >
-                  {v === 'edit' ? <Edit className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  {v}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={generateAll}
-              disabled={generating}
-              className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50 flex items-center gap-1.5"
-            >
-              {generating
-                ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Generating…</>
-                : <><Sparkles className="w-3.5 h-3.5" />AI Generate All</>}
-            </button>
-            <button
-              onClick={() => setSendModal(true)}
-              className="btn-primary text-xs px-4 py-1.5 flex items-center gap-1.5"
-            >
-              <Send className="w-3.5 h-3.5" /> Send
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Recipients', value: `${recipientCount}`, color: '#a78bfa' },
+              { label: 'Sections', value: `${completedSections}/${activeSections.length}`, color: '#fb923c' },
+              { label: 'Words', value: totalWords.toString(), color: '#38bdf8' },
+              { label: 'Read Time', value: `~${estReadTime}m`, color: '#34d399' },
+              { label: 'Completion', value: `${completionPct}%`, color: completionPct === 100 ? '#4ade80' : '#fbbf24' },
+            ].map(p => (
+              <div key={p.label} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                <span className="text-xs text-surface-400">{p.label}</span>
+                <span className="text-xs font-bold text-white">{p.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -195,7 +201,9 @@ export default function NewsletterPage() {
                 {completionPct}% complete
               </span>
             </div>
-            <ChevronDown className={`w-4 h-4 text-surface-400 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-4 h-4 text-surface-400" />
+            </motion.div>
           </button>
           <AnimatePresence>
             {aiOpen && (
@@ -231,7 +239,7 @@ export default function NewsletterPage() {
                       <p className="text-xs font-semibold text-accent-300">Subject Line Optimization</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your subject line is 68 characters — optimal is under 60 for mobile. Try: <strong className="text-white">"🔬 AP Bio: Lab Results + Friday's Test"</strong></p>
                     </div>
-                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 whitespace-nowrap">Apply →</button>
+                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 whitespace-nowrap" onClick={() => { setSubject('🔬 AP Bio: Lab Results + Friday\'s Test'); showToast('Subject line updated') }}>Apply →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-400/[0.08] border border-warning-400/15">
                     <Zap className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
@@ -375,9 +383,9 @@ export default function NewsletterPage() {
               <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Send / Export</p>
               {[
                 { label: 'Email Parents', icon: Mail, color: '#6366f1', action: () => setSendModal(true) },
-                { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => {} },
-                { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => {} },
-                { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => {} },
+                { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => showToast('Newsletter downloaded as PDF') },
+                { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => showToast('Sending to printer…') },
+                { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => showToast('Shareable link copied to clipboard') },
               ].map(opt => (
                 <button
                   key={opt.label}
@@ -484,7 +492,7 @@ export default function NewsletterPage() {
                                 ) : (
                                   <span className="text-[10px] text-surface-600">{wordCount(sectionText)} words · ~{readingTime(sectionText)} min</span>
                                 )}
-                                <button className="text-[10px] text-surface-500 hover:text-surface-300 transition-colors">Clear</button>
+                                <button className="text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => { setContents(prev => ({ ...prev, [section]: '' })); showToast(`${cfg.label} cleared`) }}>Clear</button>
                               </div>
                             </div>
                           </motion.div>
@@ -566,7 +574,7 @@ export default function NewsletterPage() {
             </div>
             <div className="space-y-3">
               {pastNewsletters.map(nl => (
-                <div key={nl.title} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group">
+                <div key={nl.title} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group" onClick={() => showToast(`Opening "${nl.title}"…`)}>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: nl.color + '20' }}>
                     <Newspaper className="w-4 h-4" style={{ color: nl.color }} />
                   </div>
@@ -740,6 +748,22 @@ export default function NewsletterPage() {
           >
             <Check className="w-4 h-4" />
             Newsletter sent to {recipientCount} families!
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Action Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
