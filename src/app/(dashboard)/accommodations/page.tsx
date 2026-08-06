@@ -5,7 +5,7 @@ import {
   Shield, Users, FileText, CheckCircle2, TrendingUp,
   ChevronDown, Check, Clock, Plus, Calendar, Download,
   Sparkles, CheckSquare, AlertTriangle, Search, Mail,
-  X, Eye, BarChart2, Target, Edit
+  X, Eye, BarChart2, Target, Edit, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -162,6 +162,12 @@ export default function AccommodationsPage() {
   const [addModal, setAddModal]               = useState(false)
   const [newAcc, setNewAcc]                   = useState({ student: '', label: '' })
   const [accStates, setAccStates]             = useState<Record<string, boolean>>({})
+  const [toastMsg, setToastMsg]               = useState('')
+
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const iepCount    = students.filter(s => s.planType === 'IEP').length
   const fiveCount   = students.filter(s => s.planType === '504').length
@@ -192,33 +198,45 @@ export default function AccommodationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Hero header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Shield className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">IEP / 504 Accommodations</h2>
-              <p className="text-xs text-surface-400">Track, implement and document student accommodation plans</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#a78bfa)' }}>
+                <Shield className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">IEP / 504 Accommodations</h1>
+                  <span className="text-[10px] bg-accent-500/20 text-accent-400 px-2 py-0.5 rounded-full font-bold border border-accent-500/20">Compliance</span>
+                </div>
+                <p className="text-sm text-surface-400">Track, implement and document student accommodation plans</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Records exported to CSV')}>
+                <Download className="w-3.5 h-3.5" /> Export Records
+              </button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAddModal(true)}>
+                <Plus className="w-3.5 h-3.5" /> Add Accommodation
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setAddModal(true)}
-              className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" /> Add Accommodation
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
-              <Download className="w-3.5 h-3.5" /> Export Records
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'IEP Students', value: iepCount.toString(), color: '#a78bfa' },
+              { label: '504 Plans', value: fiveCount.toString(), color: '#38bdf8' },
+              { label: 'Total Accommodations', value: totalAcc.toString(), color: '#34d399' },
+              { label: 'Implemented', value: implementedCount.toString(), color: '#4ade80' },
+              { label: 'Compliance', value: `${complianceRate}%`, color: complianceRate >= 90 ? '#34d399' : '#fbbf24' },
+            ].map(p => (
+              <div key={p.label} className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+                <span className="text-xs text-surface-400">{p.label}</span>
+                <span className="text-xs font-bold text-white">{p.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -261,7 +279,9 @@ export default function AccommodationsPage() {
                 </span>
               )}
             </div>
-            <ChevronDown className={`w-4 h-4 text-surface-400 transition-transform ${aiOpen ? 'rotate-180' : ''}`} />
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-4 h-4 text-surface-400" />
+            </motion.div>
           </button>
           <AnimatePresence>
             {aiOpen && (
@@ -279,7 +299,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-danger-300">Overdue Documentation — Jaylen Carter</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Jaylen Carter's IEP documentation review date (Aug 5, 2026) has passed. Overdue documentation may create compliance risk. Update records immediately and schedule a case conference.</p>
                     </div>
-                    <button onClick={() => setMeetingModal(students.find(s => s.name === 'Jaylen Carter') ?? null)} className="text-[10px] font-semibold text-danger-400 hover:text-danger-300 whitespace-nowrap">Schedule →</button>
+                    <button onClick={() => { showToast('Meeting scheduled for Jaylen Carter'); setMeetingModal(students.find(s => s.name === 'Jaylen Carter') ?? null) }} className="text-[10px] font-semibold text-danger-400 hover:text-danger-300 whitespace-nowrap">Schedule →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-400/[0.08] border border-warning-400/15">
                     <Clock className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
@@ -287,7 +307,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-warning-300">Pending Accommodations — 4 Unimplemented</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">4 accommodations across 4 students are marked "Pending." Marcus Johnson's Modified Assignments and Jaylen Carter's Modified Assignments need follow-up this week.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap">Review →</button>
+                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap" onClick={() => showToast('Opening pending accommodations review')}>Review →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-400/[0.08] border border-success-400/15">
                     <TrendingUp className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
@@ -295,7 +315,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-success-300">Compliance Trending Up — {complianceRate}%</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your accommodation compliance rate has improved 18 points since Week 1. You're close to the 95% target — implementing the 4 pending accommodations will get you there.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap">Mark Done →</button>
+                    <button className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap" onClick={() => showToast('All pending accommodations marked as implemented')}>Mark Done →</button>
                   </div>
                 </div>
               </motion.div>
@@ -409,7 +429,7 @@ export default function AccommodationsPage() {
                           <div className="px-5 pb-5 pt-2 border-t border-white/[0.06]">
                             {/* Action Row */}
                             <div className="flex items-center gap-2 mb-4 flex-wrap">
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all">
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => showToast(`Viewing ${student.planType} plan for ${student.name}`)}>
                                 <Eye className="w-3.5 h-3.5" /> View Plan
                               </button>
                               <button
@@ -424,7 +444,7 @@ export default function AccommodationsPage() {
                               >
                                 <Calendar className="w-3.5 h-3.5" /> Schedule Meeting
                               </button>
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all">
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => showToast(`Notification sent to ${student.parentEmail}`)}>
                                 <Mail className="w-3.5 h-3.5" /> Notify Parent
                               </button>
                             </div>
@@ -573,10 +593,10 @@ export default function AccommodationsPage() {
               </h4>
               <div className="space-y-1.5">
                 {[
-                  { label: 'Generate Progress Report', icon: Sparkles, gradient: true },
-                  { label: 'Schedule IEP Meeting',     icon: Calendar },
-                  { label: 'Add Accommodation',        icon: Plus },
-                  { label: 'Export All Records',       icon: Download },
+                  { label: 'Generate Progress Report', icon: Sparkles, gradient: true,  toast: 'Progress report generated for all students' },
+                  { label: 'Schedule IEP Meeting',     icon: Calendar,  gradient: false, toast: 'IEP meeting scheduler opened' },
+                  { label: 'Add Accommodation',        icon: Plus,      gradient: false, toast: '' },
+                  { label: 'Export All Records',       icon: Download,  gradient: false, toast: 'All accommodation records exported' },
                 ].map(action => (
                   <motion.button
                     key={action.label}
@@ -587,7 +607,7 @@ export default function AccommodationsPage() {
                     }`}
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => action.label === 'Add Accommodation' ? setAddModal(true) : undefined}
+                    onClick={() => action.label === 'Add Accommodation' ? setAddModal(true) : showToast(action.toast)}
                   >
                     <action.icon className="w-3.5 h-3.5 flex-shrink-0" />
                     {action.label}
@@ -618,7 +638,7 @@ export default function AccommodationsPage() {
               />
               <div className="flex justify-end gap-2">
                 <button onClick={() => setNoteModal(null)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => { setNotes(prev => ({ ...prev, [noteModal.name]: noteText })); setNoteModal(null) }} className="btn-gradient text-xs px-4 py-2">Save Note</button>
+                <button onClick={() => { setNotes(prev => ({ ...prev, [noteModal.name]: noteText })); showToast(`Note saved for ${noteModal.name}`); setNoteModal(null) }} className="btn-gradient text-xs px-4 py-2">Save Note</button>
               </div>
             </motion.div>
           </motion.div>
@@ -673,7 +693,7 @@ export default function AccommodationsPage() {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setMeetingModal(null)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => setMeetingModal(null)} className="btn-gradient text-xs px-4 py-2">
+                <button onClick={() => { showToast(`Meeting scheduled for ${meetingModal.name} — parent notified`); setMeetingModal(null) }} className="btn-gradient text-xs px-4 py-2">
                   <Calendar className="w-3.5 h-3.5" /> Schedule & Notify
                 </button>
               </div>
@@ -715,11 +735,27 @@ export default function AccommodationsPage() {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setAddModal(false)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => setAddModal(false)} className="btn-gradient text-xs px-4 py-2" disabled={!newAcc.student || !newAcc.label}>
+                <button onClick={() => { showToast(`Accommodation added for ${newAcc.student}`); setAddModal(false) }} className="btn-gradient text-xs px-4 py-2" disabled={!newAcc.student || !newAcc.label}>
                   Add Accommodation
                 </button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)', border: '1px solid rgba(255,255,255,0.08)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -10, scale: 0.94 }}
+          >
+            <CheckCircle className="w-4 h-4 text-success-400 flex-shrink-0" />
+            <span className="text-xs font-semibold text-white">{toastMsg}</span>
           </motion.div>
         )}
       </AnimatePresence>
