@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, Plus, MoreHorizontal, Clock, FileText, Sparkles,
   Search, Users, BarChart2, GraduationCap, LayoutGrid, List,
-  ChevronDown, Filter, ChevronUp, AlertCircle, TrendingUp, X,
+  ChevronDown, Filter, AlertCircle, TrendingUp, X,
   Check, Edit, Copy, Archive, Trash2, BarChart3, Star, Zap,
   Calendar, Bell, Eye, Download
 } from 'lucide-react'
@@ -235,32 +235,52 @@ export default function CoursesPage() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
+      {/* Hero mesh header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <BookOpen className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">My Courses</h2>
-              <p className="text-xs text-surface-400">{activeCourses} active · {courses.filter(c => c.status === 'draft').length} drafts</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <motion.div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <BookOpen className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-2xl font-black text-white">My Courses</h2>
+                  <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold border border-purple-500/20">{activeCourses} Active</span>
+                </div>
+                <p className="text-sm text-surface-400">{courses.length} courses total · {courses.filter(c => c.status === 'draft').length} drafts · {courses.reduce((s, c) => s + c.lessons, 0)} lessons</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-gradient" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateOpen(true)}>
+                <Sparkles className="w-4 h-4" />
+                AI Create Course
+              </motion.button>
+              <motion.button className="btn-secondary" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateOpen(true)}>
+                <Plus className="w-4 h-4" />
+                New Course
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <motion.button className="btn-gradient" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateOpen(true)}>
-              <Sparkles className="w-4 h-4" />
-              AI Create Course
-            </motion.button>
-            <motion.button className="btn-secondary" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateOpen(true)}>
-              <Plus className="w-4 h-4" />
-              New Course
-            </motion.button>
+          {/* Quick stat pills */}
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
+            {[
+              { label: 'Total Students', value: totalStudents, color: '#14b8a6' },
+              { label: 'Avg Completion', value: `${avgCompletion}%`, color: '#8b5cf6' },
+              { label: 'Lessons Ready', value: courses.reduce((s, c) => s + c.lessons, 0), color: '#f97316' },
+              { label: 'Upcoming Milestones', value: courses.filter(c => c.nextMilestone).length, color: '#f59e0b' },
+            ].map(pill => (
+              <div key={pill.label} className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: pill.color }} />
+                <span className="text-xs text-surface-400">{pill.label}</span>
+                <span className="text-xs font-black" style={{ color: pill.color }}>{pill.value}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
@@ -307,7 +327,9 @@ export default function CoursesPage() {
               <span className="text-sm font-bold text-white">AI Course Insights</span>
               <span className="bg-accent-500/20 text-accent-400 text-[10px] font-bold px-2 py-0.5 rounded-full">3 alerts</span>
             </div>
-            {aiOpen ? <ChevronUp className="w-4 h-4 text-surface-400" /> : <ChevronDown className="w-4 h-4 text-surface-400" />}
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-4 h-4 text-surface-400" />
+            </motion.div>
           </button>
           <AnimatePresence>
             {aiOpen && (
@@ -332,7 +354,7 @@ export default function CoursesPage() {
                     <div>
                       <p className="text-xs font-bold text-accent-300">Draft Needs Attention</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">World Geography has been in Draft for 2 weeks. 20 students are enrolled. AI can generate your first 5 lessons from the course description in under 2 minutes.</p>
-                      <button className="text-[10px] text-accent-400 font-semibold mt-1 hover:underline">Generate lessons →</button>
+                      <button className="text-[10px] text-accent-400 font-semibold mt-1 hover:underline" onClick={() => showToast('Generating 5 lessons for World Geography...')}>Generate lessons →</button>
                     </div>
                   </div>
                 </div>
@@ -434,8 +456,10 @@ export default function CoursesPage() {
                               </button>
                               <AnimatePresence>
                                 {actionMenu === course.id && (
+                                  <>
+                                  <div className="fixed inset-0 z-40" onClick={e => { e.preventDefault(); setActionMenu(null) }} />
                                   <motion.div
-                                    className="absolute right-0 top-full mt-1 w-40 bg-surface-900 border border-white/[0.08] rounded-xl overflow-hidden shadow-xl z-50"
+                                    className="absolute right-0 top-full mt-1 w-44 glass-card border border-white/[0.1] shadow-xl z-50"
                                     initial={{ opacity: 0, y: -4, scale: 0.95 }}
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: -4, scale: 0.95 }}
@@ -459,6 +483,7 @@ export default function CoursesPage() {
                                       </button>
                                     ))}
                                   </motion.div>
+                                  </>
                                 )}
                               </AnimatePresence>
                             </div>
@@ -631,7 +656,7 @@ export default function CoursesPage() {
                 Upcoming Milestones
               </h3>
               <div className="space-y-2">
-                {courses.filter(c => c.nextMilestone).map((c, i) => (
+                {courses.filter(c => c.nextMilestone).map((c) => (
                   <div key={c.id} className="flex items-start gap-2.5 p-2 rounded-lg bg-white/[0.03]">
                     <div className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0" style={{ background: c.color }} />
                     <div>
@@ -645,6 +670,66 @@ export default function CoursesPage() {
           </FadeInWhenVisible>
         </div>
       </div>
+
+      {/* Bottom analytics row */}
+      <FadeInWhenVisible delay={0.2}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Completion breakdown bars */}
+          <div className="glass-card p-5 md:col-span-2">
+            <div className="flex items-center justify-between mb-4">
+              <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-accent-400" /> Course Completion Overview
+              </h4>
+              <span className="text-[10px] text-success-400 font-bold flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {avgCompletion}% avg</span>
+            </div>
+            <div className="space-y-3">
+              {[...courses].filter(c => c.status === 'active').sort((a, b) => b.completion - a.completion).map((c, i) => (
+                <div key={c.id}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-surface-400 truncate flex-1 mr-2">{c.title}</span>
+                    <span className="text-xs font-bold flex-shrink-0" style={{ color: c.color }}>{c.completion}%</span>
+                  </div>
+                  <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: c.color }}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${c.completion}%` }}
+                      transition={{ delay: 0.3 + i * 0.06, duration: 0.6, ease: 'easeOut' }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick actions */}
+          <div className="glass-card p-5">
+            <h4 className="text-sm font-bold text-white mb-3">Quick Actions</h4>
+            <div className="space-y-2">
+              {[
+                { icon: Sparkles,  label: 'AI Lesson Generator',    color: '#6366f1', action: () => showToast('AI Lesson Generator opened') },
+                { icon: Copy,      label: 'Duplicate Best Course',   color: '#10b981', action: () => showToast('Top course duplicated as draft') },
+                { icon: Download,  label: 'Export All Courses',      color: '#f97316', action: () => showToast('Courses exported to PDF') },
+                { icon: Users,     label: 'Bulk Enroll Students',    color: '#8b5cf6', action: () => showToast('Bulk enrollment panel opened') },
+                { icon: Star,      label: 'Mark as Template',        color: '#f59e0b', action: () => showToast('Course saved as template') },
+              ].map(item => (
+                <button
+                  key={item.label}
+                  onClick={item.action}
+                  className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.05] transition-colors text-left group"
+                >
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color + '18' }}>
+                    <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
+                  </div>
+                  <span className="text-xs text-surface-300 group-hover:text-white transition-colors">{item.label}</span>
+                  <ChevronDown className="w-3 h-3 text-surface-600 ml-auto -rotate-90 group-hover:text-surface-400 transition-colors" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </FadeInWhenVisible>
     </div>
   )
 }
