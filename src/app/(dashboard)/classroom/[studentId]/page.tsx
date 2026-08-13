@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, BookOpen, Award, Calendar, TrendingUp, Star, Clock,
   FileText, MessageSquare, Plus, ChevronRight, BarChart2,
-  Target, Check, Sparkles, ArrowLeft, Edit3
+  Target, Check, Sparkles, ArrowLeft, Edit3, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -93,9 +93,29 @@ function getInitials(name: string) {
 export default function StudentDetailPage() {
   const [tab, setTab] = useState<Tab>('overview')
   const [noteText, setNoteText] = useState('')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <FadeUp>
         <Link
           href="/classroom"
@@ -107,13 +127,20 @@ export default function StudentDetailPage() {
       </FadeUp>
 
       <FadeUp delay={0.05}>
-        <div className="glass-card p-6">
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500 to-electric-400 flex items-center justify-center text-white text-xl font-black flex-shrink-0">
+            <motion.div
+              className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-500 to-electric-400 flex items-center justify-center text-white text-xl font-black flex-shrink-0"
+              whileHover={{ rotate: 4, scale: 1.06 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+            >
               {getInitials(student.name)}
-            </div>
+            </motion.div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-black text-white">{student.name}</h1>
+              <div className="flex items-center gap-2 flex-wrap mb-1">
+                <h1 className="text-2xl font-black text-white">{student.name}</h1>
+                <span className="text-xs font-bold bg-accent-500/20 text-accent-300 px-2.5 py-0.5 rounded-full">Student</span>
+              </div>
               <div className="flex flex-wrap items-center gap-3 mt-1.5">
                 <span className="text-sm text-surface-400">{student.grade} Grade</span>
                 <span className="w-1 h-1 rounded-full bg-surface-600" />
@@ -125,16 +152,43 @@ export default function StudentDetailPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5">
+              <button onClick={() => showToast('Message sent!')} className="btn-secondary text-xs px-3 py-1.5">
                 <MessageSquare className="w-3.5 h-3.5" /> Message
               </button>
               <motion.button
                 className="btn-primary text-xs"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={() => showToast('Profile updated!')}
               >
                 <Edit3 className="w-3.5 h-3.5" /> Edit Profile
               </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">GPA</span>
+              <span className="text-xs font-bold text-success-400">{student.gpa}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Attendance</span>
+              <span className="text-xs font-bold text-accent-300">{student.attendance}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Completed</span>
+              <span className="text-xs font-bold text-white">{student.assignmentsCompleted}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Streak</span>
+              <span className="text-xs font-bold text-warning-400">{student.streakDays} days</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Email</span>
+              <span className="text-xs font-bold text-electric-400 truncate max-w-[140px]">{student.email}</span>
             </div>
           </div>
         </div>

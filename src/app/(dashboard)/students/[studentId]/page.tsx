@@ -101,6 +101,8 @@ export default function StudentProfilePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
   const [addingNote, setAddingNote] = useState(false)
   const [newNote, setNewNote] = useState('')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const completedAssignments = assignments.filter(a => a.submitted)
   const avgPct = Math.round(
@@ -110,60 +112,108 @@ export default function StudentProfilePage() {
 
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-violet-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Back + Header */}
       <FadeUp>
-        <div className="flex items-start gap-4">
+        <div className="flex items-start gap-4 mb-4">
           <Link href="/students" className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors mt-1">
             <ChevronLeft className="w-4 h-4" />
             All Students
           </Link>
         </div>
 
-        <div className="flex items-start gap-5 mt-4 flex-wrap">
-          {/* Avatar */}
-          <div className="relative flex-shrink-0">
-            <div
-              className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold ring-4 ring-white/[0.06]"
-              style={{ background: `linear-gradient(135deg, ${student.color}, ${student.color}99)` }}
-            >
-              {student.avatar}
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex items-start gap-5 flex-wrap">
+            {/* Avatar */}
+            <div className="relative flex-shrink-0">
+              <motion.div
+                className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold"
+                style={{ background: `linear-gradient(135deg, ${student.color}, ${student.color}99)`, outline: '4px solid rgba(255,255,255,0.06)', outlineOffset: '0px' }}
+                whileHover={{ rotate: 4, scale: 1.06 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                {student.avatar}
+              </motion.div>
+              <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-success-500 ring-2 ring-surface-900 flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-white" />
+              </div>
             </div>
-            <div className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-success-500 ring-2 ring-surface-900 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-full bg-white" />
+
+            {/* Info */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 flex-wrap mb-1">
+                <h1 className="text-2xl font-black text-surface-100">{student.name}</h1>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-500/15 text-accent-300">Excelling</span>
+                {student.gifted && <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-warning-500/10 text-warning-400">Gifted</span>}
+              </div>
+              <div className="flex items-center gap-3 text-xs text-surface-400 flex-wrap">
+                <span>{student.grade} Grade</span>
+                <span>·</span>
+                <span>GPA: <span className="text-white font-semibold">{student.gpa}</span></span>
+                <span>·</span>
+                <span>{student.classes.length} classes</span>
+                <span>·</span>
+                <span>Counselor: {student.counselor}</span>
+                <span>·</span>
+                <span>Locker {student.locker}</span>
+              </div>
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                <a href={`mailto:${student.email}`} className="btn-secondary text-xs px-3 py-1.5">
+                  <Mail className="w-3.5 h-3.5" /> Email Student
+                </a>
+                <a href={`mailto:${student.parentEmail}`} className="btn-secondary text-xs px-3 py-1.5">
+                  <Users className="w-3.5 h-3.5" /> Email Parent
+                </a>
+                <button onClick={() => showToast('AI profile summary generated!')} className="btn-gradient text-xs px-3 py-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> AI Profile Summary
+                </button>
+                <button onClick={() => showToast('Report exported!')} className="btn-secondary text-xs px-3 py-1.5">
+                  <Download className="w-3.5 h-3.5" /> Export Report
+                </button>
+              </div>
             </div>
           </div>
-
-          {/* Info */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 flex-wrap mb-1">
-              <h1 className="text-2xl font-bold text-surface-100">{student.name}</h1>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-500/15 text-accent-300">Excelling</span>
-              {student.gifted && <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-warning-500/10 text-warning-400">Gifted</span>}
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Overall Avg</span>
+              <span className="text-xs font-bold text-accent-300">{avgPct}%</span>
             </div>
-            <div className="flex items-center gap-3 text-xs text-surface-400 flex-wrap">
-              <span>{student.grade} Grade</span>
-              <span>·</span>
-              <span>GPA: <span className="text-white font-semibold">{student.gpa}</span></span>
-              <span>·</span>
-              <span>{student.classes.length} classes</span>
-              <span>·</span>
-              <span>Counselor: {student.counselor}</span>
-              <span>·</span>
-              <span>Locker {student.locker}</span>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Attendance</span>
+              <span className="text-xs font-bold text-success-400">{student.attendance}%</span>
             </div>
-            <div className="flex items-center gap-2 mt-3 flex-wrap">
-              <a href={`mailto:${student.email}`} className="btn-secondary text-xs px-3 py-1.5">
-                <Mail className="w-3.5 h-3.5" /> Email Student
-              </a>
-              <a href={`mailto:${student.parentEmail}`} className="btn-secondary text-xs px-3 py-1.5">
-                <Users className="w-3.5 h-3.5" /> Email Parent
-              </a>
-              <button className="btn-gradient text-xs px-3 py-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> AI Profile Summary
-              </button>
-              <button className="btn-secondary text-xs px-3 py-1.5">
-                <Download className="w-3.5 h-3.5" /> Export Report
-              </button>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">GPA</span>
+              <span className="text-xs font-bold text-white">{student.gpa}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Streak</span>
+              <span className="text-xs font-bold text-warning-400">{student.streak} days</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Awards</span>
+              <span className="text-xs font-bold text-pink-400">{student.awards}</span>
             </div>
           </div>
         </div>

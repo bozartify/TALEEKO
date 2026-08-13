@@ -117,6 +117,8 @@ const aiInsights = [
 
 export default function CourseDetailPage({ params }: { params: { courseId: string } }) {
   const [expandedUnit, setExpandedUnit] = useState<string | null>('u1')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
   const allLessons = units.flatMap(u => u.lessons)
   const publishedCount = allLessons.filter(l => l.status === 'published').length
   const progressPct = Math.round((publishedCount / allLessons.length) * 100)
@@ -124,31 +126,81 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <FadeUp>
-        <div className="flex items-center gap-3">
-          <Link href="/courses" className="w-8 h-8 rounded-lg flex items-center justify-center text-surface-500 hover:text-surface-300 hover:bg-white/[0.04] transition-all">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-white">{courseInfo.title}</h2>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-accent-500/15 text-accent-400 font-semibold">{courseInfo.term}</span>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <Link href="/courses" className="w-8 h-8 rounded-lg flex items-center justify-center text-surface-500 hover:text-surface-300 hover:bg-white/[0.04] transition-all mt-1">
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-black text-white">{courseInfo.title}</h1>
+                  <span className="text-xs font-bold bg-accent-500/20 text-accent-300 px-2.5 py-0.5 rounded-full">{courseInfo.term}</span>
+                </div>
+                <p className="text-sm text-surface-400 mt-1">{courseInfo.subject} · {courseInfo.grade} · {totalLessons} lessons · {units.length} units</p>
+              </div>
             </div>
-            <p className="text-xs text-surface-400">{courseInfo.subject} · {courseInfo.grade} · {totalLessons} lessons · {units.length} units</p>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button onClick={() => showToast('Course updated!')} className="btn-secondary text-xs px-3 py-1.5">
+                <Edit3 className="w-3.5 h-3.5" />
+                Edit
+              </button>
+              <button onClick={() => showToast('Announcement sent!')} className="btn-secondary text-xs px-3 py-1.5">
+                <Bell className="w-3.5 h-3.5" />
+                Announce
+              </button>
+              <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
+                <Sparkles className="w-3.5 h-3.5" />
+                AI Generate
+              </Link>
+            </div>
           </div>
-          <button className="btn-secondary text-xs px-3 py-1.5">
-            <Edit3 className="w-3.5 h-3.5" />
-            Edit
-          </button>
-          <button className="btn-secondary text-xs px-3 py-1.5">
-            <Bell className="w-3.5 h-3.5" />
-            Announce
-          </button>
-          <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI Generate
-          </Link>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Students</span>
+              <span className="text-xs font-bold text-white">{courseInfo.students}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Class Avg</span>
+              <span className="text-xs font-bold text-success-400">{courseInfo.avgGrade}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Units</span>
+              <span className="text-xs font-bold text-accent-300">{units.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Published</span>
+              <span className="text-xs font-bold text-indigo-400">{progressPct}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Next Class</span>
+              <span className="text-xs font-bold text-electric-400">{courseInfo.nextClass}</span>
+            </div>
+          </div>
         </div>
       </FadeUp>
 
