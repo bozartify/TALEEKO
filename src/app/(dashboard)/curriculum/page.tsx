@@ -9,7 +9,7 @@ import {
   ChevronRight, Zap, Download, RefreshCw,
   GripVertical, Star, FileText, Users, Lock,
   Unlock, CheckSquare, ArrowRight, X, Filter,
-  BookMarked, Trophy, PenTool
+  BookMarked, Trophy, PenTool, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -236,6 +236,8 @@ export default function CurriculumPage() {
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null)
   const [showLessons, setShowLessons] = useState<Record<string, boolean>>({})
   const [timelineMonth, setTimelineMonth] = useState(0)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const totalLessons = units.reduce((acc, u) => acc + u.lessons, 0)
   const totalStandards = units.reduce((acc, u) => acc + u.standards, 0)
@@ -250,48 +252,68 @@ export default function CurriculumPage() {
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Map className="w-6 h-6 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Curriculum Planner</h2>
-              <p className="text-xs text-surface-400">AP Biology · {units.length} units · {totalLessons} lessons · AY 2025-26</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
+                <Map className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Curriculum Planner</h1>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">AP Biology · {units.length} units · {totalLessons} lessons · AY 2025-26</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5 text-xs">
+                {(['list', 'timeline', 'calendar'] as ViewMode[]).map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setView(v)}
+                    className={`px-3 py-1 rounded-full transition-all capitalize ${view === v ? 'bg-white/[0.1] text-white font-semibold' : 'text-surface-500 hover:text-surface-300'}`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI curriculum plan generated!')}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Plan
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New unit added!')}>
+                <Plus className="w-3.5 h-3.5" /> Add Unit
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Curriculum exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5 text-xs">
-              {(['list', 'timeline', 'calendar'] as ViewMode[]).map(v => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`px-3 py-1 rounded-full transition-all capitalize ${
-                    view === v ? 'bg-white/[0.1] text-white font-semibold' : 'text-surface-500 hover:text-surface-300'
-                  }`}
-                >
-                  {v}
-                </button>
-              ))}
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Units</span>
+              <span className="text-xs font-bold text-white">{units.length}</span>
             </div>
-            <motion.button
-              className="btn-gradient text-xs"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Sparkles className="w-3.5 h-3.5" /> AI Plan
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Plus className="w-3.5 h-3.5" /> Add Unit
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Lessons</span>
+              <span className="text-xs font-bold text-white">{totalLessons}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Completed</span>
+              <span className="text-xs font-bold text-success-400">{completedLessons}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Progress</span>
+              <span className="text-xs font-bold text-indigo-400">{overallProgress}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Standards</span>
+              <span className="text-xs font-bold text-white">{totalStandards}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -780,6 +802,21 @@ export default function CurriculumPage() {
           </FadeInWhenVisible>
         </div>
       </div>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

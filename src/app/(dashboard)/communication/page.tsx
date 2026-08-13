@@ -7,7 +7,7 @@ import {
   Phone, Video, Globe, Calendar, FileText, AlertTriangle,
   Sparkles, Filter, ChevronDown, ChevronUp, X, Archive,
   Flag, Bookmark, Reply, Forward, Eye, Zap, TrendingUp,
-  BarChart3, Tag, AtSign, Languages, MoreHorizontal, Image
+  BarChart3, Tag, AtSign, Languages, MoreHorizontal, Image, CheckCircle, Download
 } from 'lucide-react'
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -174,6 +174,8 @@ export default function CommunicationPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkToast, setBulkToast] = useState(false)
   const [conversations, setConversations] = useState(CONVERSATIONS)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
   const messageEndRef = useRef<HTMLDivElement>(null)
 
   const selectedConv = conversations.find(c => c.id === selectedId)
@@ -332,6 +334,63 @@ export default function CommunicationPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hero Header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#2563eb)' }}>
+                <Mail className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Communication</h1>
+                  <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-bold border border-blue-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Inbox, parent messages, bulk outreach, and AI-drafted communication</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Messages exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Bulk message composed!')}>
+                <Users className="w-3.5 h-3.5" /> Bulk Message
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('AI draft created!')}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Draft
+              </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Conversations</span>
+              <span className="text-xs font-bold text-white">{conversations.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Filtered</span>
+              <span className="text-xs font-bold text-white">{filtered.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Sent</span>
+              <span className="text-xs font-bold text-blue-400">47</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Response Rate</span>
+              <span className="text-xs font-bold text-success-400">94%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Avg Reply</span>
+              <span className="text-xs font-bold text-white">2.4h</span>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
 
       {/* Stats */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
@@ -1211,6 +1270,21 @@ export default function CommunicationPage() {
                 </div>
               </FadeInWhenVisible>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>

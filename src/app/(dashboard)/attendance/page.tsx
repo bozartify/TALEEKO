@@ -5,7 +5,7 @@ import {
   CheckSquare, Check, X, Clock, Circle, ChevronLeft, ChevronRight,
   Download, TrendingUp, BarChart2, Sparkles, ChevronDown,
   Bell, Mail, AlertTriangle, FileText, Search,
-  CalendarDays, Target, Award
+  CalendarDays, Target, Award, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -100,6 +100,8 @@ export default function AttendancePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterAtRisk, setFilterAtRisk] = useState(false)
   const [notifyMsg, setNotifyMsg] = useState('')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const weekDates = getWeekDates(weekOffset)
 
@@ -175,39 +177,54 @@ export default function AttendancePage() {
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #10b981, #059669)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <CheckSquare className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Attendance Tracker</h2>
-              <p className="text-xs text-surface-400">
-                {STUDENTS.length} students · {selectedClass} · {selectedPeriod} · Week of {weekDates[0].month} {weekDates[0].date}
-              </p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#10b981,#059669)' }}>
+                <CheckSquare className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Attendance Tracker</h1>
+                  <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-bold border border-emerald-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">{STUDENTS.length} students · {selectedClass} · {selectedPeriod} · Week of {weekDates[0].month} {weekDates[0].date}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setExportOpen(true)}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => { markAllPresent(); showToast('All students marked present!') }}>
+                <Check className="w-3.5 h-3.5" /> Mark All Present
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <motion.button
-              className="btn-primary text-xs"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={markAllPresent}
-            >
-              <Check className="w-3.5 h-3.5" />
-              Mark All Present
-            </motion.button>
-            <button
-              className="btn-secondary text-xs px-3 py-1.5"
-              onClick={() => setExportOpen(true)}
-            >
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Students</span>
+              <span className="text-xs font-bold text-white">{STUDENTS.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Rate</span>
+              <span className="text-xs font-bold text-success-400">{attendanceRate}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Present</span>
+              <span className="text-xs font-bold text-white">{presentCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Absent</span>
+              <span className="text-xs font-bold text-danger-400">{absentCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">At Risk</span>
+              <span className="text-xs font-bold text-warning-400">{atRiskStudents.length}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -934,6 +951,21 @@ export default function AttendancePage() {
                 ))}
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>

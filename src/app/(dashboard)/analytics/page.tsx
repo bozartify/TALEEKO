@@ -5,7 +5,7 @@ import {
   TrendingUp, BookOpen, Users, Clock, BarChart2, Star, Target, Zap,
   ArrowUpRight, ArrowDownRight, Calendar, Filter, Download, Brain,
   MessageSquare, FileText, Activity, Globe, Flame, Award, Eye,
-  CheckCircle2, Lightbulb, Trophy, Crown, Medal, Sparkles,
+  CheckCircle2, CheckCircle, Lightbulb, Trophy, Crown, Medal, Sparkles,
   GraduationCap, PieChart, ArrowUp, ArrowDown, ChevronRight
 } from 'lucide-react'
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
@@ -130,42 +130,71 @@ const languageUsage = [
 
 export default function AnalyticsPage() {
   const [range, setRange] = useState<TimeRange>('month')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
   const maxLessons = Math.max(...weekData.map(d => d.lessons))
   const maxMonthly = Math.max(...monthlyTrend.map(d => d.value))
 
   return (
     <div className="space-y-6">
 
-      {/* ---- Header with date range + export ---- */}
+      {/* ---- Hero Header ---- */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-500/[0.06] rounded-full blur-[80px]" />
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-electric-400/[0.04] rounded-full blur-[60px]" />
-          </div>
-          <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-black text-white">Analytics</h2>
-                <motion.div
-                  className="flex items-center gap-1 text-xs font-bold text-success-400 bg-success-400/10 px-2.5 py-1 rounded-full"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.3, duration: 0.4 }}
-                >
-                  <TrendingUp className="w-3 h-3" /> Live
-                </motion.div>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)' }}>
+                <BarChart2 className="w-6 h-6 text-white" />
               </div>
-              <p className="text-sm text-surface-400">Track your AI-powered teaching productivity and student outcomes.</p>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Analytics</h1>
+                  <motion.div
+                    className="flex items-center gap-1 text-[10px] font-bold text-success-400 bg-success-400/10 px-2 py-0.5 rounded-full border border-success-400/20"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                  >
+                    <TrendingUp className="w-2.5 h-2.5" /> Live
+                  </motion.div>
+                </div>
+                <p className="text-sm text-surface-400">Track AI-powered teaching productivity and student outcomes.</p>
+              </div>
             </div>
-            <motion.button
-              className="btn-gradient flex-shrink-0 flex items-center gap-2"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <Download className="w-4 h-4" />
-              Export Report
-            </motion.button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Analytics report exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export Report
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('AI insights refreshed!')}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Insights
+              </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Period</span>
+              <span className="text-xs font-bold text-white capitalize">{range}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Students</span>
+              <span className="text-xs font-bold text-white">28</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Avg Score</span>
+              <span className="text-xs font-bold text-success-400">87%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Engagement</span>
+              <span className="text-xs font-bold text-accent-300">94%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">AI Assists</span>
+              <span className="text-xs font-bold text-white">156</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -781,6 +810,21 @@ export default function AnalyticsPage() {
           </div>
         </FadeUp>
       </div>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400 flex-shrink-0" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

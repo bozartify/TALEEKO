@@ -121,6 +121,8 @@ export default function GradebookPage() {
   const [localScores, setLocalScores] = useState<Record<string, (number | null)[]>>(
     () => Object.fromEntries(students.map(s => [s.id, s.scores]))
   )
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const filteredStudents = useMemo(() => {
     let list = students.filter(s =>
@@ -183,48 +185,71 @@ export default function GradebookPage() {
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <BookOpen className="w-6 h-6 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Gradebook</h2>
-              <p className="text-xs text-surface-400">{students.length} students · {assignments.length} assignments · Class avg {classAvg}%</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f59e0b,#d97706)' }}>
+                <BookOpen className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Gradebook</h1>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold border border-amber-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">{students.length} students · {assignments.length} assignments · Class avg {classAvg}%</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
+                {([['grid', Grid], ['list', List], ['analysis', PieChart]] as [GradeView, typeof Grid][]).map(([v, Icon]) => (
+                  <button
+                    key={v}
+                    onClick={() => setGradeView(v)}
+                    className={`p-1.5 rounded-full transition-all ${gradeView === v ? 'bg-white/[0.1] text-white' : 'text-surface-500 hover:text-surface-300'}`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setShowWeightPanel(!showWeightPanel)} className="btn-secondary text-xs px-3 py-1.5">
+                <Percent className="w-3.5 h-3.5" /> Weights
+              </button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI analysis complete!')}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Analysis
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Gradebook exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New assignment added!')}>
+                <Plus className="w-3.5 h-3.5" /> Assignment
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-white/[0.06] rounded-full p-0.5">
-              {([['grid', Grid], ['list', List], ['analysis', PieChart]] as [GradeView, typeof Grid][]).map(([v, Icon]) => (
-                <button
-                  key={v}
-                  onClick={() => setGradeView(v)}
-                  className={`p-1.5 rounded-full transition-all ${gradeView === v ? 'bg-white/[0.1] text-white' : 'text-surface-500 hover:text-surface-300'}`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                </button>
-              ))}
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Students</span>
+              <span className="text-xs font-bold text-white">{students.length}</span>
             </div>
-            <button
-              onClick={() => setShowWeightPanel(!showWeightPanel)}
-              className="btn-secondary text-xs px-3 py-1.5"
-            >
-              <Percent className="w-3.5 h-3.5" /> Weights
-            </button>
-            <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Sparkles className="w-3.5 h-3.5" /> AI Analysis
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5">
-              <Plus className="w-3.5 h-3.5" /> Assignment
-            </button>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Class Avg</span>
+              <span className="text-xs font-bold text-success-400">{classAvg}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">At Risk</span>
+              <span className="text-xs font-bold text-danger-400">{atRisk}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Passing</span>
+              <span className="text-xs font-bold text-white">{passing}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Missing</span>
+              <span className="text-xs font-bold text-warning-400">{missing}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -797,6 +822,21 @@ export default function GradebookPage() {
                 <button className="btn-secondary text-xs flex-1"><FileText className="w-3 h-3" /> Report</button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>
