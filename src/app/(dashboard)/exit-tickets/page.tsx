@@ -238,31 +238,57 @@ export default function ExitTicketsPage() {
 
       {/* ── HEADER ─── */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #f59e0b, #ef4444)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Target className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Exit Tickets</h2>
-              <p className="text-xs text-surface-400">Formative checks to gauge comprehension every period</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)' }}>
+                <Target className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Exit Tickets</h1>
+                  <span className="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-bold border border-amber-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Formative checks to gauge comprehension every period</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('New exit ticket created!')}>
+                <Plus className="w-3.5 h-3.5" /> New Ticket
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => setView('create')}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Generate
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
-              <Download className="w-3.5 h-3.5" /> Export
-            </motion.button>
-            <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }}>
-              <Plus className="w-3.5 h-3.5" /> New Ticket
-            </motion.button>
-            <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => setView('create')}>
-              <Sparkles className="w-3.5 h-3.5" /> AI Generate
-            </motion.button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Tickets</span>
+              <span className="text-xs font-bold text-white">{tickets.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Got It</span>
+              <span className="text-xs font-bold text-success-400">{gotItCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Almost</span>
+              <span className="text-xs font-bold text-warning-400">{almostCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Needs Help</span>
+              <span className="text-xs font-bold text-danger-400">{needsCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Flagged</span>
+              <span className="text-xs font-bold text-amber-400">{flagged.size}</span>
+            </div>
           </div>
         </div>
       </FadeUp>

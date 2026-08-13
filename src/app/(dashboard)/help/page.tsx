@@ -170,7 +170,7 @@ export default function HelpPage() {
 
       {/* ── Hero ── */}
       <FadeUp>
-        <div className="glass-card p-8 relative overflow-hidden text-center">
+        <div className="hero-mesh rounded-3xl p-8 border border-white/[0.06] relative overflow-hidden text-center">
           <div className="absolute inset-0 pointer-events-none">
             <div className="absolute -top-24 -right-24 w-72 h-72 bg-accent-500/[0.07] rounded-full blur-[100px]" />
             <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-neon-400/[0.05] rounded-full blur-[80px]" />
