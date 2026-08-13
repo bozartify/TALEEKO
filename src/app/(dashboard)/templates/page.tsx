@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Layout,
+  CheckCircle,
   Sparkles,
   Clock,
   Users,
@@ -324,31 +325,53 @@ export default function TemplatesPage() {
     })
   }, [activeCategory, searchQuery])
 
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
   const handleGenerate = () => {
     setIsGenerating(true)
+    showToast('AI lesson template generated!')
     setTimeout(() => setIsGenerating(false), 3000)
   }
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-accent-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* ---- Page Header ---- */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-500/[0.06] rounded-full blur-[80px]" />
-            <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-neon-500/[0.04] rounded-full blur-[60px]" />
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
             <div className="flex items-start gap-4">
               <motion.div
-                className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-500/20 to-accent-600/5 flex items-center justify-center shrink-0"
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #6366f1, #4f46e5)' }}
                 whileHover={{ rotate: 8, scale: 1.08 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 17 }}
               >
-                <Layout className="w-6 h-6 text-accent-400" />
+                <Layout className="w-6 h-6 text-white" />
               </motion.div>
               <div>
-                <h1 className="text-2xl font-black text-white">Lesson Templates</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-black text-white">Lesson Templates</h1>
+                  <span className="text-xs font-bold bg-accent-500/20 text-accent-300 px-2.5 py-0.5 rounded-full">AI-Powered</span>
+                </div>
                 <p className="text-surface-400 mt-1 text-sm">
                   Ready-to-use lesson frameworks designed by expert educators. Choose a template and customize it for your class.
                 </p>
@@ -356,11 +379,37 @@ export default function TemplatesPage() {
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <button className="btn-gradient px-4 py-2.5 text-sm font-semibold flex items-center gap-2">
+                <button onClick={handleGenerate} className="btn-gradient px-4 py-2.5 text-sm font-semibold flex items-center gap-2">
                   <Sparkles className="w-4 h-4" />
                   AI Generate
                 </button>
               </motion.div>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Available</span>
+              <span className="text-xs font-bold text-white">{regularTemplates.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Filtered</span>
+              <span className="text-xs font-bold text-accent-300">{filteredTemplates.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Category</span>
+              <span className="text-xs font-bold text-electric-400">{activeCategory}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Featured</span>
+              <span className="text-xs font-bold text-neon-400">1</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Community</span>
+              <span className="text-xs font-bold text-success-400">3</span>
             </div>
           </div>
         </div>

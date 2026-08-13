@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import {
   Bell, Check, Sparkles, Info, AlertCircle, Users,
   Bot, Zap, Settings, Inbox, Mail, Clock, ChevronRight,
-  X, AlertTriangle, Eye, CheckCheck, Trash2, BellOff,
+  X, AlertTriangle, Eye, CheckCheck, Trash2, BellOff, CheckCircle,
   MessageSquare, BookOpen, ClipboardList, Shield, Star,
   ArrowUpRight, Filter, ToggleLeft, ToggleRight,
   Activity, FileText, GraduationCap, UserCheck, AtSign
@@ -465,6 +465,9 @@ export default function NotificationsPage() {
     }))
   }, [])
 
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
   const markAllRead = useCallback(() => {
     setItems(prev => prev.map(n => ({ ...n, read: true })))
   }, [])
@@ -502,33 +505,46 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-violet-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <FadeUp>
-        <div className="glass-card p-6 relative overflow-hidden">
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-accent-500/[0.06] rounded-full blur-[80px]" />
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-electric-400/[0.04] rounded-full blur-[60px]" />
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <div className="w-10 h-10 rounded-xl bg-accent-500/15 flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-accent-400" />
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <motion.div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Bell className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-black text-white">Notification Center</h1>
+                  <span className="text-xs font-bold bg-violet-500/20 text-violet-300 px-2.5 py-0.5 rounded-full">AI-Powered</span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h1 className="text-2xl font-black text-white">Notification Center</h1>
-                    {unreadCount > 0 && (
-                      <span className="text-xs font-bold bg-accent-500/20 text-accent-300 px-2.5 py-0.5 rounded-full animate-pulse">
-                        {unreadCount} new
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-surface-400 mt-0.5">Stay on top of your teaching activity and AI updates</p>
-                </div>
+                <p className="text-sm text-surface-400 mt-1">Stay on top of your teaching activity and AI updates</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
               <motion.button
                 onClick={() => setShowPrefs(!showPrefs)}
                 className="btn-secondary text-xs"
@@ -538,7 +554,7 @@ export default function NotificationsPage() {
                 <Settings className="w-3.5 h-3.5" /> Preferences
               </motion.button>
               <motion.button
-                onClick={markAllRead}
+                onClick={() => { markAllRead(); showToast('All notifications marked as read!') }}
                 className="btn-secondary text-xs"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -546,13 +562,39 @@ export default function NotificationsPage() {
                 <CheckCheck className="w-3.5 h-3.5" /> Mark All Read
               </motion.button>
               <motion.button
-                onClick={clearAll}
+                onClick={() => { clearAll(); showToast('Read notifications cleared!') }}
                 className="btn-secondary text-xs"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
                 <Trash2 className="w-3.5 h-3.5" /> Clear Read
               </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Unread</span>
+              <span className="text-xs font-bold text-violet-400">{unreadCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Urgent</span>
+              <span className="text-xs font-bold text-danger-400">{urgentCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">AI Updates</span>
+              <span className="text-xs font-bold text-electric-400">{aiCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">This Week</span>
+              <span className="text-xs font-bold text-white">{thisWeekCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Filter</span>
+              <span className="text-xs font-bold text-success-400 capitalize">{activeTab}</span>
             </div>
           </div>
         </div>

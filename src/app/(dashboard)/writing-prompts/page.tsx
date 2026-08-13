@@ -228,6 +228,9 @@ export default function WritingPromptsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeTab, setActiveTab] = useState<'library' | 'create'>('library')
 
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
   const filtered = prompts.filter(p => {
     if (selectedMode !== 'all' && p.mode !== selectedMode) return false
     if (selectedGrade !== 'all' && p.grade !== selectedGrade) return false
@@ -261,47 +264,98 @@ export default function WritingPromptsPage() {
 
   return (
     <div className="min-h-screen p-6 space-y-6">
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-pink-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div
-              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}
-            >
-              <Pencil className="w-6 h-6 text-white" />
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <motion.div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}
+                whileHover={{ rotate: 8, scale: 1.08 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+              >
+                <Pencil className="w-6 h-6 text-white" />
+              </motion.div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-black text-white">Writing Prompts</h1>
+                  <span className="text-xs font-bold bg-pink-500/20 text-pink-300 px-2.5 py-0.5 rounded-full">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400 mt-1">AI-powered prompts for every genre, grade, and learning goal</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Writing Prompts</h1>
-              <p className="text-sm text-surface-400">AI-powered prompts for every genre, grade, and learning goal</p>
+            <div className="flex items-center gap-2 flex-wrap flex-shrink-0">
+              <button
+                onClick={() => setShowStarredOnly(!showStarredOnly)}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
+                  showStarredOnly
+                    ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300'
+                    : 'bg-white/[0.03] border-white/[0.08] text-surface-400 hover:text-surface-200'
+                }`}
+              >
+                <Star className="w-3.5 h-3.5" />
+                Starred
+              </button>
+              <button
+                onClick={() => { simulateRegenerate('batch'); showToast('New prompts generated!') }}
+                className="btn-secondary text-xs px-3 py-2"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${generatingId === 'batch' ? 'animate-spin' : ''}`} />
+                Generate New
+              </button>
+              <button
+                onClick={() => { setActiveTab('create'); showToast('Create your own prompt!') }}
+                className="btn-primary text-xs px-4 py-2"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Create Prompt
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowStarredOnly(!showStarredOnly)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-all ${
-                showStarredOnly
-                  ? 'bg-yellow-500/20 border-yellow-500/40 text-yellow-300'
-                  : 'bg-white/[0.03] border-white/[0.08] text-surface-400 hover:text-surface-200'
-              }`}
-            >
-              <Star className="w-3.5 h-3.5" />
-              Starred
-            </button>
-            <button
-              onClick={() => simulateRegenerate('batch')}
-              className="btn-secondary text-xs px-3 py-2"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${generatingId === 'batch' ? 'animate-spin' : ''}`} />
-              Generate New
-            </button>
-            <button
-              onClick={() => setActiveTab('create')}
-              className="btn-primary text-xs px-4 py-2"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Create Prompt
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Total Prompts</span>
+              <span className="text-xs font-bold text-white">{prompts.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Filtered</span>
+              <span className="text-xs font-bold text-pink-400">{filtered.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">AI Generated</span>
+              <span className="text-xs font-bold text-violet-400">24</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Starred</span>
+              <span className="text-xs font-bold text-yellow-400">{prompts.filter(p => p.starred).length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Mode</span>
+              <span className="text-xs font-bold text-surface-300 capitalize">{selectedMode === 'all' ? 'All' : selectedMode}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
