@@ -143,6 +143,11 @@ export default function StandardsPage() {
   const [starred, setStarred] = useState<Set<string>>(new Set(['RL.7.1', 'RL.7.6', 'W.7.1', 'L.7.1']))
   const [compareList, setCompareList] = useState<string[]>([])
   const [gradeFilter, setGradeFilter] = useState('all')
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   const selectedFw = frameworks.find(f => f.id === selectedFramework)!
 
@@ -245,7 +250,7 @@ export default function StandardsPage() {
                   </button>
                 )}
               </div>
-              <button className="btn-secondary text-xs px-3 py-1.5">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Standards exported as PDF')}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
             </div>
@@ -854,6 +859,21 @@ export default function StandardsPage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

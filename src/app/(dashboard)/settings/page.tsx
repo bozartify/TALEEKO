@@ -5,7 +5,7 @@ import {
   User, Bell, Palette, Key, Globe, Save, Shield, Database, Plug,
   Monitor, Moon, Sun, Check, Upload, Download, Trash2, Eye, EyeOff,
   ChevronRight, Mail, Smartphone, Lock, RefreshCw, ExternalLink,
-  BarChart2, CreditCard, Users
+  BarChart2, CreditCard, Users, Settings, CheckCircle
 } from 'lucide-react'
 import { FadeUp } from '@/components/ui/motion'
 
@@ -37,13 +37,58 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
 
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
+
   function handleSave() {
     setSaved(true)
+    showToast('Settings saved successfully!')
     setTimeout(() => setSaved(false), 2000)
   }
 
   return (
-    <div className="max-w-5xl">
+    <div className="max-w-5xl space-y-6">
+      {/* Header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#4f46e5)' }}>
+                <Settings className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Settings</h1>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">Pro Plan</span>
+                </div>
+                <p className="text-sm text-surface-400">Manage your profile, AI preferences, integrations, and team settings</p>
+              </div>
+            </div>
+            <motion.button className="btn-gradient text-xs flex-shrink-0" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleSave}>
+              {saved ? <CheckCircle className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
+              {saved ? 'Saved!' : 'Save Changes'}
+            </motion.button>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Profile', value: 'Alex Johnson' },
+              { label: 'Plan', value: 'Pro' },
+              { label: 'Integrations', value: `${integrations.filter(i => i.connected).length}/${integrations.length}` },
+              { label: 'API Keys', value: '2' },
+              { label: 'Team', value: '4 members' },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-base font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </FadeUp>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {/* Sidebar nav */}
         <FadeUp>
@@ -906,6 +951,21 @@ export default function SettingsPage() {
           </motion.div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 28 } }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <span className="text-sm text-white font-medium">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

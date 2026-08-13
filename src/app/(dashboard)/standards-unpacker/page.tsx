@@ -130,6 +130,11 @@ export default function StandardsUnpackerPage() {
   const [savedStandards, setSavedStandards] = useState<Set<string>>(new Set())
   const [showVocabDefs, setShowVocabDefs] = useState(false)
   const [selectedVocab, setSelectedVocab] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 2500)
+  }
 
   async function handleUnpack() {
     setGenerating(true)
@@ -383,7 +388,13 @@ export default function StandardsUnpackerPage() {
                   <button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
-                    onClick={() => { if (opt.label === 'Copy to Clipboard') handleCopy(); setExportOpen(false) }}
+                    onClick={() => {
+                      if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
+                      else if (opt.label === 'Export as PDF') showToast('Exporting standard breakdown as PDF…')
+                      else if (opt.label === 'Share Link') showToast('Share link copied to clipboard!')
+                      else if (opt.label === 'Export to Google Docs') showToast('Opening in Google Docs…')
+                      setExportOpen(false)
+                    }}
                   >
                     <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-4 h-4 text-accent-400" />
@@ -400,6 +411,64 @@ export default function StandardsUnpackerPage() {
         )}
       </AnimatePresence>
 
+      {/* Hero Header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#14b8a6,#0d9488)' }}>
+                <Layers className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Standards Unpacker</h1>
+                  <span className="text-[10px] bg-teal-500/20 text-teal-400 px-2 py-0.5 rounded-full font-bold border border-teal-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Instantly unpack any standard into student-friendly language, activities, and assessments</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Share link copied!')}>
+                <Share2 className="w-3.5 h-3.5" /> Share
+              </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={handleUnpack} disabled={generating}>
+                <Sparkles className="w-3.5 h-3.5" />
+                {generating ? 'Unpacking…' : 'Unpack Standard'}
+              </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Framework</span>
+              <span className="text-xs font-bold text-white">{frameworks.find(f => f.id === framework)?.label ?? 'NGSS'}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Vocab Terms</span>
+              <span className="text-xs font-bold text-white">{unpacked?.keyVocabulary.length ?? 10}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Activities</span>
+              <span className="text-xs font-bold text-white">{unpacked?.suggestedActivities.length ?? 5}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Assessment Ideas</span>
+              <span className="text-xs font-bold text-white">{unpacked?.assessmentIdeas.length ?? 4}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Rigor Level</span>
+              <span className="text-xs font-bold text-white">{unpacked?.rigor ?? 4}/5</span>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
+
       {/* AI Insights Panel */}
       <FadeUp delay={0.05}>
         <div className="glass-card overflow-hidden">
@@ -414,7 +483,9 @@ export default function StandardsUnpackerPage() {
               <span className="text-sm font-bold text-white">AI Curriculum Insights</span>
               <span className="bg-teal-500/20 text-teal-400 text-[10px] font-bold px-2 py-0.5 rounded-full">3 alerts</span>
             </div>
-            {aiOpen ? <ChevronUp className="w-4 h-4 text-surface-400" /> : <ChevronDown className="w-4 h-4 text-surface-400" />}
+            <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+              <ChevronDown className="w-4 h-4 text-surface-400" />
+            </motion.div>
           </button>
           <AnimatePresence>
             {aiOpen && (
@@ -775,6 +846,22 @@ export default function StandardsUnpackerPage() {
           )}
         </div>
       </div>
+
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

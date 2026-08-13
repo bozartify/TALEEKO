@@ -251,45 +251,52 @@ export default function SeatingChartPage() {
 
       {/* ── Header ── */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #22d3ee, #0891b2)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <LayoutGrid className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Seating Chart</h2>
-              <p className="text-xs text-surface-400">{students.length} students · {rows}×{cols} grid · {period}</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#22d3ee,#0891b2)' }}>
+                <LayoutGrid className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Seating Chart</h1>
+                  <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full font-bold border border-cyan-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Drag-and-drop seating with AI arrangement strategies and accommodation alerts</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+              <motion.button className="btn-gradient text-xs" onClick={() => setArrangeOpen(true)} whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Sparkles className="w-3.5 h-3.5" /> AI Arrange
+              </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={shuffleSeats}>
+                <Shuffle className="w-3.5 h-3.5" /> Shuffle
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={handleSave}>
+                {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
+                {saved ? 'Saved!' : 'Save'}
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setSaveOpen(true)}>
+                <FileText className="w-3.5 h-3.5" /> Template
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setExportOpen(true)}>
+                <Download className="w-3.5 h-3.5" />
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <motion.button
-              className="btn-gradient text-xs"
-              onClick={() => setArrangeOpen(true)}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              AI Arrange
-            </motion.button>
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={shuffleSeats}>
-              <Shuffle className="w-3.5 h-3.5" />
-              Shuffle
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={handleSave}>
-              {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
-              {saved ? 'Saved!' : 'Save'}
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setSaveOpen(true)}>
-              <FileText className="w-3.5 h-3.5" />
-              Template
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setExportOpen(true)}>
-              <Download className="w-3.5 h-3.5" />
-            </button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            {[
+              { label: 'Students', value: `${students.length}` },
+              { label: 'Grid', value: `${rows}×${cols}` },
+              { label: 'Period', value: period },
+              { label: 'Unassigned', value: `${unassigned.length}` },
+              { label: 'Arrangements', value: `${arrangements.length}` },
+            ].map(s => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className="text-lg font-black text-white">{s.value}</span>
+                <span className="text-xs text-surface-500">{s.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </FadeUp>
