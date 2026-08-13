@@ -7,7 +7,7 @@ import {
   BookOpen, MessageSquare, HardDrive, BarChart2, ClipboardCheck,
   RefreshCw, Clock, CheckCircle2, AlertCircle, ChevronDown,
   Sparkles, Shield, Link2, Send, Plus, X, ArrowRight,
-  GraduationCap, Video, FileText, Database, Activity
+  GraduationCap, Video, FileText, Database, Activity, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -312,6 +312,8 @@ export default function IntegrationsPage() {
   const [activeTab, setActiveTab] = useState<Category>('All')
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const connectedIntegrations = integrations.filter(i => i.status === 'connected')
 
@@ -330,34 +332,54 @@ export default function IntegrationsPage() {
     <div className="space-y-6">
       {/* Page Header */}
       <FadeUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #22d3ee)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <Plug className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h2 className="text-xl font-black text-white">Integrations</h2>
-              <p className="text-xs text-surface-400">Connect your favorite tools and platforms</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#22d3ee)' }}>
+                <Plug className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Integrations</h1>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">Connected</span>
+                </div>
+                <p className="text-sm text-surface-400">Connect your favorite tools and platforms</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('All integrations synced!')}>
+                <RefreshCw className="w-3.5 h-3.5" /> Sync All
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('Opening marketplace…')}>
+                <Sparkles className="w-3.5 h-3.5" /> Browse Marketplace
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <button className="btn-gradient">
-                <Sparkles className="w-4 h-4" />
-                Browse Marketplace
-              </button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-              <button className="btn-secondary">
-                <RefreshCw className="w-4 h-4" />
-                Sync All
-              </button>
-            </motion.div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Available</span>
+              <span className="text-xs font-bold text-white">{integrations.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Connected</span>
+              <span className="text-xs font-bold text-success-400">{connectedIntegrations.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Filtered</span>
+              <span className="text-xs font-bold text-white">{filtered.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Uptime</span>
+              <span className="text-xs font-bold text-indigo-400">98%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Category</span>
+              <span className="text-xs font-bold text-white">{activeTab}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -785,6 +807,21 @@ export default function IntegrationsPage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

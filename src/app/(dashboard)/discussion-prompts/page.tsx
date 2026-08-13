@@ -6,7 +6,7 @@ import {
   MessageCircle, Sparkles, RefreshCw, Copy, Check, ChevronDown,
   Star, Plus, Download, Share2, ArrowRight, Clock,
   Play, Pause, SkipForward, Maximize2, X, ChevronLeft, ChevronRight,
-  BookOpen, Brain, Zap, Target, TrendingUp, Filter
+  BookOpen, Brain, Zap, Target, TrendingUp, Filter, CheckCircle
 } from 'lucide-react'
 
 type PromptType = 'socratic' | 'think-pair-share' | 'debate' | 'fishbowl' | 'four-corners' | 'philosophical'
@@ -161,6 +161,8 @@ export default function DiscussionPromptsPage() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [newPrompt, setNewPrompt] = useState({ text: '', type: 'socratic' as PromptType, blooms: 'analyze' as BloomsLevel, followUp: '' })
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   useEffect(() => {
     if (timerRunning && timerSecs > 0) {
@@ -231,45 +233,62 @@ export default function DiscussionPromptsPage() {
     <div className="space-y-6">
       {/* Header */}
       <FadeUp>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-3">
-            <motion.div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #ec4899)' }}
-              whileHover={{ rotate: 8, scale: 1.08 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-            >
-              <MessageCircle className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h1 className="text-xl font-black text-white">Discussion Prompts</h1>
-              <p className="text-xs text-surface-400">AI-generated Bloom's-aligned prompts for deeper classroom thinking</p>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#ec4899)' }}>
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Discussion Prompts</h1>
+                  <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-bold border border-indigo-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">AI-generated Bloom&apos;s-aligned prompts for deeper classroom thinking</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button onClick={() => { setSlideMode(true); setSlideIndex(0) }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
+                <Maximize2 className="w-3.5 h-3.5" /> Present
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => { setShareOpen(true) }}>
+                <Share2 className="w-3.5 h-3.5" /> Share
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Prompts exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </button>
+              <motion.button onClick={handleGenerate} disabled={generating || !topic.trim()} className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                {generating
+                  ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Generating…</>
+                  : <><Sparkles className="w-3.5 h-3.5" />Generate</>}
+              </motion.button>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => { setSlideMode(true); setSlideIndex(0) }}
-              className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
-            >
-              <Maximize2 className="w-3.5 h-3.5" /> Present
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setShareOpen(true)}>
-              <Share2 className="w-3.5 h-3.5" /> Share
-            </button>
-            <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
-              <Download className="w-3.5 h-3.5" /> Export
-            </button>
-            <motion.button
-              onClick={handleGenerate}
-              disabled={generating || !topic.trim()}
-              className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50"
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            >
-              {generating
-                ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Generating…</>
-                : <><Sparkles className="w-3.5 h-3.5" />Generate</>}
-            </motion.button>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Prompts</span>
+              <span className="text-xs font-bold text-white">{prompts.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Filtered</span>
+              <span className="text-xs font-bold text-white">{filtered.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Types Selected</span>
+              <span className="text-xs font-bold text-indigo-400">{selectedTypes.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Subject</span>
+              <span className="text-xs font-bold text-white">{subject || 'General'}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Timer</span>
+              <span className="text-xs font-bold text-white">{timerPreset}min</span>
+            </div>
           </div>
         </div>
       </FadeUp>
@@ -874,6 +893,21 @@ export default function DiscussionPromptsPage() {
                 ))}
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-indigo-400 flex-shrink-0" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>

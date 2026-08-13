@@ -6,7 +6,7 @@ import {
   BookOpen, FileText, Zap, ChevronDown, TrendingUp, BarChart2,
   Star, ClipboardCheck, FolderOpen, Filter, Brain, GraduationCap,
   ChevronUp, X, Download, Share2, Plus, Grid, List as ListIcon,
-  Check, Tag, Upload, AlertTriangle, BarChart3, Heart, MoreHorizontal
+  Check, Tag, Upload, AlertTriangle, BarChart3, Heart, MoreHorizontal, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
 
@@ -100,6 +100,8 @@ export default function LibraryPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkMode, setBulkMode] = useState(false)
   const [deleteToast, setDeleteToast] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const filtered = items
     .filter(item => {
@@ -290,6 +292,63 @@ export default function LibraryPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Hero Header */}
+      <FadeUp>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#3b82f6,#1d4ed8)' }}>
+                <Library className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h1 className="text-2xl font-black text-white tracking-tight">Resource Library</h1>
+                  <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-bold border border-blue-500/20">AI-Powered</span>
+                </div>
+                <p className="text-sm text-surface-400">Your centralized hub for lessons, worksheets, and AI-generated resources</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Library exported!')}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Upload started!')}>
+                <Upload className="w-3.5 h-3.5" /> Upload
+              </motion.button>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('New resource created!')}>
+                <Plus className="w-3.5 h-3.5" /> New Resource
+              </motion.button>
+            </div>
+          </div>
+          <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Total Items</span>
+              <span className="text-xs font-bold text-white">{items.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">New This Week</span>
+              <span className="text-xs font-bold text-success-400">{thisWeekCount}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Total Uses</span>
+              <span className="text-xs font-bold text-white">{totalUses}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">AI Generated</span>
+              <span className="text-xs font-bold text-blue-400">{aiPct}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Starred</span>
+              <span className="text-xs font-bold text-warning-400">{items.filter(i => i.starred).length}</span>
+            </div>
+          </div>
+        </div>
+      </FadeUp>
 
       {/* Stats Row */}
       <FadeUp delay={0.05}>
@@ -751,6 +810,21 @@ export default function LibraryPage() {
                 </motion.div>
               )
             })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            className="fixed top-5 right-5 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl shadow-2xl text-sm font-semibold text-white border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+            initial={{ opacity: 0, y: -12, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+          >
+            <CheckCircle className="w-4 h-4 text-blue-400 flex-shrink-0" />
+            {toastMsg}
           </motion.div>
         )}
       </AnimatePresence>
