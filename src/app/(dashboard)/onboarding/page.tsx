@@ -53,15 +53,29 @@ export default function OnboardingPage() {
       <div className="w-full max-w-2xl">
         <FadeUp>
           <div className="mb-8">
-            <div className="h-2 w-full bg-white/[0.06] rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #6366f1, #a78bfa, #22d3ee)' }}
-                initial={{ width: '0%' }}
-                animate={{ width: `${((step + 1) / 4) * 100}%` }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </div>
+            {(() => {
+              const W = 500, H = 8
+              const bw = ((step + 1) / 4) * W
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    <linearGradient id="ob-step" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="50%" stopColor="#a78bfa" />
+                      <stop offset="100%" stopColor="#22d3ee" />
+                    </linearGradient>
+                  </defs>
+                  <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.06)" />
+                  <motion.rect
+                    x={0} y={0} height={H} rx={4}
+                    fill="url(#ob-step)"
+                    initial={{ width: 0 }}
+                    animate={{ width: bw }}
+                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </svg>
+              )
+            })()}
           </div>
         </FadeUp>
 
