@@ -411,6 +411,62 @@ export default function IntegrationsPage() {
         </div>
       </FadeUp>
 
+      {/* Category Breakdown Chart */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <BarChart2 className="w-4 h-4 text-accent-400" /> Integrations by Category
+            </h3>
+            <span className="text-[10px] text-surface-500">{integrations.length} total</span>
+          </div>
+          {(() => {
+            const cats: Exclude<Category, 'All'>[] = ['LMS', 'Communication', 'Storage', 'Analytics', 'Assessment']
+            const catColors: Record<string, string> = { LMS: '#6366f1', Communication: '#10b981', Storage: '#f59e0b', Analytics: '#22d3ee', Assessment: '#ec4899' }
+            const counts = cats.map(c => ({
+              label: c, color: catColors[c],
+              total: integrations.filter(i => i.category === c).length,
+              connected: integrations.filter(i => i.category === c && i.status === 'connected').length,
+            }))
+            const maxC = Math.max(...counts.map(x => x.total), 1)
+            const W = 560, ROW = 18, GAP = 5, LW = 90, CW = 24, BAR_MAX = W - LW - CW - 8
+            const H = counts.length * (ROW + GAP)
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  {counts.map((x, i) => (
+                    <linearGradient key={i} id={`int-cat-${i}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={x.color} stopOpacity="0.85" />
+                      <stop offset="100%" stopColor={x.color} stopOpacity="0.35" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {counts.map((x, i) => {
+                  const y = i * (ROW + GAP)
+                  const bwTotal = (x.total / maxC) * BAR_MAX
+                  const bwConn = (x.connected / maxC) * BAR_MAX
+                  return (
+                    <g key={x.label}>
+                      <text x={LW - 4} y={y + ROW - 4} textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="10">{x.label}</text>
+                      <rect x={LW} y={y + 2} width={BAR_MAX} height={ROW - 5} rx="3" fill="rgba(255,255,255,0.04)" />
+                      <motion.rect x={LW} y={y + 2} width={bwTotal} height={ROW - 5} rx="3" fill={`url(#int-cat-${i})`}
+                        initial={{ width: 0 }} animate={{ width: bwTotal }} transition={{ delay: 0.1 + i * 0.07, duration: 0.55, ease: 'easeOut' }} />
+                      <motion.rect x={LW} y={y + 2} width={bwConn} height={ROW - 5} rx="3" fill={x.color}
+                        initial={{ width: 0 }} animate={{ width: bwConn }} transition={{ delay: 0.15 + i * 0.07, duration: 0.45, ease: 'easeOut' }} />
+                      <text x={W} y={y + ROW - 4} textAnchor="end" fill={x.color} fontSize="10" fontWeight="700">{x.connected}/{x.total}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+          <div className="flex items-center gap-4 mt-3 text-[10px] text-surface-500">
+            <span className="flex items-center gap-1.5"><span className="w-8 h-1.5 rounded-full bg-white/20 inline-block" />Total available</span>
+            <span className="flex items-center gap-1.5"><span className="w-8 h-1.5 rounded-full bg-accent-400 inline-block" />Connected</span>
+          </div>
+        </div>
+      </FadeUp>
+
       {/* Connected Integrations Summary */}
       <FadeUp delay={0.08}>
         <div>

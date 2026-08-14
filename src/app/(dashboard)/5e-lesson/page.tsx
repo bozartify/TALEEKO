@@ -664,38 +664,43 @@ export default function FiveELessonPage() {
                 ))}
               </div>
 
-              {/* Per-phase rows */}
-              <div className="space-y-2.5">
-                {phases.map((phase, idx) => {
-                  const pct = Math.round(
-                    (durations[phase.id] / Math.max(totalPhaseMins, 1)) * 100
-                  )
-                  return (
-                    <div key={phase.id}>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[11px] text-surface-400">
-                          {phase.emoji} {phase.label}
-                        </span>
-                        <span
-                          className="text-[11px] font-bold tabular-nums"
-                          style={{ color: phase.color }}
-                        >
-                          {durations[phase.id]}m
-                        </span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: phase.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${pct}%` }}
-                          transition={{ delay: 0.4 + idx * 0.04, duration: 0.35 }}
-                        />
-                      </div>
+              {/* Phase donut ring chart */}
+              {(() => {
+                const R = 42, CX = 52, CY = 52, SW = 14
+                const CIRC = 2 * Math.PI * R
+                const total = Math.max(totalPhaseMins, 1)
+                let offset = 0
+                const segs = phases.map(ph => {
+                  const dash = (durations[ph.id] / total) * CIRC
+                  const s = { ...ph, dash, offset }
+                  offset += dash
+                  return s
+                })
+                return (
+                  <div className="flex items-center gap-4">
+                    <svg viewBox="0 0 104 104" className="w-24 h-24 flex-shrink-0">
+                      <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth={SW} />
+                      {segs.map(s => (
+                        <motion.circle key={s.id} cx={CX} cy={CY} r={R} fill="none" stroke={s.color} strokeWidth={SW}
+                          strokeDasharray={`${s.dash.toFixed(2)} ${(CIRC - s.dash).toFixed(2)}`}
+                          strokeDashoffset={(-s.offset + CIRC / 4).toFixed(2)}
+                          strokeLinecap="butt"
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }} />
+                      ))}
+                      <text x={CX} y={CY - 3} textAnchor="middle" fill="white" fontSize="13" fontWeight="700">{totalPhaseMins}</text>
+                      <text x={CX} y={CY + 10} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="8">min total</text>
+                    </svg>
+                    <div className="space-y-1.5 flex-1">
+                      {phases.map(ph => (
+                        <div key={ph.id} className="flex items-center justify-between">
+                          <span className="text-[11px] text-surface-400">{ph.emoji} {ph.label}</span>
+                          <span className="text-[11px] font-bold tabular-nums" style={{ color: ph.color }}>{durations[ph.id]}m</span>
+                        </div>
+                      ))}
                     </div>
-                  )
-                })}
-              </div>
+                  </div>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 
