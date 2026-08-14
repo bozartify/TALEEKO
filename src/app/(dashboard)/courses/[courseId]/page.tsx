@@ -283,30 +283,51 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                 </div>
                 <span className="text-2xl font-black text-accent-400">{progressPct}%</span>
               </div>
-              <div className="h-2.5 bg-white/[0.06] rounded-full overflow-hidden mb-3">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progressPct}%` }}
-                  transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
+              {(() => {
+                const bw = (progressPct / 100) * 500
+                return (
+                  <svg viewBox="0 0 500 14" className="w-full overflow-visible mb-3">
+                    <defs>
+                      <linearGradient id="cid-prog" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor="#6366f1" stopOpacity={0.95} />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.85} />
+                      </linearGradient>
+                    </defs>
+                    <rect x={0} y={2} width={500} height={10} rx={5} fill="rgba(255,255,255,0.05)" />
+                    <motion.rect x={0} y={2} height={10} rx={5} fill="url(#cid-prog)"
+                      initial={{ width: 0 }} animate={{ width: bw }}
+                      transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </svg>
+                )
+              })()}
               <div className="flex gap-3">
-                {units.map(u => (
-                  <div key={u.id} className="flex-1">
-                    <div className="text-[10px] text-surface-500 mb-1 truncate">{u.title.replace('Unit ', 'U')}</div>
-                    <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: u.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.round((u.completedLessons / u.lessons.length) * 100)}%` }}
-                        transition={{ delay: 0.4, duration: 0.5 }}
-                      />
+                {units.map((u, ui) => {
+                  const upct = Math.round((u.completedLessons / u.lessons.length) * 100)
+                  return (
+                    <div key={u.id} className="flex-1">
+                      <div className="text-[10px] text-surface-500 mb-1 truncate">{u.title.replace('Unit ', 'U')}</div>
+                      {(() => {
+                        const bw = (upct / 100) * 60
+                        return (
+                          <svg viewBox="0 0 60 6" className="w-full overflow-visible">
+                            <defs>
+                              <linearGradient id={`cid-u-${ui}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={u.color} stopOpacity={0.9} />
+                                <stop offset="100%" stopColor={u.color} stopOpacity={0.55} />
+                              </linearGradient>
+                            </defs>
+                            <rect x={0} y={0} width={60} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                            <motion.rect x={0} y={0} height={6} rx={3} fill={`url(#cid-u-${ui})`}
+                              initial={{ width: 0 }} animate={{ width: bw }}
+                              transition={{ delay: 0.4, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          </svg>
+                        )
+                      })()}
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </div>
           </FadeUp>

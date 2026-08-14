@@ -602,37 +602,53 @@ export default function ParentPortalPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="flex gap-0.5 items-end h-6">
-                          {sg.trend.map((v, ti) => (
-                            <div
-                              key={ti}
-                              className="w-1 rounded-t-sm"
-                              style={{ height: `${(v / 100) * 24}px`, backgroundColor: sg.color + (ti === sg.trend.length - 1 ? 'ff' : '60') }}
-                            />
-                          ))}
-                        </div>
+                        {(() => {
+                          const n = sg.trend.length
+                          const W = n * 5 - 1, H = 24
+                          const pts = sg.trend.map((v, ti) => ({ x: ti * 5, y: H - (v / 100) * H }))
+                          let d = `M ${pts[0].x} ${pts[0].y}`
+                          for (let k = 1; k < pts.length; k++) {
+                            const cpx = (pts[k].x + pts[k - 1].x) / 2
+                            d += ` C ${cpx} ${pts[k - 1].y} ${cpx} ${pts[k].y} ${pts[k].x} ${pts[k].y}`
+                          }
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="overflow-visible">
+                              <motion.path d={d} fill="none" stroke={sg.color} strokeWidth={1.5} strokeLinecap="round"
+                                opacity={0.8} initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                                transition={{ duration: 0.8, ease: 'easeOut', delay: i * 0.05 }}
+                              />
+                              <circle cx={pts[n - 1].x} cy={pts[n - 1].y} r={2} fill={sg.color} />
+                            </svg>
+                          )
+                        })()}
                         <span className="text-xs text-surface-400">{sg.percentage}%</span>
                         <span className="text-sm font-bold px-2.5 py-1 rounded-lg" style={{ color: sg.color, backgroundColor: sg.color + '18' }}>
                           {sg.letter}
                         </span>
                       </div>
                     </div>
-                    <div className="relative w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                      <motion.div
-                        className="absolute left-0 top-0 h-full rounded-full opacity-30"
-                        style={{ backgroundColor: sg.color, width: `${sg.classAvg}%` }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${sg.classAvg}%` }}
-                        transition={{ delay: 0.3 + i * 0.08, duration: 0.5 }}
-                      />
-                      <motion.div
-                        className="absolute left-0 top-0 h-full rounded-full"
-                        style={{ backgroundColor: sg.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${sg.percentage}%` }}
-                        transition={{ delay: 0.35 + i * 0.08, duration: 0.6 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 300, bwClass = (sg.classAvg / 100) * W, bwStudent = (sg.percentage / 100) * W
+                      return (
+                        <svg viewBox={`0 0 ${W} 10`} className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={`pp-sg-${i}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={sg.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={sg.color} stopOpacity={0.6} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={2} width={W} height={6} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={0} y={2} height={6} rx={3} fill={sg.color} fillOpacity={0.25}
+                            initial={{ width: 0 }} animate={{ width: bwClass }}
+                            transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                          <motion.rect x={0} y={2} height={6} rx={3} fill={`url(#pp-sg-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bwStudent }}
+                            transition={{ delay: 0.35 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </svg>
+                      )
+                    })()}
                     <div className="flex justify-between mt-1">
                       <span className="text-[9px] text-surface-600">Class avg {sg.classAvg}%</span>
                       <span className="text-[9px] font-semibold" style={{ color: sg.color }}>Emma: {sg.percentage}% (+{sg.percentage - sg.classAvg})</span>
