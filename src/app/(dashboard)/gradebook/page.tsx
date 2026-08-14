@@ -401,15 +401,24 @@ export default function GradebookPage() {
                     <span className="text-xs text-surface-300">{cat.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: cat.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${cat.weight}%` }}
-                        transition={{ delay: i * 0.1, duration: 0.5 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 120, H = 10, bw = (cat.weight / 100) * W
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="flex-1 overflow-visible">
+                          <defs>
+                            <linearGradient id={`gb-cat-${i}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={cat.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={cat.color} stopOpacity={0.55} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={2} width={W} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                          <motion.rect x={0} y={2} height={6} rx={3} fill={`url(#gb-cat-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: i * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </svg>
+                      )
+                    })()}
                     <span className="text-xs font-black text-white w-10 text-right">{cat.weight}%</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -801,33 +810,48 @@ export default function GradebookPage() {
                 {/* Assignment averages */}
                 <div className="glass-card p-5">
                   <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><Target className="w-3.5 h-3.5" /> Assignment Averages</h4>
-                  <div className="space-y-2.5">
-                    {assignments.map((a, i) => {
+                  {(() => {
+                    const rows = assignments.map((a, ai) => {
                       const avg = students.reduce((acc, s) => {
-                        const sc = localScores[s.id][i]
+                        const sc = localScores[s.id][ai]
                         return acc + (sc !== null ? sc : 0)
                       }, 0) / students.length
                       const pct = (avg / a.maxScore) * 100
                       const { color } = getLetterGrade(pct)
-                      return (
-                        <div key={a.id}>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-[10px] text-surface-400 truncate max-w-[120px]">{a.name}</span>
-                            <span className="text-[10px] font-bold" style={{ color }}>{Math.round(pct)}%</span>
-                          </div>
-                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ backgroundColor: color }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                            />
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                      return { name: a.name, pct, color }
+                    })
+                    const W = 300, LW = 110, CW = 32, GAP = 5, ROW = 14, BAR_MAX = W - LW - CW - 6
+                    const H = rows.length * (ROW + GAP) - GAP
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                        <defs>
+                          {rows.map((r, ri) => (
+                            <linearGradient key={ri} id={`gb-avg-${ri}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={r.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={r.color} stopOpacity={0.5} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        {rows.map((r, ri) => {
+                          const bw = (r.pct / 100) * BAR_MAX
+                          const y = ri * (ROW + GAP)
+                          return (
+                            <g key={r.name}>
+                              <text x={0} y={y + 11} fill="rgba(255,255,255,0.5)" fontSize={9} fontFamily="inherit">
+                                {r.name.length > 14 ? r.name.slice(0, 13) + '…' : r.name}
+                              </text>
+                              <rect x={LW} y={y + 2} width={BAR_MAX} height={10} rx={3} fill="rgba(255,255,255,0.04)" />
+                              <motion.rect x={LW} y={y + 2} height={10} rx={3} fill={`url(#gb-avg-${ri})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ delay: 0.2 + ri * 0.1, duration: 0.5, ease: 'easeOut' }}
+                              />
+                              <text x={LW + BAR_MAX + 5} y={y + 11} fill={r.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{Math.round(r.pct)}%</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
                 </div>
 
                 {/* Quick stats + missing work */}

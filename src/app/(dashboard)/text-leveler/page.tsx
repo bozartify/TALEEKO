@@ -623,26 +623,41 @@ export default function TextLevelerPage() {
                   <span>{row.label}</span>
                   <span className="text-surface-600">{row.orig} → {row.out}</span>
                 </div>
-                <div className="space-y-1.5">
-                  {[
-                    { label: 'Original', value: row.orig, color: originalConfig.color },
-                    { label: 'Leveled', value: row.out, color: targetConfig.color },
-                  ].map(bar => (
-                    <div key={bar.label} className="flex items-center gap-2">
-                      <span className="text-[9px] text-surface-600 w-12 text-right flex-shrink-0">{bar.label}</span>
-                      <div className="flex-1 h-3 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: bar.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(bar.value / row.max) * 100}%` }}
-                          transition={{ delay: 0.3 + i * 0.06, duration: 0.7, ease: 'easeOut' }}
-                        />
-                      </div>
-                      <span className="text-[9px] text-surface-400 w-8 flex-shrink-0">{bar.value}</span>
-                    </div>
-                  ))}
-                </div>
+                {(() => {
+                  const W = 240, LW = 52, CW = 28, GAP = 5, ROW = 12, BAR_MAX = W - LW - CW - 6
+                  const H = 2 * (ROW + GAP) - GAP
+                  const bars = [
+                    { label: 'Original', value: row.orig, color: originalConfig.color, id: `tl-orig-${i}` },
+                    { label: 'Leveled', value: row.out, color: targetConfig.color, id: `tl-out-${i}` },
+                  ]
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                      <defs>
+                        {bars.map(b => (
+                          <linearGradient key={b.id} id={b.id} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor={b.color} stopOpacity={0.9} />
+                            <stop offset="100%" stopColor={b.color} stopOpacity={0.5} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      {bars.map((b, bi) => {
+                        const bw = row.max > 0 ? (b.value / row.max) * BAR_MAX : 0
+                        const y = bi * (ROW + GAP)
+                        return (
+                          <g key={b.label}>
+                            <text x={LW - 4} y={y + 9} fill="rgba(255,255,255,0.35)" fontSize={8} fontFamily="inherit" textAnchor="end">{b.label}</text>
+                            <rect x={LW} y={y} width={BAR_MAX} height={ROW} rx={3} fill="rgba(255,255,255,0.04)" />
+                            <motion.rect x={LW} y={y} height={ROW} rx={3} fill={`url(#${b.id})`}
+                              initial={{ width: 0 }} animate={{ width: bw }}
+                              transition={{ delay: 0.3 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                            <text x={LW + BAR_MAX + 4} y={y + 9} fill={b.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{b.value}</text>
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
               </div>
             ))}
           </div>

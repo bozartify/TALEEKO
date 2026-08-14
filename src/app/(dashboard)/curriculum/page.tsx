@@ -398,15 +398,24 @@ export default function CurriculumPage() {
                   </div>
                   <span className="text-[10px] font-bold" style={{ color: q.color }}>{q.progress}%</span>
                 </div>
-                <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: q.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${q.progress}%` }}
-                    transition={{ delay: 0.3 + i * 0.1, duration: 0.7 }}
-                  />
-                </div>
+                {(() => {
+                  const W = 200, bw = (q.progress / 100) * W
+                  return (
+                    <svg viewBox={`0 0 ${W} 10`} className="w-full overflow-visible">
+                      <defs>
+                        <linearGradient id={`cur-q-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={q.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={q.color} stopOpacity={0.6} />
+                        </linearGradient>
+                      </defs>
+                      <rect x={0} y={2} width={W} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                      <motion.rect x={0} y={2} height={6} rx={3} fill={`url(#cur-q-${i})`}
+                        initial={{ width: 0 }} animate={{ width: bw }}
+                        transition={{ delay: 0.3 + i * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                      />
+                    </svg>
+                  )
+                })()}
                 <p className="text-[10px] text-surface-500">{q.units} unit{q.units > 1 ? 's' : ''} · {q.weeks} wks</p>
               </motion.div>
             ))}
@@ -493,15 +502,24 @@ export default function CurriculumPage() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-[10px] text-surface-500">{unit.progress}%</span>
                       </div>
-                      <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: unit.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${unit.progress}%` }}
-                          transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                        />
-                      </div>
+                      {(() => {
+                        const bw = (unit.progress / 100) * 96
+                        return (
+                          <svg viewBox="0 0 96 8" className="w-full overflow-visible">
+                            <defs>
+                              <linearGradient id={`cur-unit-${unit.id}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={unit.color} stopOpacity={0.9} />
+                                <stop offset="100%" stopColor={unit.color} stopOpacity={0.55} />
+                              </linearGradient>
+                            </defs>
+                            <rect x={0} y={1} width={96} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                            <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#cur-unit-${unit.id})`}
+                              initial={{ width: 0 }} animate={{ width: bw }}
+                              transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          </svg>
+                        )
+                      })()}
                     </div>
                     <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                       <ChevronDown className="w-4 h-4 text-surface-500 flex-shrink-0" />
