@@ -840,33 +840,41 @@ export default function AnalyticsPage() {
         <FadeUp delay={0.5}>
           <div className="glass-card p-5">
             <h3 className="text-sm font-bold text-white mb-4">Tool Usage</h3>
-            <div className="space-y-3">
-              {topTools.sort((a, b) => b.uses - a.uses).map((tool, i) => (
-                <motion.div
-                  key={tool.name}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + i * 0.06 }}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-surface-300 flex items-center gap-1.5">
-                      <tool.icon className="w-3 h-3" style={{ color: tool.color }} />
-                      {tool.name}
-                    </span>
-                    <span className="text-xs font-bold" style={{ color: tool.color }}>{tool.uses}x</span>
-                  </div>
-                  <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${tool.pct}%` }}
-                      transition={{ delay: 0.65 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                      style={{ backgroundColor: tool.color }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {(() => {
+              const sorted = [...topTools].sort((a, b) => b.uses - a.uses)
+              const W = 340, LW = 116, CW = 32, GAP = 7, ROW = 22
+              const BAR_MAX = W - LW - CW - 6
+              const H = sorted.length * (ROW + GAP) - GAP
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    {sorted.map((t, i) => (
+                      <linearGradient key={i} id={`an-tool-${i}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={t.color} stopOpacity={0.9} />
+                        <stop offset="100%" stopColor={t.color} stopOpacity={0.5} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  {sorted.map((t, i) => {
+                    const bw = (t.pct / 100) * BAR_MAX
+                    const y = i * (ROW + GAP)
+                    return (
+                      <g key={t.name}>
+                        <circle cx={6} cy={y + 11} r={5} fill={t.color} fillOpacity={0.2} />
+                        <circle cx={6} cy={y + 11} r={2.5} fill={t.color} />
+                        <text x={16} y={y + 15} fill="rgba(255,255,255,0.55)" fontSize={10} fontFamily="inherit">{t.name}</text>
+                        <rect x={LW} y={y + 5} width={BAR_MAX} height={12} rx={3} fill="rgba(255,255,255,0.04)" />
+                        <motion.rect x={LW} y={y + 5} height={12} rx={3} fill={`url(#an-tool-${i})`}
+                          initial={{ width: 0 }} animate={{ width: bw }}
+                          transition={{ delay: 0.65 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                        <text x={LW + BAR_MAX + 5} y={y + 15} fill={t.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{t.uses}x</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
           </div>
         </FadeUp>
       </div>
@@ -880,48 +888,47 @@ export default function AnalyticsPage() {
                 <GraduationCap className="w-4 h-4 text-accent-400" /> Engagement by Class
               </h3>
             </div>
-            <div className="space-y-4">
-              {engagementByClass.map((cls, i) => (
-                <motion.div
-                  key={cls.name}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.65 + i * 0.08 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-surface-300">{cls.name}</span>
-                    <span className="text-xs font-bold" style={{ color: cls.color }}>{cls.engagement}%</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1">
-                      <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${cls.engagement}%` }}
+            {(() => {
+              const W = 340, LW = 82, CW = 36, BROW = 11, BGAP = 5, LBL_H = 14, OUTER_GAP = 10
+              const BAR_MAX = W - LW - CW - 6
+              const ITEM_H = LBL_H + BROW + BGAP + BROW
+              const H = engagementByClass.length * (ITEM_H + OUTER_GAP) - OUTER_GAP
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    {engagementByClass.map((cls, i) => (
+                      <linearGradient key={i} id={`an-ebc-${i}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={cls.color} stopOpacity={0.9} />
+                        <stop offset="100%" stopColor={cls.color} stopOpacity={0.5} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  {engagementByClass.map((cls, i) => {
+                    const baseY = i * (ITEM_H + OUTER_GAP)
+                    const bwEng = (cls.engagement / 100) * BAR_MAX
+                    const bwCmp = (cls.completion / 100) * BAR_MAX
+                    return (
+                      <g key={cls.name}>
+                        <text x={0} y={baseY + LBL_H - 3} fill="rgba(255,255,255,0.65)" fontSize={10} fontFamily="inherit" fontWeight="bold">{cls.name}</text>
+                        <text x={LW + BAR_MAX + 5} y={baseY + LBL_H - 3} fill={cls.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{cls.engagement}%</text>
+                        <rect x={LW} y={baseY + LBL_H} width={BAR_MAX} height={BROW} rx={3} fill="rgba(255,255,255,0.04)" />
+                        <motion.rect x={LW} y={baseY + LBL_H} height={BROW} rx={3} fill={`url(#an-ebc-${i})`}
+                          initial={{ width: 0 }} animate={{ width: bwEng }}
                           transition={{ delay: 0.7 + i * 0.08, duration: 0.7 }}
-                          style={{ backgroundColor: cls.color }}
                         />
-                      </div>
-                      <span className="text-[10px] text-surface-500">Engagement</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full opacity-60"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${cls.completion}%` }}
+                        <rect x={LW} y={baseY + LBL_H + BROW + BGAP} width={BAR_MAX} height={BROW} rx={3} fill="rgba(255,255,255,0.04)" />
+                        <motion.rect x={LW} y={baseY + LBL_H + BROW + BGAP} height={BROW} rx={3} fill={cls.color} fillOpacity={0.35}
+                          initial={{ width: 0 }} animate={{ width: bwCmp }}
                           transition={{ delay: 0.75 + i * 0.08, duration: 0.7 }}
-                          style={{ backgroundColor: cls.color }}
                         />
-                      </div>
-                      <span className="text-[10px] text-surface-500">Completion</span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                        <text x={LW + BAR_MAX + 5} y={baseY + LBL_H + BROW + BGAP + BROW - 1} fill="rgba(255,255,255,0.35)" fontSize={9} fontFamily="inherit">{cls.completion}%</text>
+                      </g>
+                    )
+                  })}
+                  <text x={LW} y={H + 10} fill="rgba(255,255,255,0.3)" fontSize={9} fontFamily="inherit">↑ Eng · Completion ↓</text>
+                </svg>
+              )
+            })()}
           </div>
         </FadeUp>
 
@@ -931,29 +938,37 @@ export default function AnalyticsPage() {
               <h3 className="text-sm font-bold text-white">Content by Language</h3>
               <Globe className="w-4 h-4 text-surface-500" />
             </div>
-            <div className="space-y-3">
-              {languageUsage.map((l, i) => (
-                <motion.div
-                  key={l.lang}
-                  className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + i * 0.06 }}
-                >
-                  <span className="text-sm w-6 text-center">{l.flag}</span>
-                  <span className="text-xs font-medium text-surface-300 w-16">{l.lang}</span>
-                  <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full bg-accent-500"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${l.pct}%` }}
-                      transition={{ delay: 0.75 + i * 0.06, duration: 0.6 }}
-                    />
-                  </div>
-                  <span className="text-xs font-bold text-surface-400 w-8 text-right">{l.pct}%</span>
-                </motion.div>
-              ))}
-            </div>
+            {(() => {
+              const W = 320, LW = 78, CW = 32, GAP = 7, ROW = 22
+              const BAR_MAX = W - LW - CW - 6
+              const H = languageUsage.length * (ROW + GAP) - GAP
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    <linearGradient id="an-lang-bar" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity={0.9} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0.5} />
+                    </linearGradient>
+                  </defs>
+                  {languageUsage.map((l, i) => {
+                    const bw = (l.pct / 100) * BAR_MAX
+                    const y = i * (ROW + GAP)
+                    return (
+                      <g key={l.lang}>
+                        <text x={0} y={y + 15} fontSize={13} fontFamily="inherit">{l.flag}</text>
+                        <text x={20} y={y + 15} fill="rgba(255,255,255,0.55)" fontSize={10} fontFamily="inherit">{l.lang}</text>
+                        <rect x={LW} y={y + 4} width={BAR_MAX} height={12} rx={3} fill="rgba(255,255,255,0.04)" />
+                        <motion.rect x={LW} y={y + 4} height={12} rx={3} fill="url(#an-lang-bar)"
+                          initial={{ width: 0 }} animate={{ width: bw }}
+                          transition={{ delay: 0.75 + i * 0.06, duration: 0.6 }}
+                        />
+                        <text x={LW + BAR_MAX + 5} y={y + 15} fill="rgba(255,255,255,0.6)" fontSize={10} fontFamily="inherit" fontWeight="bold">{l.pct}%</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
           </div>
         </FadeUp>
       </div>
