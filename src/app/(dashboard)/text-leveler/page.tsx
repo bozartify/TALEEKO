@@ -363,7 +363,53 @@ export default function TextLevelerPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 flex-wrap text-xs text-surface-400">
+          {/* Readability Scale Track */}
+          {(() => {
+            const W = 560, trackH = 6, PX = 28
+            const fkMin = 0, fkMax = 16
+            const levelPts = LEVELS.map((lv, i) => ({
+              lv,
+              x: PX + ((levelConfig[lv].fkGrade - fkMin) / (fkMax - fkMin)) * (W - PX * 2),
+              color: levelConfig[lv].color,
+              label: levelConfig[lv].label,
+            }))
+            const origX = PX + ((inputFK - fkMin) / (fkMax - fkMin)) * (W - PX * 2)
+            const targX = PX + ((outputFK - fkMin) / (fkMax - fkMin)) * (W - PX * 2)
+            return (
+              <div className="mt-4 pt-4 border-t border-white/[0.06]">
+                <p className="text-[10px] text-surface-500 mb-3 uppercase tracking-wider font-semibold">Readability Track (Flesch-Kincaid)</p>
+                <svg viewBox={`0 0 ${W} 52`} width="100%" className="overflow-visible" style={{ maxHeight: 60 }}>
+                  <defs>
+                    <linearGradient id="rl-grad" x1="0" y1="0" x2="1" y2="0">
+                      {LEVELS.map((lv, i) => (
+                        <stop key={lv} offset={`${(i / (LEVELS.length - 1)) * 100}%`} stopColor={levelConfig[lv].color} stopOpacity="0.8" />
+                      ))}
+                    </linearGradient>
+                  </defs>
+                  <rect x={PX} y={16} width={W - PX * 2} height={trackH} rx="3" fill="url(#rl-grad)" />
+                  {levelPts.map(p => (
+                    <g key={p.lv}>
+                      <circle cx={p.x} cy={19} r="4" fill={p.color} />
+                      <text x={p.x} y={34} textAnchor="middle" fontSize="8" fill={p.color}>{p.label}</text>
+                    </g>
+                  ))}
+                  {/* Original marker */}
+                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+                    <circle cx={origX} cy={19} r="6" fill="none" stroke={originalConfig.color} strokeWidth="2" />
+                    <circle cx={origX} cy={19} r="3" fill={originalConfig.color} />
+                    <text x={origX} y={10} textAnchor="middle" fontSize="7.5" fill={originalConfig.color} fontWeight="700">Original</text>
+                  </motion.g>
+                  {/* Target marker */}
+                  <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+                    <circle cx={targX} cy={19} r="6" fill={targetConfig.color} opacity="0.9" />
+                    <text x={targX} y={48} textAnchor="middle" fontSize="7.5" fill={targetConfig.color} fontWeight="700">Target</text>
+                  </motion.g>
+                </svg>
+              </div>
+            )
+          })()}
+
+          <div className="flex items-center gap-3 flex-wrap text-xs text-surface-400 mt-3">
             <div className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ background: originalConfig.color }} />
               <span style={{ color: originalConfig.color }}>{originalConfig.lexile}</span>

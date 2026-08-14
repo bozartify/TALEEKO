@@ -254,6 +254,72 @@ export default function WordWallPage() {
         </div>
       </FadeUp>
 
+      {/* Mastery Distribution */}
+      <FadeUp delay={0.05}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">Mastery Distribution</h3>
+              <p className="text-[10px] text-surface-500 mt-0.5">Word-by-word comprehension levels</p>
+            </div>
+            <span className="text-xs font-bold text-success-400">{avgMastery}% class avg</span>
+          </div>
+          {(() => {
+            const buckets = [
+              { label: '0–39%',  color: '#ef4444', count: words.filter(w => w.mastery < 40).length },
+              { label: '40–59%', color: '#f97316', count: words.filter(w => w.mastery >= 40 && w.mastery < 60).length },
+              { label: '60–74%', color: '#f59e0b', count: words.filter(w => w.mastery >= 60 && w.mastery < 75).length },
+              { label: '75–89%', color: '#22d3ee', count: words.filter(w => w.mastery >= 75 && w.mastery < 90).length },
+              { label: '90–100%',color: '#10b981', count: words.filter(w => w.mastery >= 90).length },
+            ]
+            const maxCount = Math.max(...buckets.map(b => b.count), 1)
+            const W = 420, H = 80, PX = 8, PY = 8
+            const barW = (W - PX * 2 - (buckets.length - 1) * 8) / buckets.length
+            return (
+              <div className="flex items-end gap-6">
+                <svg viewBox={`0 0 ${W} ${H + 22}`} width="100%" className="overflow-visible flex-1" style={{ maxHeight: 120 }}>
+                  {buckets.map((b, i) => {
+                    const x = PX + i * (barW + 8)
+                    const barH = (b.count / maxCount) * (H - PY * 2)
+                    const y = PY + (H - PY * 2) - barH
+                    return (
+                      <g key={b.label}>
+                        <motion.rect
+                          x={x} y={y} width={barW} height={barH}
+                          rx="6" fill={b.color + '50'}
+                          initial={{ scaleY: 0 }}
+                          animate={{ scaleY: 1 }}
+                          transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+                          style={{ transformOrigin: `${x}px ${H - PY}px` }}
+                        />
+                        <motion.rect
+                          x={x} y={y} width={barW} height={Math.min(6, barH)}
+                          rx="3" fill={b.color}
+                          initial={{ scaleY: 0 }}
+                          animate={{ scaleY: 1 }}
+                          transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+                        />
+                        <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="10" fill={b.color} fontWeight="800">{b.count}</text>
+                        <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="8.5" fill="rgba(255,255,255,0.4)">{b.label}</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+                <div className="flex flex-col gap-1.5 text-[10px] text-surface-500 flex-shrink-0">
+                  {buckets.map(b => (
+                    <div key={b.label} className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: b.color }} />
+                      <span>{b.label}</span>
+                      <span className="font-bold" style={{ color: b.color }}>{b.count}w</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* AI Insights — collapsible */}
       <FadeUp delay={0.06}>
         <div className="glass-card border border-success-400/15 overflow-hidden">
