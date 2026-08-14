@@ -767,29 +767,44 @@ export default function AttendancePage() {
                 <Target className="w-3.5 h-3.5 text-accent-400" />
                 Monthly Overview
               </h4>
-              <div className="space-y-3">
-                {[
-                  { label: 'Class Rate', value: `${attendanceRate}%`, color: attendanceRate >= 90 ? '#10b981' : '#f59e0b', pct: attendanceRate },
-                  { label: 'Perfect (0 abs)', value: `${perfectStudents.length} students`, color: '#8b5cf6', pct: (perfectStudents.length / STUDENTS.length) * 100 },
-                  { label: 'At Risk (3+ abs)', value: `${atRiskStudents.length} students`, color: '#ef4444', pct: (atRiskStudents.length / STUDENTS.length) * 100 },
-                ].map((item, i) => (
-                  <div key={item.label}>
-                    <div className="flex justify-between text-[10px] mb-1">
-                      <span className="text-surface-500">{item.label}</span>
-                      <span style={{ color: item.color }} className="font-semibold">{item.value}</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: item.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${item.pct}%` }}
-                        transition={{ duration: 0.8, delay: 0.3 + i * 0.1 }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
+              {(() => {
+                const classRateColor = attendanceRate >= 90 ? '#10b981' : '#f59e0b'
+                const items = [
+                  { label: 'Class Rate',     value: `${attendanceRate}%`,              color: classRateColor, pct: attendanceRate },
+                  { label: 'Perfect (0 ab)', value: `${perfectStudents.length} stu`,   color: '#8b5cf6',     pct: (perfectStudents.length / STUDENTS.length) * 100 },
+                  { label: 'At Risk (3+ ab)',value: `${atRiskStudents.length} stu`,    color: '#ef4444',     pct: (atRiskStudents.length / STUDENTS.length) * 100 },
+                ]
+                const W = 300, LW = 88, CW = 52, GAP = 8, ROW = 22
+                const BAR_MAX = W - LW - CW - 6
+                const H = items.length * (ROW + GAP) - GAP
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                    <defs>
+                      {items.map((item, i) => (
+                        <linearGradient key={i} id={`att-mo-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={item.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={item.color} stopOpacity={0.45} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {items.map((item, i) => {
+                      const bw = (item.pct / 100) * BAR_MAX
+                      const y = i * (ROW + GAP)
+                      return (
+                        <g key={item.label}>
+                          <text x={0} y={y + 14} fill="rgba(255,255,255,0.5)" fontSize={10} fontFamily="inherit">{item.label}</text>
+                          <rect x={LW} y={y + 5} width={BAR_MAX} height={12} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={LW} y={y + 5} height={12} rx={3} fill={`url(#att-mo-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.3 + i * 0.1, duration: 0.8, ease: 'easeOut' }}
+                          />
+                          <text x={LW + BAR_MAX + 5} y={y + 14} fill={item.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{item.value}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 

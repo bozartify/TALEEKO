@@ -713,33 +713,39 @@ export default function CurriculumPage() {
                   </div>
                 )
               })()}
-              <div className="space-y-3">
-                {standardsCoverage.map((std, i) => {
-                  const pct = Math.round((std.covered / std.total) * 100)
-                  return (
-                    <motion.div
-                      key={std.label}
-                      initial={{ opacity: 0, x: 8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.06 }}
-                    >
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] text-surface-300 leading-tight">{std.label}</span>
-                        <span className="text-[10px] text-surface-500 flex-shrink-0 ml-2">{std.covered}/{std.total}</span>
-                      </div>
-                      <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: std.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${pct}%` }}
-                          transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                        />
-                      </div>
-                    </motion.div>
-                  )
-                })}
-              </div>
+              {(() => {
+                const W = 300, LW = 28, CW = 34, GAP = 7, ROW = 20
+                const BAR_MAX = W - LW - CW - 6
+                const H = standardsCoverage.length * (ROW + GAP) - GAP
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                    <defs>
+                      {standardsCoverage.map((std, i) => (
+                        <linearGradient key={i} id={`cu-std-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={std.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={std.color} stopOpacity={0.45} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {standardsCoverage.map((std, i) => {
+                      const pct = Math.round((std.covered / std.total) * 100)
+                      const bw = (pct / 100) * BAR_MAX
+                      const y = i * (ROW + GAP)
+                      return (
+                        <g key={std.label}>
+                          <text x={0} y={y + 13} fill={std.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{std.label.split(':')[0]}</text>
+                          <rect x={LW} y={y + 4} width={BAR_MAX} height={12} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={LW} y={y + 4} height={12} rx={3} fill={`url(#cu-std-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: 'easeOut' }}
+                          />
+                          <text x={LW + BAR_MAX + 5} y={y + 13} fill="rgba(255,255,255,0.6)" fontSize={10} fontFamily="inherit">{std.covered}/{std.total}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
               <div className="mt-4 pt-3 border-t border-white/[0.06]">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-surface-400">Overall Coverage</span>

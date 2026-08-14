@@ -755,27 +755,46 @@ export default function GradebookPage() {
                 <div className="glass-card p-5">
                   <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><BarChart2 className="w-3.5 h-3.5" /> Grade Distribution</h4>
                   <div className="space-y-2.5">
-                    {[
-                      { letter: 'A (90-100%)', count: aCount, color: '#10b981' },
-                      { letter: 'B (80-89%)', count: bCount, color: '#22d3ee' },
-                      { letter: 'C (70-79%)', count: cCount, color: '#f59e0b' },
-                      { letter: 'D (60-69%)', count: dCount, color: '#f97316' },
-                      { letter: 'F (<60%)', count: fCount, color: '#ef4444' },
-                    ].map((g, i) => (
-                      <div key={g.letter} className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold w-20 flex-shrink-0" style={{ color: g.color }}>{g.letter}</span>
-                        <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: g.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(g.count / students.length) * 100}%` }}
-                            transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                          />
-                        </div>
-                        <span className="text-xs font-black text-white w-5 text-right">{g.count}</span>
-                      </div>
-                    ))}
+                    {(() => {
+                      const grades = [
+                        { letter: 'A (90-100%)', count: aCount, color: '#10b981' },
+                        { letter: 'B (80-89%)',  count: bCount, color: '#22d3ee' },
+                        { letter: 'C (70-79%)',  count: cCount, color: '#f59e0b' },
+                        { letter: 'D (60-69%)',  count: dCount, color: '#f97316' },
+                        { letter: 'F (<60%)',    count: fCount, color: '#ef4444' },
+                      ]
+                      const total = students.length
+                      const W = 340, LW = 80, CW = 18, GAP = 6, ROW = 20
+                      const BAR_MAX = W - LW - CW - 6
+                      const H = grades.length * (ROW + GAP) - GAP
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            {grades.map((g, i) => (
+                              <linearGradient key={i} id={`gb-grade-${i}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={g.color} stopOpacity={0.9} />
+                                <stop offset="100%" stopColor={g.color} stopOpacity={0.45} />
+                              </linearGradient>
+                            ))}
+                          </defs>
+                          {grades.map((g, i) => {
+                            const bw = total > 0 ? (g.count / total) * BAR_MAX : 0
+                            const y = i * (ROW + GAP)
+                            return (
+                              <g key={g.letter}>
+                                <text x={0} y={y + 14} fill={g.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{g.letter}</text>
+                                <rect x={LW} y={y + 4} width={BAR_MAX} height={12} rx={3} fill="rgba(255,255,255,0.04)" />
+                                <motion.rect x={LW} y={y + 4} height={12} rx={3} fill={`url(#gb-grade-${i})`}
+                                  initial={{ width: 0 }} animate={{ width: bw }}
+                                  transition={{ delay: 0.2 + i * 0.1, duration: 0.5, ease: 'easeOut' }}
+                                />
+                                <text x={LW + BAR_MAX + 5} y={y + 14} fill="rgba(255,255,255,0.9)" fontSize={11} fontFamily="inherit" fontWeight="bold">{g.count}</text>
+                              </g>
+                            )
+                          })}
+                        </svg>
+                      )
+                    })()}
                   </div>
                 </div>
 
