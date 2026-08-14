@@ -214,6 +214,51 @@ export default function CalendarPage() {
         </div>
       </FadeUp>
 
+      {/* Events by Type Chart */}
+      <FadeUp delay={0.05}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <Target className="w-4 h-4 text-accent-400" /> Events by Type
+            </h3>
+            <span className="text-[10px] text-surface-500">{filteredEvents.length} total events</span>
+          </div>
+          {(() => {
+            const types = Object.entries(eventTypeConfig) as [EventType, (typeof eventTypeConfig)[EventType]][]
+            const counts = types.map(([t]) => ({ type: t, count: filteredEvents.filter(e => e.type === t).length, ...eventTypeConfig[t] }))
+            const maxCount = Math.max(...counts.map(c => c.count), 1)
+            const W = 560, ROW = 18, GAP = 5, LABEL_W = 70, COUNT_W = 24
+            const BAR_MAX = W - LABEL_W - COUNT_W - 8
+            const H = counts.length * (ROW + GAP) + 4
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  {counts.map(c => (
+                    <linearGradient key={c.type} id={`cal-bar-${c.type}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={c.dotColor} stopOpacity="0.85" />
+                      <stop offset="100%" stopColor={c.dotColor} stopOpacity="0.4" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {counts.map((c, i) => {
+                  const y = i * (ROW + GAP)
+                  const bw = (c.count / maxCount) * BAR_MAX
+                  return (
+                    <g key={c.type}>
+                      <text x={0} y={y + ROW - 4} fill="rgba(255,255,255,0.5)" fontSize="10">{c.label}</text>
+                      <rect x={LABEL_W} y={y + 2} width={BAR_MAX} height={ROW - 4} rx="3" fill="rgba(255,255,255,0.04)" />
+                      <motion.rect x={LABEL_W} y={y + 2} width={bw} height={ROW - 4} rx="3" fill={`url(#cal-bar-${c.type})`}
+                        initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.08 + i * 0.07, duration: 0.55, ease: 'easeOut' }} />
+                      <text x={W} y={y + ROW - 4} textAnchor="end" fill={c.dotColor} fontSize="10" fontWeight="700">{c.count}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* Filters */}
       <FadeUp delay={0.06}>
         <div className="flex items-center gap-3 flex-wrap">

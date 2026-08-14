@@ -527,21 +527,42 @@ export default function ParentPortalPage() {
                 <TrendingUp className="w-4 h-4 text-emerald-400" />
                 GPA Trend — This Semester
               </h4>
-              <div className="flex items-end gap-2 h-20">
-                {GPA_TREND.map((val, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-[9px] font-bold" style={{ color: '#8b5cf6' }}>{val}</span>
-                    <motion.div
-                      className="w-full rounded-t-sm"
-                      style={{ background: 'linear-gradient(180deg, #8b5cf6, #6d28d9)' }}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${((val - 3.0) / 1.0) * 64}px` }}
-                      transition={{ delay: 0.3 + i * 0.05, duration: 0.5, ease: 'easeOut' }}
-                    />
-                    <span className="text-[8px] text-surface-600">{GPA_LABELS[i]}</span>
-                  </div>
-                ))}
-              </div>
+              {(() => {
+                const W = 320, H = 100, PX = 20, PY = 12
+                const minV = 3.2, maxV = 4.0
+                const sx = (i: number) => PX + (i / (GPA_TREND.length - 1)) * (W - PX * 2)
+                const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                const pts = GPA_TREND.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                let linePath = `M ${pts[0].x} ${pts[0].y}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = (pts[i].x + pts[i - 1].x) / 2
+                  linePath += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                }
+                const areaPath = linePath + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                    <defs>
+                      <linearGradient id="gpa-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {[3.4, 3.6, 3.8, 4.0].map(g => (
+                      <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                    ))}
+                    <path d={areaPath} fill="url(#gpa-grad)" />
+                    <motion.path d={linePath} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+                    {pts.map((pt, i) => (
+                      <g key={i}>
+                        <circle cx={pt.x} cy={pt.y} r={3.5} fill="#8b5cf6" />
+                        <text x={pt.x} y={pt.y - 7} textAnchor="middle" fill="#a78bfa" fontSize="8.5" fontWeight="700">{GPA_TREND[i]}</text>
+                        <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="8">{GPA_LABELS[i]}</text>
+                      </g>
+                    ))}
+                  </svg>
+                )
+              })()}
               <div className="flex justify-between mt-2">
                 <span className="text-[10px] text-surface-500">Started at 3.4 this year</span>
                 <span className="text-[10px] text-emerald-400 font-semibold">+0.4 GPA points ↑</span>

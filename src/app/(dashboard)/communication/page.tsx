@@ -141,6 +141,15 @@ const TEMPLATES: Template[] = [
 
 const RESPONSE_RATE_DATA = [88, 91, 90, 94, 96]
 const RESPONSE_RATE_LABELS = ['Mar', 'Apr', 'May', 'Jun', 'Jul']
+const WEEKLY_MSG_DATA = [
+  { day: 'Mon', sent: 8, received: 12 },
+  { day: 'Tue', sent: 14, received: 9 },
+  { day: 'Wed', sent: 6, received: 11 },
+  { day: 'Thu', sent: 17, received: 15 },
+  { day: 'Fri', sent: 11, received: 8 },
+  { day: 'Sat', sent: 2, received: 3 },
+  { day: 'Sun', sent: 1, received: 2 },
+]
 
 const LABEL_CONFIG: Record<string, { color: string; bg: string; label: string }> = {
   positive: { color: '#10b981', bg: 'rgba(16,185,129,0.12)', label: 'Positive' },
@@ -416,6 +425,67 @@ export default function CommunicationPage() {
           </StaggerItem>
         ))}
       </StaggerList>
+
+      {/* Weekly Message Activity Chart */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-accent-400" /> Weekly Message Activity
+            </h3>
+            <div className="flex items-center gap-4 text-[10px]">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-accent-400 inline-block" />Sent</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-electric-400 inline-block" />Received</span>
+            </div>
+          </div>
+          {(() => {
+            const W = 600, H = 120, PX = 28, PY = 14
+            const maxV = Math.max(...WEEKLY_MSG_DATA.flatMap(d => [d.sent, d.received])) + 4
+            const sx = (i: number) => PX + (i / (WEEKLY_MSG_DATA.length - 1)) * (W - PX * 2)
+            const sy = (v: number) => PY + ((maxV - v) / maxV) * (H - PY * 2)
+            const buildPath = (vals: number[]) => {
+              const pts = vals.map((v, i) => ({ x: sx(i), y: sy(v) }))
+              let d = `M ${pts[0].x} ${pts[0].y}`
+              for (let i = 1; i < pts.length; i++) {
+                const cpx = (pts[i].x + pts[i - 1].x) / 2
+                d += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+              }
+              return { path: d, pts, area: d + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z` }
+            }
+            const sent = buildPath(WEEKLY_MSG_DATA.map(d => d.sent))
+            const recv = buildPath(WEEKLY_MSG_DATA.map(d => d.received))
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  <linearGradient id="cm-sent-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="cm-recv-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[5, 10, 15, 20].map(g => (
+                  <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                ))}
+                <path d={recv.area} fill="url(#cm-recv-grad)" />
+                <path d={sent.area} fill="url(#cm-sent-grad)" />
+                <motion.path d={recv.path} fill="none" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+                <motion.path d={sent.path} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.8, delay: 0.15, ease: 'easeOut' }} />
+                {sent.pts.map((pt, i) => (
+                  <g key={i}>
+                    <circle cx={pt.x} cy={pt.y} r={3} fill="#8b5cf6" />
+                    <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9">{WEEKLY_MSG_DATA[i].day}</text>
+                  </g>
+                ))}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
 
       {/* AI Insights Panel */}
       <FadeUp delay={0.1}>
@@ -1207,26 +1277,42 @@ export default function CommunicationPage() {
                     <BarChart3 className="w-4 h-4 text-success-400" />
                     <h4 className="text-sm font-bold text-white">Response Rate Trend</h4>
                   </div>
-                  <div className="flex items-end gap-2 h-24">
-                    {RESPONSE_RATE_DATA.map((val, i) => {
-                      const pct = (val / 100) * 100
-                      return (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <span className="text-[9px] text-success-400 font-bold">{val}%</span>
-                          <div className="w-full bg-white/[0.06] rounded-sm overflow-hidden flex flex-col justify-end" style={{ height: '56px' }}>
-                            <motion.div
-                              className="w-full rounded-sm"
-                              style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }}
-                              initial={{ height: 0 }}
-                              animate={{ height: `${pct}%` }}
-                              transition={{ delay: 0.4 + i * 0.07, duration: 0.7, ease: 'easeOut' }}
-                            />
-                          </div>
-                          <span className="text-[9px] text-surface-500">{RESPONSE_RATE_LABELS[i]}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
+                  {(() => {
+                    const W = 280, H = 90, PX = 18, PY = 10
+                    const minV = 85, maxV = 100
+                    const sx = (i: number) => PX + (i / (RESPONSE_RATE_DATA.length - 1)) * (W - PX * 2)
+                    const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                    const pts = RESPONSE_RATE_DATA.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                    let linePath = `M ${pts[0].x} ${pts[0].y}`
+                    for (let i = 1; i < pts.length; i++) {
+                      const cpx = (pts[i].x + pts[i - 1].x) / 2
+                      linePath += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                    }
+                    const areaPath = linePath + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                        <defs>
+                          <linearGradient id="rr-grad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                            <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                        {[88, 92, 96, 100].map(g => (
+                          <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                        ))}
+                        <path d={areaPath} fill="url(#rr-grad)" />
+                        <motion.path d={linePath} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round"
+                          initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+                        {pts.map((pt, i) => (
+                          <g key={i}>
+                            <circle cx={pt.x} cy={pt.y} r={3.5} fill="#10b981" />
+                            <text x={pt.x} y={pt.y - 7} textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="700">{RESPONSE_RATE_DATA[i]}%</text>
+                            <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9">{RESPONSE_RATE_LABELS[i]}</text>
+                          </g>
+                        ))}
+                      </svg>
+                    )
+                  })()}
                   <div className="mt-3 flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 text-success-400" />
                     <span className="text-[11px] text-success-300 font-semibold">+8% over 5 months</span>
