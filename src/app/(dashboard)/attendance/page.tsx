@@ -673,29 +673,51 @@ export default function AttendancePage() {
                   {attendanceRate >= 90 ? '▲' : '▼'} {attendanceRate}%
                 </span>
               </div>
-              <div className="flex items-end gap-1.5 h-20">
-                {weeklyTrendData.map((val, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full relative" style={{ height: '64px' }}>
-                      <motion.div
-                        className="absolute bottom-0 w-full rounded-t-sm"
-                        style={{
-                          background: i === weeklyTrendData.length - 1
-                            ? (val >= 90 ? '#10b981' : '#f59e0b')
-                            : 'rgba(255,255,255,0.08)',
-                        }}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${(val / 100) * 64}px` }}
-                        transition={{ duration: 0.7, delay: i * 0.07 }}
-                      />
+              {(() => {
+                const W = 220, H = 80, PX = 8, PY = 10
+                const minV = 84, maxV = 100
+                const pts = weeklyTrendData.map((v, i) => ({
+                  x: PX + (i / (weeklyTrendData.length - 1)) * (W - PX * 2),
+                  y: PY + (H - PY * 2) * (1 - (v - minV) / (maxV - minV)),
+                }))
+                let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = ((pts[i].x + pts[i-1].x) / 2).toFixed(1)
+                  d += ` C ${cpx} ${pts[i-1].y.toFixed(1)} ${cpx} ${pts[i].y.toFixed(1)} ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`
+                }
+                const area = d + ` L ${pts[pts.length-1].x.toFixed(1)} ${H} L ${pts[0].x.toFixed(1)} ${H} Z`
+                const lastColor = weeklyTrendData[weeklyTrendData.length-1] >= 90 ? '#10b981' : '#f59e0b'
+                return (
+                  <div>
+                    <svg viewBox={`0 0 ${W} ${H}`} width="100%" className="overflow-visible" style={{ maxHeight: 88 }}>
+                      <defs>
+                        <linearGradient id="at-area" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={lastColor} stopOpacity="0.3" />
+                          <stop offset="100%" stopColor={lastColor} stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      {[86, 90, 94, 98].map(v => (
+                        <line key={v}
+                          x1={PX} y1={PY + (H - PY * 2) * (1 - (v - minV) / (maxV - minV))}
+                          x2={W - PX} y2={PY + (H - PY * 2) * (1 - (v - minV) / (maxV - minV))}
+                          stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+                        />
+                      ))}
+                      <path d={area} fill="url(#at-area)" />
+                      <path d={d} fill="none" stroke={lastColor} strokeWidth="1.5" strokeLinecap="round" />
+                      {pts.map((p, i) => (
+                        <g key={i}>
+                          <circle cx={p.x} cy={p.y} r={i === pts.length - 1 ? 3.5 : 2} fill={lastColor} />
+                          <text x={p.x} y={H - 1} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.3)">{weeklyTrendLabels[i].replace('Wk ', '')}</text>
+                        </g>
+                      ))}
+                    </svg>
+                    <div className="flex justify-between text-[9px] text-surface-600 border-t border-white/[0.04] pt-1 mt-0.5">
+                      <span>Wk 1</span><span>84–100% range</span><span>Now</span>
                     </div>
-                    <span className="text-[8px] text-surface-600">{weeklyTrendLabels[i]}</span>
                   </div>
-                ))}
-              </div>
-              <div className="flex justify-between text-[9px] text-surface-600 mt-1 border-t border-white/[0.04] pt-1">
-                <span>80%</span><span>100%</span>
-              </div>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 

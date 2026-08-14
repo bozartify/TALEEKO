@@ -156,6 +156,15 @@ const aiInsights = [
   { color: '#f59e0b', title: 'Progress Reports Due', desc: '4 students are flagged for at-risk status. Parent communication reports are recommended before the Aug 15 deadline.', cta: 'Create Reports' },
 ]
 
+const monthlyActivity = [
+  { month: 'Feb', progress: 3, class: 2, assessment: 1, other: 1, total: 7 },
+  { month: 'Mar', progress: 4, class: 3, assessment: 2, other: 2, total: 11 },
+  { month: 'Apr', progress: 3, class: 2, assessment: 3, other: 1, total: 9 },
+  { month: 'May', progress: 5, class: 4, assessment: 2, other: 2, total: 13 },
+  { month: 'Jun', progress: 6, class: 3, assessment: 3, other: 2, total: 14 },
+  { month: 'Jul', progress: 5, class: 3, assessment: 2, other: 2, total: 12 },
+]
+
 const formatLabels: Record<FormatOption, { label: string; color: string; bg: string }> = {
   pdf:  { label: 'PDF',  color: 'text-danger-400',  bg: 'bg-danger-400/15' },
   xlsx: { label: 'XLSX', color: 'text-success-400', bg: 'bg-success-400/15' },
@@ -263,6 +272,90 @@ export default function ReportsPage() {
               </div>
             </motion.div>
           ))}
+        </div>
+      </FadeUp>
+
+      {/* Monthly Activity Chart */}
+      <FadeUp delay={0.06}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">Report Generation Activity</h3>
+              <p className="text-[10px] text-surface-500 mt-0.5">Last 6 months · by report type</p>
+            </div>
+            <div className="flex items-center gap-3 text-[10px] text-surface-500">
+              {[
+                { label: 'Progress', color: '#6366f1' },
+                { label: 'Class', color: '#8b5cf6' },
+                { label: 'Assessment', color: '#ec4899' },
+                { label: 'Other', color: '#22d3ee' },
+              ].map(l => (
+                <span key={l.label} className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-sm" style={{ backgroundColor: l.color }} />
+                  {l.label}
+                </span>
+              ))}
+            </div>
+          </div>
+          {(() => {
+            const W = 560, H = 130, PX = 32, PY = 12, maxTotal = 16
+            const barW = 36, gap = (W - PX * 2 - barW * monthlyActivity.length) / (monthlyActivity.length - 1)
+            const scaleY = (v: number) => PY + (H - PY * 2) * (1 - v / maxTotal)
+            const colors = { progress: '#6366f1', class: '#8b5cf6', assessment: '#ec4899', other: '#22d3ee' }
+            return (
+              <svg viewBox={`0 0 ${W} ${H + 24}`} width="100%" className="overflow-visible" style={{ maxHeight: 160 }}>
+                <defs>
+                  {Object.entries(colors).map(([k, c]) => (
+                    <linearGradient key={k} id={`rg-${k}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={c} stopOpacity="0.9" />
+                      <stop offset="100%" stopColor={c} stopOpacity="0.5" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {/* Grid lines */}
+                {[0, 4, 8, 12, 16].map(v => (
+                  <g key={v}>
+                    <line x1={PX} y1={scaleY(v)} x2={W - PX} y2={scaleY(v)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                    <text x={PX - 4} y={scaleY(v) + 3.5} textAnchor="end" fontSize="8" fill="rgba(255,255,255,0.3)">{v}</text>
+                  </g>
+                ))}
+                {/* Stacked bars */}
+                {monthlyActivity.map((d, i) => {
+                  const x = PX + i * (barW + gap)
+                  const segs = [
+                    { key: 'other',      val: d.other,      color: colors.other },
+                    { key: 'assessment', val: d.assessment,  color: colors.assessment },
+                    { key: 'class',      val: d.class,       color: colors.class },
+                    { key: 'progress',   val: d.progress,    color: colors.progress },
+                  ]
+                  let accum = 0
+                  return (
+                    <g key={d.month}>
+                      {segs.map(seg => {
+                        const segH = (seg.val / maxTotal) * (H - PY * 2)
+                        const y = scaleY(accum + seg.val)
+                        accum += seg.val
+                        return (
+                          <motion.rect
+                            key={seg.key}
+                            x={x} y={y} width={barW} height={segH}
+                            fill={`url(#rg-${seg.key})`}
+                            rx="2"
+                            initial={{ scaleY: 0, originY: 1 }}
+                            animate={{ scaleY: 1 }}
+                            transition={{ duration: 0.5, delay: 0.1 + i * 0.07, ease: 'easeOut' }}
+                            style={{ transformOrigin: `${x + barW / 2}px ${H - PY}px` }}
+                          />
+                        )
+                      })}
+                      <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.4)">{d.month}</text>
+                      <text x={x + barW / 2} y={scaleY(d.total) - 4} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.6)" fontWeight="700">{d.total}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
         </div>
       </FadeUp>
 
