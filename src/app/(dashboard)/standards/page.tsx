@@ -803,20 +803,44 @@ export default function StandardsPage() {
                     <h4 className="text-xs font-bold text-white mb-3 flex items-center gap-2">
                       <TrendingUp className="w-3.5 h-3.5 text-success-400" /> Alignment Trend (Last 6 Months)
                     </h4>
-                    <div className="flex items-end gap-2 h-20">
-                      {[28, 34, 42, 51, 58, 64].map((val, i) => (
-                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                          <motion.div
-                            className="w-full rounded-t-md"
-                            style={{ backgroundColor: '#8b5cf6', height: `${(val / 70) * 100}%` }}
-                            initial={{ height: 0 }}
-                            animate={{ height: `${(val / 70) * 100}%` }}
-                            transition={{ delay: 0.2 + i * 0.08, duration: 0.5 }}
-                          />
-                          <span className="text-[9px] text-surface-600">{['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'][i]}</span>
-                        </div>
-                      ))}
-                    </div>
+                    {(() => {
+                      const vals = [28, 34, 42, 51, 58, 64]
+                      const lbls = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul']
+                      const W = 280, H = 90, PX = 14, PY = 10
+                      const minV = 20, maxV = 70
+                      const sx = (i: number) => PX + (i / (vals.length - 1)) * (W - PX * 2)
+                      const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                      const pts = vals.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                      let lp = `M ${pts[0].x} ${pts[0].y}`
+                      for (let i = 1; i < pts.length; i++) {
+                        const cpx = (pts[i].x + pts[i - 1].x) / 2
+                        lp += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                      }
+                      const ap = lp + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                          <defs>
+                            <linearGradient id="std-align-grad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.35" />
+                              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                            </linearGradient>
+                          </defs>
+                          {[30, 45, 60].map(g => (
+                            <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                          ))}
+                          <path d={ap} fill="url(#std-align-grad)" />
+                          <motion.path d={lp} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round"
+                            initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+                          {pts.map((pt, i) => (
+                            <g key={i}>
+                              <circle cx={pt.x} cy={pt.y} r={i === pts.length - 1 ? 3.5 : 2.5} fill="#8b5cf6" />
+                              <text x={pt.x} y={pt.y - 6} textAnchor="middle" fill="#c4b5fd" fontSize="9" fontWeight="700">{vals[i]}</text>
+                              <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="8.5">{lbls[i]}</text>
+                            </g>
+                          ))}
+                        </svg>
+                      )
+                    })()}
                     <p className="text-[10px] text-success-400 mt-2 font-semibold">↑ +36 standards aligned in 6 months</p>
                   </div>
                 </FadeInWhenVisible>
