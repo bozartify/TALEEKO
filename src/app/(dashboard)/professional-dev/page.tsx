@@ -454,6 +454,68 @@ export default function ProfessionalDevPage() {
         </div>
       </FadeUp>
 
+      {/* Weekly Activity Chart */}
+      <FadeUp delay={0.14}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">Monthly PD Hours</h3>
+              <p className="text-[10px] text-surface-500 mt-0.5">Last 8 weeks · hours logged</p>
+            </div>
+            <span className="text-xs text-success-400 font-bold">↑ 6h this month</span>
+          </div>
+          {(() => {
+            const weeks = [
+              { wk: 'W1', hrs: 2 }, { wk: 'W2', hrs: 4 }, { wk: 'W3', hrs: 3 },
+              { wk: 'W4', hrs: 6 }, { wk: 'W5', hrs: 5 }, { wk: 'W6', hrs: 8 },
+              { wk: 'W7', hrs: 6 }, { wk: 'W8', hrs: 7 },
+            ]
+            const maxH = 10
+            const W = 520, H = 90, PX = 24, PY = 12
+            const barW = 36, gap = (W - PX * 2 - barW * weeks.length) / (weeks.length - 1)
+            return (
+              <svg viewBox={`0 0 ${W} ${H + 20}`} width="100%" style={{ maxHeight: 120 }} className="overflow-visible">
+                <defs>
+                  <linearGradient id="pd-bar" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0.6" />
+                  </linearGradient>
+                </defs>
+                {[2, 4, 6, 8, 10].map(v => {
+                  const y = PY + (H - PY * 2) * (1 - v / maxH)
+                  return (
+                    <g key={v}>
+                      <line x1={PX} y1={y} x2={W - PX} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                      <text x={PX - 4} y={y + 3.5} textAnchor="end" fontSize="8" fill="rgba(255,255,255,0.3)">{v}h</text>
+                    </g>
+                  )
+                })}
+                {weeks.map((d, i) => {
+                  const x = PX + i * (barW + gap)
+                  const barH = (d.hrs / maxH) * (H - PY * 2)
+                  const y = PY + (H - PY * 2) - barH
+                  return (
+                    <g key={d.wk}>
+                      <motion.rect
+                        x={x} y={y} width={barW} height={barH}
+                        fill={i === weeks.length - 1 ? '#a855f7' : 'url(#pd-bar)'}
+                        rx="4"
+                        initial={{ scaleY: 0, originY: 1 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 + i * 0.06, ease: 'easeOut' }}
+                        style={{ transformOrigin: `${x + barW / 2}px ${H - PY}px` }}
+                      />
+                      <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.35)">{d.wk}</text>
+                      <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.5)" fontWeight="700">{d.hrs}h</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* Learning Path */}
       <FadeInWhenVisible delay={0.05}>
         <div className="glass-card p-6">

@@ -668,6 +668,51 @@ export default function CurriculumPage() {
                 <h3 className="text-sm font-bold text-white">Standards Coverage</h3>
                 <span className="text-xs text-surface-500">NGSS</span>
               </div>
+              {/* Radar chart */}
+              {(() => {
+                const items = standardsCoverage
+                const N = items.length
+                const CX = 80, CY = 80, R = 60
+                const toXY = (i: number, r: number) => {
+                  const angle = (i / N) * 2 * Math.PI - Math.PI / 2
+                  return { x: CX + r * Math.cos(angle), y: CY + r * Math.sin(angle) }
+                }
+                const dataPoints = items.map((s, i) => toXY(i, R * (s.covered / s.total)))
+                const dataPath = dataPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ' Z'
+                const gridLevels = [0.25, 0.5, 0.75, 1.0]
+                return (
+                  <div className="flex justify-center mb-4">
+                    <svg viewBox="0 0 160 160" width={140} height={140}>
+                      {/* Grid rings */}
+                      {gridLevels.map(pct => {
+                        const pts = items.map((_, i) => toXY(i, R * pct))
+                        const path = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ') + ' Z'
+                        return <path key={pct} d={path} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+                      })}
+                      {/* Axis lines */}
+                      {items.map((_, i) => {
+                        const p = toXY(i, R)
+                        return <line key={i} x1={CX} y1={CY} x2={p.x.toFixed(1)} y2={p.y.toFixed(1)} stroke="rgba(255,255,255,0.07)" strokeWidth="1" />
+                      })}
+                      {/* Data polygon */}
+                      <path d={dataPath} fill="rgba(99,102,241,0.15)" stroke="#6366f1" strokeWidth="1.5" />
+                      {/* Data dots */}
+                      {dataPoints.map((p, i) => (
+                        <circle key={i} cx={p.x.toFixed(1)} cy={p.y.toFixed(1)} r="3" fill={items[i].color} />
+                      ))}
+                      {/* Labels */}
+                      {items.map((s, i) => {
+                        const p = toXY(i, R + 14)
+                        return (
+                          <text key={i} x={p.x.toFixed(1)} y={p.y.toFixed(1)} textAnchor="middle" dominantBaseline="middle" fontSize="6.5" fill="rgba(255,255,255,0.45)">
+                            {s.label.split(':')[0]}
+                          </text>
+                        )
+                      })}
+                    </svg>
+                  </div>
+                )
+              })()}
               <div className="space-y-3">
                 {standardsCoverage.map((std, i) => {
                   const pct = Math.round((std.covered / std.total) * 100)
