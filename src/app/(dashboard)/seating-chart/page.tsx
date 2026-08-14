@@ -744,15 +744,24 @@ export default function SeatingChartPage() {
                     <div key={metric.label} className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.05]">
                       <p className="text-[10px] text-surface-500 mb-1.5">{metric.label}</p>
                       <div className="flex items-center gap-1.5">
-                        <div className="flex-1 h-1.5 rounded-full bg-white/[0.08]">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: metric.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${metric.value}%` }}
-                            transition={{ duration: 0.6, ease: 'easeOut' }}
-                          />
-                        </div>
+                        {(() => {
+                          const bw = (metric.value / 100) * 100
+                          return (
+                            <svg viewBox="0 0 100 8" className="flex-1 overflow-visible">
+                              <defs>
+                                <linearGradient id={`sc-m-${metric.label}`} x1="0" y1="0" x2="1" y2="0">
+                                  <stop offset="0%" stopColor={metric.color} stopOpacity={0.9} />
+                                  <stop offset="100%" stopColor={metric.color} stopOpacity={0.55} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={1} width={100} height={6} rx={3} fill="rgba(255,255,255,0.06)" />
+                              <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#sc-m-${metric.label})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                              />
+                            </svg>
+                          )
+                        })()}
                         <span className="text-[10px] font-bold text-white">{metric.value}%</span>
                       </div>
                     </div>

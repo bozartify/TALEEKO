@@ -533,31 +533,44 @@ export default function PortfolioPage() {
                       </div>
                       <div className="glass-card p-5">
                         <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2"><BarChart2 className="w-4 h-4 text-success-400" /> Skills Summary</h4>
-                        <div className="space-y-3">
-                          {['Math', 'Science', 'Language', 'Core', 'History'].map(cat => {
+                        {(() => {
+                          const CAT_COLORS: Record<string, string> = { Math: '#14b8a6', Science: '#8b5cf6', Language: '#f97316', Core: '#6366f1', History: '#f43f5e' }
+                          const rows = ['Math', 'Science', 'Language', 'Core', 'History'].map(cat => {
                             const catSkills = selectedStudent.skills.filter(s => s.category === cat)
                             if (catSkills.length === 0) return null
                             const catAvg = Math.round(catSkills.reduce((a, s) => a + s.level, 0) / catSkills.length)
-                            const catColor = { Math: '#14b8a6', Science: '#8b5cf6', Language: '#f97316', Core: '#6366f1', History: '#f43f5e' }[cat] ?? '#6366f1'
-                            return (
-                              <div key={cat}>
-                                <div className="flex items-center justify-between mb-1">
-                                  <span className="text-xs text-surface-400">{cat}</span>
-                                  <span className="text-xs font-bold" style={{ color: catColor }}>{catAvg}%</span>
-                                </div>
-                                <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                                  <motion.div
-                                    className="h-full rounded-full"
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${catAvg}%` }}
-                                    transition={{ duration: 0.6, ease: 'easeOut' }}
-                                    style={{ backgroundColor: catColor }}
-                                  />
-                                </div>
-                              </div>
-                            )
-                          })}
-                        </div>
+                            return { label: cat, pct: catAvg, color: CAT_COLORS[cat] ?? '#6366f1' }
+                          }).filter(Boolean) as { label: string; pct: number; color: string }[]
+                          const W = 320, LW = 70, CW = 28, GAP = 6, ROW = 14, BAR_MAX = W - LW - CW - 6
+                          const H = rows.length * (ROW + GAP) - GAP
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                              <defs>
+                                {rows.map((r, i) => (
+                                  <linearGradient key={i} id={`pt-skill-${i}`} x1="0" y1="0" x2="1" y2="0">
+                                    <stop offset="0%" stopColor={r.color} stopOpacity={0.9} />
+                                    <stop offset="100%" stopColor={r.color} stopOpacity={0.5} />
+                                  </linearGradient>
+                                ))}
+                              </defs>
+                              {rows.map((r, i) => {
+                                const bw = (r.pct / 100) * BAR_MAX
+                                const y = i * (ROW + GAP)
+                                return (
+                                  <g key={r.label}>
+                                    <text x={0} y={y + 11} fill={r.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{r.label}</text>
+                                    <rect x={LW} y={y + 2} width={BAR_MAX} height={10} rx={3} fill="rgba(255,255,255,0.04)" />
+                                    <motion.rect x={LW} y={y + 2} height={10} rx={3} fill={`url(#pt-skill-${i})`}
+                                      initial={{ width: 0 }} animate={{ width: bw }}
+                                      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                    />
+                                    <text x={LW + BAR_MAX + 5} y={y + 11} fill={r.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{r.pct}%</text>
+                                  </g>
+                                )
+                              })}
+                            </svg>
+                          )
+                        })()}
                         <div className="mt-5 pt-4 border-t border-white/[0.06]">
                           <div className="flex items-center justify-between">
                             <span className="text-xs text-surface-400">Overall Skill Average</span>

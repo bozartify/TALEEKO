@@ -727,29 +727,44 @@ export default function ExitTicketsPage() {
                       <BarChart3 className="w-4 h-4 text-amber-400" />
                       Question Correctness
                     </h3>
-                    <div className="space-y-3">
-                      {selectedTicket.questions.map((q, i) => {
+                    {(() => {
+                      const rows = selectedTicket.questions.map((q, i) => {
                         const rate = Q_CORRECT_RATES[i] ?? 0
                         const color = rate >= 80 ? '#10b981' : rate >= 60 ? '#f59e0b' : '#ef4444'
-                        return (
-                          <div key={q.id}>
-                            <div className="flex justify-between mb-1">
-                              <span className="text-xs text-surface-400 truncate max-w-[70%]">Q{i+1}: {q.text}</span>
-                              <span className="text-xs font-bold ml-2" style={{ color }}>{rate}%</span>
-                            </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                              <motion.div
-                                className="h-full rounded-full"
-                                style={{ backgroundColor: color }}
-                                initial={{ width: 0 }}
-                                animate={{ width: `${rate}%` }}
-                                transition={{ delay: 0.2 + i * 0.08, duration: 0.5 }}
-                              />
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
+                        return { label: `Q${i + 1}: ${q.text}`, rate, color }
+                      })
+                      const W = 340, LW = 130, CW = 32, GAP = 6, ROW = 14, BAR_MAX = W - LW - CW - 6
+                      const H = rows.length * (ROW + GAP) - GAP
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            {rows.map((r, i) => (
+                              <linearGradient key={i} id={`et-q-${i}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={r.color} stopOpacity={0.9} />
+                                <stop offset="100%" stopColor={r.color} stopOpacity={0.5} />
+                              </linearGradient>
+                            ))}
+                          </defs>
+                          {rows.map((r, i) => {
+                            const bw = (r.rate / 100) * BAR_MAX
+                            const y = i * (ROW + GAP)
+                            return (
+                              <g key={r.label}>
+                                <text x={0} y={y + 11} fill="rgba(255,255,255,0.5)" fontSize={9} fontFamily="inherit">
+                                  {r.label.length > 18 ? r.label.slice(0, 17) + '…' : r.label}
+                                </text>
+                                <rect x={LW} y={y + 2} width={BAR_MAX} height={10} rx={3} fill="rgba(255,255,255,0.04)" />
+                                <motion.rect x={LW} y={y + 2} height={10} rx={3} fill={`url(#et-q-${i})`}
+                                  initial={{ width: 0 }} animate={{ width: bw }}
+                                  transition={{ delay: 0.2 + i * 0.08, duration: 0.5, ease: 'easeOut' }}
+                                />
+                                <text x={LW + BAR_MAX + 5} y={y + 11} fill={r.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{r.rate}%</text>
+                              </g>
+                            )
+                          })}
+                        </svg>
+                      )
+                    })()}
                   </div>
 
                   {/* AI Suggestions */}

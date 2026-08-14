@@ -439,15 +439,25 @@ export default function ProfessionalDevPage() {
               {weeklyGoal.current}<span className="text-surface-500 font-semibold text-sm">/{weeklyGoal.target} {weeklyGoal.unit}</span>
             </span>
           </div>
-          <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ background: 'linear-gradient(90deg, #6366f1, #a855f7)' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${(weeklyGoal.current / weeklyGoal.target) * 100}%` }}
-              transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            />
-          </div>
+          {(() => {
+            const pct = weeklyGoal.current / weeklyGoal.target
+            const bw = Math.min(pct, 1) * 520
+            return (
+              <svg viewBox="0 0 520 14" className="w-full overflow-visible">
+                <defs>
+                  <linearGradient id="pd-goal" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0.85} />
+                  </linearGradient>
+                </defs>
+                <rect x={0} y={2} width={520} height={10} rx={5} fill="rgba(255,255,255,0.05)" />
+                <motion.rect x={0} y={2} height={10} rx={5} fill="url(#pd-goal)"
+                  initial={{ width: 0 }} animate={{ width: bw }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </svg>
+            )
+          })()}
           <p className="text-xs text-surface-500 mt-2">
             {weeklyGoal.target - weeklyGoal.current} more {weeklyGoal.unit} to hit your weekly target. Keep going!
           </p>
@@ -799,15 +809,24 @@ export default function ProfessionalDevPage() {
                       <span className="text-[10px] font-medium text-surface-400">Progress</span>
                       <span className="text-[10px] font-bold" style={{ color: course.color }}>{course.progress}%</span>
                     </div>
-                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: course.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${course.progress}%` }}
-                        transition={{ delay: 0.3, duration: 0.6 }}
-                      />
-                    </div>
+                    {(() => {
+                      const bw = (course.progress / 100) * 300
+                      return (
+                        <svg viewBox="0 0 300 8" className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={`pd-course-${course.id}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={course.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={course.color} stopOpacity={0.55} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={1} width={300} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                          <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#pd-course-${course.id})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </div>
                 )}
 

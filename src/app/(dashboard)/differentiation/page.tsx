@@ -533,15 +533,24 @@ export default function DifferentiationPage() {
                         <span className="text-[9px] text-surface-500">Mastery</span>
                         <span className="text-[9px] font-bold" style={{ color: profile.color }}>{profile.mastery}%</span>
                       </div>
-                      <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: profile.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${profile.mastery}%` }}
-                          transition={{ delay: 0.2 + i * 0.06, duration: 0.6, ease: 'easeOut' }}
-                        />
-                      </div>
+                      {(() => {
+                        const bw = (profile.mastery / 100) * 200
+                        return (
+                          <svg viewBox="0 0 200 8" className="w-full overflow-visible">
+                            <defs>
+                              <linearGradient id={`df-m-${i}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={profile.color} stopOpacity={0.9} />
+                                <stop offset="100%" stopColor={profile.color} stopOpacity={0.55} />
+                              </linearGradient>
+                            </defs>
+                            <rect x={0} y={1} width={200} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                            <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#df-m-${i})`}
+                              initial={{ width: 0 }} animate={{ width: bw }}
+                              transition={{ delay: 0.2 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          </svg>
+                        )
+                      })()}
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
                       {profile.tags.slice(0, 2).map(tag => (
@@ -926,15 +935,24 @@ export default function DifferentiationPage() {
                       <span className="text-[11px] font-semibold text-white flex-1">{pillar.title}</span>
                       <span className="text-[10px] font-bold" style={{ color: pillar.color }}>{pillar.score}%</span>
                     </div>
-                    <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: pillar.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pillar.score}%` }}
-                        transition={{ delay: 0.32 + i * 0.06, duration: 0.6, ease: 'easeOut' }}
-                      />
-                    </div>
+                    {(() => {
+                      const bw = (pillar.score / 100) * 220
+                      return (
+                        <svg viewBox="0 0 220 8" className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={`udl-${pillar.id}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={pillar.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={pillar.color} stopOpacity={0.55} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={1} width={220} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                          <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#udl-${pillar.id})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.32 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </svg>
+                      )
+                    })()}
                     <p className="text-[9px] text-surface-500 mt-1">{pillar.subtitle}</p>
                     <div className="flex flex-wrap gap-1 mt-1.5">
                       {pillar.strategies.map(s => (

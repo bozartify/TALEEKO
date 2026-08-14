@@ -270,24 +270,41 @@ export default function StudentProfilePage() {
                     +7% this semester
                   </div>
                 </div>
-                <div className="flex items-end gap-2 h-28">
-                  {monthlyScores.map((m, i) => {
-                    const h = ((m.avg - minScore) / (100 - minScore)) * 100
-                    return (
-                      <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                        <span className="text-[10px] text-surface-400 font-medium">{m.avg}%</span>
-                        <motion.div
-                          className="w-full rounded-t-lg"
-                          style={{ background: i === monthlyScores.length - 1 ? student.color : student.color + '60', height: `${h}%`, minHeight: 8 }}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${h}%`, minHeight: 8 }}
-                          transition={{ delay: i * 0.08, duration: 0.5 }}
-                        />
-                        <span className="text-[10px] text-surface-600">{m.month}</span>
-                      </div>
-                    )
-                  })}
-                </div>
+                {(() => {
+                  const W = 400, H = 90, PX = 8, PY = 12
+                  const chartW = W - PX * 2
+                  const n = monthlyScores.length
+                  const barW = Math.floor(chartW / n * 0.6)
+                  const step = chartW / n
+                  const baseY = H + PY
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H + PY + 18}`} className="w-full overflow-visible">
+                      <defs>
+                        <linearGradient id="std-grade-bar" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={student.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={student.color} stopOpacity={0.45} />
+                        </linearGradient>
+                      </defs>
+                      {monthlyScores.map((m, i) => {
+                        const bh = Math.max(((m.avg - minScore) / (100 - minScore)) * H, 6)
+                        const x = PX + i * step + (step - barW) / 2
+                        const isLast = i === n - 1
+                        return (
+                          <g key={m.month}>
+                            <rect x={x} y={PY} width={barW} height={H} rx={3} fill="rgba(255,255,255,0.04)" />
+                            <motion.rect x={x} width={barW} height={bh} rx={3}
+                              fill={isLast ? 'url(#std-grade-bar)' : student.color + '60'}
+                              initial={{ y: baseY, height: 0 }} animate={{ y: baseY - bh, height: bh }}
+                              transition={{ delay: i * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                            <text x={x + barW / 2} y={baseY - bh - 3} fill={isLast ? student.color : 'rgba(255,255,255,0.5)'} fontSize={8} fontFamily="inherit" textAnchor="middle">{m.avg}%</text>
+                            <text x={x + barW / 2} y={baseY + 13} fill="rgba(255,255,255,0.35)" fontSize={9} fontFamily="inherit" textAnchor="middle">{m.month}</text>
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
               </div>
 
               {/* Classes Breakdown */}
@@ -302,15 +319,24 @@ export default function StudentProfilePage() {
                           <span className="text-xs font-medium text-surface-200">{cls.name}</span>
                           <span className="text-xs font-bold" style={{ color: cls.avg >= 90 ? '#10b981' : cls.avg >= 80 ? '#f59e0b' : '#ef4444' }}>{cls.grade} ({cls.avg}%)</span>
                         </div>
-                        <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ background: cls.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${cls.avg}%` }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        </div>
+                        {(() => {
+                          const bw = (cls.avg / 100) * 200
+                          return (
+                            <svg viewBox="0 0 200 8" className="w-full overflow-visible">
+                              <defs>
+                                <linearGradient id={`std-cls-${cls.name.replace(/\s/g,'')}`} x1="0" y1="0" x2="1" y2="0">
+                                  <stop offset="0%" stopColor={cls.color} stopOpacity={0.9} />
+                                  <stop offset="100%" stopColor={cls.color} stopOpacity={0.55} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={1} width={200} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                              <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#std-cls-${cls.name.replace(/\s/g,'')})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                              />
+                            </svg>
+                          )
+                        })()}
                         <span className="text-[10px] text-surface-600">{cls.period} · {cls.teacher}</span>
                       </div>
                     </div>
@@ -322,27 +348,48 @@ export default function StudentProfilePage() {
             {/* Attendance */}
             <div className="glass-card p-5">
               <h3 className="text-sm font-semibold text-surface-200 mb-4">Monthly Attendance</h3>
-              <div className="flex items-end gap-4">
-                {attendanceByMonth.map((m, i) => {
+              {(() => {
+                const rows = attendanceByMonth.map(m => {
                   const pct = Math.round((m.present / m.total) * 100)
-                  return (
-                    <div key={m.month} className="flex-1 text-center">
-                      <div className="text-xs font-bold text-surface-200 mb-1">{pct}%</div>
-                      <div className="h-16 bg-white/[0.06] rounded-lg overflow-hidden flex flex-col-reverse">
-                        <motion.div
-                          className="rounded-lg"
-                          style={{ background: pct >= 95 ? '#10b981' : pct >= 85 ? '#f59e0b' : '#ef4444', height: `${pct}%` }}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${pct}%` }}
-                          transition={{ delay: i * 0.06, duration: 0.4 }}
-                        />
-                      </div>
-                      <div className="text-[10px] text-surface-500 mt-1">{m.month}</div>
-                      <div className="text-[10px] text-surface-600">{m.present}/{m.total}</div>
-                    </div>
-                  )
-                })}
-              </div>
+                  const color = pct >= 95 ? '#10b981' : pct >= 85 ? '#f59e0b' : '#ef4444'
+                  return { month: m.month, pct, present: m.present, total: m.total, color }
+                })
+                const W = 500, H = 80, PX = 12, PY = 10
+                const n = rows.length
+                const step = (W - PX * 2) / n
+                const barW = Math.floor(step * 0.6)
+                const baseY = H + PY
+                return (
+                  <svg viewBox={`0 0 ${W} ${H + PY + 32}`} className="w-full overflow-visible">
+                    <defs>
+                      {['#10b981', '#f59e0b', '#ef4444'].map((c, ci) => (
+                        <linearGradient key={ci} id={`std-att-${ci}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={c} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={c} stopOpacity={0.5} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {rows.map((r, i) => {
+                      const bh = Math.max((r.pct / 100) * H, 3)
+                      const x = PX + i * step + (step - barW) / 2
+                      const gradIdx = r.pct >= 95 ? 0 : r.pct >= 85 ? 1 : 2
+                      return (
+                        <g key={r.month}>
+                          <rect x={x} y={PY} width={barW} height={H} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={x} width={barW} height={bh} rx={3}
+                            fill={`url(#std-att-${gradIdx})`}
+                            initial={{ y: baseY, height: 0 }} animate={{ y: baseY - bh, height: bh }}
+                            transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                          <text x={x + barW / 2} y={baseY - bh - 3} fill={r.color} fontSize={9} fontFamily="inherit" textAnchor="middle" fontWeight="bold">{r.pct}%</text>
+                          <text x={x + barW / 2} y={baseY + 13} fill="rgba(255,255,255,0.4)" fontSize={9} fontFamily="inherit" textAnchor="middle">{r.month}</text>
+                          <text x={x + barW / 2} y={baseY + 25} fill="rgba(255,255,255,0.25)" fontSize={8} fontFamily="inherit" textAnchor="middle">{r.present}/{r.total}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
             </div>
 
             {/* AI Insight */}

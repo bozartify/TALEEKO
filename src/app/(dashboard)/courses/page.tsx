@@ -543,9 +543,24 @@ export default function CoursesPage() {
                             <p className="text-xs text-surface-500">{course.subject} · Grade {course.grade}</p>
                           </div>
                           <div className="hidden sm:flex items-center gap-2 w-32 flex-shrink-0">
-                            <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                              <motion.div className="h-full rounded-full" style={{ backgroundColor: course.color }} initial={{ width: 0 }} animate={{ width: `${course.completion}%` }} transition={{ delay: 0.2 + i * 0.05, duration: 0.6 }} />
-                            </div>
+                            {(() => {
+                              const bw = (course.completion / 100) * 80
+                              return (
+                                <svg viewBox="0 0 80 8" className="flex-1 overflow-visible">
+                                  <defs>
+                                    <linearGradient id={`cs-comp-${course.id}`} x1="0" y1="0" x2="1" y2="0">
+                                      <stop offset="0%" stopColor={course.color} stopOpacity={0.9} />
+                                      <stop offset="100%" stopColor={course.color} stopOpacity={0.55} />
+                                    </linearGradient>
+                                  </defs>
+                                  <rect x={0} y={1} width={80} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                                  <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#cs-comp-${course.id})`}
+                                    initial={{ width: 0 }} animate={{ width: bw }}
+                                    transition={{ delay: 0.2 + i * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                  />
+                                </svg>
+                              )
+                            })()}
                             <span className="text-xs font-bold w-8 text-right" style={{ color: course.color }}>{course.completion}%</span>
                           </div>
                           <div className="hidden md:flex items-center gap-4 text-xs text-surface-500 flex-shrink-0">
@@ -627,21 +642,44 @@ export default function CoursesPage() {
           <FadeInWhenVisible delay={0.06}>
             <div className="glass-card p-4">
               <h3 className="text-xs font-bold text-white mb-3">Courses by Subject</h3>
-              <div className="space-y-2">
-                {subjectEntries.map(([subject, count], i) => {
-                  const colors = ['#8b5cf6', '#14b8a6', '#f97316', '#f43f5e', '#ec4899']
-                  const pct = Math.round((count / courses.length) * 100)
-                  return (
-                    <div key={subject} className="flex items-center gap-2">
-                      <span className="text-[10px] text-surface-400 w-14 text-right flex-shrink-0">{subject}</span>
-                      <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div className="h-full rounded-full" style={{ background: colors[i % colors.length] }} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ delay: 0.3 + i * 0.07, duration: 0.7, ease: 'easeOut' }} />
-                      </div>
-                      <span className="text-[10px] text-surface-500 w-4 flex-shrink-0">{count}</span>
-                    </div>
-                  )
-                })}
-              </div>
+              {(() => {
+                const COLORS = ['#8b5cf6', '#14b8a6', '#f97316', '#f43f5e', '#ec4899']
+                const rows = subjectEntries.map(([subject, count], i) => ({
+                  label: subject as string,
+                  count: count as number,
+                  pct: courses.length > 0 ? Math.round((count as number / courses.length) * 100) : 0,
+                  color: COLORS[i % COLORS.length],
+                }))
+                const W = 260, LW = 58, CW = 18, GAP = 5, ROW = 12, BAR_MAX = W - LW - CW - 6
+                const H = rows.length * (ROW + GAP) - GAP
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                    <defs>
+                      {rows.map((r, i) => (
+                        <linearGradient key={i} id={`cs-subj-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={r.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={r.color} stopOpacity={0.5} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {rows.map((r, i) => {
+                      const bw = (r.pct / 100) * BAR_MAX
+                      const y = i * (ROW + GAP)
+                      return (
+                        <g key={r.label}>
+                          <text x={LW - 4} y={y + 9} fill="rgba(255,255,255,0.45)" fontSize={8} fontFamily="inherit" textAnchor="end">{r.label}</text>
+                          <rect x={LW} y={y} width={BAR_MAX} height={ROW} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={LW} y={y} height={ROW} rx={3} fill={`url(#cs-subj-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.3 + i * 0.07, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                          <text x={LW + BAR_MAX + 4} y={y + 9} fill={r.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{r.count}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 
@@ -699,25 +737,40 @@ export default function CoursesPage() {
               </h4>
               <span className="text-[10px] text-success-400 font-bold flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {avgCompletion}% avg</span>
             </div>
-            <div className="space-y-3">
-              {[...courses].filter(c => c.status === 'active').sort((a, b) => b.completion - a.completion).map((c, i) => (
-                <div key={c.id}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-surface-400 truncate flex-1 mr-2">{c.title}</span>
-                    <span className="text-xs font-bold flex-shrink-0" style={{ color: c.color }}>{c.completion}%</span>
-                  </div>
-                  <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: c.color }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${c.completion}%` }}
-                      transition={{ delay: 0.3 + i * 0.06, duration: 0.6, ease: 'easeOut' }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            {(() => {
+              const activeSorted = [...courses].filter(c => c.status === 'active').sort((a, b) => b.completion - a.completion)
+              const W = 420, LW = 140, CW = 30, GAP = 6, ROW = 14, BAR_MAX = W - LW - CW - 6
+              const H = activeSorted.length * (ROW + GAP) - GAP
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    {activeSorted.map((c, i) => (
+                      <linearGradient key={i} id={`cco-${c.id}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={c.color} stopOpacity={0.9} />
+                        <stop offset="100%" stopColor={c.color} stopOpacity={0.5} />
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  {activeSorted.map((c, i) => {
+                    const bw = (c.completion / 100) * BAR_MAX
+                    const y = i * (ROW + GAP)
+                    return (
+                      <g key={c.id}>
+                        <text x={0} y={y + 11} fill="rgba(255,255,255,0.5)" fontSize={9} fontFamily="inherit">
+                          {c.title.length > 18 ? c.title.slice(0, 17) + '…' : c.title}
+                        </text>
+                        <rect x={LW} y={y + 2} width={BAR_MAX} height={10} rx={3} fill="rgba(255,255,255,0.04)" />
+                        <motion.rect x={LW} y={y + 2} height={10} rx={3} fill={`url(#cco-${c.id})`}
+                          initial={{ width: 0 }} animate={{ width: bw }}
+                          transition={{ delay: 0.3 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                        <text x={LW + BAR_MAX + 5} y={y + 11} fill={c.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{c.completion}%</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
           </div>
 
           {/* Quick actions */}
