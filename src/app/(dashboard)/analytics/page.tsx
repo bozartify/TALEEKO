@@ -23,6 +23,36 @@ const timeRanges: { key: TimeRange; label: string }[] = [
   { key: 'year', label: 'This Year' },
 ]
 
+/* 8-week class performance data (avg score per week) */
+const classPerformanceWeeks = [
+  { week: 'Wk 1', science: 72, english: 78, math: 65, history: 80 },
+  { week: 'Wk 2', science: 75, english: 76, math: 68, history: 82 },
+  { week: 'Wk 3', science: 79, english: 80, math: 71, history: 79 },
+  { week: 'Wk 4', science: 78, english: 83, math: 74, history: 84 },
+  { week: 'Wk 5', science: 83, english: 85, math: 77, history: 86 },
+  { week: 'Wk 6', science: 85, english: 84, math: 80, history: 83 },
+  { week: 'Wk 7', science: 88, english: 87, math: 82, history: 88 },
+  { week: 'Wk 8', science: 87, english: 90, math: 85, history: 91 },
+]
+
+function buildLinePath(pts: {x:number,y:number}[], close = false, baseY = 0): string {
+  if (pts.length < 2) return ''
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = ((pts[i].x + pts[i-1].x) / 2).toFixed(1)
+    d += ` C ${cpx} ${pts[i-1].y.toFixed(1)} ${cpx} ${pts[i].y.toFixed(1)} ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`
+  }
+  if (close) d += ` L ${pts[pts.length-1].x.toFixed(1)} ${baseY} L ${pts[0].x.toFixed(1)} ${baseY} Z`
+  return d
+}
+
+const classLines = [
+  { key: 'science' as const, label: '7th Science',  color: '#8b5cf6', gid: 'sci' },
+  { key: 'english' as const, label: '10th English',  color: '#f43f5e', gid: 'eng' },
+  { key: 'math'    as const, label: 'Algebra II',   color: '#14b8a6', gid: 'mth' },
+  { key: 'history' as const, label: '8th History',  color: '#f97316', gid: 'his' },
+]
+
 const weekData = [
   { day: 'Mon', lessons: 2, minutes: 45 },
   { day: 'Tue', lessons: 4, minutes: 60 },
@@ -399,6 +429,104 @@ export default function AnalyticsPage() {
           </div>
         </FadeUp>
       </div>
+
+      {/* ---- Class Performance Trend (SVG line chart) ---- */}
+      <FadeUp delay={0.28}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                <TrendingUp className="w-4 h-4 text-accent-400" /> Class Performance Trend
+              </h3>
+              <p className="text-xs text-surface-500 mt-0.5">8-week average score per class</p>
+            </div>
+            <div className="flex items-center gap-4">
+              {classLines.map(cl => (
+                <div key={cl.key} className="flex items-center gap-1.5">
+                  <div className="w-6 h-0.5 rounded-full" style={{ background: cl.color }} />
+                  <span className="text-[10px] text-surface-400">{cl.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          {(() => {
+            const W = 600, H = 160, PX = 32, PY = 16
+            const minV = 60, maxV = 100
+            const toX = (i: number) => PX + (i / (classPerformanceWeeks.length - 1)) * (W - PX * 2)
+            const toY = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+            const gridVals = [70, 80, 90, 100]
+            return (
+              <div className="relative w-full" style={{ height: 180 }}>
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-full" preserveAspectRatio="none">
+                  <defs>
+                    {classLines.map(cl => (
+                      <linearGradient key={cl.gid} id={`ag-${cl.gid}`} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={cl.color} stopOpacity="0.25"/>
+                        <stop offset="100%" stopColor={cl.color} stopOpacity="0.01"/>
+                      </linearGradient>
+                    ))}
+                  </defs>
+                  {/* grid lines */}
+                  {gridVals.map(v => (
+                    <line key={v} x1={PX} y1={toY(v)} x2={W - PX} y2={toY(v)}
+                      stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+                      strokeDasharray={v === 100 ? '0' : '4 4'}/>
+                  ))}
+                  {/* x-axis tick lines */}
+                  {classPerformanceWeeks.map((_, i) => (
+                    <line key={i} x1={toX(i)} y1={PY} x2={toX(i)} y2={H - PY}
+                      stroke="rgba(255,255,255,0.03)" strokeWidth="1"/>
+                  ))}
+                  {/* area fills */}
+                  {classLines.map(cl => {
+                    const pts = classPerformanceWeeks.map((d, i) => ({ x: toX(i), y: toY(d[cl.key]) }))
+                    return <path key={`a-${cl.key}`} d={buildLinePath(pts, true, H - PY)} fill={`url(#ag-${cl.gid})`}/>
+                  })}
+                  {/* lines */}
+                  {classLines.map(cl => {
+                    const pts = classPerformanceWeeks.map((d, i) => ({ x: toX(i), y: toY(d[cl.key]) }))
+                    return <path key={`l-${cl.key}`} d={buildLinePath(pts)} fill="none" stroke={cl.color} strokeWidth="2" strokeLinecap="round"/>
+                  })}
+                  {/* dots on last point */}
+                  {classLines.map(cl => {
+                    const last = classPerformanceWeeks[classPerformanceWeeks.length - 1]
+                    return (
+                      <g key={`d-${cl.key}`}>
+                        <circle cx={toX(classPerformanceWeeks.length-1)} cy={toY(last[cl.key])} r="5" fill={cl.color} fillOpacity="0.2"/>
+                        <circle cx={toX(classPerformanceWeeks.length-1)} cy={toY(last[cl.key])} r="3" fill={cl.color}/>
+                      </g>
+                    )
+                  })}
+                  {/* y-axis labels */}
+                  {gridVals.map(v => (
+                    <text key={`yl-${v}`} x={PX - 6} y={toY(v) + 4} textAnchor="end"
+                      fontSize="9" fill="rgba(255,255,255,0.3)">{v}</text>
+                  ))}
+                  {/* x-axis labels */}
+                  {classPerformanceWeeks.map((d, i) => (
+                    <text key={`xl-${i}`} x={toX(i)} y={H - 2} textAnchor="middle"
+                      fontSize="9" fill="rgba(255,255,255,0.3)">{d.week}</text>
+                  ))}
+                </svg>
+              </div>
+            )
+          })()}
+          <div className="mt-3 grid grid-cols-4 gap-3 pt-3 border-t border-white/[0.06]">
+            {classLines.map(cl => {
+              const last = classPerformanceWeeks[classPerformanceWeeks.length - 1][cl.key]
+              const first = classPerformanceWeeks[0][cl.key]
+              const delta = last - first
+              return (
+                <div key={cl.key} className="text-center">
+                  <p className="text-lg font-black text-white">{last}%</p>
+                  <p className="text-[10px] text-surface-500">{cl.label}</p>
+                  <p className="text-[10px] font-bold text-success-400">+{delta}pts</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </FadeUp>
 
       {/* ---- Top Performing Students + Goal Tracker ---- */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

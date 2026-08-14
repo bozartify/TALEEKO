@@ -20,11 +20,39 @@ function getGreeting() {
 }
 
 const stats = [
-  { label: 'Lessons Created',   value: '24',  delta: '+3 this week',     icon: BookOpen,      gradient: 'from-accent-500/20 to-accent-600/5',   iconColor: 'text-accent-400',   trend: '+14%', trendUp: true },
-  { label: 'Quizzes Generated', value: '18',  delta: '+5 this week',     icon: ClipboardList, gradient: 'from-warning-400/20 to-warning-500/5', iconColor: 'text-warning-400',  trend: '+22%', trendUp: true },
-  { label: 'Students Reached',  value: '142', delta: 'Across 4 classes', icon: Users,         gradient: 'from-success-400/20 to-success-500/5', iconColor: 'text-success-400',  trend: '+3%',  trendUp: true },
-  { label: 'Hours Saved',       value: '31h', delta: 'This month',       icon: Clock,         gradient: 'from-electric-400/20 to-electric-500/5', iconColor: 'text-electric-400', trend: '+8h', trendUp: true },
+  { label: 'Lessons Created',   value: '24',  delta: '+3 this week',     icon: BookOpen,      gradient: 'from-accent-500/20 to-accent-600/5',   iconColor: 'text-accent-400',   trend: '+14%', trendUp: true,  sparkColor: '#8b5cf6', spark: [4,6,5,8,7,9,11,10,13,12,14,16,18,21,24] },
+  { label: 'Quizzes Generated', value: '18',  delta: '+5 this week',     icon: ClipboardList, gradient: 'from-warning-400/20 to-warning-500/5', iconColor: 'text-warning-400',  trend: '+22%', trendUp: true,  sparkColor: '#f97316', spark: [2,3,4,5,5,7,8,9,11,12,13,15,16,17,18] },
+  { label: 'Students Reached',  value: '142', delta: 'Across 4 classes', icon: Users,         gradient: 'from-success-400/20 to-success-500/5', iconColor: 'text-success-400',  trend: '+3%',  trendUp: true,  sparkColor: '#10b981', spark: [120,125,128,132,130,135,136,138,139,140,140,141,142,142,142] },
+  { label: 'Hours Saved',       value: '31h', delta: 'This month',       icon: Clock,         gradient: 'from-electric-400/20 to-electric-500/5', iconColor: 'text-electric-400', trend: '+8h', trendUp: true,  sparkColor: '#22d3ee', spark: [8,10,12,15,16,18,20,22,23,24,26,27,28,30,31] },
 ]
+
+function Sparkline({ data, color }: { data: number[], color: string }) {
+  const W = 80, H = 28
+  const min = Math.min(...data), max = Math.max(...data)
+  const pts = data.map((v, i) => ({
+    x: (i / (data.length - 1)) * W,
+    y: H - ((v - min) / ((max - min) || 1)) * H * 0.85 - H * 0.08,
+  }))
+  let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`
+  for (let i = 1; i < pts.length; i++) {
+    const cpx = ((pts[i].x + pts[i-1].x) / 2).toFixed(1)
+    d += ` C ${cpx} ${pts[i-1].y.toFixed(1)} ${cpx} ${pts[i].y.toFixed(1)} ${pts[i].x.toFixed(1)} ${pts[i].y.toFixed(1)}`
+  }
+  const area = d + ` L ${pts[pts.length-1].x.toFixed(1)} ${H} L 0 ${H} Z`
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="overflow-visible">
+      <defs>
+        <linearGradient id={`sg-${color.replace('#','')}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.3"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d={area} fill={`url(#sg-${color.replace('#','')})`}/>
+      <path d={d} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx={pts[pts.length-1].x} cy={pts[pts.length-1].y} r="2.5" fill={color}/>
+    </svg>
+  )
+}
 
 interface ClassCard {
   name: string
@@ -211,7 +239,10 @@ export default function DashboardPage() {
               </div>
               <div className="text-2xl font-black text-white">{s.value}</div>
               <div className="text-xs font-semibold text-surface-300 mt-0.5">{s.label}</div>
-              <div className="text-xs text-surface-500 mt-1">{s.delta}</div>
+              <div className="mt-2 mb-1">
+                <Sparkline data={s.spark} color={s.sparkColor} />
+              </div>
+              <div className="text-xs text-surface-500">{s.delta}</div>
             </motion.div>
           </StaggerItem>
         ))}

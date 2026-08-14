@@ -284,6 +284,98 @@ export default function GradebookPage() {
         </div>
       </FadeUp>
 
+      {/* Grade Distribution Ring Chart */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+              <PieChart className="w-4 h-4 text-accent-400" /> Grade Distribution
+            </h3>
+            <span className="text-xs text-surface-500">Current class average: <span className="text-white font-bold">{classAvg}%</span></span>
+          </div>
+          <div className="flex items-center gap-8 flex-wrap">
+            {/* Ring chart */}
+            {(() => {
+              const getAvg = (scores: (number | null)[]) => {
+                const ns = scores.filter((x): x is number => x !== null)
+                return ns.length ? Math.round(ns.reduce((a, b) => a + b, 0) / ns.length) : 0
+              }
+              const gradeGroups = [
+                { label: 'A (90–100)', color: '#10b981', count: filteredStudents.filter(s => getAvg(s.scores) >= 90).length },
+                { label: 'B (80–89)',  color: '#6366f1', count: filteredStudents.filter(s => { const a = getAvg(s.scores); return a >= 80 && a < 90 }).length },
+                { label: 'C (70–79)',  color: '#f97316', count: filteredStudents.filter(s => { const a = getAvg(s.scores); return a >= 70 && a < 80 }).length },
+                { label: 'D (60–69)',  color: '#f59e0b', count: filteredStudents.filter(s => { const a = getAvg(s.scores); return a >= 60 && a < 70 }).length },
+                { label: 'F (<60)',    color: '#f43f5e', count: filteredStudents.filter(s => getAvg(s.scores) < 60).length },
+              ]
+              const total = gradeGroups.reduce((a, g) => a + g.count, 0) || 1
+              const R = 44, CX = 56, CY = 56, STROKE = 14
+              const CIRC = 2 * Math.PI * R
+              let offset = 0
+              const slices = gradeGroups.map(g => {
+                const pct = g.count / total
+                const dash = pct * CIRC
+                const slice = { ...g, pct, dash, offset }
+                offset += dash
+                return slice
+              })
+              return (
+                <div className="flex items-center gap-6 flex-wrap">
+                  <div className="relative flex-shrink-0" style={{ width: 112, height: 112 }}>
+                    <svg width="112" height="112" viewBox="0 0 112 112">
+                      <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={STROKE}/>
+                      {slices.map((s, i) => (
+                        <motion.circle
+                          key={i}
+                          cx={CX} cy={CY} r={R}
+                          fill="none"
+                          stroke={s.color}
+                          strokeWidth={STROKE}
+                          strokeDasharray={`${s.dash} ${CIRC - s.dash}`}
+                          strokeDashoffset={CIRC * 0.25 - s.offset}
+                          strokeLinecap="round"
+                          initial={{ strokeDasharray: `0 ${CIRC}` }}
+                          animate={{ strokeDasharray: `${s.dash} ${CIRC - s.dash}` }}
+                          transition={{ delay: 0.2 + i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      ))}
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-xl font-black text-white">{classAvg}%</span>
+                      <span className="text-[9px] text-surface-500">avg</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 flex-1 min-w-[180px]">
+                    {slices.map((s, i) => (
+                      <motion.div
+                        key={i}
+                        className="flex items-center gap-2"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 + i * 0.07 }}
+                      >
+                        <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }}/>
+                        <span className="text-[11px] text-surface-400 flex-1">{s.label}</span>
+                        <span className="text-xs font-bold text-white w-4 text-right">{s.count}</span>
+                        <div className="w-24 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+                          <motion.div
+                            className="h-full rounded-full"
+                            style={{ background: s.color }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${(s.count / total) * 100}%` }}
+                            transition={{ delay: 0.35 + i * 0.07, duration: 0.5 }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-surface-500 w-8 text-right">{Math.round(s.pct * 100)}%</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+          </div>
+        </div>
+      </FadeUp>
+
       {/* Category Weight Panel */}
       <AnimatePresence>
         {showWeightPanel && (
