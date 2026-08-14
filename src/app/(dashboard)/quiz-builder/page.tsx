@@ -725,29 +725,38 @@ export default function QuizBuilderPage() {
             <FadeInWhenVisible delay={0.15}>
               <div className="glass-card p-5">
                 <p className="text-xs font-bold text-surface-300 mb-3">Question Types</p>
-                <div className="space-y-2.5">
-                  {(Object.entries(questionTypeConfig) as [QuestionType, typeof questionTypeConfig[QuestionType]][]).map(([type, cfg]) => {
-                    const count = questions.filter(q => q.type === type).length
-                    const pct = Math.round((count / Math.max(questions.length, 1)) * 100)
-                    return (
-                      <div key={type}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] text-surface-400">{cfg.label}</span>
-                          <span className="text-[11px] font-bold" style={{ color: cfg.color }}>{count}</span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: cfg.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${pct}%` }}
-                            transition={{ delay: 0.3, duration: 0.4 }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                {(() => {
+                  const types = Object.entries(questionTypeConfig) as [QuestionType, (typeof questionTypeConfig)[QuestionType]][]
+                  const items = types.map(([t, cfg]) => ({ label: cfg.label, color: cfg.color, count: questions.filter(q => q.type === t).length }))
+                  const maxC = Math.max(...items.map(x => x.count), 1)
+                  const W = 220, ROW = 16, GAP = 5, LW = 78, CW = 18, BW = W - LW - CW - 6
+                  const H = items.length * (ROW + GAP)
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                      <defs>
+                        {items.map((x, i) => (
+                          <linearGradient key={i} id={`qb-bar-${i}`} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor={x.color} stopOpacity="0.9" />
+                            <stop offset="100%" stopColor={x.color} stopOpacity="0.4" />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      {items.map((x, i) => {
+                        const y = i * (ROW + GAP)
+                        const bw = (x.count / maxC) * BW
+                        return (
+                          <g key={i}>
+                            <text x={0} y={y + ROW - 4} fill="rgba(255,255,255,0.45)" fontSize="9.5">{x.label}</text>
+                            <rect x={LW} y={y + 2} width={BW} height={ROW - 5} rx="2" fill="rgba(255,255,255,0.04)" />
+                            <motion.rect x={LW} y={y + 2} width={bw} height={ROW - 5} rx="2" fill={`url(#qb-bar-${i})`}
+                              initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.1 + i * 0.07, duration: 0.5, ease: 'easeOut' }} />
+                            <text x={W} y={y + ROW - 4} textAnchor="end" fill={x.color} fontSize="9.5" fontWeight="700">{x.count}</text>
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
               </div>
             </FadeInWhenVisible>
 

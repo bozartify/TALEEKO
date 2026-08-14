@@ -406,6 +406,56 @@ export default function FeedbackWriterPage() {
         </div>
       </FadeUp>
 
+      {/* Class Overview Chart */}
+      <FadeUp delay={0.07}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-teal-400" /> Class Average Overview
+            </h3>
+            <span className="text-[10px] text-surface-500">Avg: {Math.round(STUDENTS.reduce((a, s) => a + s.avg, 0) / STUDENTS.length)}%</span>
+          </div>
+          {(() => {
+            const W = 560, H = 100, PX = 12, PY = 14
+            const maxV = 100, minV = 60
+            const barW = (W - PX * 2 - (STUDENTS.length - 1) * 8) / STUDENTS.length
+            const baseY = H - PY
+            const maxBar = baseY - PY
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  {STUDENTS.map((s) => (
+                    <linearGradient key={s.id} id={`fw-bar-${s.id}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={s.color} stopOpacity="0.95" />
+                      <stop offset="100%" stopColor={s.color} stopOpacity="0.45" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {[70, 80, 90, 100].map(g => (
+                  <line key={g} x1={PX} y1={baseY - ((g - minV) / (maxV - minV)) * maxBar} x2={W - PX} y2={baseY - ((g - minV) / (maxV - minV)) * maxBar}
+                    stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                ))}
+                {STUDENTS.map((s, i) => {
+                  const x = PX + i * (barW + 8)
+                  const bh = ((Math.max(s.avg, minV) - minV) / (maxV - minV)) * maxBar
+                  return (
+                    <g key={s.id}>
+                      <motion.rect x={x} y={baseY} width={barW} height={0} rx="3" fill={`url(#fw-bar-${s.id})`}
+                        animate={{ y: baseY - bh, height: bh }}
+                        initial={{ y: baseY, height: 0 }}
+                        transition={{ delay: 0.15 + i * 0.07, duration: 0.55, ease: 'easeOut' }}
+                      />
+                      <text x={x + barW / 2} y={baseY - bh - 4} textAnchor="middle" fill={s.color} fontSize="9" fontWeight="700">{s.avg}%</text>
+                      <text x={x + barW / 2} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="8.5">{s.initials}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* ── MAIN 3-COLUMN LAYOUT ─── */}
       <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-6">
 

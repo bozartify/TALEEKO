@@ -890,21 +890,47 @@ export default function ExitTicketsPage() {
             <BarChart3 className="w-4 h-4 text-amber-400" />
             Today's Period Score Summary
           </h3>
-          <div className="flex items-end gap-3 h-24 mb-2">
-            {PERIOD_SCORES.map((score, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                {score > 0 && <span className="text-[9px] font-bold text-surface-400">{score}%</span>}
-                <motion.div
-                  className="w-full rounded-t-sm"
-                  style={{ background: score >= 80 ? '#10b981' : score >= 65 ? '#f59e0b' : score > 0 ? '#ef4444' : 'rgba(255,255,255,0.05)' }}
-                  initial={{ height: 0 }}
-                  animate={{ height: score > 0 ? `${(score / 100) * 80}px` : '4px' }}
-                  transition={{ delay: 0.3 + i * 0.06, duration: 0.5, ease: 'easeOut' }}
-                />
-                <span className="text-[9px] text-surface-600">{PERIOD_LABELS[i]}</span>
-              </div>
-            ))}
-          </div>
+          {(() => {
+            const W = 560, H = 110, PX = 20, PY = 14
+            const barW = (W - PX * 2 - (PERIOD_SCORES.length - 1) * 10) / PERIOD_SCORES.length
+            const baseY = H - PY
+            const maxBar = baseY - PY
+            const barColor = (s: number) => s >= 80 ? '#10b981' : s >= 65 ? '#f59e0b' : s > 0 ? '#ef4444' : 'rgba(255,255,255,0.06)'
+            const gradId = (i: number) => `et-bar-${i}`
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-2" style={{ height: H }}>
+                <defs>
+                  {PERIOD_SCORES.map((s, i) => (
+                    <linearGradient key={i} id={gradId(i)} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={barColor(s)} stopOpacity="0.95" />
+                      <stop offset="100%" stopColor={barColor(s)} stopOpacity="0.5" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {[50, 65, 80, 100].map(g => (
+                  <line key={g} x1={PX} y1={baseY - (g / 100) * maxBar} x2={W - PX} y2={baseY - (g / 100) * maxBar}
+                    stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                ))}
+                {PERIOD_SCORES.map((score, i) => {
+                  const x = PX + i * (barW + 10)
+                  const bh = score > 0 ? (score / 100) * maxBar : 3
+                  return (
+                    <g key={i}>
+                      <rect x={x} y={baseY - bh} width={barW} height={bh} rx="3" fill="rgba(255,255,255,0.04)" />
+                      <motion.rect x={x} y={baseY} width={barW} height={0} rx="3" fill={`url(#${gradId(i)})`}
+                        animate={{ y: baseY - bh, height: bh }}
+                        initial={{ y: baseY, height: 0 }}
+                        transition={{ delay: 0.25 + i * 0.07, duration: 0.55, ease: 'easeOut' }}
+                        style={{ transformOrigin: `${x + barW / 2}px ${baseY}px` }}
+                      />
+                      {score > 0 && <text x={x + barW / 2} y={baseY - bh - 4} textAnchor="middle" fill={barColor(score)} fontSize="9" fontWeight="700">{score}%</text>}
+                      <text x={x + barW / 2} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="9">{PERIOD_LABELS[i]}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
           <div className="flex gap-4 text-[10px] text-surface-500">
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-emerald-500 inline-block" /> ≥80% On Track</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500 inline-block" /> 65–79% Monitor</span>
