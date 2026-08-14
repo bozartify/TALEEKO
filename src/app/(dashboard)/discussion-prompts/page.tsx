@@ -536,6 +536,45 @@ export default function DiscussionPromptsPage() {
             </div>
           </FadeUp>
 
+          {/* Bloom's Distribution */}
+          <FadeUp delay={0.20}>
+            <div className="glass-card p-4">
+              <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-3">Bloom&apos;s Level Distribution</p>
+              {(() => {
+                const levels = Object.entries(bloomsConfig).sort((a, b) => a[1].order - b[1].order) as [BloomsLevel, typeof bloomsConfig[BloomsLevel]][]
+                const counts = levels.map(([lv, cfg]) => ({ label: cfg.label, color: cfg.color, count: prompts.filter(p => p.blooms === lv).length }))
+                const maxC = Math.max(...counts.map(x => x.count), 1)
+                const W = 220, ROW = 15, GAP = 4, LW = 62, CW = 16, BAR_MAX = W - LW - CW - 6
+                const H = counts.length * (ROW + GAP)
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                    <defs>
+                      {counts.map((x, i) => (
+                        <linearGradient key={i} id={`dp-blooms-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={x.color} stopOpacity="0.9" />
+                          <stop offset="100%" stopColor={x.color} stopOpacity="0.35" />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {counts.map((x, i) => {
+                      const y = i * (ROW + GAP)
+                      const bw = (x.count / maxC) * BAR_MAX
+                      return (
+                        <g key={x.label}>
+                          <text x={LW - 4} y={y + ROW - 3} textAnchor="end" fill="rgba(255,255,255,0.4)" fontSize="9">{x.label}</text>
+                          <rect x={LW} y={y + 1} width={BAR_MAX} height={ROW - 3} rx="2" fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={LW} y={y + 1} width={bw} height={ROW - 3} rx="2" fill={`url(#dp-blooms-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.08 + i * 0.06, duration: 0.5, ease: 'easeOut' }} />
+                          <text x={W} y={y + ROW - 3} textAnchor="end" fill={x.color} fontSize="9" fontWeight="700">{x.count}</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
+            </div>
+          </FadeUp>
+
           {/* Recent Sets */}
           <FadeUp delay={0.22}>
             <div className="glass-card p-4">

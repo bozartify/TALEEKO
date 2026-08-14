@@ -6,7 +6,7 @@ import {
   Pencil, Sparkles, RefreshCw, Copy, Star, Filter, Search,
   ChevronDown, BookOpen, Brain, Target, Zap, Plus, Download,
   Share2, Clock, Users, CheckCircle, Heart, Flame, Lightbulb,
-  FileText, Layers, Tag
+  FileText, Layers, Tag, BarChart3
 } from 'lucide-react'
 
 type PromptMode = 'narrative' | 'persuasive' | 'expository' | 'descriptive' | 'creative' | 'reflective' | 'research'
@@ -376,6 +376,49 @@ export default function WritingPromptsPage() {
           </StaggerItem>
         ))}
       </StaggerList>
+
+      {/* Writing Mode Distribution Chart */}
+      <FadeUp delay={0.08}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-white flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-accent-400" /> Prompts by Writing Mode
+            </h3>
+            <span className="text-[10px] text-surface-500">{prompts.length} total</span>
+          </div>
+          {(() => {
+            const items = modes.map(m => ({ ...modeConfig[m], count: prompts.filter(p => p.mode === m).length, mode: m }))
+            const maxC = Math.max(...items.map(x => x.count), 1)
+            const W = 560, ROW = 18, GAP = 4, LW = 80, CW = 20, BAR_MAX = W - LW - CW - 8
+            const H = items.length * (ROW + GAP)
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  {items.map((x, i) => (
+                    <linearGradient key={i} id={`wp-mode-${i}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={x.color} stopOpacity="0.9" />
+                      <stop offset="100%" stopColor={x.color} stopOpacity="0.35" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {items.map((x, i) => {
+                  const y = i * (ROW + GAP)
+                  const bw = (x.count / maxC) * BAR_MAX
+                  return (
+                    <g key={x.mode}>
+                      <text x={LW - 4} y={y + ROW - 4} textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="10">{x.label}</text>
+                      <rect x={LW} y={y + 2} width={BAR_MAX} height={ROW - 5} rx="3" fill="rgba(255,255,255,0.04)" />
+                      <motion.rect x={LW} y={y + 2} width={bw} height={ROW - 5} rx="3" fill={`url(#wp-mode-${i})`}
+                        initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.1 + i * 0.07, duration: 0.55, ease: 'easeOut' }} />
+                      <text x={W} y={y + ROW - 4} textAnchor="end" fill={x.color} fontSize="10" fontWeight="700">{x.count}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
 
       {/* Tabs */}
       <FadeUp delay={0.1}>
