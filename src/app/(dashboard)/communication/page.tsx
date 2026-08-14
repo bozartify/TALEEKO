@@ -1253,15 +1253,29 @@ export default function CommunicationPage() {
                     </div>
                     {/* Open rate bar */}
                     <div className="mt-3">
-                      <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: 'linear-gradient(90deg,#10b981,#6366f1)' }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${openPct}%` }}
-                          transition={{ delay: 0.3 + i * 0.06, duration: 0.8, ease: 'easeOut' }}
-                        />
-                      </div>
+                      {(() => {
+                        const W = 500, H = 6
+                        const bw = (openPct / 100) * W
+                        const gid = `comm-open-${i}`
+                        return (
+                          <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                            <defs>
+                              <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                <stop offset="0%" stopColor="#10b981" />
+                                <stop offset="100%" stopColor="#6366f1" />
+                              </linearGradient>
+                            </defs>
+                            <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                            <motion.rect
+                              x={0} y={0} height={H} rx={3}
+                              fill={`url(#${gid})`}
+                              initial={{ width: 0 }}
+                              animate={{ width: bw }}
+                              transition={{ delay: 0.3 + i * 0.06, duration: 0.8, ease: 'easeOut' }}
+                            />
+                          </svg>
+                        )
+                      })()}
                     </div>
                   </motion.div>
                 )

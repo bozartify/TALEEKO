@@ -295,14 +295,37 @@ export default function StudentDetailPage() {
                           <span className="text-xs font-semibold text-surface-200">{skill.name}</span>
                           <span className="text-xs font-bold text-white">{skill.value}%</span>
                         </div>
-                        <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className={`h-full rounded-full ${skill.color}`}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${skill.value}%` }}
-                            transition={{ delay: 0.3 + i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                          />
-                        </div>
+                        {(() => {
+                          const colorMap: Record<string, string> = {
+                            'bg-accent-500': '#6366f1',
+                            'bg-electric-400': '#22d3ee',
+                            'bg-success-400': '#34d399',
+                            'bg-warning-400': '#fbbf24',
+                            'bg-cyan-400': '#22d3ee',
+                          }
+                          const hex = colorMap[skill.color] ?? '#6366f1'
+                          const W = 300, H = 8
+                          const bw = (skill.value / 100) * W
+                          const gid = `cls-skill-${i}`
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                              <defs>
+                                <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                  <stop offset="0%" stopColor={hex} />
+                                  <stop offset="100%" stopColor={hex + '80'} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.06)" />
+                              <motion.rect
+                                x={0} y={0} height={H} rx={4}
+                                fill={`url(#${gid})`}
+                                initial={{ width: 0 }}
+                                animate={{ width: bw }}
+                                transition={{ delay: 0.3 + i * 0.08, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                              />
+                            </svg>
+                          )
+                        })()}
                       </motion.div>
                     ))}
                   </div>

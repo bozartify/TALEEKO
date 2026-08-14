@@ -769,15 +769,27 @@ export default function CurriculumPage() {
                   <span className="text-surface-400">Overall Coverage</span>
                   <span className="font-bold text-white">52%</span>
                 </div>
-                <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden mt-1.5">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #6366f1, #8b5cf6)' }}
-                    initial={{ width: 0 }}
-                    animate={{ width: '52%' }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                  />
-                </div>
+                {(() => {
+                  const W = 500, H = 8
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mt-1.5">
+                      <defs>
+                        <linearGradient id="cur-cov" x1="0" x2="1" y1="0" y2="0">
+                          <stop offset="0%" stopColor="#6366f1" />
+                          <stop offset="100%" stopColor="#8b5cf6" />
+                        </linearGradient>
+                      </defs>
+                      <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.06)" />
+                      <motion.rect
+                        x={0} y={0} height={H} rx={4}
+                        fill="url(#cur-cov)"
+                        initial={{ width: 0 }}
+                        animate={{ width: W * 0.52 }}
+                        transition={{ delay: 0.5, duration: 0.8 }}
+                      />
+                    </svg>
+                  )
+                })()}
               </div>
             </div>
           </FadeInWhenVisible>

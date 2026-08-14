@@ -595,15 +595,29 @@ export default function GroupsPage() {
                       <span className="text-[10px] text-surface-500">Tasks {group.completedTasks}/{group.totalTasks}</span>
                       <span className="text-[10px] font-semibold" style={{ color: group.color }}>{progressPct}%</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: group.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${progressPct}%` }}
-                        transition={{ delay: 0.2 + i * 0.04, duration: 0.5 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 300, H = 6
+                      const bw = (progressPct / 100) * W
+                      const gid = `grp-prog-${i}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={group.color} />
+                              <stop offset="100%" stopColor={group.color + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.2 + i * 0.04, duration: 0.5 }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </div>
                   <div className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/[0.04] flex-shrink-0">
                     <span className="text-xs font-black text-white">{group.avgPerformance}%</span>

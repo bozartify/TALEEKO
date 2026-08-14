@@ -396,14 +396,28 @@ export default function DashboardPage() {
                           {d.total > 0 && (
                             <div className="flex-shrink-0 w-24 text-right">
                               <p className="text-[10px] text-surface-500 mb-1">{d.submitted}/{d.total} submitted</p>
-                              <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                                <motion.div
-                                  className="h-full rounded-full bg-accent-500"
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${submittedPct}%` }}
-                                  transition={{ delay: 0.2, duration: 0.6 }}
-                                />
-                              </div>
+                              {(() => {
+                                const W = 96, H = 6
+                                const bw = (submittedPct / 100) * W
+                                return (
+                                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                                    <defs>
+                                      <linearGradient id={`db-sub-${i}`} x1="0" x2="1" y1="0" y2="0">
+                                        <stop offset="0%" stopColor="#6366f1" />
+                                        <stop offset="100%" stopColor="#818cf8" />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                    <motion.rect
+                                      x={0} y={0} height={H} rx={3}
+                                      fill={`url(#db-sub-${i})`}
+                                      initial={{ width: 0 }}
+                                      animate={{ width: bw }}
+                                      transition={{ delay: 0.2, duration: 0.6 }}
+                                    />
+                                  </svg>
+                                )
+                              })()}
                             </div>
                           )}
                         </motion.div>
@@ -636,15 +650,29 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden mb-4">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: cls.color, width: `${cls.avg}%` }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${cls.avg}%` }}
-                        transition={{ delay: 0.3 + i * 0.1, duration: 0.8 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 500, H = 6
+                      const bw = (cls.avg / 100) * W
+                      const gid = `db-cls-${i}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mb-4">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={cls.color} />
+                              <stop offset="100%" stopColor={cls.color + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.3 + i * 0.1, duration: 0.8 }}
+                          />
+                        </svg>
+                      )
+                    })()}
 
                     <div className="flex items-center gap-2">
                       <Link href="/lesson-planner" className="btn-primary text-xs px-3 py-1.5 flex-1 justify-center">

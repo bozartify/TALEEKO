@@ -587,7 +587,7 @@ export default function NewsletterPage() {
               <span className="text-xs text-surface-500">{pastNewsletters.length} sent this semester</span>
             </div>
             <div className="space-y-3">
-              {pastNewsletters.map(nl => (
+              {pastNewsletters.map((nl, nli) => (
                 <div key={nl.title} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group" onClick={() => showToast(`Opening "${nl.title}"…`)}>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: nl.color + '20' }}>
                     <Newspaper className="w-4 h-4" style={{ color: nl.color }} />
@@ -600,9 +600,24 @@ export default function NewsletterPage() {
                     <div className="text-xs font-bold" style={{ color: nl.openRate >= 85 ? '#10b981' : '#f59e0b' }}>{nl.openRate}%</div>
                     <div className="text-[10px] text-surface-600">{nl.opens} opens</div>
                   </div>
-                  <div className="w-16 h-1.5 rounded-full bg-white/[0.06] overflow-hidden flex-shrink-0">
-                    <div className="h-full rounded-full" style={{ background: nl.openRate >= 85 ? '#10b981' : '#f59e0b', width: `${nl.openRate}%` }} />
-                  </div>
+                  {(() => {
+                    const W = 64, H = 6
+                    const bw = (nl.openRate / 100) * W
+                    const color = nl.openRate >= 85 ? '#10b981' : '#f59e0b'
+                    const gid = `nl-or-${nli}`
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} width={64} height={6} className="overflow-visible flex-shrink-0">
+                        <defs>
+                          <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stopColor={color} />
+                            <stop offset="100%" stopColor={color + '80'} />
+                          </linearGradient>
+                        </defs>
+                        <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                        <rect x={0} y={0} width={bw} height={H} rx={3} fill={`url(#${gid})`} />
+                      </svg>
+                    )
+                  })()}
                   <ChevronRight className="w-3.5 h-3.5 text-surface-600 group-hover:text-surface-400 transition-colors" />
                 </div>
               ))}

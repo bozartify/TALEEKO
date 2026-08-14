@@ -501,15 +501,29 @@ export default function CoursesPage() {
                             <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Progress</span>
                             <span className="text-xs font-bold" style={{ color: course.color }}>{course.completion}%</span>
                           </div>
-                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ backgroundColor: course.color }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${course.completion}%` }}
-                              transition={{ delay: 0.3 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                            />
-                          </div>
+                          {(() => {
+                            const W = 300, H = 6
+                            const bw = (course.completion / 100) * W
+                            const gid = `cs-prog-${i}`
+                            return (
+                              <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                                <defs>
+                                  <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                    <stop offset="0%" stopColor={course.color} />
+                                    <stop offset="100%" stopColor={course.color + '80'} />
+                                  </linearGradient>
+                                </defs>
+                                <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                <motion.rect
+                                  x={0} y={0} height={H} rx={3}
+                                  fill={`url(#${gid})`}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: bw }}
+                                  transition={{ delay: 0.3 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                />
+                              </svg>
+                            )
+                          })()}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-surface-500 pt-3 border-t border-white/[0.06]">
                           <span className="flex items-center gap-1"><FileText className="w-3 h-3" />{course.lessons} lessons</span>

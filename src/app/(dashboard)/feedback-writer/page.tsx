@@ -636,9 +636,27 @@ export default function FeedbackWriterPage() {
                     </motion.div>
                     <p className="text-sm font-bold text-white">Writing {selectedStudent.name}&apos;s comment…</p>
                     <p className="text-xs text-surface-400">Analyzing strengths, growth areas, and tone</p>
-                    <div className="w-48 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div className="h-full bg-teal-400 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 2.2, ease: 'linear' }} />
-                    </div>
+                    {(() => {
+                      const W = 192, H = 6
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} width={192} height={6} className="overflow-visible">
+                          <defs>
+                            <linearGradient id="fw-load" x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor="#2dd4bf" />
+                              <stop offset="100%" stopColor="#14b8a6" />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill="url(#fw-load)"
+                            initial={{ width: 0 }}
+                            animate={{ width: W }}
+                            transition={{ duration: 2.2, ease: 'linear' }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </motion.div>
                 ) : generated ? (
                   <motion.div key="feedback" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>

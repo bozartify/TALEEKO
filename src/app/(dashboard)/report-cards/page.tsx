@@ -565,15 +565,27 @@ export default function ReportCardsPage() {
             <p className="text-sm text-surface-400 mb-4">
               Writing AI comments for {selectedStudents.size} students · {tone} tone · {commentLength} length
             </p>
-            <div className="w-56 h-2 bg-white/[0.06] rounded-full mx-auto overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #6366f1, #a78bfa)' }}
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 2.5, ease: 'linear' }}
-              />
-            </div>
+            {(() => {
+              const W = 224, H = 8
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} width={224} height={8} className="overflow-visible mx-auto">
+                  <defs>
+                    <linearGradient id="rc-load" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#a78bfa" />
+                    </linearGradient>
+                  </defs>
+                  <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.06)" />
+                  <motion.rect
+                    x={0} y={0} height={H} rx={4}
+                    fill="url(#rc-load)"
+                    initial={{ width: 0 }}
+                    animate={{ width: W }}
+                    transition={{ duration: 2.5, ease: 'linear' }}
+                  />
+                </svg>
+              )
+            })()}
           </motion.div>
         )}
 
@@ -704,15 +716,30 @@ export default function ReportCardsPage() {
                             <span className="text-sm font-bold text-white">{subj.name}</span>
                             <span className="text-base font-black text-accent-400">{subj.grade}</span>
                           </div>
-                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ background: subj.score >= 90 ? '#10b981' : subj.score >= 80 ? '#6366f1' : '#f97316' }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${subj.score}%` }}
-                              transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                            />
-                          </div>
+                          {(() => {
+                            const W = 300, H = 6
+                            const bw = (subj.score / 100) * W
+                            const color = subj.score >= 90 ? '#10b981' : subj.score >= 80 ? '#6366f1' : '#f97316'
+                            const gid = `rc-subj-${i}`
+                            return (
+                              <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                                <defs>
+                                  <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                    <stop offset="0%" stopColor={color} />
+                                    <stop offset="100%" stopColor={color + '80'} />
+                                  </linearGradient>
+                                </defs>
+                                <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                <motion.rect
+                                  x={0} y={0} height={H} rx={3}
+                                  fill={`url(#${gid})`}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: bw }}
+                                  transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
+                                />
+                              </svg>
+                            )
+                          })()}
                         </div>
                         <span className="text-sm font-bold text-surface-400">{subj.score}%</span>
                         <button

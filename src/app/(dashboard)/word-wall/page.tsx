@@ -514,15 +514,29 @@ export default function WordWallPage() {
 
                     <p className="text-xs text-surface-300 leading-relaxed mb-3">{word.definition}</p>
 
-                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden mb-3">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: word.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${word.mastery}%` }}
-                        transition={{ delay: 0.2 + i * 0.04, duration: 0.5 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 300, H = 6
+                      const bw = (word.mastery / 100) * W
+                      const gid = `ww-mast-${i}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mb-3">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={word.color} />
+                              <stop offset="100%" stopColor={word.color + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.2 + i * 0.04, duration: 0.5 }}
+                          />
+                        </svg>
+                      )
+                    })()}
 
                     <AnimatePresence>
                       {isExpanded && (
@@ -700,20 +714,29 @@ export default function WordWallPage() {
             </div>
 
             {/* Session progress bar */}
-            {(gotIt + stillLearning) > 0 && (
-              <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${Math.round(((gotIt + stillLearning) / flashWords.length) * 100)}%`,
-                    background: 'linear-gradient(90deg,#10b981,#34d399)',
-                  }}
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.round(((gotIt + stillLearning) / flashWords.length) * 100)}%` }}
-                  transition={{ duration: 0.4 }}
-                />
-              </div>
-            )}
+            {(gotIt + stillLearning) > 0 && (() => {
+              const W = 500, H = 6
+              const pct = Math.round(((gotIt + stillLearning) / flashWords.length) * 100)
+              const bw = (pct / 100) * W
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                  <defs>
+                    <linearGradient id="ww-sess" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#34d399" />
+                    </linearGradient>
+                  </defs>
+                  <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                  <motion.rect
+                    x={0} y={0} height={H} rx={3}
+                    fill="url(#ww-sess)"
+                    initial={{ width: 0 }}
+                    animate={{ width: bw }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </svg>
+              )
+            })()}
 
             <motion.div
               className="glass-card p-10 cursor-pointer select-none min-h-[280px] flex flex-col items-center justify-center text-center"
@@ -822,15 +845,29 @@ export default function WordWallPage() {
                     </div>
                     <span className="text-xs font-bold text-white">{tier.words.length}</span>
                   </div>
-                  <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: tier.color }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.round((tier.words.length / Math.max(words.length, 1)) * 100)}%` }}
-                      transition={{ delay: 0.3, duration: 0.5 }}
-                    />
-                  </div>
+                  {(() => {
+                    const W = 300, H = 6
+                    const bw = (tier.words.length / Math.max(words.length, 1)) * W
+                    const gid = `ww-tier-${tier.label.replace(/\s/g, '')}`
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                        <defs>
+                          <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stopColor={tier.color} />
+                            <stop offset="100%" stopColor={tier.color + '80'} />
+                          </linearGradient>
+                        </defs>
+                        <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                        <motion.rect
+                          x={0} y={0} height={H} rx={3}
+                          fill={`url(#${gid})`}
+                          initial={{ width: 0 }}
+                          animate={{ width: bw }}
+                          transition={{ delay: 0.3, duration: 0.5 }}
+                        />
+                      </svg>
+                    )
+                  })()}
                   {tier.words.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-1">
                       {tier.words.slice(0, 3).map(w => (

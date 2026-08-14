@@ -518,15 +518,29 @@ export default function PortfolioPage() {
                                 </div>
                                 <span className="text-xs font-bold" style={{ color: selectedStudent.color }}>{skill.level}%</span>
                               </div>
-                              <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                                <motion.div
-                                  className="h-full rounded-full"
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${skill.level}%` }}
-                                  transition={{ delay: 0.2 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                                  style={{ backgroundColor: selectedStudent.color }}
-                                />
-                              </div>
+                              {(() => {
+                                const W = 300, H = 8
+                                const bw = (skill.level / 100) * W
+                                const gid = `pt-sl-${i}`
+                                return (
+                                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                                    <defs>
+                                      <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                        <stop offset="0%" stopColor={selectedStudent.color} />
+                                        <stop offset="100%" stopColor={selectedStudent.color + '80'} />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.06)" />
+                                    <motion.rect
+                                      x={0} y={0} height={H} rx={4}
+                                      fill={`url(#${gid})`}
+                                      initial={{ width: 0 }}
+                                      animate={{ width: bw }}
+                                      transition={{ delay: 0.2 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                    />
+                                  </svg>
+                                )
+                              })()}
                             </motion.div>
                           ))}
                         </div>

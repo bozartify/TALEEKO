@@ -529,9 +529,23 @@ export default function StandardsPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                              <div className="h-full rounded-full" style={{ width: `${domainPct}%`, backgroundColor: domain.color }} />
-                            </div>
+                            {(() => {
+                              const W = 64, H = 6
+                              const bw = (domainPct / 100) * W
+                              const gid = `std-dom-${domain.color.replace(/[^a-z0-9]/gi, '')}`
+                              return (
+                                <svg viewBox={`0 0 ${W} ${H}`} width={64} height={6} className="overflow-visible">
+                                  <defs>
+                                    <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                      <stop offset="0%" stopColor={domain.color} />
+                                      <stop offset="100%" stopColor={domain.color + '80'} />
+                                    </linearGradient>
+                                  </defs>
+                                  <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                  <rect x={0} y={0} width={bw} height={H} rx={3} fill={`url(#${gid})`} />
+                                </svg>
+                              )
+                            })()}
                             <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                               <ChevronDown className="w-4 h-4 text-surface-500" />
                             </motion.div>

@@ -380,15 +380,27 @@ export default function QuizBuilderPage() {
             </motion.div>
             <h3 className="text-lg font-black text-white mb-1">AI is building your quiz...</h3>
             <p className="text-sm text-surface-400 mb-4">Generating questions on {topic} for {grade}</p>
-            <motion.div className="w-64 h-1.5 bg-white/[0.06] rounded-full mx-auto overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: 'linear-gradient(90deg, #f97316, #ef4444)' }}
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 3, ease: 'linear' }}
-              />
-            </motion.div>
+            {(() => {
+              const W = 256, H = 6
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} width={256} height={6} className="overflow-visible mx-auto">
+                  <defs>
+                    <linearGradient id="qb-load" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#f97316" />
+                      <stop offset="100%" stopColor="#ef4444" />
+                    </linearGradient>
+                  </defs>
+                  <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                  <motion.rect
+                    x={0} y={0} height={H} rx={3}
+                    fill="url(#qb-load)"
+                    initial={{ width: 0 }}
+                    animate={{ width: W }}
+                    transition={{ duration: 3, ease: 'linear' }}
+                  />
+                </svg>
+              )
+            })()}
           </motion.div>
         )}
       </AnimatePresence>

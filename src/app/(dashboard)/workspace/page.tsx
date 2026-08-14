@@ -320,15 +320,27 @@ export default function WorkspacePage() {
                 <span>Weekly goal: 5/5 days</span>
                 <span className="text-success-400 font-semibold">Goal reached!</span>
               </div>
-              <div className="mt-2 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg,#10b981,#34d399)' }}
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
-                />
-              </div>
+              {(() => {
+                const W = 500, H = 6
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mt-2">
+                    <defs>
+                      <linearGradient id="ws-goal" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0%" stopColor="#10b981" />
+                        <stop offset="100%" stopColor="#34d399" />
+                      </linearGradient>
+                    </defs>
+                    <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                    <motion.rect
+                      x={0} y={0} height={H} rx={3}
+                      fill="url(#ws-goal)"
+                      initial={{ width: 0 }}
+                      animate={{ width: W }}
+                      transition={{ delay: 0.4, duration: 0.8, ease: 'easeOut' }}
+                    />
+                  </svg>
+                )
+              })()}
             </div>
 
             {/* Divider */}

@@ -356,15 +356,29 @@ export default function GradebookPage() {
                         <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: s.color }}/>
                         <span className="text-[11px] text-surface-400 flex-1">{s.label}</span>
                         <span className="text-xs font-bold text-white w-4 text-right">{s.count}</span>
-                        <div className="w-24 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ background: s.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(s.count / total) * 100}%` }}
-                            transition={{ delay: 0.35 + i * 0.07, duration: 0.5 }}
-                          />
-                        </div>
+                        {(() => {
+                          const W = 96, H = 6
+                          const bw = (s.count / total) * W
+                          const gid = `gb-dist-${i}`
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} width={96} height={6} className="overflow-visible">
+                              <defs>
+                                <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                  <stop offset="0%" stopColor={s.color} />
+                                  <stop offset="100%" stopColor={s.color + '80'} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                              <motion.rect
+                                x={0} y={0} height={H} rx={3}
+                                fill={`url(#${gid})`}
+                                initial={{ width: 0 }}
+                                animate={{ width: bw }}
+                                transition={{ delay: 0.35 + i * 0.07, duration: 0.5 }}
+                              />
+                            </svg>
+                          )
+                        })()}
                         <span className="text-[10px] text-surface-500 w-8 text-right">{Math.round(s.pct * 100)}%</span>
                       </motion.div>
                     ))}
@@ -729,15 +743,29 @@ export default function GradebookPage() {
                       {isAtRisk && <span className="text-[9px] bg-danger-500/15 text-danger-400 px-1.5 py-0.5 rounded font-bold">At Risk</span>}
                       {student.missingCount > 0 && <span className="text-[9px] bg-warning-500/15 text-warning-400 px-1.5 py-0.5 rounded font-bold">{student.missingCount} missing</span>}
                     </div>
-                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden w-48">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${overall}%` }}
-                        transition={{ duration: 0.5 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 192, H = 6
+                      const bw = (overall / 100) * W
+                      const gid = `gb-stu-${student.name.replace(/\s/g, '')}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} width={192} height={6} className="overflow-visible">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={color} />
+                              <stop offset="100%" stopColor={color + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ duration: 0.5 }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </div>
                   <div className="flex items-center gap-4 flex-shrink-0">
                     {student.trend === 'up' && <TrendingUp className="w-4 h-4 text-success-400" />}

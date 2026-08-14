@@ -645,14 +645,27 @@ export default function ReportsPage() {
                           <p className="text-[10px] text-surface-500">3 reports remaining today</p>
                         </div>
                       </div>
-                      <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-electric-400 to-accent-400"
-                          initial={{ width: 0 }}
-                          animate={{ width: '70%' }}
-                          transition={{ duration: 0.8, ease: 'easeOut' }}
-                        />
-                      </div>
+                      {(() => {
+                        const W = 300, H = 6
+                        return (
+                          <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                            <defs>
+                              <linearGradient id="rp-rate" x1="0" x2="1" y1="0" y2="0">
+                                <stop offset="0%" stopColor="#22d3ee" />
+                                <stop offset="100%" stopColor="#6366f1" />
+                              </linearGradient>
+                            </defs>
+                            <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                            <motion.rect
+                              x={0} y={0} height={H} rx={3}
+                              fill="url(#rp-rate)"
+                              initial={{ width: 0 }}
+                              animate={{ width: W * 0.7 }}
+                              transition={{ duration: 0.8, ease: 'easeOut' }}
+                            />
+                          </svg>
+                        )
+                      })()}
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-[10px] text-surface-500">7 of 10 used</span>
                         <button className="text-[10px] text-accent-400 font-semibold hover:text-accent-300">Upgrade Plan</button>

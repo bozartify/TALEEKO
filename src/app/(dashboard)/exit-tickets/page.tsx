@@ -385,7 +385,7 @@ export default function ExitTicketsPage() {
             <h3 className="text-xs font-bold text-surface-400 uppercase tracking-wider px-1">Exit Tickets ({tickets.length})</h3>
           </FadeUp>
           <StaggerList>
-            {tickets.map(ticket => {
+            {tickets.map((ticket, i) => {
               const sb = STATUS_BADGE[ticket.status]
               const isSelected = selectedTicket.id === ticket.id
               return (
@@ -411,15 +411,28 @@ export default function ExitTicketsPage() {
                             <span>{ticket.responses}/{ticket.totalStudents} responses</span>
                             <span>{ticket.completionRate}%</span>
                           </div>
-                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ background: 'linear-gradient(90deg, #f59e0b, #ef4444)' }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${ticket.completionRate}%` }}
-                              transition={{ duration: 0.6, ease: 'easeOut' }}
-                            />
-                          </div>
+                          {(() => {
+                            const W = 300, H = 6
+                            const bw = (ticket.completionRate / 100) * W
+                            return (
+                              <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                                <defs>
+                                  <linearGradient id={`et-ticket-${i}`} x1="0" x2="1" y1="0" y2="0">
+                                    <stop offset="0%" stopColor="#f59e0b" />
+                                    <stop offset="100%" stopColor="#ef4444" />
+                                  </linearGradient>
+                                </defs>
+                                <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                <motion.rect
+                                  x={0} y={0} height={H} rx={3}
+                                  fill={`url(#et-ticket-${i})`}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: bw }}
+                                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                                />
+                              </svg>
+                            )
+                          })()}
                           <div className="text-[11px] text-surface-500">
                             {ticket.questions.length} questions · Avg {ticket.avgScore}%
                           </div>

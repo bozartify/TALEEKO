@@ -319,15 +319,29 @@ export default function AgentsPage() {
 
                           <p className="text-xs text-surface-400 mb-3 min-h-[32px] leading-relaxed">{a.task}</p>
 
-                          <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden mb-2">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ backgroundColor: a.color }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${a.progress}%` }}
-                              transition={{ duration: 0.8, ease: 'easeOut' }}
-                            />
-                          </div>
+                          {(() => {
+                            const W = 300, H = 6
+                            const bw = (a.progress / 100) * W
+                            const gid = `ag-prog-${i}`
+                            return (
+                              <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mb-2">
+                                <defs>
+                                  <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                    <stop offset="0%" stopColor={a.color} />
+                                    <stop offset="100%" stopColor={a.color + '80'} />
+                                  </linearGradient>
+                                </defs>
+                                <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                                <motion.rect
+                                  x={0} y={0} height={H} rx={3}
+                                  fill={`url(#${gid})`}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: bw }}
+                                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                                />
+                              </svg>
+                            )
+                          })()}
                           <div className="flex items-center justify-between mb-3 text-[10px] text-surface-500">
                             <span>{a.progress}% complete</span>
                             <span>{a.tasksDone} done · {a.timeSaved} saved</span>
