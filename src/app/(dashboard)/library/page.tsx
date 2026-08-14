@@ -605,27 +605,37 @@ export default function LibraryPage() {
             <BarChart3 className="w-4 h-4 text-accent-400" />
             <h3 className="text-sm font-bold text-white">Content by Subject</h3>
           </div>
-          <div className="space-y-2">
-            {topSubjects.map(([subject, count], i) => {
-              const pct = Math.round((count / items.length) * 100)
-              const colors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#22d3ee']
-              return (
-                <div key={subject} className="flex items-center gap-3">
-                  <span className="text-[10px] text-surface-400 w-20 text-right flex-shrink-0">{subject}</span>
-                  <div className="flex-1 h-2 bg-white/[0.06] rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ background: colors[i] }}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${pct}%` }}
-                      transition={{ delay: 0.3 + i * 0.07, duration: 0.7, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-surface-500 w-8 flex-shrink-0">{count}</span>
-                </div>
-              )
-            })}
-          </div>
+          {(() => {
+            const colors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#22d3ee']
+            const maxC = Math.max(...topSubjects.map(([, c]) => c), 1)
+            const W = 560, ROW = 18, GAP = 5, LW = 88, CW = 22, BAR_MAX = W - LW - CW - 8
+            const H = topSubjects.length * (ROW + GAP)
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                <defs>
+                  {topSubjects.map(([sub], i) => (
+                    <linearGradient key={sub} id={`lib-bar-${i}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={colors[i]} stopOpacity="0.9" />
+                      <stop offset="100%" stopColor={colors[i]} stopOpacity="0.4" />
+                    </linearGradient>
+                  ))}
+                </defs>
+                {topSubjects.map(([subject, count], i) => {
+                  const y = i * (ROW + GAP)
+                  const bw = (count / maxC) * BAR_MAX
+                  return (
+                    <g key={subject}>
+                      <text x={LW - 4} y={y + ROW - 4} textAnchor="end" fill="rgba(255,255,255,0.45)" fontSize="10">{subject}</text>
+                      <rect x={LW} y={y + 2} width={BAR_MAX} height={ROW - 5} rx="3" fill="rgba(255,255,255,0.04)" />
+                      <motion.rect x={LW} y={y + 2} width={bw} height={ROW - 5} rx="3" fill={`url(#lib-bar-${i})`}
+                        initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.15 + i * 0.08, duration: 0.6, ease: 'easeOut' }} />
+                      <text x={W} y={y + ROW - 4} textAnchor="end" fill={colors[i]} fontSize="10" fontWeight="700">{count}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
         </div>
       </FadeUp>
 

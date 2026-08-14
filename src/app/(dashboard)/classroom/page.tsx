@@ -426,6 +426,48 @@ export default function ClassroomPage() {
                   </div>
                 </FadeInWhenVisible>
 
+                <FadeInWhenVisible delay={0.18}>
+                  <div className="glass-card p-5">
+                    <h4 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                      <BarChart2 className="w-4 h-4 text-accent-400" /> Class Performance
+                    </h4>
+                    {(() => {
+                      const W = 240, ROW = 18, GAP = 5, LW = 0, CW = 28
+                      const BAR_MAX = W - CW - 6
+                      const maxScore = Math.max(...classes.map(c => c.avgScore))
+                      const H = classes.length * (ROW + GAP)
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                          <defs>
+                            {classes.map(c => (
+                              <linearGradient key={c.name} id={`cls-bar-${c.name.replace(/\s/g,'')}`} x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%" stopColor={c.color} stopOpacity="0.9" />
+                                <stop offset="100%" stopColor={c.color} stopOpacity="0.45" />
+                              </linearGradient>
+                            ))}
+                          </defs>
+                          {classes.map((c, i) => {
+                            const y = i * (ROW + GAP)
+                            const bw = (c.avgScore / maxScore) * BAR_MAX
+                            const gid = `cls-bar-${c.name.replace(/\s/g,'')}`
+                            return (
+                              <g key={c.name}>
+                                <rect x={LW} y={y + 2} width={BAR_MAX} height={ROW - 5} rx="3" fill="rgba(255,255,255,0.04)" />
+                                <motion.rect x={LW} y={y + 2} width={bw} height={ROW - 5} rx="3" fill={`url(#${gid})`}
+                                  initial={{ width: 0 }} animate={{ width: bw }} transition={{ delay: 0.1 + i * 0.08, duration: 0.6, ease: 'easeOut' }} />
+                                <text x={6} y={y + ROW - 4} fill="rgba(255,255,255,0.7)" fontSize="9" fontWeight="600">
+                                  {c.name.replace('th Grade ', 'Gr ').replace('7th', '7').replace('8th', '8').replace('9th', '9').replace('10th', '10')}
+                                </text>
+                                <text x={W} y={y + ROW - 4} textAnchor="end" fill={c.color} fontSize="9.5" fontWeight="700">{c.avgScore}%</text>
+                              </g>
+                            )
+                          })}
+                        </svg>
+                      )
+                    })()}
+                  </div>
+                </FadeInWhenVisible>
+
                 <FadeInWhenVisible delay={0.2}>
                   <div className="glass-card p-5">
                     <h4 className="text-sm font-bold text-white mb-3">Quick Actions</h4>
