@@ -323,6 +323,64 @@ export default function GroupsPage() {
         </div>
       </FadeUp>
 
+      {/* Group Performance Chart */}
+      <FadeUp delay={0.06}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">Group Performance Comparison</h3>
+              <p className="text-[10px] text-surface-500 mt-0.5">Average scores across all groups</p>
+            </div>
+          </div>
+          {(() => {
+            const W = 560, H = 100, PX = 24, PY = 10
+            const barW = Math.min(48, (W - PX * 2 - (groups.length - 1) * 10) / groups.length)
+            const gapW = groups.length > 1 ? (W - PX * 2 - barW * groups.length) / (groups.length - 1) : 0
+            const maxV = 100
+            return (
+              <svg viewBox={`0 0 ${W} ${H + 28}`} width="100%" className="overflow-visible" style={{ maxHeight: 148 }}>
+                {[60, 70, 80, 90, 100].map(v => {
+                  const y = PY + (H - PY * 2) * (1 - v / maxV)
+                  return (
+                    <g key={v}>
+                      <line x1={PX} y1={y} x2={W - PX} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                      <text x={PX - 4} y={y + 3.5} textAnchor="end" fontSize="8" fill="rgba(255,255,255,0.3)">{v}%</text>
+                    </g>
+                  )
+                })}
+                {groups.map((g, i) => {
+                  const x = PX + i * (barW + gapW)
+                  const barH = ((g.avgPerformance - 55) / (maxV - 55)) * (H - PY * 2)
+                  const y = PY + (H - PY * 2) - barH
+                  const shortName = g.name.length > 12 ? g.name.slice(0, 12) + '…' : g.name
+                  return (
+                    <g key={g.id}>
+                      <defs>
+                        <linearGradient id={`gbar-${g.id}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={g.color} stopOpacity="0.9" />
+                          <stop offset="100%" stopColor={g.color} stopOpacity="0.4" />
+                        </linearGradient>
+                      </defs>
+                      <motion.rect
+                        x={x} y={y} width={barW} height={barH}
+                        fill={`url(#gbar-${g.id})`} rx="5"
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 + i * 0.08 }}
+                        style={{ transformOrigin: `${x + barW / 2}px ${H - PY}px` }}
+                      />
+                      <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="9" fill={g.color} fontWeight="800">{g.avgPerformance}%</text>
+                      <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.45)">{shortName}</text>
+                      <text x={x + barW / 2} y={H + 23} textAnchor="middle" fontSize="7.5" fill="rgba(255,255,255,0.25)">{g.students.length} students</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* AI Insights — collapsible */}
       <FadeUp delay={0.07}>
         <div className="glass-card border border-accent-500/15 overflow-hidden">
