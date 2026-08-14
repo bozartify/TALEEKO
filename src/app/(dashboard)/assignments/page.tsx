@@ -735,28 +735,40 @@ export default function AssignmentsPage() {
                 <span className="text-[10px] text-surface-500">8-week class average</span>
               </div>
             </div>
-            <div className="flex items-end gap-1 h-16 mb-2">
-              {SCORE_TREND.map((val, i) => {
-                const isLast = i === SCORE_TREND.length - 1
-                const min = Math.min(...SCORE_TREND)
-                const max = Math.max(...SCORE_TREND)
-                const pct = ((val - min) / (max - min + 0.1)) * 100
-                return (
-                  <div key={i} className="flex-1" title={`${TREND_LABELS[i]}: ${val}%`}>
-                    <motion.div
-                      className="w-full rounded-sm"
-                      style={{
-                        height: `${Math.max(pct * 0.56 + 12, 8)}px`,
-                        background: isLast ? 'linear-gradient(to top,#6366f1,#a78bfa)' : 'rgba(255,255,255,0.1)',
-                      }}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${Math.max(pct * 0.56 + 12, 8)}px` }}
-                      transition={{ delay: 0.25 + i * 0.04, duration: 0.4 }}
+            {(() => {
+              const vals = SCORE_TREND
+              const W = 300, H = 68, mn = Math.min(...vals), mx = Math.max(...vals)
+              const pts = vals.map((v, i) => ({
+                x: (i / (vals.length - 1)) * W,
+                y: H - ((v - mn) / (mx - mn + 1)) * H * 0.78 - 6
+              }))
+              let line = `M ${pts[0].x} ${pts[0].y}`
+              for (let k = 1; k < pts.length; k++) {
+                const cpx = (pts[k].x + pts[k - 1].x) / 2
+                line += ` C ${cpx} ${pts[k - 1].y} ${cpx} ${pts[k].y} ${pts[k].x} ${pts[k].y}`
+              }
+              const area = line + ` L ${W} ${H} L 0 ${H} Z`
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-2" style={{ height: 68 }}>
+                  <defs>
+                    <linearGradient id="as-score-grad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <path d={area} fill="url(#as-score-grad)" />
+                  <motion.path d={line} fill="none" stroke="#6366f1" strokeWidth={2}
+                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.9, ease: 'easeOut' }}
+                  />
+                  {pts.map((pt, i) => (
+                    <circle key={i} cx={pt.x} cy={pt.y} r={i === pts.length - 1 ? 4 : 2.5}
+                      fill={i === pts.length - 1 ? '#a78bfa' : '#6366f1'}
                     />
-                  </div>
-                )
-              })}
-            </div>
+                  ))}
+                </svg>
+              )
+            })()}
             <div className="flex items-center justify-between text-[10px] text-surface-600 mb-3">
               <span>{TREND_LABELS[0]}</span><span>{TREND_LABELS[TREND_LABELS.length - 1]}</span>
             </div>

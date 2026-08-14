@@ -855,27 +855,47 @@ export default function WordWallPage() {
                 <span className="text-[10px] text-surface-500">This week</span>
               </div>
             </div>
-            <div className="flex items-end gap-1.5 h-14 mb-3">
-              {PRACTICE_TREND.map((val, i) => {
-                const isToday = i === PRACTICE_TREND.length - 1
-                const max = Math.max(...PRACTICE_TREND)
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <motion.div
-                      className="w-full rounded-sm"
-                      style={{
-                        height: `${Math.max((val / max) * 48, 4)}px`,
-                        background: isToday ? 'linear-gradient(to top,#10b981,#34d399)' : 'rgba(255,255,255,0.1)',
-                      }}
-                      initial={{ height: 0 }}
-                      animate={{ height: `${Math.max((val / max) * 48, 4)}px` }}
-                      transition={{ delay: 0.2 + i * 0.05 }}
-                    />
-                    <span className={`text-[9px] font-semibold ${isToday ? 'text-success-400' : 'text-surface-600'}`}>{TREND_DAYS[i]}</span>
-                  </div>
-                )
-              })}
-            </div>
+            {(() => {
+              const vals = PRACTICE_TREND
+              const maxV = Math.max(...vals)
+              const W = 300, H = 56, N = vals.length
+              const slotW = W / N
+              const barW = slotW * 0.65
+              const baseY = H - 13
+              const chartH = baseY - 2
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-3" style={{ height: 56 }}>
+                  <defs>
+                    <linearGradient id="ww-prac-bar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#34d399" stopOpacity={0.65} />
+                    </linearGradient>
+                  </defs>
+                  {vals.map((v, i) => {
+                    const isToday = i === vals.length - 1
+                    const x = i * slotW + (slotW - barW) / 2
+                    const bh = v > 0 ? Math.max((v / maxV) * chartH, 4) : 3
+                    return (
+                      <g key={i}>
+                        <rect x={x} y={2} width={barW} height={chartH} rx={4} fill="rgba(255,255,255,0.035)" />
+                        {v > 0 && (
+                          <motion.rect x={x} width={barW} rx={4}
+                            fill={isToday ? 'url(#ww-prac-bar)' : 'rgba(255,255,255,0.1)'}
+                            initial={{ y: baseY, height: 0 }}
+                            animate={{ y: baseY - bh, height: bh }}
+                            transition={{ delay: 0.2 + i * 0.05, duration: 0.4, ease: 'easeOut' }}
+                          />
+                        )}
+                        <text x={x + barW / 2} y={H - 1} textAnchor="middle" fontSize={9} fontFamily="inherit"
+                          fill={isToday ? '#34d399' : 'rgba(255,255,255,0.22)'}
+                          fontWeight={isToday ? 'bold' : 'normal'}
+                        >{TREND_DAYS[i]}</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
             <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
               <span className="text-xs text-surface-400">Words reviewed</span>
               <span className="text-xs font-bold text-success-400">{PRACTICE_TREND.reduce((a, b) => a + b, 0)} this week</span>

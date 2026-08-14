@@ -423,32 +423,45 @@ export default function DashboardPage() {
                       <TrendingUp className="w-3 h-3" /> +18%
                     </span>
                   </div>
-                  <div className="flex items-end gap-1.5 h-20">
-                    {weeklyActivity.map((d, i) => {
-                      const isToday = d.day === 'Thu'
-                      return (
-                        <motion.div
-                          key={d.day}
-                          className="flex-1 flex flex-col items-center gap-1"
-                          initial={{ scaleY: 0 }}
-                          animate={{ scaleY: 1 }}
-                          transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
-                          style={{ transformOrigin: 'bottom' }}
-                        >
-                          <motion.div
-                            className="w-full rounded-md"
-                            style={{
-                              height: `${Math.max((d.value / maxActivity) * 56, 4)}px`,
-                              background: isToday
-                                ? 'linear-gradient(180deg, #6366f1, #4f46e5)'
-                                : d.value >= 6 ? 'rgba(99,102,241,0.35)' : 'rgba(255,255,255,0.06)',
-                            }}
-                          />
-                          <span className={`text-[10px] ${isToday ? 'text-accent-400 font-bold' : 'text-surface-500'}`}>{d.day}</span>
-                        </motion.div>
-                      )
-                    })}
-                  </div>
+                  {(() => {
+                    const W = 400, H = 80, N = weeklyActivity.length
+                    const slotW = W / N
+                    const barW = slotW * 0.6
+                    const baseY = H - 14
+                    const chartH = baseY - 2
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 80 }}>
+                        <defs>
+                          <linearGradient id="db-week-today" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#6366f1" stopOpacity={0.95} />
+                            <stop offset="100%" stopColor="#4f46e5" stopOpacity={0.7} />
+                          </linearGradient>
+                        </defs>
+                        {weeklyActivity.map((d, i) => {
+                          const isToday = d.day === 'Thu'
+                          const x = i * slotW + (slotW - barW) / 2
+                          const bh = d.value > 0 ? Math.max((d.value / maxActivity) * chartH, 5) : 3
+                          return (
+                            <g key={d.day}>
+                              <rect x={x} y={2} width={barW} height={chartH} rx={4} fill="rgba(255,255,255,0.035)" />
+                              {d.value > 0 && (
+                                <motion.rect x={x} width={barW} rx={4}
+                                  fill={isToday ? 'url(#db-week-today)' : d.value >= 6 ? 'rgba(99,102,241,0.35)' : 'rgba(255,255,255,0.08)'}
+                                  initial={{ y: baseY, height: 0 }}
+                                  animate={{ y: baseY - bh, height: bh }}
+                                  transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
+                                />
+                              )}
+                              <text x={x + barW / 2} y={H - 1} textAnchor="middle" fontSize={10} fontFamily="inherit"
+                                fill={isToday ? '#818cf8' : 'rgba(255,255,255,0.3)'}
+                                fontWeight={isToday ? 'bold' : 'normal'}
+                              >{d.day}</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
                   <p className="text-xs text-surface-500 mt-2 text-center">32 materials created this week</p>
                 </div>
 

@@ -352,35 +352,43 @@ export default function AnalyticsPage() {
               <h3 className="text-sm font-bold text-white">Weekly Activity</h3>
               <span className="text-xs text-surface-500 flex items-center gap-1"><Calendar className="w-3 h-3" /> This week</span>
             </div>
-            <div className="flex items-end gap-2 h-40">
-              {weekData.map((d, i) => (
-                <motion.div
-                  key={d.day}
-                  className="flex-1 flex flex-col items-center gap-1"
-                  initial={{ opacity: 0, scaleY: 0 }}
-                  animate={{ opacity: 1, scaleY: 1 }}
-                  transition={{ delay: 0.3 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ transformOrigin: 'bottom' }}
-                >
-                  <span className="text-xs font-bold text-accent-400">{d.lessons || ''}</span>
-                  <motion.div
-                    className="w-full rounded-t-lg relative group cursor-pointer"
-                    style={{
-                      height: `${Math.max((d.lessons / maxLessons) * 110, 4)}px`,
-                      background: d.lessons > 0 ? 'linear-gradient(180deg,#8b5cf6,#6d28d9)' : 'rgba(255,255,255,0.06)',
-                    }}
-                    whileHover={{ filter: 'brightness(1.2)', transition: { duration: 0.15 } }}
-                  >
-                    {d.lessons > 0 && (
-                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface-900 border border-white/[0.1] text-[10px] text-surface-300 px-2 py-0.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        {d.minutes} min
-                      </div>
-                    )}
-                  </motion.div>
-                  <span className="text-xs text-surface-500">{d.day}</span>
-                </motion.div>
-              ))}
-            </div>
+            {(() => {
+              const W = 500, H = 132, N = weekData.length
+              const slotW = W / N
+              const barW = slotW * 0.65
+              const baseY = H - 14
+              const chartH = baseY - 14
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 160 }}>
+                  <defs>
+                    <linearGradient id="an-week-bar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.7} />
+                    </linearGradient>
+                  </defs>
+                  {weekData.map((d, i) => {
+                    const x = i * slotW + (slotW - barW) / 2
+                    const bh = d.lessons > 0 ? Math.max((d.lessons / maxLessons) * chartH, 6) : 3
+                    return (
+                      <g key={d.day}>
+                        <rect x={x} y={14} width={barW} height={chartH} rx={5} fill="rgba(255,255,255,0.035)" />
+                        {d.lessons > 0 && (
+                          <motion.rect x={x} width={barW} rx={5} fill="url(#an-week-bar)"
+                            initial={{ y: baseY, height: 0 }}
+                            animate={{ y: baseY - bh, height: bh }}
+                            transition={{ delay: 0.3 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        )}
+                        {d.lessons > 0 && (
+                          <text x={x + barW / 2} y={baseY - bh - 3} textAnchor="middle" fill="#a78bfa" fontSize={11} fontFamily="inherit" fontWeight="bold">{d.lessons}</text>
+                        )}
+                        <text x={x + barW / 2} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize={10} fontFamily="inherit">{d.day}</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
               <span className="text-xs text-surface-500">Total: 16 lessons</span>
               <span className="text-xs font-bold text-success-400 flex items-center gap-1">
@@ -398,28 +406,39 @@ export default function AnalyticsPage() {
                 <TrendingUp className="w-3 h-3" /> +458%
               </span>
             </div>
-            <div className="flex items-end gap-2 h-40">
-              {monthlyTrend.map((d, i) => (
-                <motion.div
-                  key={d.month}
-                  className="flex-1 flex flex-col items-center gap-1"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 + i * 0.07, duration: 0.45 }}
-                >
-                  <span className="text-xs font-bold text-success-400">{d.value}</span>
-                  <motion.div
-                    className="w-full rounded-t-lg relative group cursor-pointer"
-                    initial={{ height: 0 }}
-                    animate={{ height: `${(d.value / maxMonthly) * 110}px` }}
-                    transition={{ delay: 0.4 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    style={{ background: 'linear-gradient(180deg,#10b981,#059669)' }}
-                    whileHover={{ filter: 'brightness(1.2)', transition: { duration: 0.15 } }}
-                  />
-                  <span className="text-xs text-surface-500">{d.month}</span>
-                </motion.div>
-              ))}
-            </div>
+            {(() => {
+              const W = 500, H = 132, N = monthlyTrend.length
+              const slotW = W / N
+              const barW = slotW * 0.6
+              const baseY = H - 14
+              const chartH = baseY - 14
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 160 }}>
+                  <defs>
+                    <linearGradient id="an-growth-bar" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
+                    </linearGradient>
+                  </defs>
+                  {monthlyTrend.map((d, i) => {
+                    const x = i * slotW + (slotW - barW) / 2
+                    const bh = Math.max((d.value / maxMonthly) * chartH, 4)
+                    return (
+                      <g key={d.month}>
+                        <rect x={x} y={14} width={barW} height={chartH} rx={5} fill="rgba(255,255,255,0.035)" />
+                        <motion.rect x={x} width={barW} rx={5} fill="url(#an-growth-bar)"
+                          initial={{ y: baseY, height: 0 }}
+                          animate={{ y: baseY - bh, height: bh }}
+                          transition={{ delay: 0.4 + i * 0.07, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                        <text x={x + barW / 2} y={baseY - bh - 3} textAnchor="middle" fill="#34d399" fontSize={11} fontFamily="inherit" fontWeight="bold">{d.value}</text>
+                        <text x={x + barW / 2} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize={10} fontFamily="inherit">{d.month}</text>
+                      </g>
+                    )
+                  })}
+                </svg>
+              )
+            })()}
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
               <span className="text-xs text-surface-500">6-month overview</span>
               <span className="text-xs font-bold text-success-400 flex items-center gap-1">
