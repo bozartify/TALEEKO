@@ -590,30 +590,51 @@ export default function StudentsPage() {
           <FadeInWhenVisible delay={0.15}>
             <div className="glass-card p-5">
               <h4 className="text-sm font-bold text-white mb-4">Performance Distribution</h4>
-              <div className="space-y-2.5">
-                {[
+              {(() => {
+                const tiers = [
                   { range: 'A (90–100%)', count: students.filter(s => s.avg >= 90).length, color: '#10b981' },
                   { range: 'B (80–89%)',  count: students.filter(s => s.avg >= 80 && s.avg < 90).length, color: '#22d3ee' },
                   { range: 'C (70–79%)',  count: students.filter(s => s.avg >= 70 && s.avg < 80).length, color: '#f59e0b' },
                   { range: 'D/F (<70%)', count: students.filter(s => s.avg < 70).length, color: '#ef4444' },
-                ].map((tier, i) => (
-                  <div key={tier.range}>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-surface-400">{tier.range}</span>
-                      <span className="text-xs font-bold" style={{ color: tier.color }}>{tier.count} student{tier.count !== 1 ? 's' : ''}</span>
-                    </div>
-                    <div className="h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: tier.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${(tier.count / students.length) * 100}%` }}
-                        transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                      />
+                ]
+                const R = 42, CX = 52, CY = 52, SW = 14
+                const CIRC = 2 * Math.PI * R
+                const total = tiers.reduce((a, t) => a + t.count, 0) || 1
+                let offset = 0
+                const segs = tiers.map(t => {
+                  const dash = (t.count / total) * CIRC
+                  const s = { ...t, dash, offset }
+                  offset += dash
+                  return s
+                })
+                return (
+                  <div className="flex items-center gap-4">
+                    <svg viewBox="0 0 104 104" className="w-24 h-24 flex-shrink-0">
+                      <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={SW} />
+                      {segs.map(s => (
+                        <motion.circle key={s.range} cx={CX} cy={CY} r={R} fill="none" stroke={s.color} strokeWidth={SW}
+                          strokeDasharray={`${s.dash.toFixed(2)} ${(CIRC - s.dash).toFixed(2)}`}
+                          strokeDashoffset={(-s.offset + CIRC / 4).toFixed(2)}
+                          strokeLinecap="butt"
+                          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.6 }} />
+                      ))}
+                      <text x={CX} y={CY - 4} textAnchor="middle" fill="white" fontSize="12" fontWeight="700">{students.length}</text>
+                      <text x={CX} y={CY + 9} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7.5">students</text>
+                    </svg>
+                    <div className="space-y-2 flex-1">
+                      {tiers.map(t => (
+                        <div key={t.range} className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: t.color }} />
+                            <span className="text-[11px] text-surface-400">{t.range}</span>
+                          </div>
+                          <span className="text-[11px] font-bold" style={{ color: t.color }}>{t.count}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
-              </div>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 

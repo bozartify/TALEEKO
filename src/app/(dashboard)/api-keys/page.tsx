@@ -442,22 +442,45 @@ export default function ApiKeysPage() {
                   <span className="text-[10px] font-semibold text-warning-400">72% of rate limit</span>
                 </div>
               </div>
-              <div className="flex items-end gap-2 h-28 mb-4">
-                {usageData.map((d, i) => (
-                  <div key={d.day} className="flex-1 flex flex-col items-center gap-1.5">
-                    <span className="text-[9px] font-bold text-surface-400">{d.calls >= 1000 ? `${(d.calls/1000).toFixed(1)}k` : d.calls}</span>
-                    <motion.div
-                      className="w-full rounded-lg bg-gradient-to-t from-accent-500/40 to-accent-400/20 relative overflow-hidden"
-                      initial={{ height: 0 }}
-                      animate={{ height: `${(d.calls / maxCalls) * 80}px` }}
-                      transition={{ delay: 0.1 + i * 0.08, duration: 0.5, ease: 'easeOut' }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-t from-accent-500/20 to-transparent" />
-                    </motion.div>
-                    <span className="text-[10px] text-surface-500">{d.day}</span>
-                  </div>
-                ))}
-              </div>
+              {(() => {
+                const vals = usageData.map(d => d.calls)
+                const W = 500, H = 110, PX = 18, PY = 14
+                const minV = 0, maxV = maxCalls + 300
+                const sx = (i: number) => PX + (i / (vals.length - 1)) * (W - PX * 2)
+                const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                const pts = vals.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                let lp = `M ${pts[0].x} ${pts[0].y}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = (pts[i].x + pts[i - 1].x) / 2
+                  lp += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                }
+                const ap = lp + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-4" style={{ height: H }}>
+                    <defs>
+                      <linearGradient id="api-usage-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {[500, 1000, 1500, 2000, 2500].map(g => (
+                      <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                    ))}
+                    <path d={ap} fill="url(#api-usage-grad)" />
+                    <motion.path d={lp} fill="none" stroke="#8b5cf6" strokeWidth="2.5" strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+                    {pts.map((pt, i) => (
+                      <g key={i}>
+                        <circle cx={pt.x} cy={pt.y} r={3.5} fill="#8b5cf6" />
+                        <text x={pt.x} y={pt.y - 7} textAnchor="middle" fill="#c4b5fd" fontSize="9" fontWeight="700">
+                          {vals[i] >= 1000 ? `${(vals[i]/1000).toFixed(1)}k` : vals[i]}
+                        </text>
+                        <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="9">{usageData[i].day}</text>
+                      </g>
+                    ))}
+                  </svg>
+                )
+              })()}
               <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]">
                 <div><div className="text-xs text-surface-500">Rate Limit</div><div className="text-sm font-bold text-white mt-0.5">10,000 / hr</div></div>
                 <div><div className="text-xs text-surface-500">Avg Response</div><div className="text-sm font-bold text-white mt-0.5">142ms</div></div>
