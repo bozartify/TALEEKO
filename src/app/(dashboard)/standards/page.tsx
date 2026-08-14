@@ -447,15 +447,24 @@ export default function StandardsPage() {
                         <span className="text-[10px] text-success-400 font-semibold">+5% this week</span>
                       </div>
                     </div>
-                    <div className="h-3 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: 'linear-gradient(90deg, #8b5cf6, #6d28d9)' }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${coveragePct}%` }}
-                        transition={{ delay: 0.3, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                      />
-                    </div>
+                    {(() => {
+                      const bw = (coveragePct / 100) * 500
+                      return (
+                        <svg viewBox="0 0 500 14" className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id="std-cov-main" x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.95} />
+                              <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.85} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={2} width={500} height={10} rx={5} fill="rgba(255,255,255,0.05)" />
+                          <motion.rect x={0} y={2} height={10} rx={5} fill="url(#std-cov-main)"
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ delay: 0.3, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        </svg>
+                      )
+                    })()}
                     <div className="flex items-center justify-between mt-2 text-[10px] text-surface-500">
                       <div className="flex items-center gap-4">
                         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-accent-500" /> Covered ({totalAligned})</span>
@@ -778,15 +787,24 @@ export default function StandardsPage() {
                               </span>
                             </td>
                             <td className="px-4 py-3 min-w-[120px]">
-                              <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                                <motion.div
-                                  className="h-full rounded-full"
-                                  style={{ backgroundColor: fw.color }}
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${pct}%` }}
-                                  transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                                />
-                              </div>
+                              {(() => {
+                                const bw = (pct / 100) * 120
+                                return (
+                                  <svg viewBox="0 0 120 8" className="w-full overflow-visible">
+                                    <defs>
+                                      <linearGradient id={`std-fw-${fw.id}`} x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stopColor={fw.color} stopOpacity={0.9} />
+                                        <stop offset="100%" stopColor={fw.color} stopOpacity={0.55} />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect x={0} y={1} width={120} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                                    <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#std-fw-${fw.id})`}
+                                      initial={{ width: 0 }} animate={{ width: bw }}
+                                      transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                    />
+                                  </svg>
+                                )
+                              })()}
                             </td>
                             <td className="text-center px-4 py-3">
                               <span className="text-[10px] text-surface-500">{fw.grades}</span>

@@ -402,15 +402,26 @@ export default function AccommodationsPage() {
                       </div>
                       <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
                         <span className="text-xs text-surface-500">{implementedAcc}/{student.accommodations.length}</span>
-                        <div className="w-20 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ background: implementedAcc === student.accommodations.length ? '#10b981' : '#f59e0b' }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(implementedAcc / student.accommodations.length) * 100}%` }}
-                            transition={{ delay: 0.3 + si * 0.05, duration: 0.6 }}
-                          />
-                        </div>
+                        {(() => {
+                          const pct = (implementedAcc / student.accommodations.length) * 100
+                          const color = implementedAcc === student.accommodations.length ? '#10b981' : '#f59e0b'
+                          const bw = (pct / 100) * 80
+                          return (
+                            <svg viewBox="0 0 80 8" className="w-20 overflow-visible">
+                              <defs>
+                                <linearGradient id={`acc-${si}`} x1="0" y1="0" x2="1" y2="0">
+                                  <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+                                  <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={1} width={80} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                              <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#acc-${si})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ delay: 0.3 + si * 0.05, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                              />
+                            </svg>
+                          )
+                        })()}
                       </div>
                       <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
                         <ChevronDown className="w-4 h-4 text-surface-500" />

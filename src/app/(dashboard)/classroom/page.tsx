@@ -323,29 +323,50 @@ export default function ClassroomPage() {
                                 {cls.trend === 'up' ? <TrendingUp className="w-3 h-3 text-success-400" /> : <TrendingDown className="w-3 h-3 text-danger-400" />}
                               </div>
                             </div>
-                            <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                              <motion.div
-                                className="h-full rounded-full"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${cls.avgScore}%` }}
-                                transition={{ delay: 0.3 + i * 0.08, duration: 0.6 }}
-                                style={{ backgroundColor: cls.color }}
-                              />
-                            </div>
+                            {(() => {
+                              const bw = (cls.avgScore / 100) * 200
+                              const safeId = cls.name.replace(/[^a-z0-9]/gi, '')
+                              return (
+                                <svg viewBox="0 0 200 8" className="w-full overflow-visible">
+                                  <defs>
+                                    <linearGradient id={`cl-avg-${safeId}`} x1="0" y1="0" x2="1" y2="0">
+                                      <stop offset="0%" stopColor={cls.color} stopOpacity={0.9} />
+                                      <stop offset="100%" stopColor={cls.color} stopOpacity={0.55} />
+                                    </linearGradient>
+                                  </defs>
+                                  <rect x={0} y={1} width={200} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                                  <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#cl-avg-${safeId})`}
+                                    initial={{ width: 0 }} animate={{ width: bw }}
+                                    transition={{ delay: 0.3 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                  />
+                                </svg>
+                              )
+                            })()}
                           </div>
                           <div>
                             <div className="flex items-center justify-between mb-1">
                               <span className="text-[10px] text-surface-500">Curriculum Completion</span>
                               <span className="text-xs font-bold text-surface-200">{cls.completion}%</span>
                             </div>
-                            <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                              <motion.div
-                                className="h-full rounded-full bg-gradient-to-r from-white/20 to-white/10"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${cls.completion}%` }}
-                                transition={{ delay: 0.4 + i * 0.08, duration: 0.6 }}
-                              />
-                            </div>
+                            {(() => {
+                              const bw = (cls.completion / 100) * 200
+                              const safeId = cls.name.replace(/[^a-z0-9]/gi, '')
+                              return (
+                                <svg viewBox="0 0 200 8" className="w-full overflow-visible">
+                                  <defs>
+                                    <linearGradient id={`cl-comp-${safeId}`} x1="0" y1="0" x2="1" y2="0">
+                                      <stop offset="0%" stopColor="rgba(255,255,255,0.22)" stopOpacity={1} />
+                                      <stop offset="100%" stopColor="rgba(255,255,255,0.1)" stopOpacity={1} />
+                                    </linearGradient>
+                                  </defs>
+                                  <rect x={0} y={1} width={200} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                                  <motion.rect x={0} y={1} height={6} rx={3} fill={`url(#cl-comp-${safeId})`}
+                                    initial={{ width: 0 }} animate={{ width: bw }}
+                                    transition={{ delay: 0.4 + i * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                                  />
+                                </svg>
+                              )
+                            })()}
                           </div>
                         </div>
                         <AnimatePresence>
