@@ -447,9 +447,27 @@ export default function ReportsPage() {
                   </motion.div>
                   <h3 className="text-lg font-black text-white mb-1">AI is generating your report...</h3>
                   <p className="text-sm text-surface-400 mb-4">Analyzing data, applying formatting, and writing insights</p>
-                  <motion.div className="w-48 h-1.5 bg-accent-500/15 rounded-full mx-auto overflow-hidden">
-                    <motion.div className="h-full bg-accent-500 rounded-full" initial={{ width: '0%' }} animate={{ width: '100%' }} transition={{ duration: 3, ease: 'linear' }} />
-                  </motion.div>
+                  {(() => {
+                    const W = 192, H = 6
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} width={192} height={6} className="overflow-visible mx-auto">
+                        <defs>
+                          <linearGradient id="rp-load" x1="0" x2="1" y1="0" y2="0">
+                            <stop offset="0%" stopColor="#6366f1" />
+                            <stop offset="100%" stopColor="#818cf8" />
+                          </linearGradient>
+                        </defs>
+                        <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(99,102,241,0.15)" />
+                        <motion.rect
+                          x={0} y={0} height={H} rx={3}
+                          fill="url(#rp-load)"
+                          initial={{ width: 0 }}
+                          animate={{ width: W }}
+                          transition={{ duration: 3, ease: 'linear' }}
+                        />
+                      </svg>
+                    )
+                  })()}
                   <div className="flex items-center justify-center gap-6 mt-5 text-[10px] text-surface-500">
                     {['Fetching student data', 'Running AI analysis', 'Formatting report'].map((step, i) => (
                       <motion.span key={step} className="flex items-center gap-1" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 1 }}>

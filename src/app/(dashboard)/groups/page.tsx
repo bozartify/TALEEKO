@@ -791,15 +791,29 @@ export default function GroupsPage() {
                       <span className="text-[10px] text-surface-400">{type}</span>
                       <span className="text-[10px] font-semibold text-white">{count}</span>
                     </div>
-                    <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: TYPE_COLORS[type] }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ delay: 0.3, duration: 0.4 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 200, H = 4
+                      const bw = (pct / 100) * W
+                      const gid = `grp-type-${type.replace(/\s/g, '')}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={TYPE_COLORS[type]} />
+                              <stop offset="100%" stopColor={TYPE_COLORS[type] + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={2} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={2}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.3, duration: 0.4 }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </div>
                 )
               })}

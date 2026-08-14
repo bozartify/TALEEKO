@@ -513,15 +513,29 @@ export default function DashboardPage() {
                           </span>
                         </div>
                         <p className="text-[10px] text-surface-500 pl-3">{a.task}</p>
-                        <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: a.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${a.progress}%` }}
-                            transition={{ delay: 0.4 + i * 0.06, duration: 0.6 }}
-                          />
-                        </div>
+                        {(() => {
+                          const W = 300, H = 4
+                          const bw = (a.progress / 100) * W
+                          const gid = `db-ag-${i}`
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                              <defs>
+                                <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                  <stop offset="0%" stopColor={a.color} />
+                                  <stop offset="100%" stopColor={a.color + '80'} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={0} width={W} height={H} rx={2} fill="rgba(255,255,255,0.06)" />
+                              <motion.rect
+                                x={0} y={0} height={H} rx={2}
+                                fill={`url(#${gid})`}
+                                initial={{ width: 0 }}
+                                animate={{ width: bw }}
+                                transition={{ delay: 0.4 + i * 0.06, duration: 0.6 }}
+                              />
+                            </svg>
+                          )
+                        })()}
                       </motion.div>
                     ))}
                     {agentActivity.filter(a => a.status === 'awaiting').length > 0 && (

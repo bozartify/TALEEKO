@@ -356,14 +356,27 @@ export default function RubricsPage() {
             </motion.div>
             <h3 className="text-lg font-black text-white mb-1">Generating Rubric...</h3>
             <p className="text-sm text-surface-400">AI is creating assessment criteria tailored to your needs</p>
-            <div className="w-48 h-1.5 bg-accent-500/15 rounded-full mx-auto mt-4 overflow-hidden">
-              <motion.div
-                className="h-full bg-accent-500 rounded-full"
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 2, ease: 'linear' }}
-              />
-            </div>
+            {(() => {
+              const W = 192, H = 6
+              return (
+                <svg viewBox={`0 0 ${W} ${H}`} width={192} height={6} className="overflow-visible mx-auto mt-4">
+                  <defs>
+                    <linearGradient id="rb-load" x1="0" x2="1" y1="0" y2="0">
+                      <stop offset="0%" stopColor="#6366f1" />
+                      <stop offset="100%" stopColor="#818cf8" />
+                    </linearGradient>
+                  </defs>
+                  <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(99,102,241,0.15)" />
+                  <motion.rect
+                    x={0} y={0} height={H} rx={3}
+                    fill="url(#rb-load)"
+                    initial={{ width: 0 }}
+                    animate={{ width: W }}
+                    transition={{ duration: 2, ease: 'linear' }}
+                  />
+                </svg>
+              )
+            })()}
           </motion.div>
         )}
       </AnimatePresence>
