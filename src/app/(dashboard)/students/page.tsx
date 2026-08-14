@@ -543,18 +543,36 @@ export default function StudentsPage() {
                           </div>
                           <div className="mb-3 p-2.5 bg-white/[0.03] rounded-xl">
                             <p className="text-[10px] text-surface-500 mb-1.5">Performance Trend (8 weeks)</p>
-                            <div className="flex items-end gap-1 h-8">
-                              {[70, 74, 76, 78, 79, 80, 81, student.avg].map((v, pi) => (
-                                <motion.div
-                                  key={pi}
-                                  className="flex-1 rounded-sm"
-                                  style={{ backgroundColor: student.color + (pi === 7 ? '' : '66') }}
-                                  initial={{ height: 0 }}
-                                  animate={{ height: `${(v / 100) * 32}px` }}
-                                  transition={{ delay: pi * 0.05, duration: 0.3 }}
-                                />
-                              ))}
-                            </div>
+                            {(() => {
+                              const ptsData = [70, 74, 76, 78, 79, 80, 81, student.avg]
+                              const W = 200, H = 32, mn = 65, mx = 100
+                              const pts = ptsData.map((v, i) => ({
+                                x: (i / (ptsData.length - 1)) * W,
+                                y: H - ((v - mn) / (mx - mn)) * H * 0.82 - 3
+                              }))
+                              let line = `M ${pts[0].x} ${pts[0].y}`
+                              for (let i = 1; i < pts.length; i++) {
+                                const cpx = (pts[i].x + pts[i - 1].x) / 2
+                                line += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                              }
+                              const area = line + ` L ${W} ${H} L 0 ${H} Z`
+                              return (
+                                <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 32 }}>
+                                  <defs>
+                                    <linearGradient id={`sp-${student.id}`} x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="0%" stopColor={student.color} stopOpacity={0.3} />
+                                      <stop offset="100%" stopColor={student.color} stopOpacity={0} />
+                                    </linearGradient>
+                                  </defs>
+                                  <path d={area} fill={`url(#sp-${student.id})`} />
+                                  <motion.path d={line} fill="none" stroke={student.color} strokeWidth={1.5}
+                                    initial={{ pathLength: 0 }} animate={{ pathLength: 1 }}
+                                    transition={{ duration: 0.8, ease: 'easeOut' }}
+                                  />
+                                  <circle cx={pts[7].x} cy={pts[7].y} r={2.5} fill={student.color} />
+                                </svg>
+                              )
+                            })()}
                           </div>
                           <p className="text-xs text-surface-400 mb-3 p-2.5 bg-white/[0.03] rounded-xl italic">&ldquo;{student.notes}&rdquo;</p>
                           <div className="flex items-center gap-2 flex-wrap">

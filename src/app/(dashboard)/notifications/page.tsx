@@ -853,33 +853,43 @@ export default function NotificationsPage() {
                 <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-accent-400" /> Notification Insights
                 </h3>
-                <div className="space-y-3">
-                  {[
-                    { label: 'Response rate', value: '94%', color: 'text-success-400', bar: 94 },
-                    { label: 'Avg. response time', value: '12m', color: 'text-accent-400', bar: 72 },
-                    { label: 'Resolved this week', value: '18', color: 'text-electric-400', bar: 85 },
-                  ].map((item, i) => (
-                    <motion.div
-                      key={item.label}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.35 + i * 0.06 }}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs text-surface-400">{item.label}</span>
-                        <span className={`text-xs font-bold ${item.color}`}>{item.value}</span>
-                      </div>
-                      <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full bg-accent-500"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${item.bar}%` }}
-                          transition={{ delay: 0.4 + i * 0.06, duration: 0.6 }}
-                        />
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                {(() => {
+                  const items = [
+                    { label: 'Response rate', value: '94%', color: '#10b981', bar: 94 },
+                    { label: 'Avg. response time', value: '12m', color: '#6366f1', bar: 72 },
+                    { label: 'Resolved this week', value: '18', color: '#a78bfa', bar: 85 },
+                  ]
+                  const W = 280, CW = 34, GAP = 8, ROW = 28
+                  const BAR_MAX = W - CW - 4
+                  const H = items.length * (ROW + GAP) - GAP
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                      <defs>
+                        {items.map((item, i) => (
+                          <linearGradient key={i} id={`ntf-ins-${i}`} x1="0" y1="0" x2="1" y2="0">
+                            <stop offset="0%" stopColor={item.color} stopOpacity={0.9} />
+                            <stop offset="100%" stopColor={item.color} stopOpacity={0.4} />
+                          </linearGradient>
+                        ))}
+                      </defs>
+                      {items.map((item, i) => {
+                        const bw = (item.bar / 100) * BAR_MAX
+                        const y = i * (ROW + GAP)
+                        return (
+                          <g key={item.label}>
+                            <text x={0} y={y + 12} fill="rgba(255,255,255,0.45)" fontSize={10} fontFamily="inherit">{item.label}</text>
+                            <text x={BAR_MAX + 6} y={y + 12} fill={item.color} fontSize={10} fontFamily="inherit" fontWeight="bold">{item.value}</text>
+                            <rect x={0} y={y + 16} width={BAR_MAX} height={9} rx={4} fill="rgba(255,255,255,0.05)" />
+                            <motion.rect x={0} y={y + 16} height={9} rx={4} fill={`url(#ntf-ins-${i})`}
+                              initial={{ width: 0 }} animate={{ width: bw }}
+                              transition={{ delay: 0.4 + i * 0.08, duration: 0.6, ease: 'easeOut' }}
+                            />
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
               </div>
             </div>
           </FadeUp>

@@ -546,49 +546,77 @@ export default function AgentsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div className="glass-card p-5">
                   <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><TrendingUp className="w-3.5 h-3.5" /> Tasks Completed (per Agent)</h4>
-                  <div className="space-y-3">
-                    {agents.sort((a, b) => b.tasksDone - a.tasksDone).map((a, i) => (
-                      <div key={a.id}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-surface-300 truncate max-w-[150px]">{a.name}</span>
-                          <span className="text-xs font-black text-white">{a.tasksDone}</span>
-                        </div>
-                        <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: a.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${(a.tasksDone / Math.max(...agents.map(x => x.tasksDone))) * 100}%` }}
-                            transition={{ delay: i * 0.08, duration: 0.6 }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {(() => {
+                    const sorted = [...agents].sort((a, b) => b.tasksDone - a.tasksDone)
+                    const maxVal = Math.max(...sorted.map(a => a.tasksDone))
+                    const W = 340, LW = 124, CW = 34, GAP = 7, ROW = 22
+                    const BAR_MAX = W - LW - CW - 6
+                    const H = sorted.length * (ROW + GAP) - GAP
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                        <defs>
+                          {sorted.map((a, i) => (
+                            <linearGradient key={i} id={`ag-task-${i}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={a.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={a.color} stopOpacity={0.45} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        {sorted.map((a, i) => {
+                          const bw = (a.tasksDone / maxVal) * BAR_MAX
+                          const y = i * (ROW + GAP)
+                          return (
+                            <g key={a.id}>
+                              <text x={0} y={y + 14} fill="rgba(255,255,255,0.5)" fontSize={10} fontFamily="inherit">{a.name.split(' ').slice(0, 2).join(' ')}</text>
+                              <rect x={LW} y={y + 4} width={BAR_MAX} height={14} rx={3} fill="rgba(255,255,255,0.04)" />
+                              <motion.rect x={LW} y={y + 4} height={14} rx={3} fill={`url(#ag-task-${i})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ delay: i * 0.08, duration: 0.6, ease: 'easeOut' }}
+                              />
+                              <text x={LW + BAR_MAX + 6} y={y + 14} fill="rgba(255,255,255,0.9)" fontSize={10} fontFamily="inherit" fontWeight="bold">{a.tasksDone}</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
                 </div>
                 <div className="glass-card p-5">
                   <h4 className="text-xs font-bold text-surface-300 mb-4 flex items-center gap-2"><Award className="w-3.5 h-3.5" /> Accuracy Rate (per Agent)</h4>
-                  <div className="space-y-3">
-                    {agents.sort((a, b) => b.accuracy - a.accuracy).map((a, i) => (
-                      <div key={a.id}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-surface-300 truncate max-w-[150px]">{a.name}</span>
-                          <span className="text-xs font-black" style={{ color: a.accuracy >= 96 ? '#10b981' : a.accuracy >= 92 ? '#f59e0b' : '#ef4444' }}>
-                            {a.accuracy}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: a.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${a.accuracy}%` }}
-                            transition={{ delay: i * 0.08, duration: 0.6 }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  {(() => {
+                    const sorted = [...agents].sort((a, b) => b.accuracy - a.accuracy)
+                    const W = 340, LW = 124, CW = 34, GAP = 7, ROW = 22
+                    const BAR_MAX = W - LW - CW - 6
+                    const H = sorted.length * (ROW + GAP) - GAP
+                    return (
+                      <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                        <defs>
+                          {sorted.map((a, i) => (
+                            <linearGradient key={i} id={`ag-acc-${i}`} x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={a.color} stopOpacity={0.9} />
+                              <stop offset="100%" stopColor={a.color} stopOpacity={0.45} />
+                            </linearGradient>
+                          ))}
+                        </defs>
+                        {sorted.map((a, i) => {
+                          const bw = (a.accuracy / 100) * BAR_MAX
+                          const y = i * (ROW + GAP)
+                          const ac = a.accuracy >= 96 ? '#10b981' : a.accuracy >= 92 ? '#f59e0b' : '#ef4444'
+                          return (
+                            <g key={a.id}>
+                              <text x={0} y={y + 14} fill="rgba(255,255,255,0.5)" fontSize={10} fontFamily="inherit">{a.name.split(' ').slice(0, 2).join(' ')}</text>
+                              <rect x={LW} y={y + 4} width={BAR_MAX} height={14} rx={3} fill="rgba(255,255,255,0.04)" />
+                              <motion.rect x={LW} y={y + 4} height={14} rx={3} fill={`url(#ag-acc-${i})`}
+                                initial={{ width: 0 }} animate={{ width: bw }}
+                                transition={{ delay: i * 0.08, duration: 0.6, ease: 'easeOut' }}
+                              />
+                              <text x={LW + BAR_MAX + 6} y={y + 14} fill={ac} fontSize={10} fontFamily="inherit" fontWeight="bold">{a.accuracy}%</text>
+                            </g>
+                          )
+                        })}
+                      </svg>
+                    )
+                  })()}
                 </div>
               </div>
               <div className="glass-card p-5">

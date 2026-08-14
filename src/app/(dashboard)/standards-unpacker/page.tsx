@@ -622,22 +622,30 @@ export default function StandardsUnpackerPage() {
                   <BarChart3 className="w-4 h-4 text-warning-400" />
                   <p className="text-xs font-bold text-white">Cognitive Rigor</p>
                 </div>
-                <div className="flex items-center gap-1.5 mb-2">
-                  {[1, 2, 3, 4, 5].map(n => (
-                    <div
-                      key={n}
-                      className="flex-1 h-2 rounded-full overflow-hidden bg-white/[0.06]"
-                    >
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: n <= unpacked.rigor ? '#f59e0b' : 'transparent' }}
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: n <= unpacked.rigor ? 1 : 0 }}
-                        transition={{ delay: 0.4 + n * 0.06, duration: 0.4 }}
-                      />
-                    </div>
-                  ))}
-                </div>
+                {(() => {
+                  const segColors = ['#6366f1', '#8b5cf6', '#a855f7', '#f59e0b', '#f97316']
+                  const W = 280, H = 20, GAP = 6
+                  const segW = (W - GAP * 4) / 5
+                  return (
+                    <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-2">
+                      {[1, 2, 3, 4, 5].map((n, i) => {
+                        const x = i * (segW + GAP)
+                        const active = n <= unpacked.rigor
+                        return (
+                          <g key={n}>
+                            <rect x={x} y={5} width={segW} height={10} rx={5} fill="rgba(255,255,255,0.06)" />
+                            {active && (
+                              <motion.rect x={x} y={5} height={10} rx={5} fill={segColors[i]}
+                                initial={{ width: 0 }} animate={{ width: segW }}
+                                transition={{ delay: 0.4 + i * 0.07, duration: 0.4, ease: 'easeOut' }}
+                              />
+                            )}
+                          </g>
+                        )
+                      })}
+                    </svg>
+                  )
+                })()}
                 <div className="flex justify-between text-[9px] text-surface-500">
                   <span>Surface</span>
                   <span className="text-warning-400 font-bold">Level {unpacked.rigor}: {RIGOR_LABELS[unpacked.rigor]}</span>

@@ -775,27 +775,46 @@ export default function WorkspacePage() {
               <TrendingUp className="w-3 h-3" /> +18% vs last week
             </div>
           </div>
-          <div className="flex items-end gap-1.5 h-16 mb-3">
-            {[4, 7, 5, 8, 6, 2, 0].map((val, i) => {
-              const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-              const isToday = i === 4
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <motion.div
-                    className="w-full rounded-md"
-                    style={{
-                      height: `${Math.max(val * 7, 3)}px`,
-                      background: isToday ? 'linear-gradient(to top, #6366f1, #a78bfa)' : 'rgba(255,255,255,0.08)',
-                    }}
-                    initial={{ height: 0 }}
-                    animate={{ height: `${Math.max(val * 7, 3)}px` }}
-                    transition={{ delay: 0.2 + i * 0.05, duration: 0.4, ease: 'easeOut' }}
-                  />
-                  <span className={`text-[9px] ${isToday ? 'text-accent-400 font-bold' : 'text-surface-600'}`}>{days[i]}</span>
-                </div>
-              )
-            })}
-          </div>
+          {(() => {
+            const vals = [4, 7, 5, 8, 6, 2, 0]
+            const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            const maxVal = Math.max(...vals)
+            const W = 420, PAD = 10, BAR_W = 44, GAP = (W - PAD * 2 - BAR_W * 7) / 6
+            const baseY = 52, topY = 4
+            const H = 68
+            return (
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full mb-3" style={{ height: 68 }}>
+                <defs>
+                  <linearGradient id="ws-act-today" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={0.95} />
+                    <stop offset="100%" stopColor="#a78bfa" stopOpacity={0.65} />
+                  </linearGradient>
+                </defs>
+                {vals.map((v, i) => {
+                  const isToday = i === 4
+                  const bh = v > 0 ? Math.max(((v / maxVal) * (baseY - topY)), 4) : 3
+                  const x = PAD + i * (BAR_W + GAP)
+                  return (
+                    <g key={i}>
+                      <rect x={x} y={topY} width={BAR_W} height={baseY - topY} rx={5} fill="rgba(255,255,255,0.035)" />
+                      {v > 0 && (
+                        <motion.rect x={x} width={BAR_W} rx={5}
+                          fill={isToday ? 'url(#ws-act-today)' : 'rgba(255,255,255,0.1)'}
+                          initial={{ y: baseY, height: 0 }}
+                          animate={{ y: baseY - bh, height: bh }}
+                          transition={{ delay: 0.2 + i * 0.05, duration: 0.45, ease: 'easeOut' }}
+                        />
+                      )}
+                      <text x={x + BAR_W / 2} y={H - 2} textAnchor="middle" fontSize={9} fontFamily="inherit"
+                        fill={isToday ? '#818cf8' : 'rgba(255,255,255,0.22)'}
+                        fontWeight={isToday ? 'bold' : 'normal'}
+                      >{days[i]}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t border-white/[0.06]">
             {[
               { label: 'Most Used', value: 'Magic Chat', color: '#6d28d9' },
