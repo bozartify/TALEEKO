@@ -1,10 +1,10 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Clock, BookOpen, Sparkles, FileText, ClipboardList,
-  Zap, Users, Target, Play, Check, ChevronDown, Download, Share2
+  Zap, Users, Target, Play, Check, ChevronDown, Download, Share2, CheckCircle
 } from 'lucide-react'
 import { FadeUp } from '@/components/ui/motion'
 
@@ -51,6 +51,8 @@ export default function LessonDetailPage({
   params: { courseId: string; lessonId: string }
 }) {
   const [expandedSection, setExpandedSection] = useState<number>(0)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
   const completedCount = studentProgress.filter(s => s.status === 'completed').length
   const avgScore = Math.round(
     studentProgress.filter(s => s.score !== null).reduce((a, s) => a + (s.score ?? 0), 0) /
@@ -69,25 +71,75 @@ export default function LessonDetailPage({
         </div>
       </FadeUp>
 
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: -16, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+            className="fixed top-5 right-5 z-[100] flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border border-white/[0.08]"
+            style={{ background: 'linear-gradient(135deg,#0a0f1a,#111827)' }}
+          >
+            <CheckCircle className="w-4 h-4 text-teal-400 flex-shrink-0" />
+            <span className="text-sm font-medium text-white">{toastMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <FadeUp delay={0.03}>
-        <div className="flex items-start gap-4">
-          <Link href={`/courses/${params.courseId}`} className="text-surface-500 hover:text-surface-300 mt-1">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div className="flex-1">
-            <h2 className="text-2xl font-black text-white">Photosynthesis</h2>
-            <div className="flex items-center gap-3 mt-1 text-xs text-surface-500">
-              <span className="flex items-center gap-1"><Clock className="w-3 h-3" />60 minutes</span>
-              <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{materials.length} materials</span>
-              <span className="badge bg-success-400/15 text-success-400">published</span>
+        <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <Link href={`/courses/${params.courseId}`} className="text-surface-500 hover:text-surface-300 mt-1">
+                <ArrowLeft className="w-4 h-4" />
+              </Link>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-2xl font-black text-white">Photosynthesis</h1>
+                  <span className="text-xs font-bold bg-success-400/20 text-success-400 px-2.5 py-0.5 rounded-full">Published</span>
+                </div>
+                <div className="flex items-center gap-3 mt-1 text-xs text-surface-500">
+                  <span className="flex items-center gap-1"><Clock className="w-3 h-3" />60 minutes</span>
+                  <span className="flex items-center gap-1"><BookOpen className="w-3 h-3" />{materials.length} materials</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2 flex-shrink-0">
+              <button onClick={() => showToast('Lesson exported!')} className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
+              <button onClick={() => showToast('Link copied!')} className="btn-secondary text-xs"><Share2 className="w-3.5 h-3.5" /> Share</button>
+              <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
+                <Sparkles className="w-4 h-4" /> Generate More
+              </Link>
             </div>
           </div>
-          <div className="flex gap-2 flex-shrink-0">
-            <button className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
-            <button className="btn-secondary text-xs"><Share2 className="w-3.5 h-3.5" /> Share</button>
-            <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
-              <Sparkles className="w-4 h-4" /> Generate More
-            </Link>
+          <div className="border-t border-white/[0.06] pt-4 mt-4 flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Completed</span>
+              <span className="text-xs font-bold text-success-400">{completedCount}/{studentProgress.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Avg Score</span>
+              <span className="text-xs font-bold text-accent-300">{avgScore}%</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Duration</span>
+              <span className="text-xs font-bold text-teal-400">60 min</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Materials</span>
+              <span className="text-xs font-bold text-white">{materials.length}</span>
+            </div>
+            <div className="w-px h-3 bg-white/[0.08]" />
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-surface-400">Standards</span>
+              <span className="text-xs font-bold text-electric-400">{standards.length}</span>
+            </div>
           </div>
         </div>
       </FadeUp>
