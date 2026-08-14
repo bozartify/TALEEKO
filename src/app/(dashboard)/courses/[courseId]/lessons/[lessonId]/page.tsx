@@ -270,14 +270,24 @@ export default function LessonDetailPage({
             <h3 className="text-sm font-bold text-white">Student Progress</h3>
             <span className="text-xs text-surface-400">{completedCount} of {studentProgress.length} completed</span>
           </div>
-          <div className="h-2 bg-white/[0.06] rounded-full overflow-hidden mb-4">
-            <motion.div
-              className="h-full rounded-full bg-success-400"
-              initial={{ width: 0 }}
-              animate={{ width: `${(completedCount / studentProgress.length) * 100}%` }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            />
-          </div>
+          {(() => {
+            const bw = (completedCount / studentProgress.length) * 500
+            return (
+              <svg viewBox="0 0 500 10" className="w-full overflow-visible mb-4">
+                <defs>
+                  <linearGradient id="lesson-prog" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="#34d399" stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
+                <rect x={0} y={2} width={500} height={6} rx={3} fill="rgba(255,255,255,0.05)" />
+                <motion.rect x={0} y={2} height={6} rx={3} fill="url(#lesson-prog)"
+                  initial={{ width: 0 }} animate={{ width: bw }}
+                  transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </svg>
+            )
+          })()}
           <div className="space-y-2">
             {studentProgress.map((s, i) => (
               <motion.div

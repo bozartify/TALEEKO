@@ -726,21 +726,42 @@ export default function StudentsPage() {
                   <p className="text-[10px] text-surface-400 leading-relaxed">3 students need intervention to bring the class score above 85.</p>
                 </div>
               </div>
-              <div className="space-y-1.5">
-                {[
+              {(() => {
+                const metrics = [
                   { label: 'Academic',   val: 84, color: '#6366f1' },
                   { label: 'Attendance', val: 93, color: '#10b981' },
                   { label: 'Engagement', val: 71, color: '#f59e0b' },
-                ].map(m => (
-                  <div key={m.label} className="flex items-center gap-2">
-                    <span className="text-[10px] text-surface-500 w-20 flex-shrink-0">{m.label}</span>
-                    <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div className="h-full rounded-full" style={{ backgroundColor: m.color }} initial={{ width: 0 }} animate={{ width: `${m.val}%` }} transition={{ duration: 0.6, delay: 0.4 }} />
-                    </div>
-                    <span className="text-[10px] font-bold w-8 text-right" style={{ color: m.color }}>{m.val}%</span>
-                  </div>
-                ))}
-              </div>
+                ]
+                const W = 300, LW = 74, CW = 28, GAP = 5, ROW = 12, BAR_MAX = W - LW - CW - 6
+                const H = metrics.length * (ROW + GAP) - GAP
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                    <defs>
+                      {metrics.map((m, i) => (
+                        <linearGradient key={i} id={`st-metric-${i}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={m.color} stopOpacity={0.9} />
+                          <stop offset="100%" stopColor={m.color} stopOpacity={0.55} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    {metrics.map((m, i) => {
+                      const bw = (m.val / 100) * BAR_MAX
+                      const y = i * (ROW + GAP)
+                      return (
+                        <g key={m.label}>
+                          <text x={0} y={y + 9} fill="rgba(255,255,255,0.45)" fontSize={9} fontFamily="inherit">{m.label}</text>
+                          <rect x={LW} y={y} width={BAR_MAX} height={ROW} rx={3} fill="rgba(255,255,255,0.04)" />
+                          <motion.rect x={LW} y={y} height={ROW} rx={3} fill={`url(#st-metric-${i})`}
+                            initial={{ width: 0 }} animate={{ width: bw }}
+                            transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                          <text x={LW + BAR_MAX + 4} y={y + 9} fill={m.color} fontSize={9} fontFamily="inherit" fontWeight="bold">{m.val}%</text>
+                        </g>
+                      )
+                    })}
+                  </svg>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
         </div>
