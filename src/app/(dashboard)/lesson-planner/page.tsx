@@ -520,6 +520,64 @@ export default function LessonPlannerPage() {
 
         {/* Right Sidebar */}
         <div className="space-y-4">
+          {/* Time Distribution Ring */}
+          <FadeInWhenVisible delay={0.08}>
+            <div className="glass-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs font-bold text-surface-300">Time Distribution</p>
+                <span className={`text-[10px] font-bold ${totalTime > parseInt(duration) ? 'text-danger-400' : 'text-success-400'}`}>
+                  {totalTime}/{duration} min
+                </span>
+              </div>
+              {(() => {
+                const timed = sections.filter(s => s.duration > 0)
+                const total = timed.reduce((a, s) => a + s.duration, 0) || 1
+                const R = 38, CX = 50, CY = 50, STROKE = 12
+                const CIRC = 2 * Math.PI * R
+                let offset = 0
+                const slices = timed.map(s => {
+                  const dash = (s.duration / total) * CIRC
+                  const sl = { ...s, dash, offset }
+                  offset += dash
+                  return sl
+                })
+                return (
+                  <div className="flex items-center gap-4">
+                    <svg viewBox="0 0 100 100" width={88} height={88} className="flex-shrink-0">
+                      <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={STROKE} />
+                      {slices.map((sl, i) => (
+                        <motion.circle
+                          key={sl.id}
+                          cx={CX} cy={CY} r={R}
+                          fill="none"
+                          stroke={sl.color}
+                          strokeWidth={STROKE}
+                          strokeDasharray={`${sl.dash.toFixed(2)} ${(CIRC - sl.dash).toFixed(2)}`}
+                          strokeDashoffset={(-sl.offset + CIRC / 4).toFixed(2)}
+                          strokeLinecap="butt"
+                          initial={{ strokeDasharray: `0 ${CIRC}` }}
+                          animate={{ strokeDasharray: `${sl.dash.toFixed(2)} ${(CIRC - sl.dash).toFixed(2)}` }}
+                          transition={{ duration: 0.6, delay: 0.1 + i * 0.08 }}
+                        />
+                      ))}
+                      <text x={CX} y={CY - 3} textAnchor="middle" fontSize="11" fontWeight="900" fill="white">{total}</text>
+                      <text x={CX} y={CY + 9} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.4)">min</text>
+                    </svg>
+                    <div className="flex-1 space-y-1.5">
+                      {timed.map(s => (
+                        <div key={s.id} className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: s.color }} />
+                          <span className="text-[10px] text-surface-400 flex-1 truncate">{s.title}</span>
+                          <span className="text-[10px] font-bold" style={{ color: s.color }}>{s.duration}m</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+            </div>
+          </FadeInWhenVisible>
+
           {/* AI Suggestions */}
           <FadeInWhenVisible delay={0.1}>
             <div className="glass-card p-5">
