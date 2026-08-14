@@ -314,6 +314,71 @@ export default function AssignmentsPage() {
         </div>
       </FadeUp>
 
+      {/* Submission Rate Chart */}
+      <FadeUp delay={0.06}>
+        <div className="glass-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-white">Submission Progress</h3>
+              <p className="text-[10px] text-surface-500 mt-0.5">Active & recent assignments</p>
+            </div>
+            <span className="text-xs text-accent-400 font-semibold">
+              {Math.round(INITIAL_ASSIGNMENTS.filter(a => a.status !== 'upcoming').reduce((acc, a) => acc + (a.submitted / (a.total || 1)), 0) / Math.max(INITIAL_ASSIGNMENTS.filter(a => a.status !== 'upcoming').length, 1) * 100)}% avg submission rate
+            </span>
+          </div>
+          {(() => {
+            const items = INITIAL_ASSIGNMENTS.filter(a => a.status !== 'upcoming').slice(0, 6)
+            const W = 560, H = 120, PX = 28, PY = 12
+            const barW = 56, gap = (W - PX * 2 - barW * items.length) / Math.max(items.length - 1, 1)
+            return (
+              <svg viewBox={`0 0 ${W} ${H + 28}`} width="100%" className="overflow-visible" style={{ maxHeight: 170 }}>
+                {[25, 50, 75, 100].map(v => {
+                  const y = PY + (H - PY * 2) * (1 - v / 100)
+                  return (
+                    <g key={v}>
+                      <line x1={PX} y1={y} x2={W - PX} y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                      <text x={PX - 4} y={y + 3.5} textAnchor="end" fontSize="8" fill="rgba(255,255,255,0.3)">{v}%</text>
+                    </g>
+                  )
+                })}
+                {items.map((a, i) => {
+                  const pct = Math.round((a.submitted / (a.total || 1)) * 100)
+                  const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#ef4444'
+                  const x = PX + i * (barW + gap)
+                  const barH = (pct / 100) * (H - PY * 2)
+                  const y = PY + (H - PY * 2) - barH
+                  const shortTitle = a.title.length > 10 ? a.title.slice(0, 10) + '…' : a.title
+                  return (
+                    <g key={a.id}>
+                      <motion.rect
+                        x={x} y={y} width={barW} height={barH}
+                        rx="5"
+                        style={{ fill: color + '40' }}
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 + i * 0.07 }}
+                        className="origin-bottom"
+                      />
+                      <motion.rect
+                        x={x} y={y} width={barW} height={5}
+                        rx="2"
+                        fill={color}
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 + i * 0.07 }}
+                      />
+                      <text x={x + barW / 2} y={y - 5} textAnchor="middle" fontSize="9" fill={color} fontWeight="700">{pct}%</text>
+                      <text x={x + barW / 2} y={H + 14} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.4)">{shortTitle}</text>
+                      <text x={x + barW / 2} y={H + 23} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.25)">{a.submitted}/{a.total}</text>
+                    </g>
+                  )
+                })}
+              </svg>
+            )
+          })()}
+        </div>
+      </FadeUp>
+
       {/* AI Insights — collapsible */}
       <FadeUp delay={0.07}>
         <div className="glass-card border border-accent-500/15 overflow-hidden">
