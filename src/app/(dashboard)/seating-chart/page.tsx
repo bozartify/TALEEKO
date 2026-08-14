@@ -843,23 +843,38 @@ export default function SeatingChartPage() {
                 <p className="text-xs font-bold text-surface-300">Arrangement Changes</p>
                 <span className="text-[10px] text-surface-600 ml-auto">8 weeks</span>
               </div>
-              <div className="flex items-end gap-1.5 h-14">
-                {ARRANGEMENT_TREND.map((val, i) => {
-                  const pct = (val / Math.max(...ARRANGEMENT_TREND)) * 100
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <motion.div
-                        className="w-full rounded-t-sm"
-                        style={{ backgroundColor: '#6366f180' }}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${pct}%` }}
-                        transition={{ duration: 0.5, delay: i * 0.05, ease: 'easeOut' }}
-                      />
-                      <span className="text-[7px] text-surface-600">{TREND_LABELS[i].split(' ')[1]}</span>
-                    </div>
-                  )
-                })}
-              </div>
+              {(() => {
+                const W = 240, H = 60, PX = 10, PY = 8
+                const maxV = Math.max(...ARRANGEMENT_TREND) + 1
+                const sx = (i: number) => PX + (i / (ARRANGEMENT_TREND.length - 1)) * (W - PX * 2)
+                const sy = (v: number) => PY + ((maxV - v) / maxV) * (H - PY * 2)
+                const pts = ARRANGEMENT_TREND.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                let linePath = `M ${pts[0].x} ${pts[0].y}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = (pts[i].x + pts[i - 1].x) / 2
+                  linePath += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                }
+                const areaPath = linePath + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                    <defs>
+                      <linearGradient id="sc-trend-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#6366f1" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#6366f1" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d={areaPath} fill="url(#sc-trend-grad)" />
+                    <motion.path d={linePath} fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.7, ease: 'easeOut' }} />
+                    {pts.map((pt, i) => (
+                      <g key={i}>
+                        <circle cx={pt.x} cy={pt.y} r={2.5} fill="#6366f1" />
+                        <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="6.5">{TREND_LABELS[i].split(' ')[1]}</text>
+                      </g>
+                    ))}
+                  </svg>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 

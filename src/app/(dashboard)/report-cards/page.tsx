@@ -401,25 +401,53 @@ export default function ReportCardsPage() {
                       <BarChart2 className="w-3.5 h-3.5 text-accent-400" />
                       Grade Distribution
                     </h4>
-                    <div className="space-y-2.5">
-                      {gradeDistribution.map(g => (
-                        <div key={g.grade}>
-                          <div className="flex justify-between text-[10px] mb-1">
-                            <span className="font-semibold text-surface-300">Grade {g.grade}</span>
-                            <span style={{ color: g.color }} className="font-bold">{g.count} students</span>
-                          </div>
-                          <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                            <motion.div
-                              className="h-full rounded-full"
-                              style={{ background: g.color }}
-                              initial={{ width: 0 }}
-                              animate={{ width: g.count > 0 ? `${(g.count / students.length) * 100}%` : '0%' }}
-                              transition={{ duration: 0.7, delay: 0.2 }}
-                            />
+                    {(() => {
+                      const R = 38, CX = 50, CY = 50, SW = 14
+                      const CIRC = 2 * Math.PI * R
+                      const total = gradeDistribution.reduce((a, g) => a + g.count, 0) || 1
+                      let offset = 0
+                      const segments = gradeDistribution.map(g => {
+                        const dash = (g.count / total) * CIRC
+                        const s = { ...g, dash, offset }
+                        offset += dash
+                        return s
+                      })
+                      return (
+                        <div className="flex items-center gap-4">
+                          <svg viewBox="0 0 100 100" className="w-24 h-24 flex-shrink-0">
+                            <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={SW} />
+                            {segments.map(s => (
+                              <motion.circle
+                                key={s.grade}
+                                cx={CX} cy={CY} r={R}
+                                fill="none"
+                                stroke={s.color}
+                                strokeWidth={SW}
+                                strokeDasharray={`${s.dash.toFixed(2)} ${(CIRC - s.dash).toFixed(2)}`}
+                                strokeDashoffset={(-s.offset + CIRC / 4).toFixed(2)}
+                                strokeLinecap="butt"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.15, duration: 0.6 }}
+                              />
+                            ))}
+                            <text x={CX} y={CY - 4} textAnchor="middle" fill="white" fontSize="11" fontWeight="700">{students.length}</text>
+                            <text x={CX} y={CY + 9} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="7">students</text>
+                          </svg>
+                          <div className="space-y-1.5 flex-1">
+                            {gradeDistribution.map(g => (
+                              <div key={g.grade} className="flex items-center justify-between">
+                                <div className="flex items-center gap-1.5">
+                                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: g.color }} />
+                                  <span className="text-[10px] text-surface-400">Grade {g.grade}</span>
+                                </div>
+                                <span className="text-[10px] font-bold" style={{ color: g.color }}>{g.count}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      )
+                    })()}
                     <div className="mt-3 pt-3 border-t border-white/[0.06] flex justify-between text-[10px]">
                       <span className="text-surface-500">Class avg GPA</span>
                       <span className="font-bold text-accent-400">{(students.reduce((a, b) => a + b.gpa, 0) / students.length).toFixed(2)}</span>
