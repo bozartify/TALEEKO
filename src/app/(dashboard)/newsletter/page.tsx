@@ -410,14 +410,28 @@ export default function NewsletterPage() {
                 <span className="text-xs text-surface-400">Newsletter completion</span>
                 <span className="text-xs font-semibold text-white">{completedSections}/{activeSections.length} sections · {totalWords} words · ~{estReadTime} min read</span>
               </div>
-              <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #f97316, #ef4444)' }}
-                  animate={{ width: `${completionPct}%` }}
-                  transition={{ duration: 0.5 }}
-                />
-              </div>
+              {(() => {
+                const W = 500, H = 6
+                const bw = (completionPct / 100) * W
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                    <defs>
+                      <linearGradient id="nl-comp" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0%" stopColor="#f97316" />
+                        <stop offset="100%" stopColor="#ef4444" />
+                      </linearGradient>
+                    </defs>
+                    <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                    <motion.rect
+                      x={0} y={0} height={H} rx={3}
+                      fill="url(#nl-comp)"
+                      initial={{ width: 0 }}
+                      animate={{ width: bw }}
+                      transition={{ duration: 0.5 }}
+                    />
+                  </svg>
+                )
+              })()}
             </div>
           </FadeUp>
 

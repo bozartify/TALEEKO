@@ -738,15 +738,29 @@ export default function AnalyticsPage() {
                     </td>
                     <td className="py-3 pr-4">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full rounded-full"
-                            style={{ backgroundColor: item.color }}
-                            initial={{ width: 0 }}
-                            animate={{ width: `${item.completion}%` }}
-                            transition={{ delay: 0.6 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                          />
-                        </div>
+                        {(() => {
+                          const W = 100, H = 6
+                          const bw = (item.completion / 100) * W
+                          const gid = `an-comp-${i}`
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="flex-1 overflow-visible" style={{ minWidth: 60 }}>
+                              <defs>
+                                <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                  <stop offset="0%" stopColor={item.color} />
+                                  <stop offset="100%" stopColor={item.color + '99'} />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                              <motion.rect
+                                x={0} y={0} height={H} rx={3}
+                                fill={`url(#${gid})`}
+                                initial={{ width: 0 }}
+                                animate={{ width: bw }}
+                                transition={{ delay: 0.6 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                              />
+                            </svg>
+                          )
+                        })()}
                         <span className="text-[10px] font-bold text-surface-400 w-8 text-right">{item.completion}%</span>
                       </div>
                     </td>

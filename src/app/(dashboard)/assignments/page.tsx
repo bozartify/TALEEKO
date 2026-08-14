@@ -555,15 +555,30 @@ export default function AssignmentsPage() {
                         <span className="text-warning-400 font-bold">{missingCount} missing</span>
                       )}
                     </div>
-                    <div className="h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: submittedPct === 100 ? '#10b981' : assignment.color }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${submittedPct}%` }}
-                        transition={{ delay: 0.2 + i * 0.03, duration: 0.6 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 112, H = 6
+                      const bw = (submittedPct / 100) * W
+                      const color = submittedPct === 100 ? '#10b981' : assignment.color
+                      const gid = `asgn-sub-${i}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={color} />
+                              <stop offset="100%" stopColor={color + '99'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.2 + i * 0.03, duration: 0.6 }}
+                          />
+                        </svg>
+                      )
+                    })()}
                     {assignment.avgScore !== null && (
                       <p className="text-[10px] text-right font-bold mt-1" style={{ color: assignment.avgScore >= 80 ? '#10b981' : '#f59e0b' }}>
                         Avg: {assignment.avgScore}%
@@ -799,15 +814,29 @@ export default function AssignmentsPage() {
                       </div>
                       <span className="text-xs font-bold text-white">{count}</span>
                     </div>
-                    <div className="h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ backgroundColor: TYPE_COLORS[t] }}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ delay: 0.3, duration: 0.5 }}
-                      />
-                    </div>
+                    {(() => {
+                      const W = 200, H = 6
+                      const bw = (pct / 100) * W
+                      const gid = `asgn-type-${t}`
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          <defs>
+                            <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                              <stop offset="0%" stopColor={TYPE_COLORS[t]} />
+                              <stop offset="100%" stopColor={TYPE_COLORS[t] + '80'} />
+                            </linearGradient>
+                          </defs>
+                          <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.06)" />
+                          <motion.rect
+                            x={0} y={0} height={H} rx={3}
+                            fill={`url(#${gid})`}
+                            initial={{ width: 0 }}
+                            animate={{ width: bw }}
+                            transition={{ delay: 0.3, duration: 0.5 }}
+                          />
+                        </svg>
+                      )
+                    })()}
                   </div>
                 )
               })}

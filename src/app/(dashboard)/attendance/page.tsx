@@ -587,15 +587,30 @@ export default function AttendancePage() {
                               }`}>
                                 {rate}%
                               </span>
-                              <div className="w-12 h-1 rounded-full bg-white/[0.08] overflow-hidden">
-                                <motion.div
-                                  className="h-full rounded-full"
-                                  style={{ background: rate >= 90 ? '#10b981' : rate >= 80 ? '#f59e0b' : '#ef4444' }}
-                                  initial={{ width: 0 }}
-                                  animate={{ width: `${rate}%` }}
-                                  transition={{ duration: 0.8, delay: si * 0.05 }}
-                                />
-                              </div>
+                              {(() => {
+                                const W = 48, H = 4
+                                const bw = (rate / 100) * W
+                                const color = rate >= 90 ? '#10b981' : rate >= 80 ? '#f59e0b' : '#ef4444'
+                                const gid = `att-rate-${si}`
+                                return (
+                                  <svg viewBox={`0 0 ${W} ${H}`} width={48} height={4} className="overflow-visible">
+                                    <defs>
+                                      <linearGradient id={gid} x1="0" x2="1" y1="0" y2="0">
+                                        <stop offset="0%" stopColor={color} />
+                                        <stop offset="100%" stopColor={color + '99'} />
+                                      </linearGradient>
+                                    </defs>
+                                    <rect x={0} y={0} width={W} height={H} rx={2} fill="rgba(255,255,255,0.08)" />
+                                    <motion.rect
+                                      x={0} y={0} height={H} rx={2}
+                                      fill={`url(#${gid})`}
+                                      initial={{ width: 0 }}
+                                      animate={{ width: bw }}
+                                      transition={{ duration: 0.8, delay: si * 0.05 }}
+                                    />
+                                  </svg>
+                                )
+                              })()}
                             </div>
                           </td>
                           <td className="text-center px-3 py-3">
