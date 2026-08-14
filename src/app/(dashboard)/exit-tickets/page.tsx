@@ -573,14 +573,28 @@ export default function ExitTicketsPage() {
                         <span className="text-xs text-emerald-400 font-semibold">
                           Live — {selectedTicket.responses} of {selectedTicket.totalStudents} students responded ({selectedTicket.completionRate}%)
                         </span>
-                        <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                          <motion.div
-                            className="h-full bg-emerald-400 rounded-full"
-                            initial={{ width: 0 }}
-                            animate={{ width: `${selectedTicket.completionRate}%` }}
-                            transition={{ duration: 1, ease: 'easeOut' }}
-                          />
-                        </div>
+                        {(() => {
+                          const W = 300, H = 6
+                          const bw = (selectedTicket.completionRate / 100) * W
+                          return (
+                            <svg viewBox={`0 0 ${W} ${H}`} className="flex-1 overflow-visible">
+                              <defs>
+                                <linearGradient id="et-resp" x1="0" x2="1" y1="0" y2="0">
+                                  <stop offset="0%" stopColor="#34d399" />
+                                  <stop offset="100%" stopColor="#10b981" />
+                                </linearGradient>
+                              </defs>
+                              <rect x={0} y={0} width={W} height={H} rx={3} fill="rgba(255,255,255,0.05)" />
+                              <motion.rect
+                                x={0} y={0} height={H} rx={3}
+                                fill="url(#et-resp)"
+                                initial={{ width: 0 }}
+                                animate={{ width: bw }}
+                                transition={{ duration: 1, ease: 'easeOut' }}
+                              />
+                            </svg>
+                          )
+                        })()}
                       </motion.div>
                     )}
 
@@ -716,22 +730,35 @@ export default function ExitTicketsPage() {
                         </motion.div>
                       ))}
                     </div>
-                    <div className="h-3 rounded-full overflow-hidden flex gap-0.5">
-                      {[
+                    {(() => {
+                      const W = 500, H = 12
+                      const rawSegs = [
                         { pct: Math.round(gotItCount/STUDENT_RESULTS.length*100), color: '#10b981' },
                         { pct: Math.round(almostCount/STUDENT_RESULTS.length*100), color: '#f59e0b' },
                         { pct: Math.round(needsCount/STUDENT_RESULTS.length*100), color: '#ef4444' },
-                      ].map((seg, i) => (
-                        <motion.div
-                          key={i}
-                          className="h-full rounded-full"
-                          style={{ backgroundColor: seg.color }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${seg.pct}%` }}
-                          transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
-                        />
-                      ))}
-                    </div>
+                      ]
+                      let xOff = 0
+                      const segs = rawSegs.map(seg => {
+                        const w = (seg.pct / 100) * W
+                        const x = xOff
+                        xOff += w + 2
+                        return { ...seg, x, w }
+                      })
+                      return (
+                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible">
+                          {segs.map((seg, i) => (
+                            <motion.rect
+                              key={i}
+                              x={seg.x} y={0} height={H} rx={6}
+                              fill={seg.color}
+                              initial={{ width: 0 }}
+                              animate={{ width: seg.w }}
+                              transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                            />
+                          ))}
+                        </svg>
+                      )
+                    })()}
                   </div>
 
                   {/* Per-Question Breakdown */}

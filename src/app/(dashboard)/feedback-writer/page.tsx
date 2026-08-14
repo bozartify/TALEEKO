@@ -243,14 +243,27 @@ export default function FeedbackWriterPage() {
               </motion.div>
               <h3 className="text-base font-bold text-white mb-1">Generating All Comments</h3>
               <p className="text-xs text-surface-400 mb-4">{batchProgress} of {STUDENTS.length} students complete</p>
-              <div className="h-2 bg-white/5 rounded-full overflow-hidden mb-2">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #14b8a6, #0d9488)' }}
-                  animate={{ width: `${(batchProgress / STUDENTS.length) * 100}%` }}
-                  transition={{ duration: 0.4 }}
-                />
-              </div>
+              {(() => {
+                const W = 400, H = 8
+                const bw = (batchProgress / STUDENTS.length) * W
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full overflow-visible mb-2">
+                    <defs>
+                      <linearGradient id="fw-batch" x1="0" x2="1" y1="0" y2="0">
+                        <stop offset="0%" stopColor="#14b8a6" />
+                        <stop offset="100%" stopColor="#0d9488" />
+                      </linearGradient>
+                    </defs>
+                    <rect x={0} y={0} width={W} height={H} rx={4} fill="rgba(255,255,255,0.05)" />
+                    <motion.rect
+                      x={0} y={0} height={H} rx={4}
+                      fill="url(#fw-batch)"
+                      animate={{ width: bw }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  </svg>
+                )
+              })()}
               <div className="flex gap-1 justify-center mt-3">
                 {STUDENTS.map((s, i) => (
                   <div key={s.id} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < batchProgress ? '#14b8a6' : 'rgba(255,255,255,0.1)' }} />
