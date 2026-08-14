@@ -696,25 +696,42 @@ export default function GameBuilderPage() {
                 <BarChart3 className="w-4 h-4 text-success-400" />
                 <h3 className="text-xs font-bold text-white">Engagement Trend</h3>
               </div>
-              <div className="flex items-end gap-1.5 h-20">
-                {ENGAGEMENT_DATA.map((val, i) => {
-                  const pct = (val / 100) * 100
-                  return (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full bg-white/[0.06] rounded-sm flex flex-col justify-end" style={{ height: '60px' }}>
-                        <motion.div
-                          className="w-full rounded-sm"
-                          style={{ background: `linear-gradient(180deg, #10b981, #059669)` }}
-                          initial={{ height: 0 }}
-                          animate={{ height: `${pct}%` }}
-                          transition={{ delay: 0.3 + i * 0.06, duration: 0.7, ease: 'easeOut' }}
-                        />
-                      </div>
-                      <span className="text-[8px] text-surface-600">{ENGAGE_LABELS[i]}</span>
-                    </div>
-                  )
-                })}
-              </div>
+              {(() => {
+                const W = 240, H = 80, PX = 10, PY = 10
+                const minV = 60, maxV = 100
+                const sx = (i: number) => PX + (i / (ENGAGEMENT_DATA.length - 1)) * (W - PX * 2)
+                const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                const pts = ENGAGEMENT_DATA.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                let lp = `M ${pts[0].x} ${pts[0].y}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = (pts[i].x + pts[i - 1].x) / 2
+                  lp += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                }
+                const ap = lp + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                    <defs>
+                      <linearGradient id="gb-eng-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {[70, 80, 90, 100].map(g => (
+                      <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                    ))}
+                    <path d={ap} fill="url(#gb-eng-grad)" />
+                    <motion.path d={lp} fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.9, ease: 'easeOut' }} />
+                    {pts.map((pt, i) => (
+                      <g key={i}>
+                        <circle cx={pt.x} cy={pt.y} r={i === pts.length - 1 ? 4 : 2.5} fill="#10b981" />
+                        {i === pts.length - 1 && <text x={pt.x} y={pt.y - 7} textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="700">{ENGAGEMENT_DATA[i]}%</text>}
+                        <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="7.5">{ENGAGE_LABELS[i]}</text>
+                      </g>
+                    ))}
+                  </svg>
+                )
+              })()}
               <div className="flex items-center gap-1.5 mt-2">
                 <TrendingUp className="w-3.5 h-3.5 text-success-400" />
                 <span className="text-[11px] text-success-300 font-semibold">+26% engagement over 8 months</span>

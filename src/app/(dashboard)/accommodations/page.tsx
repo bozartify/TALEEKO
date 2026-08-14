@@ -511,25 +511,42 @@ export default function AccommodationsPage() {
                 </h4>
                 <span className="text-[10px] font-semibold text-success-400">↑ +18pts</span>
               </div>
-              <div className="flex items-end gap-1 h-16 mb-2">
-                {complianceTrend.map((val, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="w-full relative" style={{ height: '48px' }}>
-                      <motion.div
-                        className="absolute bottom-0 w-full rounded-t-sm"
-                        style={{ background: i === complianceTrend.length - 1 ? '#10b981' : 'rgba(255,255,255,0.08)' }}
-                        initial={{ height: 0 }}
-                        animate={{ height: `${(val / 100) * 48}px` }}
-                        transition={{ duration: 0.7, delay: i * 0.07 }}
-                      />
-                    </div>
-                    <span className="text-[7px] text-surface-600">{complianceTrendLabels[i]}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between text-[9px] text-surface-600 mt-1 border-t border-white/[0.04] pt-1">
-                <span>70%</span><span>100%</span>
-              </div>
+              {(() => {
+                const W = 240, H = 72, PX = 10, PY = 8
+                const minV = 70, maxV = 100
+                const sx = (i: number) => PX + (i / (complianceTrend.length - 1)) * (W - PX * 2)
+                const sy = (v: number) => PY + ((maxV - v) / (maxV - minV)) * (H - PY * 2)
+                const pts = complianceTrend.map((v, i) => ({ x: sx(i), y: sy(v) }))
+                let lp = `M ${pts[0].x} ${pts[0].y}`
+                for (let i = 1; i < pts.length; i++) {
+                  const cpx = (pts[i].x + pts[i - 1].x) / 2
+                  lp += ` C ${cpx} ${pts[i - 1].y} ${cpx} ${pts[i].y} ${pts[i].x} ${pts[i].y}`
+                }
+                const ap = lp + ` L ${pts[pts.length - 1].x} ${H} L ${pts[0].x} ${H} Z`
+                return (
+                  <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
+                    <defs>
+                      <linearGradient id="acc-comp-grad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    {[75, 85, 95].map(g => (
+                      <line key={g} x1={PX} y1={sy(g)} x2={W - PX} y2={sy(g)} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+                    ))}
+                    <path d={ap} fill="url(#acc-comp-grad)" />
+                    <motion.path d={lp} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round"
+                      initial={{ pathLength: 0, opacity: 0 }} animate={{ pathLength: 1, opacity: 1 }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+                    {pts.map((pt, i) => (
+                      <g key={i}>
+                        <circle cx={pt.x} cy={pt.y} r={i === pts.length - 1 ? 3.5 : 2} fill="#10b981" />
+                        <text x={pt.x} y={H - 1} textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="7">{complianceTrendLabels[i]}</text>
+                      </g>
+                    ))}
+                    <text x={pts[pts.length - 1].x} y={pts[pts.length - 1].y - 7} textAnchor="middle" fill="#10b981" fontSize="9" fontWeight="700">{complianceTrend[complianceTrend.length - 1]}%</text>
+                  </svg>
+                )
+              })()}
             </div>
           </FadeInWhenVisible>
 
