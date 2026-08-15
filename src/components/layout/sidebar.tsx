@@ -9,7 +9,7 @@ import {
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
   Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
   Brain, BookMarked, ClipboardList, Target, Type, Newspaper, Gamepad2,
-  Layers, MessageCircle, FlaskConical, Pencil
+  Layers, MessageCircle, FlaskConical, Pencil, ListChecks, Activity, GitBranch
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -45,6 +45,10 @@ const navItems = [
   { href: '/seating-chart', icon: Layout,         label: 'Seating Chart' },
   { href: '/attendance',  icon: CheckSquare,     label: 'Attendance' },
   { href: '/curriculum',  icon: Map,            label: 'Curriculum' },
+  { href: '/scope-sequence', icon: GitBranch,   label: 'Scope & Sequence' },
+  { href: '/blooms-taxonomy', icon: Layers,     label: "Bloom's Taxonomy", badge: 'AI' },
+  { href: '/assessment-center', icon: ListChecks, label: 'Assessment Center' },
+  { href: '/intervention-tracker', icon: Activity, label: 'Interventions' },
   { href: '/analytics',  icon: BarChart2,       label: 'Analytics' },
   { href: '/library',    icon: Library,         label: 'Content Library' },
   { href: '/templates',  icon: Layout,          label: 'Templates' },
