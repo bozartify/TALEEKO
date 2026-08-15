@@ -22,7 +22,7 @@ const PROTECTED_PREFIXES = [
 ]
 
 // Routes that are always public
-const PUBLIC_PATHS = ['/', '/login', '/api/seed']
+const PUBLIC_PATHS = ['/', '/login']
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true
