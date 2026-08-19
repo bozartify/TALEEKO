@@ -446,7 +446,20 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
 // Main page
 // ---------------------------------------------------------------------------
 export default function NotificationsPage() {
-  const [items, setItems] = useState(initialNotifications)
+  const [items, setItems] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_notifications_state')
+        if (saved) {
+          const { readIds, dismissedIds }: { readIds: string[]; dismissedIds: string[] } = JSON.parse(saved)
+          return initialNotifications
+            .filter(n => !dismissedIds.includes(n.id))
+            .map(n => ({ ...n, read: readIds.includes(n.id) }))
+        }
+      } catch {}
+    }
+    return initialNotifications
+  })
   const [activeTab, setActiveTab] = useState('all')
   const [showPrefs, setShowPrefs] = useState(false)
 
@@ -468,20 +481,31 @@ export default function NotificationsPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function persistNotifState(next: typeof initialNotifications) {
+    if (typeof window !== 'undefined') {
+      try {
+        const allIds = initialNotifications.map(n => n.id)
+        const readIds = next.filter(n => n.read).map(n => n.id)
+        const dismissedIds = allIds.filter(id => !next.find(n => n.id === id))
+        localStorage.setItem('taleeko_notifications_state', JSON.stringify({ readIds, dismissedIds }))
+      } catch {}
+    }
+  }
+
   const markAllRead = useCallback(() => {
-    setItems(prev => prev.map(n => ({ ...n, read: true })))
+    setItems(prev => { const next = prev.map(n => ({ ...n, read: true })); persistNotifState(next); return next })
   }, [])
 
   const clearAll = useCallback(() => {
-    setItems(prev => prev.filter(n => !n.read))
+    setItems(prev => { const next = prev.filter(n => !n.read); persistNotifState(next); return next })
   }, [])
 
   const markRead = useCallback((id: string) => {
-    setItems(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+    setItems(prev => { const next = prev.map(n => n.id === id ? { ...n, read: true } : n); persistNotifState(next); return next })
   }, [])
 
   const dismissNotification = useCallback((id: string) => {
-    setItems(prev => prev.filter(n => n.id !== id))
+    setItems(prev => { const next = prev.filter(n => n.id !== id); persistNotifState(next); return next })
   }, [])
 
   // Computed

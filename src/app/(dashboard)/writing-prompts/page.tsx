@@ -216,7 +216,18 @@ const gradeRanges: GradeRange[] = ['K-2', '3-5', '6-8', '9-12', 'College']
 const modes: PromptMode[] = ['narrative', 'persuasive', 'expository', 'descriptive', 'creative', 'reflective', 'research']
 
 export default function WritingPromptsPage() {
-  const [prompts, setPrompts] = useState<WritingPrompt[]>(PROMPTS)
+  const [prompts, setPrompts] = useState<WritingPrompt[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_prompts_stars')
+        if (saved) {
+          const starredIds: string[] = JSON.parse(saved)
+          return PROMPTS.map(p => ({ ...p, starred: starredIds.includes(p.id) }))
+        }
+      } catch {}
+    }
+    return PROMPTS
+  })
   const [selectedMode, setSelectedMode] = useState<PromptMode | 'all'>('all')
   const [selectedGrade, setSelectedGrade] = useState<GradeRange | 'all'>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | 'all'>('all')
@@ -274,7 +285,16 @@ export default function WritingPromptsPage() {
   })
 
   function toggleStar(id: string) {
-    setPrompts(prev => prev.map(p => p.id === id ? { ...p, starred: !p.starred } : p))
+    setPrompts(prev => {
+      const next = prev.map(p => p.id === id ? { ...p, starred: !p.starred } : p)
+      if (typeof window !== 'undefined') {
+        try {
+          const starredIds = next.filter(p => p.starred).map(p => p.id)
+          localStorage.setItem('taleeko_prompts_stars', JSON.stringify(starredIds))
+        } catch {}
+      }
+      return next
+    })
   }
 
   function copyPrompt(id: string, text: string) {

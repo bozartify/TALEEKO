@@ -88,7 +88,18 @@ function isNew(dateStr: string) {
 }
 
 export default function LibraryPage() {
-  const [items, setItems] = useState<LibraryItem[]>(INITIAL_ITEMS)
+  const [items, setItems] = useState<LibraryItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_library_stars')
+        if (saved) {
+          const starredIds: string[] = JSON.parse(saved)
+          return INITIAL_ITEMS.map(item => ({ ...item, starred: starredIds.includes(item.id) }))
+        }
+      } catch {}
+    }
+    return INITIAL_ITEMS
+  })
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
@@ -136,7 +147,16 @@ export default function LibraryPage() {
   const aiPct = Math.round((items.filter(i => i.aiGenerated).length / items.length) * 100)
 
   function toggleStar(id: string) {
-    setItems(prev => prev.map(i => i.id === id ? { ...i, starred: !i.starred } : i))
+    setItems(prev => {
+      const next = prev.map(i => i.id === id ? { ...i, starred: !i.starred } : i)
+      if (typeof window !== 'undefined') {
+        try {
+          const starredIds = next.filter(i => i.starred).map(i => i.id)
+          localStorage.setItem('taleeko_library_stars', JSON.stringify(starredIds))
+        } catch {}
+      }
+      return next
+    })
   }
 
   function confirmDelete() {

@@ -124,6 +124,7 @@ const oauthApps: OAuthApp[] = [
 const maxCalls = Math.max(...usageData.map(d => d.calls))
 
 export default function ApiKeysPage() {
+  const [keyList, setKeyList] = useState<ApiKey[]>(apiKeys)
   const [revealedKeys, setRevealedKeys] = useState<Set<string>>(new Set())
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [createModal, setCreateModal] = useState(false)
@@ -136,6 +137,34 @@ export default function ApiKeysPage() {
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  function handleGenerateKey() {
+    if (!newKeyName.trim()) { showToast('Please enter a key name'); return }
+    const suffix = Array.from({ length: 4 }, () => Math.random().toString(36)[2]).join('')
+    const prefix = selectedEnv === 'production' ? 'sk-prod' : 'sk-dev'
+    const fullKey = `${prefix}-${Array.from({ length: 32 }, () => Math.random().toString(36)[2]).join('')}`
+    const newKey: ApiKey = {
+      id: `key-${Date.now()}`,
+      name: newKeyName,
+      key: fullKey,
+      maskedKey: `${prefix}-...${suffix}`,
+      created: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      lastUsed: 'Never',
+      status: 'active',
+      permissions: selectedPerms,
+      requests: 0,
+      environment: selectedEnv,
+    }
+    setKeyList(prev => [newKey, ...prev])
+    setNewKeyName('')
+    setCreateModal(false)
+    showToast(`API key "${newKey.name}" generated — copy it now, it won't be shown again`)
+  }
+
+  function handleRevokeKey(id: string, name: string) {
+    setKeyList(prev => prev.map(k => k.id === id ? { ...k, status: 'revoked' as KeyStatus } : k))
+    showToast(`Key "${name}" has been revoked`)
   }
 
   const totalCalls = usageData.reduce((sum, d) => sum + d.calls, 0)
@@ -254,7 +283,7 @@ export default function ApiKeysPage() {
                 <span className="text-[10px] text-surface-500">{apiKeys.length} keys · {apiKeys.filter(k => k.status === 'active').length} active</span>
               </div>
               <div className="divide-y divide-white/[0.04]">
-                {apiKeys.map((apiKey, i) => (
+                {keyList.map((apiKey, i) => (
                   <motion.div
                     key={apiKey.id}
                     className={`px-5 py-4 hover:bg-white/[0.02] transition-colors ${apiKey.status === 'revoked' ? 'opacity-50' : ''}`}
@@ -313,7 +342,8 @@ export default function ApiKeysPage() {
                         <motion.button
                           className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors"
                           whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-                          onClick={() => showToast(`${apiKey.name} revoked`)}
+                          onClick={() => handleRevokeKey(apiKey.id, apiKey.name)}
+                          disabled={apiKey.status === 'revoked'}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </motion.button>
@@ -676,7 +706,7 @@ export default function ApiKeysPage() {
                 <motion.button
                   className="btn-gradient text-xs flex-1"
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  onClick={() => { showToast('API key generated — copy it now'); setCreateModal(false) }}
+                  onClick={handleGenerateKey}
                 >
                   <Key className="w-3.5 h-3.5" /> Generate Key
                 </motion.button>

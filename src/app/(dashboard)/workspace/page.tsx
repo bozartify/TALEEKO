@@ -137,6 +137,12 @@ export default function WorkspacePage() {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortMode>('category')
   const [favorites, setFavorites] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_workspace_favorites')
+        if (saved) return new Set<string>(JSON.parse(saved))
+      } catch {}
+    }
     const favs = new Set<string>()
     toolCategories.flatMap(c => c.tools).filter(t => t.favorite).forEach(t => favs.add(t.label))
     return favs
@@ -166,6 +172,9 @@ export default function WorkspacePage() {
       } else {
         next.add(label)
         showToast(`Added ${label} to favorites`)
+      }
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('taleeko_workspace_favorites', JSON.stringify(Array.from(next))) } catch {}
       }
       return next
     })

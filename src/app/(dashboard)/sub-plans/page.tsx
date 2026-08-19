@@ -261,6 +261,19 @@ export default function SubPlansPage() {
 
   return (
     <div className="space-y-6">
+      <style>{`
+        @media print {
+          nav, aside, header, .no-print, [data-no-print] { display: none !important; }
+          body { background: white !important; color: black !important; }
+          .glass-card { background: white !important; border: 1px solid #ccc !important; box-shadow: none !important; }
+          .text-white { color: black !important; }
+          .text-surface-200, .text-surface-300, .text-surface-400 { color: #333 !important; }
+          .hero-mesh { background: none !important; border: 1px solid #ccc !important; }
+          .btn-gradient, .btn-secondary, .btn-primary { display: none !important; }
+          .sub-plan-print-area { display: block !important; }
+          @page { margin: 1in; }
+        }
+      `}</style>
       {/* ── TOAST ─── */}
       <AnimatePresence>
         {toastMsg && (
@@ -507,7 +520,7 @@ export default function SubPlansPage() {
                             {[
                               { icon: Copy, label: 'Duplicate', action: () => handleDuplicate(plan.id) },
                               { icon: Share2, label: 'Share', action: () => { setActionMenu(null); showToast('Share link copied!') } },
-                              { icon: Printer, label: 'Print', action: () => { setActionMenu(null) } },
+                              { icon: Printer, label: 'Print', action: () => { setActionMenu(null); window.print() } },
                               { icon: Archive, label: 'Archive', action: () => { setActionMenu(null); showToast('Plan archived') } },
                             ].map(item => (
                               <button
@@ -574,7 +587,7 @@ export default function SubPlansPage() {
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setFeedbackOpen(true)}>
                     <MessageSquare className="w-3.5 h-3.5" /> Feedback
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5">
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}>
                     <Printer className="w-3.5 h-3.5" /> Print
                   </button>
                   <button className="btn-secondary text-xs px-3 py-1.5">
