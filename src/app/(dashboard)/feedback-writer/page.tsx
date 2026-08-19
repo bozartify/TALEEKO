@@ -135,7 +135,7 @@ export default function FeedbackWriterPage() {
   const [generating, setGenerating] = useState(false)
   const [batchGenerating, setBatchGenerating] = useState(false)
   const [batchProgress, setBatchProgress] = useState(0)
-  const [generated, setGenerated] = useState(true)
+  const [generated, setGenerated] = useState(false)
   const [copied, setCopied] = useState(false)
   const [editMode, setEditMode] = useState(false)
   const [editedText, setEditedText] = useState('')

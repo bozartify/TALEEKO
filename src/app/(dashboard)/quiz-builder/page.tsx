@@ -102,7 +102,44 @@ export default function QuizBuilderPage() {
 
   function handleGenerate() {
     setGenerating(true)
-    setTimeout(() => setGenerating(false), 3000)
+    setTimeout(() => {
+      const id = () => `q${Date.now()}-${Math.floor(Math.random()*1000)}`
+      setQuestions([
+        {
+          id: id(), type: 'mcq', points: 2,
+          text: `Which statement BEST describes a key concept of ${topic}?`,
+          options: [`${topic} involves no interaction between variables`, `${topic} is a fundamental process in ${subject}`, `${topic} only occurs under specific artificial conditions`, `${topic} has no relevance to real-world ${subject}`],
+          correct: 1,
+          explanation: `${topic} is a core topic in ${subject} studied at the ${grade} level.`,
+        },
+        {
+          id: id(), type: 'true-false', points: 1,
+          text: `${topic} is an important concept studied in ${subject} at the ${grade} level.`,
+          correct: true,
+          explanation: `True — ${topic} is a key learning standard for ${grade} ${subject}.`,
+        },
+        {
+          id: id(), type: 'mcq', points: 2,
+          text: `What is the PRIMARY reason ${topic} is studied in ${grade} ${subject}?`,
+          options: ['It appears on standardized tests only', 'It builds foundational knowledge needed for advanced concepts', 'It is the simplest topic in the curriculum', 'It has no practical applications'],
+          correct: 1,
+          explanation: `Understanding ${topic} provides the foundation for deeper study in ${subject}.`,
+        },
+        {
+          id: id(), type: 'short-answer', points: 4,
+          text: `In your own words, explain what ${topic} is and why it matters in ${subject}.`,
+          explanation: `Students should define ${topic} and connect it to at least one real-world application or broader concept in ${subject}.`,
+        },
+        {
+          id: id(), type: 'fill-blank', points: 2,
+          text: `The study of ${topic} falls under the broader field of ________.`,
+          correct: subject,
+          explanation: `${topic} is a topic within ${subject}.`,
+        },
+      ])
+      setGenerating(false)
+      showToast(`Quiz generated for "${topic}"`)
+    }, 3000)
   }
 
   function handleSave() {

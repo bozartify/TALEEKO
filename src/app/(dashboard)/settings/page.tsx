@@ -57,6 +57,9 @@ export default function SettingsPage() {
 
   function handleSave() {
     setSaved(true)
+    if (typeof window !== 'undefined' && profile.firstName) {
+      localStorage.setItem('taleeko_firstName', profile.firstName)
+    }
     showToast('Settings saved successfully!')
     setTimeout(() => setSaved(false), 2000)
   }

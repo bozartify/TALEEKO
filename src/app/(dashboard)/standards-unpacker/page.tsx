@@ -139,7 +139,29 @@ export default function StandardsUnpackerPage() {
   async function handleUnpack() {
     setGenerating(true)
     await new Promise(r => setTimeout(r, 2000))
-    setUnpacked(UNPACKED)
+    const raw = input.trim()
+    const codeMatch = raw.match(/^([A-Z0-9\.\-]+)/)
+    const code = codeMatch ? codeMatch[1] : 'Custom Standard'
+    const isCustom = !codeMatch || raw.length > 30
+    const verbsFound = raw.match(/\b(analyze|evaluate|create|understand|explain|construct|describe|identify|compare|argue|demonstrate|develop|apply|solve|interpret|design|classify|justify|synthesize)\b/gi)?.slice(0, 6)
+    const dynamicUnpacked: UnpackedStandard = {
+      ...UNPACKED,
+      code,
+      fullText: raw,
+      studentFriendly: isCustom
+        ? `I can understand and apply the ideas in: "${raw.slice(0, 80)}${raw.length > 80 ? '…' : ''}"`
+        : UNPACKED.studentFriendly,
+      assessmentIdeas: isCustom
+        ? [
+            `Exit ticket: Summarize the key idea of ${code} in 2–3 sentences`,
+            `Performance task: Apply ${code} concepts to a real-world scenario`,
+            `Multiple choice quiz assessing key vocabulary and concepts`,
+            `Written explanation with evidence using the RACE strategy`,
+          ]
+        : UNPACKED.assessmentIdeas,
+      bloomsLevels: verbsFound && verbsFound.length > 0 ? verbsFound : UNPACKED.bloomsLevels,
+    }
+    setUnpacked(dynamicUnpacked)
     setGenerating(false)
     setExpandedSection('studentFriendly')
   }

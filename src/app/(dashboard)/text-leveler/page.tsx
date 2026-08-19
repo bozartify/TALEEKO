@@ -66,7 +66,7 @@ export default function TextLevelerPage() {
   const [audience, setAudience] = useState<Audience>('students')
   const [outputLanguage, setOutputLanguage] = useState<OutputLanguage>('English')
   const [generating, setGenerating] = useState(false)
-  const [outputText, setOutputText] = useState(TEXTS['3-5'])
+  const [outputText, setOutputText] = useState('')
   const [copied, setCopied] = useState(false)
   const [showAdvanced, setShowAdvanced] = useState(false)
   const [preserveVocab, setPreserveVocab] = useState(true)

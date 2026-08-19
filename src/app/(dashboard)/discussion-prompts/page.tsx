@@ -197,7 +197,44 @@ export default function DiscussionPromptsPage() {
   async function handleGenerate() {
     setGenerating(true)
     await new Promise(r => setTimeout(r, 2200))
+    const types: PromptType[] = selectedTypes.length > 0 ? selectedTypes : ['socratic', 'debate', 'think-pair-share']
+    const generated: DiscussionPrompt[] = types.flatMap((type, ti) => {
+      const templates: Record<PromptType, Array<{ text: string; blooms: BloomsLevel; followUps: string[] }>> = {
+        socratic: [
+          { text: `How does ${topic} challenge or confirm your prior understanding of ${subject}?`, blooms: 'evaluate', followUps: [`What evidence supports your view?`, `How would someone with an opposing view respond?`, `What would it take to change your mind?`] },
+        ],
+        debate: [
+          { text: `Should the study of ${topic} be considered essential for all students in ${subject}? Defend your position.`, blooms: 'evaluate', followUps: [`What is the strongest counterargument?`, `How does this connect to broader issues in ${subject}?`] },
+        ],
+        'think-pair-share': [
+          { text: `In 30 seconds, write down everything you know about ${topic}. Then share with a partner and identify one idea you agree on.`, blooms: 'remember', followUps: [`What did your partner know that you didn't?`, `What question did this discussion raise for you?`] },
+        ],
+        fishbowl: [
+          { text: `Inner circle: Discuss how ${topic} applies to everyday life in ${subject}. Outer circle: Note one thing you agree with and one you'd challenge.`, blooms: 'analyze', followUps: [`What patterns did outer-circle observers notice?`, `How did the inner-circle discussion evolve?`] },
+        ],
+        'four-corners': [
+          { text: `"${topic} is the most important concept in ${subject}." Move to: Strongly Agree | Agree | Disagree | Strongly Disagree.`, blooms: 'evaluate', followUps: [`Why did you choose your corner?`, `Did anyone's argument make you want to move?`] },
+        ],
+        philosophical: [
+          { text: `Is understanding ${topic} a moral responsibility for citizens today? What obligations come with this knowledge?`, blooms: 'create', followUps: [`How does your personal experience shape your view?`, `What does society stand to lose if people are uninformed about ${topic}?`] },
+        ],
+      }
+      const diffs: Array<'easy' | 'medium' | 'hard'> = ['easy', 'medium', 'hard']
+      return (templates[type] ?? []).map((p, i): DiscussionPrompt => ({
+        id: `gen-${type}-${ti}-${i}`,
+        type,
+        text: p.text,
+        blooms: p.blooms,
+        followUps: p.followUps,
+        starred: false,
+        usedCount: 0,
+        difficulty: diffs[i % 3],
+      }))
+    })
+    setPrompts(generated.length > 0 ? generated : prompts)
+    setExpandedId(generated[0]?.id ?? null)
     setGenerating(false)
+    showToast(`${generated.length} discussion prompts generated for "${topic}"`)
   }
 
   function addCustomPrompt() {

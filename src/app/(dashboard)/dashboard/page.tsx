@@ -146,6 +146,12 @@ export default function DashboardPage() {
   const greeting = getGreeting()
   const [activeTab, setActiveTab] = useState<DashTab>('overview')
   const [toastMsg, setToastMsg] = useState('')
+  const [userName] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('taleeko_firstName') || 'Alex'
+    }
+    return 'Alex'
+  })
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -160,7 +166,7 @@ export default function DashboardPage() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-black text-white">{greeting.text}, Alex!</h2>
+                <h2 className="text-2xl font-black text-white">{greeting.text}, {userName}!</h2>
                 <motion.span
                   className="text-2xl"
                   animate={{ rotate: [0, 15, -5, 10, 0] }}

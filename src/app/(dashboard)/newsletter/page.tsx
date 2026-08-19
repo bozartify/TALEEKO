@@ -74,7 +74,7 @@ export default function NewsletterPage() {
   const [template, setTemplate]             = useState<Template>('weekly')
   const [activeSections, setActiveSections] = useState<Section[]>(templateConfig.weekly.sections)
   const [expandedSection, setExpandedSection] = useState<Section | null>('fromDesk')
-  const [contents, setContents]             = useState<Partial<Record<Section, string>>>(sampleContent)
+  const [contents, setContents]             = useState<Partial<Record<Section, string>>>({})
   const [generating, setGenerating]         = useState(false)
   const [generatingSection, setGeneratingSection] = useState<Section | null>(null)
   const [view, setView]                     = useState<'edit' | 'preview'>('edit')
@@ -110,13 +110,35 @@ export default function NewsletterPage() {
   async function generateSection(section: Section) {
     setGeneratingSection(section)
     await new Promise(r => setTimeout(r, 1800))
+    const cls = className || 'My Class'
+    const sectionDefaults: Partial<Record<Section, string>> = {
+      fromDesk: `Dear Families,\n\nThank you for your continued partnership in your student's education in ${cls}. It's been a wonderful period of learning and growth.\n\nWarm regards,\nYour Teacher`,
+      highlights: `✦ Students showed outstanding engagement throughout this period in ${cls}.\n✦ Collaborative work and discussions demonstrated real critical thinking growth.`,
+      upcoming: `• Please check the class website for updated assignment due dates\n• Reach out if your student needs additional support`,
+      reminders: `📌 All materials should be brought to class each day.\n📌 Check the portal regularly for grades and feedback.`,
+      spotlight: `This period's spotlight student in ${cls} has shown incredible growth and dedication. Congratulations!`,
+      resources: `• Class Website: Notes, slides, and assignments\n• Khan Academy: Free practice for all topics\n• Office Hours: Check the calendar for times`,
+    }
+    setContents(prev => ({ ...prev, [section]: sectionDefaults[section] ?? '' }))
     setGeneratingSection(null)
   }
 
   async function generateAll() {
     setGenerating(true)
     await new Promise(r => setTimeout(r, 2500))
+    const cls = className || 'My Class'
+    const dr = dateRange || 'This Week'
+    const generated: Partial<Record<Section, string>> = {
+      fromDesk: `Dear Families,\n\nWelcome to the latest newsletter for ${cls}! This has been an exciting and productive period, and I'm proud of everything our students have accomplished.\n\nPlease take a moment to review the highlights and upcoming events below. As always, please don't hesitate to reach out with any questions.\n\nWarm regards,\nYour Teacher`,
+      highlights: `✦ Students demonstrated outstanding engagement and effort throughout ${dr}.\n✦ Collaborative activities and discussions showed real growth in critical thinking.\n✦ ${cls} continues to impress with their curiosity and dedication to learning.`,
+      upcoming: `• Please check the class website for updated assignment due dates\n• Reach out if your student needs additional support\n• Stay tuned for the next update during ${dr}`,
+      reminders: `📌 Please ensure your student brings all required materials each day.\n📌 Check the online portal regularly for grades and feedback.\n📌 Contact us at any time with questions or concerns.`,
+      spotlight: `This period's Student Spotlight features one of our shining stars in ${cls} — a student who has shown remarkable growth, resilience, and enthusiasm for learning. Congratulations!`,
+      resources: `• Class Website: Review notes, slides, and assignments online\n• Khan Academy: Free practice and video tutorials for all topics\n• Office Hours: Available before and after school — check the calendar for times`,
+    }
+    setContents(generated)
     setGenerating(false)
+    showToast('Newsletter generated!')
   }
 
   function handleSend() {

@@ -99,7 +99,12 @@ export default function GameBuilderPage() {
   const [theme, setTheme] = useState<GameTheme>('space')
   const [shareOpen, setShareOpen] = useState(false)
   const [liveMode, setLiveMode] = useState(false)
-  const PIN = '847291'
+  const [PIN, setPIN] = useState('847291')
+
+  function refreshPIN() {
+    const digits = Array.from({ length: 6 }, () => Math.floor(Math.random() * 10)).join('')
+    setPIN(digits)
+  }
 
   const cfg = gameTypes[selectedType]
   const [toastMsg, setToastMsg] = useState('')
@@ -160,11 +165,12 @@ export default function GameBuilderPage() {
               {/* PIN */}
               <div className="text-center mb-5">
                 <p className="text-xs text-surface-400 mb-2">Students join with this PIN at gamepin.io</p>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex items-center justify-center gap-2 mb-2">
                   {PIN.split('').map((d, i) => (
                     <div key={i} className="w-12 h-14 rounded-xl bg-accent-500/20 border border-accent-500/30 flex items-center justify-center text-2xl font-black text-accent-300">{d}</div>
                   ))}
                 </div>
+                <button onClick={refreshPIN} className="text-[10px] text-surface-500 hover:text-accent-400 transition-colors">↻ Generate new PIN</button>
               </div>
               <div className="space-y-2">
                 <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('Join link copied to clipboard'); setShareOpen(false) }}>
@@ -173,7 +179,7 @@ export default function GameBuilderPage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold text-white">Copy Join Link</p>
-                    <p className="text-[10px] text-surface-400">gamepin.io/join/847291</p>
+                    <p className="text-[10px] text-surface-400">gamepin.io/join/{PIN}</p>
                   </div>
                 </button>
                 <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('QR code downloaded'); setShareOpen(false) }}>

@@ -193,7 +193,17 @@ export default function LessonPlannerPage() {
 
   function handleGenerateAll() {
     setGeneratingAll(true)
-    setTimeout(() => setGeneratingAll(false), 3500)
+    setTimeout(() => {
+      setSections(prev => prev.map(s => {
+        if (s.id === 'objectives') return { ...s, content: `• Identify and describe key concepts related to ${topic}\n• Analyze how ${topic} applies to real-world ${subject} scenarios\n• Evaluate evidence and draw conclusions about ${topic}\n• Create an original product or explanation demonstrating mastery of ${topic}` }
+        if (s.id === 'hook') return { ...s, content: `Display a thought-provoking image or short video clip related to ${topic}.\n\nAsk: "What do you already know about ${topic}? What surprises you?"\n\nAllow 60-second think-pair-share. Cold-call 2–3 students.\n\nBridge: "Today we'll dive deep into ${topic} and discover why it matters in ${subject}."` }
+        if (s.id === 'direct') return { ...s, content: `Mini-lecture (8 min) on core ${topic} concepts:\n• Key vocabulary and definitions for ${grade} level\n• Conceptual framework: How does ${topic} fit into ${subject}?\n• Visual model or diagram illustrating the main ideas\n\nGuided notes: Students complete a partially-filled graphic organizer as you model.` }
+        if (s.id === 'materials') return { ...s, content: `• Printed or digital notes on ${topic}\n• Chromebooks / tablets for research or simulations\n• Graphic organizer handout (printed or digital)\n• Whiteboard markers / chart paper for group work\n• Exit ticket slips (printed)` }
+        return s
+      }))
+      setGeneratingAll(false)
+      showToast('AI lesson plan generated!')
+    }, 3500)
   }
 
   function handleSave() {
