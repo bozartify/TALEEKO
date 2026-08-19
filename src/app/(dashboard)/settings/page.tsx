@@ -36,6 +36,18 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
+  const [profile, setProfile] = useState({
+    firstName: 'Alex', lastName: 'Johnson',
+    email: 'demo@taleeko.ai', school: 'Lincoln Middle School',
+    subjects: 'Science, Biology', grades: '7th, 8th, 9th',
+    bio: 'Passionate science teacher with 8 years of experience in middle school education.',
+  })
+
+  function toggleDarkMode() {
+    const next = !darkMode
+    setDarkMode(next)
+    document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
+  }
 
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) {
@@ -145,27 +157,27 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">First Name</label>
-                        <input defaultValue="Alex" className="input-base" />
+                        <input value={profile.firstName} onChange={e => setProfile(p => ({...p, firstName: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Last Name</label>
-                        <input defaultValue="Johnson" className="input-base" />
+                        <input value={profile.lastName} onChange={e => setProfile(p => ({...p, lastName: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Email</label>
-                        <input defaultValue="demo@teachweaver.ai" className="input-base" />
+                        <input value={profile.email} onChange={e => setProfile(p => ({...p, email: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">School / Institution</label>
-                        <input defaultValue="Lincoln Middle School" className="input-base" />
+                        <input value={profile.school} onChange={e => setProfile(p => ({...p, school: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Subject(s)</label>
-                        <input defaultValue="Science, Biology" className="input-base" />
+                        <input value={profile.subjects} onChange={e => setProfile(p => ({...p, subjects: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Grade Levels</label>
-                        <input defaultValue="7th, 8th, 9th" className="input-base" />
+                        <input value={profile.grades} onChange={e => setProfile(p => ({...p, grades: e.target.value}))} className="input-base" />
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Role</label>
@@ -196,7 +208,8 @@ export default function SettingsPage() {
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Bio</label>
                       <textarea
-                        defaultValue="Passionate science teacher with 8 years of experience in middle school education."
+                        value={profile.bio}
+                        onChange={e => setProfile(p => ({...p, bio: e.target.value}))}
                         className="input-base h-20 resize-none"
                       />
                     </div>
@@ -375,7 +388,7 @@ export default function SettingsPage() {
                         </div>
                       </div>
                       <button
-                        onClick={() => setDarkMode(!darkMode)}
+                        onClick={() => toggleDarkMode()}
                         className={`w-10 h-6 rounded-full relative transition-colors ${darkMode ? 'bg-accent-600' : 'bg-surface-600'}`}
                       >
                         <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${darkMode ? 'right-1' : 'left-1'}`} />

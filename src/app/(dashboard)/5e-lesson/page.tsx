@@ -223,7 +223,10 @@ export default function FiveELessonPage() {
 
   function handleGenerateAll() {
     setGeneratingAll(true)
-    setTimeout(() => setGeneratingAll(false), 3500)
+    setTimeout(() => {
+      setGeneratingAll(false)
+      showToast('AI lesson plan generated!')
+    }, 3500)
   }
 
   return (
@@ -275,7 +278,7 @@ export default function FiveELessonPage() {
                 className="btn-gradient text-xs"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => { handleGenerateAll(); showToast('AI lesson plan generated!') }}
+                onClick={() => handleGenerateAll()}
                 disabled={generatingAll}
               >
                 {generatingAll ? (

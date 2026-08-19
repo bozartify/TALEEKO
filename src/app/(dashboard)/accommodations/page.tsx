@@ -151,6 +151,7 @@ const complianceTrend = [74, 78, 81, 84, 87, 88, 90, 92]
 const complianceTrendLabels = ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7', 'Now']
 
 export default function AccommodationsPage() {
+  const [studentList, setStudentList] = useState(students)
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null)
   const [search, setSearch]                   = useState('')
   const [filter, setFilter]                   = useState<FilterType>('all')
@@ -169,16 +170,19 @@ export default function AccommodationsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  const iepCount    = students.filter(s => s.planType === 'IEP').length
-  const fiveCount   = students.filter(s => s.planType === '504').length
-  const totalAcc    = students.reduce((sum, s) => sum + s.accommodations.length, 0)
-  const implementedCount = students.reduce(
-    (sum, s) => sum + s.accommodations.filter(a => a.implemented).length, 0
+  const iepCount    = studentList.filter(s => s.planType === 'IEP').length
+  const fiveCount   = studentList.filter(s => s.planType === '504').length
+  const totalAcc    = studentList.reduce((sum, s) => sum + s.accommodations.length, 0)
+  const implementedCount = studentList.reduce(
+    (sum, s) => sum + s.accommodations.filter(a => {
+      const key = `${s.name}::${a.label}`
+      return key in accStates ? accStates[key] : a.implemented
+    }).length, 0
   )
   const complianceRate = Math.round((implementedCount / totalAcc) * 100)
-  const overdueStudents = students.filter(s => s.docStatus === 'overdue')
+  const overdueStudents = studentList.filter(s => s.docStatus === 'overdue')
 
-  const filteredStudents = students.filter(s => {
+  const filteredStudents = studentList.filter(s => {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false
     if (filter === 'IEP' && s.planType !== 'IEP') return false
     if (filter === '504' && s.planType !== '504') return false
@@ -188,7 +192,7 @@ export default function AccommodationsPage() {
 
   function toggleImplemented(studentName: string, accLabel: string) {
     const key = `${studentName}::${accLabel}`
-    setAccStates(prev => ({ ...prev, [key]: !(prev[key] ?? students.find(s => s.name === studentName)?.accommodations.find(a => a.label === accLabel)?.implemented ?? false) }))
+    setAccStates(prev => ({ ...prev, [key]: !(prev[key] ?? studentList.find(s => s.name === studentName)?.accommodations.find(a => a.label === accLabel)?.implemented ?? false) }))
   }
 
   function getAccImplemented(studentName: string, acc: AccommodationItem) {
@@ -244,8 +248,8 @@ export default function AccommodationsPage() {
       {/* Stats */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.06}>
         {[
-          { label: 'IEP Students',          value: iepCount.toString(),        icon: Users,        color: 'bg-accent-500/15 text-accent-400',    delta: `${students.filter(s=>s.planType==='IEP'&&s.docStatus==='complete').length} docs complete` },
-          { label: '504 Plans',             value: fiveCount.toString(),        icon: FileText,     color: 'bg-electric-400/15 text-electric-400', delta: `${students.filter(s=>s.planType==='504'&&s.docStatus==='complete').length} docs complete` },
+          { label: 'IEP Students',          value: iepCount.toString(),        icon: Users,        color: 'bg-accent-500/15 text-accent-400',    delta: `${studentList.filter(s=>s.planType==='IEP'&&s.docStatus==='complete').length} docs complete` },
+          { label: '504 Plans',             value: fiveCount.toString(),        icon: FileText,     color: 'bg-electric-400/15 text-electric-400', delta: `${studentList.filter(s=>s.planType==='504'&&s.docStatus==='complete').length} docs complete` },
           { label: 'Active Accommodations', value: totalAcc.toString(),         icon: CheckCircle2, color: 'bg-success-400/15 text-success-400',   delta: `${implementedCount} implemented` },
           { label: 'Compliance Rate',       value: `${complianceRate}%`,        icon: TrendingUp,   color: complianceRate >= 90 ? 'bg-success-400/15 text-success-400' : 'bg-warning-400/15 text-warning-400', delta: complianceRate >= 90 ? '✓ On Target' : '↓ Below 90% Goal' },
         ].map(s => (
@@ -299,7 +303,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-danger-300">Overdue Documentation — Jaylen Carter</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Jaylen Carter's IEP documentation review date (Aug 5, 2026) has passed. Overdue documentation may create compliance risk. Update records immediately and schedule a case conference.</p>
                     </div>
-                    <button onClick={() => { showToast('Meeting scheduled for Jaylen Carter'); setMeetingModal(students.find(s => s.name === 'Jaylen Carter') ?? null) }} className="text-[10px] font-semibold text-danger-400 hover:text-danger-300 whitespace-nowrap">Schedule →</button>
+                    <button onClick={() => { showToast('Meeting scheduled for Jaylen Carter'); setMeetingModal(studentList.find(s => s.name === 'Jaylen Carter') ?? null) }} className="text-[10px] font-semibold text-danger-400 hover:text-danger-300 whitespace-nowrap">Schedule →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-400/[0.08] border border-warning-400/15">
                     <Clock className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
@@ -594,7 +598,7 @@ export default function AccommodationsPage() {
                 Documentation
               </h4>
               <div className="space-y-2">
-                {students.map(s => {
+                {studentList.map(s => {
                   const dsc = docStatusConfig[s.docStatus]
                   return (
                     <div key={s.name} className="flex items-center gap-2">
@@ -745,7 +749,7 @@ export default function AccommodationsPage() {
                   <label className="text-[11px] text-surface-500 block mb-1">Student</label>
                   <select value={newAcc.student} onChange={e => setNewAcc(p => ({ ...p, student: e.target.value }))} className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40">
                     <option value="">Select student…</option>
-                    {students.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
+                    {studentList.map(s => <option key={s.name} value={s.name}>{s.name}</option>)}
                   </select>
                 </div>
                 <div>
@@ -763,7 +767,16 @@ export default function AccommodationsPage() {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setAddModal(false)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => { showToast(`Accommodation added for ${newAcc.student}`); setAddModal(false) }} className="btn-gradient text-xs px-4 py-2" disabled={!newAcc.student || !newAcc.label}>
+                <button onClick={() => {
+                  setStudentList(prev => prev.map(s =>
+                    s.name === newAcc.student
+                      ? { ...s, accommodations: [...s.accommodations, { label: newAcc.label, implemented: false }] }
+                      : s
+                  ))
+                  showToast(`Accommodation added for ${newAcc.student}`)
+                  setNewAcc({ student: '', label: '' })
+                  setAddModal(false)
+                }} className="btn-gradient text-xs px-4 py-2" disabled={!newAcc.student || !newAcc.label}>
                   Add Accommodation
                 </button>
               </div>

@@ -161,9 +161,22 @@ export default function ParentPortalPage() {
   const [messages, setMessages] = useState<Message[]>(MESSAGES)
   const [toastMsg, setToastMsg] = useState('')
   const [copiedLink, setCopiedLink] = useState(false)
+  const [attendMonth, setAttendMonth] = useState(6) // 0-indexed, 6 = July
+  const [attendYear, setAttendYear] = useState(2026)
 
-  const daysInMonth = 31
-  const startDayOfWeek = 1
+  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
+
+  function prevAttendMonth() {
+    if (attendMonth === 0) { setAttendMonth(11); setAttendYear(y => y - 1) }
+    else setAttendMonth(m => m - 1)
+  }
+  function nextAttendMonth() {
+    if (attendMonth === 11) { setAttendMonth(0); setAttendYear(y => y + 1) }
+    else setAttendMonth(m => m + 1)
+  }
+
+  const daysInMonth = new Date(attendYear, attendMonth + 1, 0).getDate()
+  const startDayOfWeek = new Date(attendYear, attendMonth, 1).getDay()
   const calendarRows: (number | null)[][] = []
   let currentRow: (number | null)[] = Array(startDayOfWeek).fill(null)
   for (let d = 1; d <= daysInMonth; d++) {
@@ -667,13 +680,13 @@ export default function ParentPortalPage() {
               <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <h4 className="text-sm font-bold text-white flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-violet-400" />
-                  July 2026
+                  {MONTH_NAMES[attendMonth]} {attendYear}
                 </h4>
                 <div className="flex items-center gap-2">
-                  <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                  <button onClick={prevAttendMonth} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
                     <ChevronLeft className="w-4 h-4" />
                   </button>
-                  <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
+                  <button onClick={nextAttendMonth} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors">
                     <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>

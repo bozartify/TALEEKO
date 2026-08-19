@@ -80,11 +80,37 @@ export default function CalendarPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [classFilter, setClassFilter] = useState('All Classes')
   const [typeFilter, setTypeFilter] = useState<EventType | 'all'>('all')
+  const [allEvents, setAllEvents] = useState<CalEvent[]>(events)
   const [showNewEvent, setShowNewEvent] = useState(false)
+  const [newTitle, setNewTitle] = useState('')
+  const [newType, setNewType] = useState<EventType>('lesson')
+  const [newClass, setNewClass] = useState('All Classes')
+  const [newDate, setNewDate] = useState('')
+  const [newTime, setNewTime] = useState('')
+  const [newLocation, setNewLocation] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(true)
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const [toastMsg, setToastMsg] = useState('')
+
+  function handleAddEvent() {
+    if (!newTitle.trim()) { showToast('Please enter an event title'); return }
+    const day = newDate ? parseInt(newDate.split('-')[2], 10) : (selectedDay ?? 1)
+    const newEv: CalEvent = {
+      id: `e${Date.now()}`,
+      day,
+      title: newTitle,
+      type: newType,
+      time: newTime || '9:00 AM',
+      class: newClass !== 'All Classes' ? newClass : undefined,
+      color: eventTypeConfig[newType].dotColor,
+      location: newLocation || undefined,
+    }
+    setAllEvents(prev => [...prev, newEv])
+    setNewTitle(''); setNewDate(''); setNewTime(''); setNewLocation('')
+    setShowNewEvent(false)
+    showToast(`"${newEv.title}" added to calendar`)
+  }
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -100,7 +126,7 @@ export default function CalendarPage() {
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ]
 
-  const filteredEvents = useMemo(() => events.filter(e => {
+  const filteredEvents = useMemo(() => allEvents.filter(e => {
     const matchClass = classFilter === 'All Classes' || !e.class || e.class === classFilter || e.class === 'All Classes'
     const matchType = typeFilter === 'all' || e.type === typeFilter
     return matchClass && matchType
@@ -734,22 +760,22 @@ export default function CalendarPage() {
               </button>
               <h3 className="text-base font-black text-white mb-4">Add Calendar Event</h3>
               <div className="space-y-3">
-                <input placeholder="Event title" className="w-full px-3 py-2 text-sm bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50" />
+                <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Event title" className="w-full px-3 py-2 text-sm bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50" />
                 <div className="grid grid-cols-2 gap-3">
-                  <select className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
+                  <select value={newType} onChange={e => setNewType(e.target.value as EventType)} className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
                     {Object.entries(eventTypeConfig).map(([type, cfg]) => (
                       <option key={type} value={type}>{cfg.label}</option>
                     ))}
                   </select>
-                  <select className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
+                  <select value={newClass} onChange={e => setNewClass(e.target.value)} className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
                     {classList.map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="date" className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50" />
-                  <input type="time" className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50" />
+                  <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50" />
+                  <input type="time" value={newTime} onChange={e => setNewTime(e.target.value)} className="px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50" />
                 </div>
-                <input placeholder="Location (optional)" className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50" />
+                <input value={newLocation} onChange={e => setNewLocation(e.target.value)} placeholder="Location (optional)" className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50" />
                 <textarea placeholder="Description (optional)" rows={2} className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50 resize-none" />
                 <div className="flex items-center gap-3 pt-1">
                   <label className="flex items-center gap-2 text-xs text-surface-400 cursor-pointer">
@@ -764,7 +790,7 @@ export default function CalendarPage() {
                     className="btn-gradient text-xs flex-1"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { showToast('Event added to calendar'); setShowNewEvent(false) }}
+                    onClick={handleAddEvent}
                   >
                     <Check className="w-3.5 h-3.5" /> Add Event
                   </motion.button>

@@ -227,9 +227,42 @@ export default function WritingPromptsPage() {
   const [generatingId, setGeneratingId] = useState<string | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeTab, setActiveTab] = useState<'library' | 'create'>('library')
+  const [genMode, setGenMode] = useState<PromptMode>('narrative')
+  const [genGrade, setGenGrade] = useState('6th-8th Grade')
+  const [genTopic, setGenTopic] = useState('')
+  const [genDiff, setGenDiff] = useState<DifficultyLevel>('standard')
+  const [genInstructions, setGenInstructions] = useState('')
+  const [genScaffold, setGenScaffold] = useState(false)
+  const [genRubric, setGenRubric] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [generatedText, setGeneratedText] = useState('')
 
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  function handleGeneratePrompt() {
+    if (!genTopic.trim()) { showToast('Please enter a subject or topic'); return }
+    setGenerating(true)
+    setGeneratedText('')
+    setTimeout(() => {
+      const modeCfg = modeConfig[genMode]
+      const scaffold = genScaffold ? '\n\nScaffolding Questions:\n1. What is your central idea or argument?\n2. What evidence or examples will you use?\n3. How will you begin your response?' : ''
+      const rubric = genRubric ? '\n\nRubric Focus Areas: Organization · Voice · Word Choice · Conventions' : ''
+      const starters: Record<PromptMode, string> = {
+        narrative:   `Write a story about ${genTopic}`,
+        persuasive:  `Write a persuasive essay arguing a position on ${genTopic}`,
+        expository:  `Write an expository essay explaining ${genTopic}`,
+        descriptive: `Write a descriptive piece about ${genTopic}`,
+        creative:    `Write a creative piece inspired by ${genTopic}`,
+        reflective:  `Write a personal reflection on ${genTopic}`,
+        research:    `Write a research-based response on ${genTopic}`,
+      }
+      const text = `${modeCfg.label} Writing Prompt — ${genGrade}\n\nTopic: ${genTopic}\nDifficulty: ${difficultyConfig[genDiff].label}\n\n${genInstructions ? `Context: ${genInstructions}\n\n` : ''}Prompt:\n${starters[genMode]}. Use specific details and ${genMode === 'persuasive' ? 'strong evidence to support your claim' : genMode === 'narrative' ? 'vivid sensory language to bring your story to life' : 'clear organization to guide your reader'}. Your response should be ${genDiff === 'scaffolded' ? 'at least 2 paragraphs' : genDiff === 'advanced' ? 'at least 5 paragraphs with a clear thesis' : '3–4 paragraphs'}.${scaffold}${rubric}`
+      setGeneratedText(text)
+      setGenerating(false)
+      showToast('Writing prompt generated!')
+    }, 2200)
+  }
 
   const filtered = prompts.filter(p => {
     if (selectedMode !== 'all' && p.mode !== selectedMode) return false
@@ -734,26 +767,28 @@ export default function WritingPromptsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Writing Mode</label>
-                    <select className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
+                    <select value={genMode} onChange={e => setGenMode(e.target.value as PromptMode)} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
                       {modes.map(m => <option key={m} value={m}>{modeConfig[m].label}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Grade Range</label>
-                    <select className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
+                    <select value={genGrade} onChange={e => setGenGrade(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
                       {gradeRanges.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
                   <div>
                     <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Subject / Topic</label>
                     <input
+                      value={genTopic}
+                      onChange={e => setGenTopic(e.target.value)}
                       placeholder="e.g. Climate change, Civil War, Poetry..."
                       className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 placeholder:text-surface-600 focus:outline-none focus:border-accent-500/40"
                     />
                   </div>
                   <div>
                     <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Difficulty</label>
-                    <select className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
+                    <select value={genDiff} onChange={e => setGenDiff(e.target.value as DifficultyLevel)} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
                       {(['scaffolded', 'standard', 'advanced', 'open-ended'] as DifficultyLevel[]).map(d => (
                         <option key={d} value={d}>{difficultyConfig[d].label}</option>
                       ))}
@@ -765,6 +800,8 @@ export default function WritingPromptsPage() {
                   <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Additional Instructions (optional)</label>
                   <textarea
                     rows={3}
+                    value={genInstructions}
+                    onChange={e => setGenInstructions(e.target.value)}
                     placeholder="Include vocabulary words, connect to a theme, align with a specific standard, etc."
                     className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 placeholder:text-surface-600 focus:outline-none focus:border-accent-500/40 resize-none"
                   />
@@ -772,18 +809,18 @@ export default function WritingPromptsPage() {
 
                 <div className="flex items-center gap-2">
                   <label className="flex items-center gap-2 text-xs text-surface-400 cursor-pointer">
-                    <input type="checkbox" className="rounded" />
+                    <input type="checkbox" checked={genScaffold} onChange={e => setGenScaffold(e.target.checked)} className="rounded" />
                     Include scaffold questions
                   </label>
                   <label className="flex items-center gap-2 text-xs text-surface-400 cursor-pointer">
-                    <input type="checkbox" className="rounded" />
+                    <input type="checkbox" checked={genRubric} onChange={e => setGenRubric(e.target.checked)} className="rounded" />
                     Include rubric focus areas
                   </label>
                 </div>
 
-                <button className="btn-primary text-xs px-6 py-2.5 w-full justify-center gap-2">
+                <button onClick={handleGeneratePrompt} disabled={generating} className="btn-primary text-xs px-6 py-2.5 w-full justify-center gap-2">
                   <Sparkles className="w-4 h-4" />
-                  Generate Writing Prompt
+                  {generating ? 'Generating…' : 'Generate Writing Prompt'}
                 </button>
               </div>
 
@@ -791,14 +828,29 @@ export default function WritingPromptsPage() {
               <div className="glass-card p-5">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-semibold text-surface-200">Generated Prompt Preview</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-surface-800 text-surface-500 border border-white/[0.06]">Waiting…</span>
+                  {generating
+                    ? <span className="px-2 py-0.5 rounded text-[10px] bg-accent-500/15 text-accent-400 border border-accent-500/20 animate-pulse">Generating…</span>
+                    : generatedText
+                    ? <span className="px-2 py-0.5 rounded text-[10px] bg-success-400/15 text-success-400 border border-success-400/20">Ready</span>
+                    : <span className="px-2 py-0.5 rounded text-[10px] bg-surface-800 text-surface-500 border border-white/[0.06]">Waiting…</span>
+                  }
                 </div>
-                <div className="h-32 rounded-xl bg-white/[0.02] border border-dashed border-white/[0.08] flex items-center justify-center">
-                  <div className="text-center">
-                    <Pencil className="w-8 h-8 text-surface-700 mx-auto mb-2" />
-                    <p className="text-xs text-surface-600">Your AI-generated prompt will appear here</p>
+                {generatedText ? (
+                  <div className="space-y-3">
+                    <pre className="text-xs text-surface-200 whitespace-pre-wrap font-sans leading-relaxed max-h-64 overflow-y-auto">{generatedText}</pre>
+                    <div className="flex gap-2">
+                      <button onClick={() => { navigator.clipboard.writeText(generatedText); showToast('Prompt copied!') }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1">Copy</button>
+                      <button onClick={() => setGeneratedText('')} className="btn-secondary text-xs px-3 py-1.5">Clear</button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="h-32 rounded-xl bg-white/[0.02] border border-dashed border-white/[0.08] flex items-center justify-center">
+                    <div className="text-center">
+                      <Pencil className="w-8 h-8 text-surface-700 mx-auto mb-2" />
+                      <p className="text-xs text-surface-600">Your AI-generated prompt will appear here</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

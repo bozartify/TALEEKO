@@ -179,6 +179,7 @@ export default function CommunicationPage() {
   const [scheduledTime, setScheduledTime] = useState('')
   const [sentToast, setSentToast] = useState(false)
   const [templatePreview, setTemplatePreview] = useState<Template | null>(null)
+  const [templateCat, setTemplateCat] = useState('All')
   const [bulkMode, setBulkMode] = useState(false)
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkToast, setBulkToast] = useState(false)
@@ -1159,14 +1160,22 @@ export default function CommunicationPage() {
             {/* Category filter */}
             <div className="flex items-center gap-2 flex-wrap">
               {['All', 'Updates', 'Meetings', 'Reminders', 'Recognition', 'Support', 'Events', 'Inclusion'].map(cat => (
-                <button key={cat} className="px-3 py-1 rounded-full text-[10px] font-semibold text-surface-400 hover:text-white hover:bg-white/[0.06] border border-transparent hover:border-white/10 transition-all">
+                <button
+                  key={cat}
+                  onClick={() => setTemplateCat(cat)}
+                  className={`px-3 py-1 rounded-full text-[10px] font-semibold transition-all border ${
+                    templateCat === cat
+                      ? 'text-white bg-accent-500/20 border-accent-500/40'
+                      : 'text-surface-400 hover:text-white hover:bg-white/[0.06] border-transparent hover:border-white/10'
+                  }`}
+                >
                   {cat}
                 </button>
               ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {TEMPLATES.map((t, i) => (
+              {TEMPLATES.filter(t => templateCat === 'All' || t.category === templateCat).map((t, i) => (
                 <motion.div
                   key={t.id}
                   className="glass-card p-5 hover:bg-white/[0.08] transition-all cursor-pointer group"
