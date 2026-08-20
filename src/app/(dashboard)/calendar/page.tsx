@@ -80,7 +80,15 @@ export default function CalendarPage() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [classFilter, setClassFilter] = useState('All Classes')
   const [typeFilter, setTypeFilter] = useState<EventType | 'all'>('all')
-  const [allEvents, setAllEvents] = useState<CalEvent[]>(events)
+  const [allEvents, setAllEvents] = useState<CalEvent[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_calendar_events')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return events
+  })
   const [showNewEvent, setShowNewEvent] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newType, setNewType] = useState<EventType>('lesson')
@@ -106,7 +114,11 @@ export default function CalendarPage() {
       color: eventTypeConfig[newType].dotColor,
       location: newLocation || undefined,
     }
-    setAllEvents(prev => [...prev, newEv])
+    setAllEvents(prev => {
+      const next = [...prev, newEv]
+      try { localStorage.setItem('taleeko_calendar_events', JSON.stringify(next)) } catch {}
+      return next
+    })
     setNewTitle(''); setNewDate(''); setNewTime(''); setNewLocation('')
     setShowNewEvent(false)
     showToast(`"${newEv.title}" added to calendar`)

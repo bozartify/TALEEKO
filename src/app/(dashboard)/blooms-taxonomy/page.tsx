@@ -103,11 +103,6 @@ const QUESTION_STEMS: Record<Level, string[]> = {
 
 const DIST_DATA = [18, 24, 22, 16, 12, 8] // % per level (sum 100)
 
-function showToast(msg: string) {
-  // stub — real app would show a toast
-  console.log(msg)
-}
-
 export default function BloomsTaxonomyPage() {
   const [activeLevel, setActiveLevel] = useState<Level>('understand')
   const [activeDomain, setActiveDomain] = useState<Domain>('science')
@@ -117,6 +112,8 @@ export default function BloomsTaxonomyPage() {
   const [expandedLevel, setExpandedLevel] = useState<Level | null>(null)
   const [savedObjectives, setSavedObjectives] = useState<{ text: string; level: Level }[]>([])
   const [pyramidHover, setPyramidHover] = useState<Level | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   function handleCopy(text: string, idx: number) {
     navigator.clipboard?.writeText(text).catch(() => {})
@@ -626,6 +623,18 @@ export default function BloomsTaxonomyPage() {
         </FadeInWhenVisible>
       )}
 
+      {/* Toast */}
+      <AnimatePresence>
+        {toastMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-2xl bg-surface-800 border border-white/[0.1] text-sm text-white shadow-elevation-3 flex items-center gap-2"
+          >
+            <span className="w-2 h-2 rounded-full bg-success-400 animate-pulse" />
+            {toastMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

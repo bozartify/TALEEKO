@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, Calendar, ChevronDown, ChevronRight, Download,
@@ -180,6 +181,7 @@ const SUBJECTS: Subject[] = ['ELA', 'Math', 'Science', 'Social Studies', 'Art']
 ───────────────────────────────────────────── */
 
 export default function ScopeSequencePage() {
+  const router = useRouter()
   const [view, setView] = useState<ViewMode>('gantt')
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>(['ELA', 'Math', 'Science', 'Social Studies'])
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null)
@@ -834,7 +836,7 @@ export default function ScopeSequencePage() {
                 {/* Actions */}
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => { showToast('Opening lesson planner…'); setSelectedUnit(null) }}
+                    onClick={() => { router.push(`/lesson-planner?unit=${encodeURIComponent(selectedUnit?.title ?? '')}`); setSelectedUnit(null) }}
                     className="btn-gradient w-full justify-center text-sm"
                   >
                     <BookOpen className="w-4 h-4" /> Open Lesson Planner

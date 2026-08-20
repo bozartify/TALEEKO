@@ -118,9 +118,15 @@ export default function GradebookPage() {
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null)
   const [showWeightPanel, setShowWeightPanel] = useState(false)
   const [curveAmount, setCurveAmount] = useState(0)
-  const [localScores, setLocalScores] = useState<Record<string, (number | null)[]>>(
-    () => Object.fromEntries(students.map(s => [s.id, s.scores]))
-  )
+  const [localScores, setLocalScores] = useState<Record<string, (number | null)[]>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_gradebook_scores')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return Object.fromEntries(students.map(s => [s.id, s.scores]))
+  })
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
@@ -177,6 +183,7 @@ export default function GradebookPage() {
     setLocalScores(prev => {
       const next = { ...prev, [studentId]: [...prev[studentId]] }
       next[studentId][assignIdx] = value
+      try { localStorage.setItem('taleeko_gradebook_scores', JSON.stringify(next)) } catch {}
       return next
     })
   }
@@ -697,6 +704,17 @@ export default function GradebookPage() {
                           </motion.tr>
                         )
                       })}
+                      {filteredStudents.length === 0 && (
+                        <tr>
+                          <td colSpan={99} className="text-center py-12 text-surface-500 text-sm">
+                            <div className="flex flex-col items-center gap-2">
+                              <span className="text-3xl">🔍</span>
+                              <span className="font-semibold text-surface-300">No students match your search</span>
+                              <span className="text-xs">Try a different name or clear the search</span>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

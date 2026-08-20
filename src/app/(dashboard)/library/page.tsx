@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Library, Search, Eye, Edit3, Copy, Trash2, Sparkles, Clock,
@@ -88,6 +89,7 @@ function isNew(dateStr: string) {
 }
 
 export default function LibraryPage() {
+  const router = useRouter()
   const [items, setItems] = useState<LibraryItem[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -298,13 +300,37 @@ export default function LibraryPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <motion.button
+                  className="btn-gradient text-xs flex-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    const dest = previewItem?.type === 'quiz' ? '/quiz-builder' : '/lesson-planner'
+                    router.push(`${dest}?resource=${encodeURIComponent(previewItem?.title ?? '')}`)
+                    setPreviewItem(null)
+                  }}
+                >
                   <Edit3 className="w-3.5 h-3.5" /> Open & Edit
                 </motion.button>
-                <button className="btn-secondary text-xs px-4">
+                <button
+                  className="btn-secondary text-xs px-4"
+                  onClick={() => { navigator.clipboard.writeText(previewItem?.title ?? ''); showToast('Copied to clipboard!') }}
+                >
                   <Copy className="w-3.5 h-3.5" />
                 </button>
-                <button className="btn-secondary text-xs px-4">
+                <button
+                  className="btn-secondary text-xs px-4"
+                  onClick={() => {
+                    const blob = new Blob([`${previewItem?.title}\n\nResource from TALEEKO\nSubject: ${previewItem?.subject}\nGrade: ${previewItem?.grade}`], { type: 'text/plain' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `${previewItem?.title ?? 'resource'}.txt`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                    showToast('Downloaded!')
+                  }}
+                >
                   <Download className="w-3.5 h-3.5" />
                 </button>
               </div>

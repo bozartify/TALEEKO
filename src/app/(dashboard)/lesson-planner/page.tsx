@@ -1,5 +1,6 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, Sparkles, Clock, Target, Layers, Users, Clipboard,
@@ -168,15 +169,27 @@ const standards = [
 ]
 
 export default function LessonPlannerPage() {
+  const searchParams = useSearchParams()
   const [sections, setSections] = useState(initialSections)
   const [expandedSection, setExpandedSection] = useState<string | null>('hook')
   const [generatingSection, setGeneratingSection] = useState<string | null>(null)
   const [generatingAll, setGeneratingAll] = useState(false)
   const [savedPulse, setSavedPulse] = useState(false)
-  const [topic, setTopic] = useState('Photosynthesis & Light Intensity')
+  const [topic, setTopic] = useState(() => searchParams?.get('unit') || 'Photosynthesis & Light Intensity')
   const [grade, setGrade] = useState('10th Grade')
-  const [subject, setSubject] = useState('AP Biology')
+  const [subject, setSubject] = useState(() => searchParams?.get('subject') || 'AP Biology')
   const [duration, setDuration] = useState('50')
+
+  useEffect(() => {
+    const tmpl = searchParams?.get('template')
+    if (tmpl) setTopic(tmpl)
+    const subj = searchParams?.get('subject')
+    if (subj) setSubject(subj)
+    const unit = searchParams?.get('unit')
+    if (unit) setTopic(unit)
+    const resource = searchParams?.get('resource')
+    if (resource) setTopic(resource)
+  }, [searchParams])
 
   const totalTime = sections.reduce((acc, s) => acc + s.duration, 0)
   const [toastMsg, setToastMsg] = useState('')

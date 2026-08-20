@@ -691,6 +691,17 @@ export default function QuizBuilderPage() {
                   })}
                 </Reorder.Group>
 
+                {questions.length === 0 && (
+                  <motion.div
+                    className="text-center py-10 glass-card"
+                    initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                  >
+                    <span className="text-4xl mb-3 block">📝</span>
+                    <p className="text-sm font-bold text-surface-300 mb-1">No questions yet</p>
+                    <p className="text-xs text-surface-500">Generate questions with AI above, or add one manually below</p>
+                  </motion.div>
+                )}
+
                 {/* Add Question */}
                 <div className="mt-4">
                   <p className="text-xs font-semibold text-surface-400 mb-3">Add Question</p>

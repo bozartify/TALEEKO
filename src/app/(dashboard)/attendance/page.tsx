@@ -89,7 +89,15 @@ export default function AttendancePage() {
   const [selectedClass, setSelectedClass] = useState(classes[0])
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0])
   const [weekOffset, setWeekOffset] = useState(0)
-  const [attendance, setAttendance] = useState(generateInitialData)
+  const [attendance, setAttendance] = useState<Record<string, Record<string, Status>>>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_attendance_data')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return generateInitialData()
+  })
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [aiOpen, setAiOpen] = useState(true)
   const [notifyModal, setNotifyModal] = useState<StudentRecord | null>(null)
@@ -110,7 +118,9 @@ export default function AttendancePage() {
       const current = prev[student][day]
       const idx = statusCycle.indexOf(current)
       const next = statusCycle[(idx + 1) % statusCycle.length]
-      return { ...prev, [student]: { ...prev[student], [day]: next } }
+      const updated = { ...prev, [student]: { ...prev[student], [day]: next } }
+      try { localStorage.setItem('taleeko_attendance_data', JSON.stringify(updated)) } catch {}
+      return updated
     })
   }
 

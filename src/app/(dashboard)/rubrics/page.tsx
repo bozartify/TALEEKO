@@ -111,6 +111,23 @@ export default function RubricsPage() {
     setTimeout(() => { setGenerating(false); setView('preview') }, 2000)
   }
 
+  function downloadCSV() {
+    const header = ['Criterion', ...editableLevels].map(c => `"${c.replace(/"/g, '""')}"`).join(',')
+    const rows = editableCriteria.map((c, i) =>
+      [`"${c.replace(/"/g, '""')}"`, ...editableCells[i].map(cell => `"${cell.replace(/"/g, '""')}"`)].join(',')
+    )
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'rubric.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+    setExportOpen(false)
+    showToast('Rubric exported as CSV!')
+  }
+
   function handleDelete(rubric: Rubric) {
     setRubrics(prev => prev.filter(r => r.id !== rubric.id))
     setDeleteTarget(null)
@@ -824,16 +841,16 @@ export default function RubricsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'PDF Rubric',       icon: Printer,  color: '#6366f1', desc: 'Print-ready PDF with scoring guide' },
-                  { label: 'Word Document',    icon: FileText,  color: '#10b981', desc: 'Editable .docx format' },
-                  { label: 'Google Docs',      icon: Share2,    color: '#22d3ee', desc: 'Push to Google Drive' },
-                  { label: 'Copy as Text',     icon: Copy,      color: '#f59e0b', desc: 'Plain text, paste anywhere' },
+                  { label: 'PDF Rubric',        icon: Printer,  color: '#6366f1', desc: 'Print-ready PDF with scoring guide',  fn: () => { setExportOpen(false); showToast('Exported as PDF') } },
+                  { label: 'CSV Spreadsheet',   icon: Download, color: '#10b981', desc: 'Criteria & levels in .csv format',     fn: downloadCSV },
+                  { label: 'Word Document',     icon: FileText,  color: '#8b5cf6', desc: 'Editable .docx format',               fn: () => { setExportOpen(false); showToast('Exported as Word') } },
+                  { label: 'Copy as Text',      icon: Copy,      color: '#f59e0b', desc: 'Plain text, paste anywhere',          fn: () => { navigator.clipboard.writeText(editableCriteria.map((c,i) => `${c}: ${editableCells[i].join(' | ')}`).join('\n')).then(() => { setExportOpen(false); showToast('Copied to clipboard!') }) } },
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] text-left transition-all"
                     whileHover={{ x: 2 }}
-                    onClick={() => { setExportOpen(false); showToast(`Exported as ${opt.label}`) }}
+                    onClick={opt.fn}
                   >
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: opt.color + '18' }}>
                       <opt.icon className="w-4 h-4" style={{ color: opt.color }} />

@@ -330,18 +330,42 @@ export default function ProfessionalDevPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category>('All')
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
+  const [courseList, setCourseList] = useState<Course[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_pd_courses')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return courses
+  })
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
   }
+  function enrollCourse(id: string, title: string) {
+    setCourseList(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, status: 'in-progress' as CourseStatus, progress: 5 } : c)
+      try { localStorage.setItem('taleeko_pd_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
+    showToast(`Enrolled in "${title}"`)
+  }
+  function updateProgress(id: string, delta: number) {
+    setCourseList(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, progress: Math.min(100, c.progress + delta), status: (Math.min(100, c.progress + delta) >= 100 ? 'completed' : 'in-progress') as CourseStatus } : c)
+      try { localStorage.setItem('taleeko_pd_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
+  }
 
   const filtered = categoryFilter === 'All'
-    ? courses
-    : courses.filter(c => c.category === categoryFilter)
+    ? courseList
+    : courseList.filter(c => c.category === categoryFilter)
 
   const totalHoursEarned = 45
-  const inProgressCount = courses.filter(c => c.status === 'in-progress').length
-  const completedCount = courses.filter(c => c.status === 'completed').length
+  const inProgressCount = courseList.filter(c => c.status === 'in-progress').length
+  const completedCount = courseList.filter(c => c.status === 'completed').length
   const certificateCount = 2
 
   const stats = [
@@ -896,7 +920,11 @@ export default function ProfessionalDevPage() {
                   }`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => showToast(course.status === 'completed' ? `"${course.title}" certificate available` : course.status === 'in-progress' ? `Resuming "${course.title}"` : `Starting "${course.title}"…`)}
+                  onClick={() => {
+                    if (course.status === 'not-started') enrollCourse(course.id, course.title)
+                    else if (course.status === 'in-progress') { updateProgress(course.id, 10); showToast(`Progress updated for "${course.title}"`) }
+                    else showToast(`"${course.title}" certificate available!`)
+                  }}
                 >
                   {course.status === 'completed' ? (
                     <><Check className="w-3.5 h-3.5" /> Completed</>

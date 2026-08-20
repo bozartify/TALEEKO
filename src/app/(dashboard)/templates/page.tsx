@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Layout,
@@ -307,6 +308,7 @@ function StarRating({ rating }: { rating: number }) {
 /* ---------- page component ---------- */
 
 export default function TemplatesPage() {
+  const router = useRouter()
   const [activeCategory, setActiveCategory] = useState<Category>('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedTemplate, setExpandedTemplate] = useState<number | null>(null)
@@ -572,7 +574,10 @@ export default function TemplatesPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                      <button className="btn-gradient px-5 py-2.5 text-sm font-semibold flex items-center gap-2">
+                      <button
+                        className="btn-gradient px-5 py-2.5 text-sm font-semibold flex items-center gap-2"
+                        onClick={() => router.push(`/lesson-planner?template=${encodeURIComponent(featuredTemplate.name)}&subject=${encodeURIComponent(featuredTemplate.subject)}`)}
+                      >
                         Use Template
                         <ArrowRight className="w-4 h-4" />
                       </button>
@@ -744,6 +749,7 @@ export default function TemplatesPage() {
                           className="btn-gradient px-4 py-2 text-xs font-semibold flex-1 flex items-center justify-center gap-1.5"
                           whileHover={{ scale: 1.03 }}
                           whileTap={{ scale: 0.97 }}
+                          onClick={() => router.push(`/lesson-planner?template=${encodeURIComponent(template.name)}&subject=${encodeURIComponent(template.subject)}`)}
                         >
                           <Check className="w-3.5 h-3.5" />
                           Use Template

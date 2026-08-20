@@ -490,9 +490,12 @@ export default function HelpPage() {
               >
                 <div className={`relative h-32 bg-gradient-to-br ${video.gradient} flex items-center justify-center`}>
                   <div className="absolute inset-0 bg-gradient-to-t from-surface-900/80 to-transparent" />
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                    <span className="text-[10px] font-bold tracking-widest text-white bg-black/60 backdrop-blur-sm border border-white/20 px-3 py-1 rounded-full uppercase">Coming Soon</span>
+                  </div>
                   <motion.div
-                    className="relative w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center"
-                    whileHover={{ scale: 1.1 }}
+                    className="relative w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center opacity-50"
+                    whileHover={{ scale: 1.05 }}
                     transition={{ type: 'spring', stiffness: 400, damping: 20 }}
                   >
                     <Play className="w-5 h-5 text-white ml-0.5" />

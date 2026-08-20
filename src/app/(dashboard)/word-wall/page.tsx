@@ -156,6 +156,19 @@ export default function WordWallPage() {
   const medMastery = words.filter(w => w.mastery >= 60 && w.mastery < 80)
   const lowMastery = words.filter(w => w.mastery < 60)
 
+  function exportCSV() {
+    const header = '"Word","Part of Speech","Definition","Example","Synonyms","Mastery %"'
+    const rows = words.map(w =>
+      [`"${w.word}"`, `"${w.partOfSpeech}"`, `"${w.definition.replace(/"/g,'""')}"`, `"${w.example.replace(/"/g,'""')}"`, `"${w.synonyms.join('; ')}"`, w.mastery].join(',')
+    )
+    const csv = [header, ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'word-wall.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Word wall exported as CSV!')
+  }
+
   function toggleStar(id: string) {
     const w = words.find(x => x.id === id)
     setWords(ws => ws.map(x => x.id === id ? { ...x, starred: !x.starred } : x))
@@ -213,7 +226,7 @@ export default function WordWallPage() {
               >
                 <Sparkles className="w-3.5 h-3.5" /> AI Add Words
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Exporting word wall…')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Share link copied!')}>
