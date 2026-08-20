@@ -9,7 +9,8 @@ import {
   Shield, MessageSquare, Calendar, HelpCircle, FileText, Bell,
   Library, Layout, Plug, Key, Menu, X, Map, CheckSquare, Award,
   Brain, BookMarked, ClipboardList, Target, Type, Newspaper, Gamepad2,
-  Layers, MessageCircle, FlaskConical, Pencil, ListChecks, Activity, GitBranch
+  Layers, MessageCircle, FlaskConical, Pencil, ListChecks, Activity, GitBranch,
+  LayoutGrid, TrendingUp
 } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 
@@ -46,6 +47,8 @@ const navItems = [
   { href: '/attendance',  icon: CheckSquare,     label: 'Attendance' },
   { href: '/curriculum',  icon: Map,            label: 'Curriculum' },
   { href: '/scope-sequence', icon: GitBranch,   label: 'Scope & Sequence' },
+  { href: '/unit-planner',   icon: LayoutGrid,  label: 'Unit Planner',    badge: 'AI' },
+  { href: '/learning-paths', icon: GitBranch,   label: 'Learning Paths',  badge: 'AI' },
   { href: '/blooms-taxonomy', icon: Layers,     label: "Bloom's Taxonomy", badge: 'AI' },
   { href: '/assessment-center', icon: ListChecks, label: 'Assessment Center' },
   { href: '/intervention-tracker', icon: Activity, label: 'Interventions' },
@@ -56,6 +59,8 @@ const navItems = [
   { href: '/report-cards', icon: FileText,     label: 'Report Cards', badge: 'AI' },
   { href: '/differentiation', icon: Brain,    label: 'Differentiation', badge: 'AI' },
   { href: '/accommodations', icon: Shield,    label: 'IEP/504' },
+  { href: '/iep-goals',      icon: Target,    label: 'IEP Goals',        badge: 'AI' },
+  { href: '/progress-monitor', icon: TrendingUp, label: 'Progress Monitor' },
   { href: '/professional-dev', icon: Award,     label: 'PD Courses' },
   { href: '/parent-portal', icon: Users,       label: 'Parent Portal' },
   { href: '/integrations', icon: Plug,          label: 'Integrations' },
