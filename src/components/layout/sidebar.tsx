@@ -70,7 +70,7 @@ const navItems = [
   { href: '/help',       icon: HelpCircle,      label: 'Help' },
 ]
 
-const teacher = { name: 'Alex Johnson', email: 'demo@teachweaver.ai' }
+const teacher = { name: 'Alex Johnson', email: 'demo@taleeko.ai' }
 
 function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
   return (
@@ -86,7 +86,7 @@ function SidebarContent({ pathname, onNavigate }: { pathname: string; onNavigate
             <GraduationCap className="w-[18px] h-[18px] text-white" />
           </motion.div>
           <div className="flex flex-col">
-            <span className="text-[15px] font-bold text-white tracking-tight">TeachWeaver</span>
+            <span className="text-[15px] font-bold text-white tracking-tight">TALEEKO</span>
             <span className="text-[10px] text-surface-500 font-medium tracking-wider uppercase">AI Platform</span>
           </div>
         </Link>

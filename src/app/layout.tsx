@@ -14,7 +14,7 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'TeachWeaver – AI Teaching Platform',
+  title: 'TALEEKO – AI Teaching Platform',
   description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes. Built for K-12 and higher-ed educators.',
   icons: {
     icon: [
@@ -23,14 +23,14 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   openGraph: {
-    title: 'TeachWeaver – AI Teaching Platform',
+    title: 'TALEEKO – AI Teaching Platform',
     description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes.',
-    siteName: 'TeachWeaver',
+    siteName: 'TALEEKO',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TeachWeaver – AI Teaching Platform',
+    title: 'TALEEKO – AI Teaching Platform',
     description: 'AI-powered lesson plans, quizzes, worksheets, and activities generated in minutes.',
   },
 }

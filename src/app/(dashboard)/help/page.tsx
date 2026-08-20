@@ -50,7 +50,7 @@ const faqs: { q: string; a: string; category: Category }[] = [
   { q: 'How does the Exit Ticket feature work?',     category: 'classroom',       a: 'Create an exit ticket from the Exit Tickets tool by selecting question types and entering your lesson\'s key concepts. Send it to students in real time, and see live responses and flagged misconceptions on your dashboard.' },
   { q: 'What is Differentiation AI?',               category: 'ai-tools',        a: 'Differentiation AI analyzes your class composition and generates tiered content, UDL-aligned adaptations, and accommodation suggestions for each learner profile — IEP, ELL, gifted, and on-grade level.' },
   { q: 'Can I set per-student goals?',               category: 'grading',         a: 'Yes. In the Students section, open a student profile and use the Goals tab to set reading/math targets, IEP milestones, or custom benchmarks. Progress is tracked automatically from graded activities.' },
-  { q: 'Does TeachWeaver support multiple languages?', category: 'account',       a: 'The platform UI supports English, Spanish, French, and Mandarin. AI-generated content can be translated into 10+ languages via the Translate button present on any generated document.' },
+  { q: 'Does TALEEKO support multiple languages?', category: 'account',       a: 'The platform UI supports English, Spanish, French, and Mandarin. AI-generated content can be translated into 10+ languages via the Translate button present on any generated document.' },
   { q: 'How do I generate a sub plan quickly?',      category: 'ai-tools',        a: 'Open Sub Plans, click New Plan, select a class period, and hit AI Generate. The AI creates a full substitute plan with activity instructions, timing, and classroom management notes in under 30 seconds.' },
 ]
 
@@ -97,7 +97,7 @@ const LEARNING_PATHS = [
   },
   {
     label: 'AI Mastery',   icon: Sparkles,     color: '#22d3ee', bg: 'from-electric-400/15 to-electric-500/5',
-    desc: 'Unlock the full power of TeachWeaver\'s AI tools.',
+    desc: 'Unlock the full power of TALEEKO\'s AI tools.',
     steps: ['Master Magic Chat', 'Build Agent Swarms', 'Set Up Differentiation AI', 'Automate Grading'],
     duration: '~45 min',
   },
@@ -121,7 +121,7 @@ const SHORTCUTS = [
 ]
 
 const HELPFUL_RESOURCES = [
-  { label: 'API Documentation',    icon: FileText,    color: '#6366f1', desc: 'Build on TeachWeaver' },
+  { label: 'API Documentation',    icon: FileText,    color: '#6366f1', desc: 'Build on TALEEKO' },
   { label: 'YouTube Channel',      icon: Play,        color: '#ef4444', desc: 'Video tutorials & demos' },
   { label: 'Community Forum',      icon: Users,       color: '#10b981', desc: '10k+ educators' },
   { label: 'Release Notes',        icon: TrendingUp,  color: '#f59e0b', desc: 'All platform updates' },
@@ -664,7 +664,7 @@ export default function HelpPage() {
             </p>
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <motion.a
-                href="mailto:support@teachweaver.ai"
+                href="mailto:support@taleeko.ai"
                 className="btn-gradient"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}

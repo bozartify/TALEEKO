@@ -98,7 +98,7 @@ export default function OnboardingPage() {
                 >
                   <Sparkles className="w-10 h-10 text-white" />
                 </motion.div>
-                <h1 className="text-4xl font-black text-gradient mb-4">Welcome to TeachWeaver</h1>
+                <h1 className="text-4xl font-black text-gradient mb-4">Welcome to TALEEKO</h1>
                 <p className="text-surface-400 text-lg max-w-md mx-auto mb-10 leading-relaxed">
                   Let's personalize your AI teaching assistant. This will only take a minute.
                 </p>
@@ -203,7 +203,7 @@ export default function OnboardingPage() {
             {step === 3 && (
               <div className="glass-card p-8">
                 <h2 className="text-2xl font-black text-white mb-2">AI Preferences</h2>
-                <p className="text-surface-400 text-sm mb-6">Customize how TeachWeaver communicates with you.</p>
+                <p className="text-surface-400 text-sm mb-6">Customize how TALEEKO communicates with you.</p>
                 <div className="space-y-6">
                   <div>
                     <label className="block text-xs font-semibold text-surface-200 mb-3">AI Tone</label>

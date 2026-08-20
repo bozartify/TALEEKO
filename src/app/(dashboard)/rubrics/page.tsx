@@ -866,7 +866,7 @@ export default function RubricsPage() {
                 <button onClick={() => setShareOpen(false)} className="text-surface-500 hover:text-surface-300"><X className="w-4 h-4" /></button>
               </div>
               <div className="flex items-center gap-2 p-3 rounded-xl bg-white/[0.04] border border-white/[0.08] mb-4">
-                <input readOnly value="https://teachweaver.ai/rubric/essay-writing-2024" className="flex-1 text-xs text-surface-300 bg-transparent outline-none" />
+                <input readOnly value="https://taleeko.ai/rubric/essay-writing-2024" className="flex-1 text-xs text-surface-300 bg-transparent outline-none" />
                 <motion.button className="text-accent-400 hover:text-accent-300 flex items-center gap-1 text-[11px] font-semibold flex-shrink-0" onClick={handleCopyLink} whileHover={{ scale: 1.05 }}>
                   {copiedLink ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Link2 className="w-3.5 h-3.5" />}
                   {copiedLink ? 'Copied!' : 'Copy'}

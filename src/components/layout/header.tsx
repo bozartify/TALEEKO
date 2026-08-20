@@ -45,6 +45,10 @@ const titles: Record<string, string> = {
   '/report-cards':   'Report Cards',
   '/differentiation': 'Differentiation',
   '/accommodations': 'IEP / 504 Plans',
+  '/iep-goals':       'IEP Goals',
+  '/progress-monitor': 'Progress Monitor',
+  '/unit-planner':    'Unit Planner',
+  '/learning-paths':  'Learning Paths',
   '/professional-dev': 'PD Courses',
   '/parent-portal':  'Parent Portal',
   '/integrations':   'Integrations',
@@ -68,7 +72,7 @@ const LANGUAGES = [
 
 export default function Header() {
   const pathname = usePathname()
-  const title = Object.entries(titles).find(([key]) => pathname.startsWith(key))?.[1] ?? 'TeachWeaver'
+  const title = Object.entries(titles).find(([key]) => pathname.startsWith(key))?.[1] ?? 'TALEEKO'
 
   const [lang, setLang] = useState(LANGUAGES[0])
   const [open, setOpen] = useState(false)
@@ -85,15 +89,15 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-2">
-        {/* Search */}
-        <div className="relative hidden sm:block">
-          <Search className="w-4 h-4 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search..."
-            className="pl-9 pr-4 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:border-accent-500/40 focus:ring-1 focus:ring-accent-500/20 w-48 transition-all"
-          />
-        </div>
+        {/* Search / ⌘K trigger */}
+        <button
+          onClick={() => { const ev = new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }); window.dispatchEvent(ev) }}
+          className="relative hidden sm:flex items-center gap-2 pl-3 pr-2 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-500 hover:bg-white/[0.06] hover:border-white/[0.12] transition-all w-48 cursor-text"
+        >
+          <Search className="w-4 h-4 flex-shrink-0" />
+          <span className="flex-1 text-left">Search...</span>
+          <kbd className="text-[10px] bg-surface-800 border border-white/[0.08] rounded px-1 py-0.5 font-mono">⌘K</kbd>
+        </button>
 
         {/* Notifications */}
         <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-surface-400 hover:text-surface-200 hover:bg-white/[0.04] transition-colors">

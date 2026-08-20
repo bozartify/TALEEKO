@@ -89,7 +89,7 @@ export default function LoginPage() {
             >
               <GraduationCap className="w-6 h-6 text-white" />
             </motion.div>
-            <span className="text-2xl font-black text-white">TeachWeaver</span>
+            <span className="text-2xl font-black text-white">TALEEKO</span>
           </motion.div>
 
           <motion.h1
@@ -180,7 +180,7 @@ export default function LoginPage() {
               <div className="w-10 h-10 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-black text-white">TeachWeaver</span>
+              <span className="text-xl font-black text-white">TALEEKO</span>
             </Link>
             <p className="text-surface-400 text-sm mt-2">Your AI-powered teaching assistant</p>
           </div>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                 <input
                   type="email"
                   name="email"
-                  defaultValue="demo@teachweaver.ai"
+                  defaultValue="demo@taleeko.ai"
                   className="input-base"
                   placeholder="you@school.edu"
                   required

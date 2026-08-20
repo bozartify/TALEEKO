@@ -71,7 +71,7 @@ const integrations: Integration[] = [
     ],
     setupSteps: [
       'Navigate to Canvas Admin settings',
-      'Add TeachWeaver as an external app',
+      'Add TALEEKO as an external app',
       'Paste the provided API key',
       'Map courses and enable sync',
     ],
@@ -93,7 +93,7 @@ const integrations: Integration[] = [
     setupSteps: [
       'Request API access from your district',
       'Enter your PowerSchool plugin credentials',
-      'Map data fields to TeachWeaver',
+      'Map data fields to TALEEKO',
       'Test with a single school before rollout',
     ],
   },
@@ -114,7 +114,7 @@ const integrations: Integration[] = [
       'Custom notification rules',
     ],
     setupSteps: [
-      'Install the TeachWeaver Slack app',
+      'Install the TALEEKO Slack app',
       'Authorize workspace access',
       'Choose notification channels',
       'Set alert preferences and schedules',
@@ -189,7 +189,7 @@ const integrations: Integration[] = [
     id: 'ms-teams',
     name: 'Microsoft Teams',
     category: 'Communication',
-    description: 'Integrate with Teams for video calls and collaboration channels. Embed TeachWeaver directly in your Teams workflow.',
+    description: 'Integrate with Teams for video calls and collaboration channels. Embed TALEEKO directly in your Teams workflow.',
     status: 'not_connected',
     color: '#6264a7',
     icon: Video,
@@ -202,7 +202,7 @@ const integrations: Integration[] = [
     setupSteps: [
       'Install from Teams App Store',
       'Authorize organization access',
-      'Add TeachWeaver tabs to channels',
+      'Add TALEEKO tabs to channels',
       'Configure bot permissions',
     ],
   },
@@ -222,7 +222,7 @@ const integrations: Integration[] = [
     ],
     setupSteps: [
       'Contact your Clever district admin',
-      'Approve TeachWeaver in Clever portal',
+      'Approve TALEEKO in Clever portal',
       'Map student and teacher records',
       'Enable SSO for your organization',
     ],

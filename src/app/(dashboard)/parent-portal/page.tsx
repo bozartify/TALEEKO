@@ -835,7 +835,7 @@ export default function ParentPortalPage() {
                   <label className="text-[10px] text-surface-500 block mb-1.5">Portal link for Emma Wilson</label>
                   <div className="flex gap-2">
                     <div className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[11px] text-surface-400 truncate">
-                      https://teachweaver.ai/portal/ew92abc...
+                      https://taleeko.ai/portal/ew92abc...
                     </div>
                     <motion.button
                       className="px-3 py-2 rounded-lg text-xs font-semibold transition-colors"

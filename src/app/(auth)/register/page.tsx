@@ -45,7 +45,7 @@ export default function RegisterPage() {
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-black text-white">TeachWeaver</span>
+            <span className="text-xl font-black text-white">TALEEKO</span>
           </Link>
           <h1 className="text-2xl font-black text-white mb-2">Create your account</h1>
           <p className="text-sm text-surface-400">Join 10,000+ educators using AI to transform teaching</p>

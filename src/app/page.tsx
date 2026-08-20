@@ -17,7 +17,7 @@ const tools = [
 ]
 
 const stats = [
-  { value: '10,000+', label: 'Teachers using TeachWeaver' },
+  { value: '10,000+', label: 'Teachers using TALEEKO' },
   { value: '50+',     label: 'AI-powered tools' },
   { value: '3 min',   label: 'Average lesson plan time' },
   { value: '4.9',     label: 'Teacher satisfaction' },
@@ -63,7 +63,7 @@ const testimonials = [
     school: 'Oakdale Preparatory',
     initials: 'DC',
     gradient: 'from-purple-500 to-indigo-500',
-    quote: 'I was skeptical about AI in education, but TeachWeaver understands pedagogy. The worksheet generator creates rigorous, standards-aligned materials every time.',
+    quote: 'I was skeptical about AI in education, but TALEEKO understands pedagogy. The worksheet generator creates rigorous, standards-aligned materials every time.',
   },
   {
     name: 'Priya Sharma',
@@ -116,7 +116,7 @@ export default function LandingPage() {
             <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
               <GraduationCap className="w-[18px] h-[18px] text-white" />
             </div>
-            <span className="text-[15px] font-bold text-white tracking-tight">TeachWeaver</span>
+            <span className="text-[15px] font-bold text-white tracking-tight">TALEEKO</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-surface-400">
             <a href="#tools" className="hover:text-white transition-colors">Tools</a>
@@ -155,7 +155,7 @@ export default function LandingPage() {
 
           <FadeUp delay={0.3}>
             <p className="text-xl text-surface-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-              TeachWeaver uses AI to generate lesson plans, quizzes, worksheets, and activities in minutes. Built for teachers, by people who love education.
+              TALEEKO uses AI to generate lesson plans, quizzes, worksheets, and activities in minutes. Built for teachers, by people who love education.
             </p>
           </FadeUp>
 
@@ -213,7 +213,7 @@ export default function LandingPage() {
               },
               {
                 step: '02', icon: '⚡', title: 'AI generates in seconds',
-                desc: 'TeachWeaver creates a complete, standards-aligned lesson plan, quiz, or worksheet tailored to your grade and subject.',
+                desc: 'TALEEKO creates a complete, standards-aligned lesson plan, quiz, or worksheet tailored to your grade and subject.',
                 color: '#8b5cf6',
               },
               {
@@ -278,7 +278,7 @@ export default function LandingPage() {
           <FadeInWhenVisible>
             <h2 className="text-4xl font-black text-white mb-6">Save 5+ hours<br />every week</h2>
             <p className="text-lg text-surface-400 mb-8">
-              TeachWeaver handles the planning so you can focus on what matters most — your students.
+              TALEEKO handles the planning so you can focus on what matters most — your students.
             </p>
             <ul className="space-y-3">
               {features.map((f, i) => (
@@ -355,7 +355,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto relative">
           <FadeInWhenVisible className="text-center mb-14">
             <h2 className="text-4xl font-black text-white mb-4">Loved by teachers everywhere</h2>
-            <p className="text-lg text-surface-400">See what educators are saying about TeachWeaver</p>
+            <p className="text-lg text-surface-400">See what educators are saying about TALEEKO</p>
           </FadeInWhenVisible>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {testimonials.map((t, i) => (
@@ -405,7 +405,7 @@ export default function LandingPage() {
                 <GraduationCap className="w-7 h-7 text-white" />
               </motion.div>
               <h2 className="text-4xl font-black text-white mb-4">Ready to teach smarter?</h2>
-              <p className="text-lg text-surface-400 mb-8">Join thousands of educators saving time with TeachWeaver</p>
+              <p className="text-lg text-surface-400 mb-8">Join thousands of educators saving time with TALEEKO</p>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} className="inline-block">
                 <Link href="/dashboard" className="btn-gradient text-base px-8 py-4">
                   <Sparkles className="w-4 h-4" />
@@ -430,7 +430,7 @@ export default function LandingPage() {
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #a78bfa)' }}>
                   <GraduationCap className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-sm font-bold text-white">TeachWeaver</span>
+                <span className="text-sm font-bold text-white">TALEEKO</span>
               </div>
               <p className="text-xs text-surface-500 leading-relaxed">AI-powered tools that help teachers save time and teach better.</p>
             </div>
@@ -450,7 +450,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="border-t border-white/[0.06] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-surface-500">&copy; 2026 TeachWeaver. Built for educators everywhere.</p>
+            <p className="text-xs text-surface-500">&copy; 2026 TALEEKO. Built for educators everywhere.</p>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((i) => (
                 <Star key={i} className="w-3 h-3 text-warning-400 fill-warning-400" />

@@ -18,7 +18,7 @@ export default function RootLoading() {
         <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent-500 to-electric-400 animate-ping opacity-20" />
       </div>
       <p className="mt-6 text-surface-400 text-sm font-medium animate-pulse">
-        TeachWeaver
+        TALEEKO
       </p>
     </div>
   )

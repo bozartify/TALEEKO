@@ -564,7 +564,7 @@ export default function NewsletterPage() {
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f97316, #ef4444)' }}>
                       <Newspaper className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-lg font-bold text-white">TeachWeaver Classroom</span>
+                    <span className="text-lg font-bold text-white">TALEEKO Classroom</span>
                   </div>
                   <h2 className="text-xl font-bold text-surface-100 mt-2">{templateConfig[template].label}</h2>
                   <p className="text-sm text-surface-400 mt-1">{className} · {dateRange}</p>
@@ -591,7 +591,7 @@ export default function NewsletterPage() {
                     )
                   })}
                   <div className="text-center text-xs text-surface-600 pt-2">
-                    Sent with TeachWeaver · {className} · {dateRange}
+                    Sent with TALEEKO · {className} · {dateRange}
                   </div>
                 </div>
               </div>

@@ -107,7 +107,7 @@ export default function PricingPage() {
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
               <GraduationCap className="w-4 h-4 text-white" />
             </div>
-            <span className="font-black text-white text-lg">TeachWeaver</span>
+            <span className="font-black text-white text-lg">TALEEKO</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link href="/login" className="btn-secondary text-xs px-4 py-2">Sign In</Link>
@@ -225,7 +225,7 @@ export default function PricingPage() {
           viewport={{ once: true }}
         >
           <h2 className="text-2xl font-black text-white text-center mb-3">Everything you need to teach smarter</h2>
-          <p className="text-center text-surface-400 text-sm mb-10 max-w-xl mx-auto">Every plan includes the core features that make TeachWeaver the most powerful AI teaching platform.</p>
+          <p className="text-center text-surface-400 text-sm mb-10 max-w-xl mx-auto">Every plan includes the core features that make TALEEKO the most powerful AI teaching platform.</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: Bot, label: 'AI Agent Swarm', desc: 'Autonomous agents that work while you sleep', color: '#6366f1' },

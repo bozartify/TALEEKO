@@ -11,11 +11,11 @@ export async function POST(request: Request) {
     }
 
     // Demo mode: accept any email with password "demo" or "demo123",
-    // or email "demo@teachweaver.ai" with any password
+    // or email "demo@taleeko.ai" with any password
     const isDemoLogin =
       password === 'demo' ||
       password === 'demo123' ||
-      email === 'demo@teachweaver.ai'
+      email === 'demo@taleeko.ai'
 
     if (!isDemoLogin) {
       return NextResponse.json(
@@ -28,8 +28,8 @@ export async function POST(request: Request) {
     let user = await prisma.user.findUnique({ where: { email } })
 
     if (!user) {
-      // For demo@teachweaver.ai, use the known demo teacher ID
-      const id = email === 'demo@teachweaver.ai' ? DEMO_TEACHER_ID : undefined
+      // For demo@taleeko.ai, use the known demo teacher ID
+      const id = email === 'demo@taleeko.ai' ? DEMO_TEACHER_ID : undefined
       const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
 
       user = await prisma.user.upsert({

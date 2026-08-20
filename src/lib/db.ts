@@ -18,7 +18,7 @@ export async function ensureDemoTeacher() {
     update: {},
     create: {
       id: DEMO_TEACHER_ID,
-      email: 'demo@teachweaver.ai',
+      email: 'demo@taleeko.ai',
       name: 'Alex Johnson',
       role: 'teacher',
     },

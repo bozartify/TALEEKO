@@ -235,7 +235,7 @@ export default function ChatInterface() {
             value={input}
             onChange={e => { setInput(e.target.value); autoResize() }}
             onKeyDown={handleKeyDown}
-            placeholder={`Ask TeachWeaver AI anything${mode !== 'general' ? ` (${mode} mode)` : ''}...`}
+            placeholder={`Ask TALEEKO AI anything${mode !== 'general' ? ` (${mode} mode)` : ''}...`}
             className="flex-1 bg-transparent text-sm text-surface-200 placeholder:text-surface-500 resize-none focus:outline-none px-2 py-1 min-h-[36px] max-h-40"
             rows={1}
           />

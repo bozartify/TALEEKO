@@ -1150,7 +1150,7 @@ export default function DifferentiationPage() {
                   <label className="text-[10px] text-surface-500 block mb-1.5">Share link</label>
                   <div className="flex gap-2">
                     <div className="flex-1 bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-[11px] text-surface-400 truncate">
-                      https://teachweaver.ai/adapt/ph7g2k...
+                      https://taleeko.ai/adapt/ph7g2k...
                     </div>
                     <motion.button
                       className="px-3 py-2 rounded-lg text-xs font-semibold transition-colors"
@@ -1164,7 +1164,7 @@ export default function DifferentiationPage() {
                 </div>
                 <div className="space-y-2">
                   {[
-                    { label: 'Share with Co-Teacher', icon: Users2, desc: 'Send via TeachWeaver messaging' },
+                    { label: 'Share with Co-Teacher', icon: Users2, desc: 'Send via TALEEKO messaging' },
                     { label: 'Google Classroom', icon: ExternalLink, desc: 'Post to your class stream' },
                     { label: 'Email Parents', icon: MessageSquare, desc: 'Send accommodation summary' },
                   ].map(opt => (
