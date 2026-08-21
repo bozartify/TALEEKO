@@ -45,7 +45,7 @@ interface Unit {
   assessments: string[]
 }
 
-const units: Unit[] = [
+const initialUnits: Unit[] = [
   {
     id: '1',
     title: 'Cell Biology & Organization',
@@ -231,18 +231,31 @@ const standardsCoverage = [
 ]
 
 export default function CurriculumPage() {
+  const [units, setUnits] = useState<Unit[]>(initialUnits)
   const [expandedUnit, setExpandedUnit] = useState<string | null>('2')
   const [view, setView] = useState<ViewMode>('list')
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null)
   const [showLessons, setShowLessons] = useState<Record<string, boolean>>({})
   const [timelineMonth, setTimelineMonth] = useState(0)
+  const [showAlert, setShowAlert] = useState(true)
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  function deleteUnit(id: string) {
+    setUnits(prev => prev.filter(u => u.id !== id))
+    showToast('Unit deleted')
+  }
+
+  function duplicateUnit(unit: Unit) {
+    const copy: Unit = { ...unit, id: `${unit.id}-${Date.now()}`, title: `${unit.title} (Copy)`, status: 'draft', progress: 0 }
+    setUnits(prev => [...prev, copy])
+    showToast(`"${unit.title}" duplicated`)
+  }
 
   const totalLessons = units.reduce((acc, u) => acc + u.lessons, 0)
   const totalStandards = units.reduce((acc, u) => acc + u.standards, 0)
   const completedLessons = units.flatMap(u => u.lessonList).filter(l => l.completed).length
-  const overallProgress = Math.round(units.reduce((acc, u) => acc + u.progress, 0) / units.length)
+  const overallProgress = units.length ? Math.round(units.reduce((acc, u) => acc + u.progress, 0) / units.length) : 0
 
   function toggleLessons(unitId: string) {
     setShowLessons(prev => ({ ...prev, [unitId]: !prev[unitId] }))
@@ -349,7 +362,7 @@ export default function CurriculumPage() {
       </FadeUp>
 
       {/* AI Pacing Alert */}
-      <FadeUp delay={0.08}>
+      {showAlert && <FadeUp delay={0.08}>
         <div className="glass-card p-4 border border-warning-500/20">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 bg-warning-500/20">
@@ -364,16 +377,16 @@ export default function CurriculumPage() {
                 Unit 2 (Genetics & Heredity) is running <span className="text-warning-400 font-semibold">3 days behind schedule</span>. At the current pace, the Evolution unit may need compression by 2 days. Recommended: skip the optional Biotechnology extension lab, or move it to the enrichment track.
               </p>
               <div className="flex items-center gap-3 mt-2">
-                <motion.button className="btn-gradient text-[10px] px-2.5 py-1" whileHover={{ scale: 1.02 }}>
+                <motion.button className="btn-gradient text-[10px] px-2.5 py-1" whileHover={{ scale: 1.02 }} onClick={() => showToast('Pacing auto-adjusted across all upcoming units')}>
                   <Zap className="w-2.5 h-2.5" /> Auto-Adjust Pacing
                 </motion.button>
-                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold">View alternatives</button>
-                <button className="text-xs text-surface-500 hover:text-surface-300 ml-auto">Dismiss</button>
+                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold" onClick={() => showToast('Showing 3 pacing alternatives')}>View alternatives</button>
+                <button className="text-xs text-surface-500 hover:text-surface-300 ml-auto" onClick={() => setShowAlert(false)}>Dismiss</button>
               </div>
             </div>
           </div>
         </div>
-      </FadeUp>
+      </FadeUp>}
 
       {/* Year Overview */}
       <FadeUp delay={0.1}>
@@ -647,13 +660,14 @@ export default function CurriculumPage() {
                               className="btn-gradient text-xs"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
+                              onClick={() => showToast(`Generating lessons for "${unit.title}"…`)}
                             >
                               <Sparkles className="w-3 h-3" /> Generate Lessons
                             </motion.button>
-                            <button className="btn-secondary text-xs px-3 py-1.5"><Eye className="w-3 h-3" /> Preview</button>
-                            <button className="btn-secondary text-xs px-3 py-1.5"><Edit3 className="w-3 h-3" /> Edit</button>
-                            <button className="btn-secondary text-xs px-3 py-1.5"><Copy className="w-3 h-3" /> Duplicate</button>
-                            <button className="btn-secondary text-xs px-3 py-1.5 ml-auto text-danger-400 hover:bg-danger-400/10">
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${unit.title}"…`)}><Eye className="w-3 h-3" /> Preview</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening "${unit.title}" in editor…`)}><Edit3 className="w-3 h-3" /> Edit</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => duplicateUnit(unit)}><Copy className="w-3 h-3" /> Duplicate</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5 ml-auto text-danger-400 hover:bg-danger-400/10" onClick={() => deleteUnit(unit.id)}>
                               <X className="w-3 h-3" />
                             </button>
                           </div>
@@ -671,6 +685,7 @@ export default function CurriculumPage() {
             className="w-full glass-card p-4 border-2 border-dashed border-white/[0.08] hover:border-accent-500/30 flex items-center justify-center gap-2 text-surface-500 hover:text-white transition-all"
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
+            onClick={() => showToast('New unit added!')}
           >
             <Plus className="w-4 h-4" />
             <span className="text-sm font-semibold">Add New Unit</span>
@@ -815,6 +830,7 @@ export default function CurriculumPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
                     whileHover={{ x: 2 }}
+                    onClick={() => showToast(`Running: ${tool.label}…`)}
                   >
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: tool.color + '20' }}>
                       <tool.icon className="w-3.5 h-3.5" style={{ color: tool.color }} />

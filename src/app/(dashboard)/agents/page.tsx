@@ -137,6 +137,8 @@ export default function AgentsPage() {
   const [agentTab, setAgentTab] = useState<AgentTab>('swarm')
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null)
   const [showDeploy, setShowDeploy] = useState(false)
+  const [deployAutonomy, setDeployAutonomy] = useState<Autonomy>('semi')
+  const [deployTask, setDeployTask] = useState('')
   const [toastMsg, setToastMsg] = useState('')
 
   function showToast(msg: string) {
@@ -544,7 +546,17 @@ export default function AgentsPage() {
                     className="w-full btn-gradient text-xs"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => showToast(`${tmpl.name} agent deployed`)}
+                    onClick={() => {
+                      const newAgent: Agent = {
+                        id: `a${Date.now()}`, name: tmpl.name, role: `${tmpl.category} · Template`,
+                        icon: tmpl.icon, color: tmpl.color, status: 'running',
+                        task: tmpl.desc, progress: 0, autonomy: 'semi', tasksDone: 0,
+                        timeSaved: '0h', accuracy: 0, lastActive: 'now', capabilities: [tmpl.category],
+                      }
+                      setAgents(prev => [...prev, newAgent])
+                      setAgentTab('swarm')
+                      showToast(`${tmpl.name} agent deployed to swarm`)
+                    }}
                   >
                     <Play className="w-3 h-3" /> Deploy
                   </motion.button>
@@ -701,8 +713,8 @@ export default function AgentsPage() {
                   <label className="text-xs text-surface-400 mb-1 block">Autonomy Level</label>
                   <div className="flex gap-2">
                     {(['supervised', 'semi', 'autonomous'] as Autonomy[]).map(lvl => (
-                      <button key={lvl} className={`flex-1 text-[10px] py-2 rounded-xl border transition-colors capitalize font-semibold ${
-                        lvl === 'semi' ? 'bg-electric-400/15 border-electric-400/30 text-electric-400' : 'border-white/[0.08] text-surface-400 hover:border-white/[0.15]'
+                      <button key={lvl} onClick={() => setDeployAutonomy(lvl)} className={`flex-1 text-[10px] py-2 rounded-xl border transition-colors capitalize font-semibold ${
+                        lvl === deployAutonomy ? 'bg-electric-400/15 border-electric-400/30 text-electric-400' : 'border-white/[0.08] text-surface-400 hover:border-white/[0.15]'
                       }`}>
                         {lvl === 'supervised' ? 'Human-in-loop' : lvl === 'semi' ? 'Semi-auto' : 'Autonomous'}
                       </button>
@@ -711,13 +723,26 @@ export default function AgentsPage() {
                 </div>
                 <div>
                   <label className="text-xs text-surface-400 mb-1 block">Task Description</label>
-                  <textarea rows={2} placeholder="What should this agent do?" className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50 resize-none" />
+                  <textarea rows={2} value={deployTask} onChange={e => setDeployTask(e.target.value)} placeholder="What should this agent do?" className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-white placeholder:text-surface-500 focus:outline-none focus:border-accent-500/50 resize-none" />
                 </div>
                 <motion.button
                   className="btn-gradient text-xs w-full"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => { showToast('New agent deployed to swarm'); setShowDeploy(false) }}
+                  onClick={() => {
+                    const newAgent: Agent = {
+                      id: `a${Date.now()}`, name: 'Custom Agent', role: 'Custom · User-defined',
+                      icon: Bot, color: '#6366f1', status: 'running',
+                      task: deployTask.trim() || 'Awaiting instructions…', progress: 0,
+                      autonomy: deployAutonomy, tasksDone: 0, timeSaved: '0h', accuracy: 0, lastActive: 'now',
+                      capabilities: ['Custom task'],
+                    }
+                    setAgents(prev => [...prev, newAgent])
+                    showToast('New agent deployed to swarm')
+                    setShowDeploy(false)
+                    setDeployTask('')
+                    setDeployAutonomy('semi')
+                  }}
                 >
                   <Sparkles className="w-3.5 h-3.5" /> Deploy Agent
                 </motion.button>

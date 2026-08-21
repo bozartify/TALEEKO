@@ -186,6 +186,9 @@ export default function PortfolioPage() {
   const [newGoal, setNewGoal] = useState('')
   const [goalsDone, setGoalsDone] = useState<Record<string, boolean>>({})
   const [noteOpen, setNoteOpen] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [extraGoals, setExtraGoals] = useState<Record<string, string[]>>({})
+  const [awardedBadges, setAwardedBadges] = useState<Record<string, { title: string; date: string; icon: string }[]>>({})
   const [toastMsg, setToastMsg] = useState('')
 
   function showToast(msg: string) {
@@ -372,10 +375,13 @@ export default function PortfolioPage() {
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                       <div className="mt-3 pt-3 border-t border-white/[0.06]">
                         <p className="text-xs text-surface-500 mb-2 italic">Current note: &ldquo;{selectedStudent.notes}&rdquo;</p>
-                        <textarea rows={2} placeholder="Add a new note..." className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none" />
+                        <textarea rows={2} placeholder="Add a new note..." value={noteText} onChange={e => setNoteText(e.target.value)} className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none" />
                         <div className="flex gap-2 mt-2">
-                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setNoteOpen(false)}>Cancel</button>
-                          <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { showToast('Note saved successfully'); setNoteOpen(false) }}><Check className="w-3 h-3" /> Save Note</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setNoteOpen(false); setNoteText('') }}>Cancel</button>
+                          <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => {
+                            if (noteText.trim()) showToast(`Note saved: "${noteText.trim().slice(0, 40)}${noteText.length > 40 ? '…' : ''}"`)
+                            setNoteOpen(false); setNoteText('')
+                          }}><Check className="w-3 h-3" /> Save Note</button>
                         </div>
                       </div>
                     </motion.div>
@@ -474,14 +480,20 @@ export default function PortfolioPage() {
                                 onChange={e => setNewGoal(e.target.value)}
                                 className="flex-1 text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent-500"
                               />
-                              <button className="btn-gradient text-xs px-3" onClick={() => { setNewGoal(''); setAddGoalOpen(false) }}>Add</button>
+                              <button className="btn-gradient text-xs px-3" onClick={() => {
+                                if (newGoal.trim()) {
+                                  setExtraGoals(prev => ({ ...prev, [selectedStudent.id]: [...(prev[selectedStudent.id] ?? []), newGoal.trim()] }))
+                                  showToast(`Goal added for ${selectedStudent.name.split(' ')[0]}`)
+                                }
+                                setNewGoal(''); setAddGoalOpen(false)
+                              }}>Add</button>
                             </div>
                           </motion.div>
                         )}
                       </AnimatePresence>
                       <div className="space-y-2.5">
-                        {selectedStudent.goals.map((goal, i) => (
-                          <motion.div key={goal.text} className="flex items-center gap-3" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
+                        {[...selectedStudent.goals, ...(extraGoals[selectedStudent.id] ?? []).map(t => ({ text: t, done: false }))].map((goal, i) => (
+                          <motion.div key={`${goal.text}-${i}`} className="flex items-center gap-3" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }}>
                             <button
                               onClick={() => toggleGoal(selectedStudent.id, i)}
                               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${getGoalDone(selectedStudent.id, i) ? 'bg-success-400 border-success-400' : 'border-white/[0.20] hover:border-success-400'}`}
@@ -694,7 +706,9 @@ export default function PortfolioPage() {
                         <h4 className="text-sm font-bold text-white flex items-center gap-2"><Trophy className="w-4 h-4 text-warning-400" /> Earned Achievements</h4>
                         <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Badge awarded to ${selectedStudent.name}`)}><Plus className="w-3 h-3" /> Award Badge</button>
                       </div>
-                      {selectedStudent.achievements.length === 0 ? (
+                      {(() => {
+                        const allAch = [...selectedStudent.achievements, ...(awardedBadges[selectedStudent.id] ?? [])]
+                        return allAch.length === 0 ? (
                         <div className="text-center py-8">
                           <Trophy className="w-8 h-8 text-surface-600 mx-auto mb-3" />
                           <p className="text-sm font-semibold text-surface-400">No achievements yet</p>
@@ -703,7 +717,7 @@ export default function PortfolioPage() {
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {selectedStudent.achievements.map((ach, i) => (
+                          {allAch.map((ach, i) => (
                             <motion.div
                               key={ach.title}
                               className="flex items-center gap-3 p-4 rounded-2xl bg-warning-500/10 border border-warning-500/20"
@@ -720,7 +734,8 @@ export default function PortfolioPage() {
                             </motion.div>
                           ))}
                         </div>
-                      )}
+                      )
+                      })()}
                     </div>
                     {/* Available badges */}
                     <div className="glass-card p-5">
@@ -741,7 +756,11 @@ export default function PortfolioPage() {
                             className="glass-card p-3 text-center hover:border-warning-400/30 transition-all group"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => showToast(`"${b.label}" badge awarded to ${selectedStudent.name}`)}
+                            onClick={() => {
+                            const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                            setAwardedBadges(prev => ({ ...prev, [selectedStudent.id]: [...(prev[selectedStudent.id] ?? []), { title: b.label, icon: b.icon, date: today }] }))
+                            showToast(`"${b.label}" badge awarded to ${selectedStudent.name}`)
+                          }}
                           >
                             <span className="text-2xl block mb-1">{b.icon}</span>
                             <p className="text-[9px] text-surface-400 group-hover:text-white transition-colors">{b.label}</p>
