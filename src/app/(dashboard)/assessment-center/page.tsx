@@ -141,6 +141,10 @@ export default function AssessmentCenterPage() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiInsight, setAiInsight] = useState('')
   const [toastMsg, setToastMsg] = useState('')
+  const [aiSubject, setAiSubject] = useState('Science')
+  const [aiAssessType, setAiAssessType] = useState('Quiz (10 questions)')
+  const [aiStandard, setAiStandard] = useState('MS-LS1-1')
+  const [aiDifficulty, setAiDifficulty] = useState('Mixed (DOK 1–3)')
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -680,7 +684,7 @@ export default function AssessmentCenterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                 <div>
                   <label className="block text-xs font-semibold text-surface-200 mb-1.5">Subject</label>
-                  <select className="input-base text-sm">
+                  <select value={aiSubject} onChange={e => setAiSubject(e.target.value)} className="input-base text-sm">
                     <option>Science</option>
                     <option>Math</option>
                     <option>ELA</option>
@@ -689,7 +693,7 @@ export default function AssessmentCenterPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-surface-200 mb-1.5">Assessment Type</label>
-                  <select className="input-base text-sm">
+                  <select value={aiAssessType} onChange={e => setAiAssessType(e.target.value)} className="input-base text-sm">
                     <option>Quiz (10 questions)</option>
                     <option>Test (25 questions)</option>
                     <option>Exit Ticket (3 questions)</option>
@@ -698,11 +702,11 @@ export default function AssessmentCenterPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-surface-200 mb-1.5">Standard(s)</label>
-                  <input className="input-base text-sm" placeholder="e.g. MS-LS1-1, MS-LS1-2" defaultValue="MS-LS1-1" />
+                  <input value={aiStandard} onChange={e => setAiStandard(e.target.value)} className="input-base text-sm" placeholder="e.g. MS-LS1-1, MS-LS1-2" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-surface-200 mb-1.5">Difficulty</label>
-                  <select className="input-base text-sm">
+                  <select value={aiDifficulty} onChange={e => setAiDifficulty(e.target.value)} className="input-base text-sm">
                     <option>Mixed (DOK 1–3)</option>
                     <option>Foundational (DOK 1)</option>
                     <option>Application (DOK 2)</option>
@@ -711,7 +715,7 @@ export default function AssessmentCenterPage() {
                 </div>
               </div>
               <button
-                onClick={() => showToast('Generating assessment… check your Quiz Builder')}
+                onClick={() => showToast(`Generating ${aiAssessType} for ${aiSubject} — check your Quiz Builder`)}
                 className="btn-gradient text-sm w-full justify-center flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" /> Generate Assessment

@@ -160,6 +160,10 @@ export default function AccommodationsPage() {
   const [noteText, setNoteText]               = useState('')
   const [notes, setNotes]                     = useState<Record<string, string>>({})
   const [meetingModal, setMeetingModal]       = useState<Student | null>(null)
+  const [meetingType, setMeetingType]         = useState('Annual Review')
+  const [meetingDate, setMeetingDateField]    = useState('')
+  const [meetingTime, setMeetingTime]         = useState('09:00')
+  const [meetingEmail, setMeetingEmail]       = useState('')
   const [addModal, setAddModal]               = useState(false)
   const [newAcc, setNewAcc]                   = useState({ student: '', label: '' })
   const [accStates, setAccStates]             = useState<Record<string, boolean>>({})
@@ -454,7 +458,7 @@ export default function AccommodationsPage() {
                                 <Edit className="w-3.5 h-3.5" /> Log Note
                               </button>
                               <button
-                                onClick={() => setMeetingModal(student)}
+                                onClick={() => { setMeetingModal(student); setMeetingEmail(student.parentEmail); setMeetingTime('09:00'); setMeetingDateField('') }}
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all"
                               >
                                 <Calendar className="w-3.5 h-3.5" /> Schedule Meeting
@@ -694,7 +698,7 @@ export default function AccommodationsPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-[11px] text-surface-500 block mb-1">Meeting Type</label>
-                    <select className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40">
+                    <select value={meetingType} onChange={e => setMeetingType(e.target.value)} className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40">
                       <option>Annual Review</option>
                       <option>Re-evaluation</option>
                       <option>IEP Team Meeting</option>
@@ -711,16 +715,16 @@ export default function AccommodationsPage() {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="text-[11px] text-surface-500 block mb-1">Date</label>
-                    <input type="date" className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
+                    <input type="date" value={meetingDate} onChange={e => setMeetingDateField(e.target.value)} className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
                   </div>
                   <div>
                     <label className="text-[11px] text-surface-500 block mb-1">Time</label>
-                    <input type="time" defaultValue="09:00" className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
+                    <input type="time" value={meetingTime} onChange={e => setMeetingTime(e.target.value)} className="w-full px-2.5 py-1.5 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
                   </div>
                 </div>
                 <div>
                   <label className="text-[11px] text-surface-500 block mb-1">Notify (email)</label>
-                  <input type="email" defaultValue={meetingModal.parentEmail} className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
+                  <input type="email" value={meetingEmail} onChange={e => setMeetingEmail(e.target.value)} className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40" />
                 </div>
               </div>
               <div className="flex justify-end gap-2 mt-4">
