@@ -184,6 +184,7 @@ export default function CommunicationPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkToast, setBulkToast] = useState(false)
   const [conversations, setConversations] = useState(CONVERSATIONS)
+  const [selectedTemplate, setSelectedTemplate] = useState('')
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
   const messageEndRef = useRef<HTMLDivElement>(null)
@@ -782,9 +783,9 @@ export default function CommunicationPage() {
                           Translate
                         </motion.button>
                       )}
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><Phone className="w-4 h-4" /></button>
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><Video className="w-4 h-4" /></button>
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Starting phone call…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><Phone className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Starting video call…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><Video className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('More options…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500"><MoreHorizontal className="w-4 h-4" /></button>
                     </div>
                   </div>
 
@@ -881,7 +882,7 @@ export default function CommunicationPage() {
                         onKeyDown={e => e.key === 'Enter' && sendReply()}
                         className="flex-1 px-4 py-2.5 text-sm rounded-full border border-white/[0.08] bg-white/[0.04] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
                       />
-                      <button className="p-2.5 rounded-full text-surface-500 hover:text-surface-200 hover:bg-white/[0.06]"><Paperclip className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Attach file…')} className="p-2.5 rounded-full text-surface-500 hover:text-surface-200 hover:bg-white/[0.06]"><Paperclip className="w-4 h-4" /></button>
                       <motion.button
                         className={`p-2.5 rounded-full transition-colors ${aiDraft ? 'text-accent-400 bg-accent-500/10' : 'text-surface-500 hover:text-accent-400 hover:bg-accent-500/10'}`}
                         title="AI Draft"
@@ -962,8 +963,10 @@ export default function CommunicationPage() {
                     <div>
                       <label className="block text-xs font-semibold text-surface-300 mb-1.5">Use Template</label>
                       <select
+                        value={selectedTemplate}
                         className="w-full px-3 py-2.5 text-xs rounded-xl border border-white/[0.08] bg-white/[0.04] text-surface-200 focus:outline-none focus:ring-2 focus:ring-accent-500"
                         onChange={e => {
+                          setSelectedTemplate(e.target.value)
                           const t = TEMPLATES.find(t => t.id === e.target.value)
                           if (t) setComposeBody(t.body)
                         }}
@@ -1047,12 +1050,12 @@ export default function CommunicationPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1">
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Attach file"><Paperclip className="w-4 h-4" /></button>
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Attach image"><Image className="w-4 h-4" /></button>
-                      <button className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Translate to ELL family language"><Globe className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Attach file…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Attach file"><Paperclip className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Attach image…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Attach image"><Image className="w-4 h-4" /></button>
+                      <button onClick={() => showToast('Translating message for ELL family…')} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Translate to ELL family language"><Globe className="w-4 h-4" /></button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="btn-secondary text-xs px-4 py-2">Save Draft</button>
+                      <button onClick={() => showToast('Message saved as draft')} className="btn-secondary text-xs px-4 py-2">Save Draft</button>
                       <motion.button
                         className="btn-gradient text-xs"
                         whileHover={{ scale: 1.03 }}
@@ -1370,7 +1373,7 @@ export default function CommunicationPage() {
                           <p className="text-xs font-bold text-white">{event.title}</p>
                           <p className="text-[10px] text-surface-400">{event.date}</p>
                         </div>
-                        <button className="ml-auto p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Send reminder">
+                        <button onClick={() => showToast(`Reminder sent for: ${event.title}`)} className="ml-auto p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Send reminder">
                           <Bell className="w-3 h-3" />
                         </button>
                       </motion.div>

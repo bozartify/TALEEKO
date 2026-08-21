@@ -239,7 +239,7 @@ export default function WritingPromptsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [activeTab, setActiveTab] = useState<'library' | 'create'>('library')
   const [genMode, setGenMode] = useState<PromptMode>('narrative')
-  const [genGrade, setGenGrade] = useState('6th-8th Grade')
+  const [genGrade, setGenGrade] = useState<GradeRange>('6-8')
   const [genTopic, setGenTopic] = useState('')
   const [genDiff, setGenDiff] = useState<DifficultyLevel>('standard')
   const [genInstructions, setGenInstructions] = useState('')
@@ -739,11 +739,11 @@ export default function WritingPromptsPage() {
                                 <Sparkles className="w-3.5 h-3.5" />
                                 AI Variant
                               </button>
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
+                              <button onClick={() => showToast('Prompt exported as PDF')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
                                 <Download className="w-3.5 h-3.5" />
                                 Export
                               </button>
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors ml-auto">
+                              <button onClick={() => showToast('Shareable link copied!')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors ml-auto">
                                 <Share2 className="w-3.5 h-3.5" />
                                 Share
                               </button>
@@ -793,7 +793,7 @@ export default function WritingPromptsPage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-medium text-surface-400 mb-1.5">Grade Range</label>
-                    <select value={genGrade} onChange={e => setGenGrade(e.target.value)} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
+                    <select value={genGrade} onChange={e => setGenGrade(e.target.value as GradeRange)} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-200 focus:outline-none focus:border-accent-500/40">
                       {gradeRanges.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>

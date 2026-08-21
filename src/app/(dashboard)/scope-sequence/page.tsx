@@ -255,10 +255,10 @@ export default function ScopeSequencePage() {
                 : <><Sparkles className="w-4 h-4" /> AI Align</>
               }
             </button>
-            <button className="btn-secondary text-sm flex items-center gap-2">
+            <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => showToast('Scope & sequence exported')}>
               <Download className="w-4 h-4" /> Export
             </button>
-            <button className="btn-gradient text-sm flex items-center gap-2">
+            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening unit builder…')}>
               <Plus className="w-4 h-4" /> Add Unit
             </button>
           </div>

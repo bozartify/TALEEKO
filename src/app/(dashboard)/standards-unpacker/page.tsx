@@ -682,11 +682,11 @@ export default function StandardsUnpackerPage() {
             <div className="glass-card p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider">Recent</p>
-                <button className="text-[10px] text-accent-400 hover:underline">View all</button>
+                <button className="text-[10px] text-accent-400 hover:underline" onClick={() => showToast('Loading all recent standards…')}>View all</button>
               </div>
               <div className="space-y-2">
                 {recentUnpacked.map(r => (
-                  <button key={r.code} className="w-full flex items-start gap-2.5 text-left hover:bg-white/[0.03] rounded-xl px-2 py-2 transition-colors group">
+                  <button key={r.code} onClick={() => setInput(r.code)} className="w-full flex items-start gap-2.5 text-left hover:bg-white/[0.03] rounded-xl px-2 py-2 transition-colors group">
                     <div className="w-1 h-12 rounded-full flex-shrink-0 mt-0.5" style={{ background: r.color }} />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-surface-200 group-hover:text-white transition-colors">{r.code}</p>
@@ -796,6 +796,7 @@ export default function StandardsUnpackerPage() {
                         key={s}
                         className="px-2.5 py-1 rounded-lg border border-electric-500/20 bg-electric-500/10 text-[10px] font-semibold text-electric-300 hover:border-electric-500/40 transition-colors"
                         whileHover={{ scale: 1.02 }}
+                        onClick={() => { setInput(s); showToast(`Loading ${s}…`) }}
                       >
                         {s}
                       </motion.button>

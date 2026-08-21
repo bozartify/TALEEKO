@@ -248,7 +248,7 @@ export default function WorkspacePage() {
                   </button>
                 )}
               </div>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI suggestions refreshed')}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Suggest
               </motion.button>
             </div>
@@ -457,7 +457,7 @@ export default function WorkspacePage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Recently Used</h3>
-            <button className="text-xs text-surface-500 hover:text-surface-300">View History</button>
+            <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('Loading full history…')}>View History</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {recentlyUsed.map((tool, i) => (
@@ -590,7 +590,7 @@ export default function WorkspacePage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent Creations</h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300">View Library →</button>
+            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Opening library…')}>View Library →</button>
           </div>
           <div className="glass-card overflow-hidden">
             <div className="overflow-x-auto">
@@ -627,8 +627,8 @@ export default function WorkspacePage() {
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
-                          <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                          <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => showToast(`Previewing "${item.title}"`)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => showToast(`Downloading "${item.title}"…`)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
                           <button
                             className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
                             onClick={() => showToast(`Shared "${item.title}"`)}
@@ -741,8 +741,8 @@ export default function WorkspacePage() {
                   )}
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-1">
-                  <button className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
-                  <button className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
+                  <button onClick={() => showToast(`Opening "${col.name}"…`)} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
+                  <button onClick={() => showToast(`Sharing "${col.name}"…`)} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
                 </div>
               </motion.div>
             ))}

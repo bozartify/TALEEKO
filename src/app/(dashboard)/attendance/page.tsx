@@ -108,6 +108,8 @@ export default function AttendancePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterAtRisk, setFilterAtRisk] = useState(false)
   const [notifyMsg, setNotifyMsg] = useState('')
+  const [notifyEmail, setNotifyEmail] = useState('')
+  const [notifySubject, setNotifySubject] = useState('')
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
@@ -643,6 +645,8 @@ export default function AttendancePage() {
                               <button
                                 onClick={() => {
                                   setNotifyModal(student)
+                                  setNotifyEmail(student.parentEmail)
+                                  setNotifySubject(`Attendance Update — ${student.name}`)
                                   setNotifyMsg(`Dear Parent/Guardian,\n\nI wanted to reach out regarding ${student.name}'s recent attendance. They have recorded ${student.absences30d} absence(s) in the past 30 days.\n\nPlease feel free to contact me with any questions.\n\nBest regards,\nMs. Johnson`)
                                 }}
                                 className="w-7 h-7 rounded-lg flex items-center justify-center text-surface-500 hover:text-surface-200 hover:bg-white/[0.06] transition-all"
@@ -771,6 +775,8 @@ export default function AttendancePage() {
                         <button
                           onClick={() => {
                             setNotifyModal(s)
+                            setNotifyEmail(s.parentEmail)
+                            setNotifySubject(`Attendance Update — ${s.name}`)
                             setNotifyMsg(`Dear Parent/Guardian,\n\nI wanted to reach out regarding ${s.name}'s recent attendance.`)
                           }}
                           className="w-6 h-6 rounded-lg flex items-center justify-center text-surface-500 hover:text-white hover:bg-white/[0.06] transition-all"
@@ -932,7 +938,8 @@ export default function AttendancePage() {
                   <label className="text-[11px] text-surface-500 block mb-1">To</label>
                   <input
                     type="email"
-                    defaultValue={notifyModal.parentEmail}
+                    value={notifyEmail}
+                    onChange={e => setNotifyEmail(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40"
                   />
                 </div>
@@ -940,7 +947,8 @@ export default function AttendancePage() {
                   <label className="text-[11px] text-surface-500 block mb-1">Subject</label>
                   <input
                     type="text"
-                    defaultValue={`Attendance Update — ${notifyModal.name}`}
+                    value={notifySubject}
+                    onChange={e => setNotifySubject(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40"
                   />
                 </div>
@@ -953,14 +961,14 @@ export default function AttendancePage() {
                     className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40 resize-none"
                   />
                 </div>
-                <button className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
+                <button onClick={() => { setNotifyMsg(`Dear Parent/Guardian,\n\nYour student ${notifyModal.name} has recorded ${notifyModal.absences30d} absence(s) in the past 30 days. Please contact us if you have any questions.\n\nBest regards,\nMs. Johnson`); showToast('AI draft generated') }} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
                   <Sparkles className="w-3.5 h-3.5" />
                   AI-Draft Message
                 </button>
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setNotifyModal(null)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => setNotifyModal(null)} className="btn-gradient text-xs px-4 py-2">
+                <button onClick={() => { showToast(`Email sent to ${notifyModal.name}'s parent`); setNotifyModal(null) }} className="btn-gradient text-xs px-4 py-2">
                   <Mail className="w-3.5 h-3.5" /> Send
                 </button>
               </div>
@@ -1000,7 +1008,7 @@ export default function AttendancePage() {
                 ].map(opt => (
                   <button
                     key={opt.label}
-                    onClick={() => setExportOpen(false)}
+                    onClick={() => { showToast(`${opt.label} downloading…`); setExportOpen(false) }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all text-left"
                   >
                     <span className="text-xl">{opt.emoji}</span>

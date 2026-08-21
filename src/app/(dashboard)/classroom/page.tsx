@@ -103,6 +103,9 @@ export default function ClassroomPage() {
   const [announcementModal, setAnnouncementModal] = useState(false)
   const [aiPanelOpen, setAiPanelOpen] = useState(true)
   const [composeAnn, setComposeAnn] = useState({ title: '', body: '', class: 'All Classes', urgent: false })
+  const [annList, setAnnList] = useState(announcements)
+  const [aiDraftText, setAiDraftText] = useState('')
+  const [annSchedule, setAnnSchedule] = useState('')
   const [toastMsg, setToastMsg] = useState('')
 
   function showToast(msg: string) {
@@ -294,7 +297,7 @@ export default function ClassroomPage() {
                             {cls.pending > 0 && (
                               <span className="text-[9px] bg-warning-400/15 text-warning-400 px-1.5 py-0.5 rounded-full font-bold">{cls.pending} pending</span>
                             )}
-                            <button className="text-surface-500 hover:text-surface-200"><MoreHorizontal className="w-4 h-4" /></button>
+                            <button className="text-surface-500 hover:text-surface-200" onClick={e => { e.stopPropagation(); showToast(`Options for ${cls.name}`) }}><MoreHorizontal className="w-4 h-4" /></button>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 mb-3 text-xs text-surface-500">
@@ -631,7 +634,7 @@ export default function ClassroomPage() {
           <motion.div key="announcements" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-3">
-                {announcements.map((a, i) => (
+                {annList.map((a, i) => (
                   <motion.div
                     key={a.id}
                     className="glass-card p-5"
@@ -713,6 +716,8 @@ export default function ClassroomPage() {
                     <p className="text-xs text-surface-400 mb-3 leading-relaxed">Describe your announcement and AI will write a polished, grade-appropriate message in seconds.</p>
                     <textarea
                       rows={3}
+                      value={aiDraftText}
+                      onChange={e => setAiDraftText(e.target.value)}
                       placeholder="e.g. Remind students about the science fair deadline on Friday..."
                       className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
                     />
@@ -773,7 +778,7 @@ export default function ClassroomPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-surface-300 mb-1.5">Schedule</label>
-                    <input type="datetime-local" className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none" />
+                    <input type="datetime-local" value={annSchedule} onChange={e => setAnnSchedule(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none" />
                   </div>
                 </div>
                 <label className="flex items-center gap-2 cursor-pointer">
@@ -787,8 +792,8 @@ export default function ClassroomPage() {
                 </label>
               </div>
               <div className="flex items-center gap-3 mt-6">
-                <button className="btn-secondary text-xs flex-1" onClick={() => { showToast('Announcement saved as draft'); setAnnouncementModal(false) }}>Save Draft</button>
-                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { showToast(`Announcement sent to ${composeAnn.class}`); setAnnouncementModal(false) }}>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { const newAnn = { id: String(Date.now()), ...composeAnn, date: 'Draft', sent: false, views: 0 }; setAnnList(prev => [newAnn, ...prev]); showToast('Announcement saved as draft'); setAnnouncementModal(false); setComposeAnn({ title: '', body: '', class: 'All Classes', urgent: false }); setAnnSchedule('') }}>Save Draft</button>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { const newAnn = { id: String(Date.now()), ...composeAnn, date: 'Just now', sent: true, views: 0 }; setAnnList(prev => [newAnn, ...prev]); showToast(`Announcement sent to ${composeAnn.class}`); setAnnouncementModal(false); setComposeAnn({ title: '', body: '', class: 'All Classes', urgent: false }); setAnnSchedule('') }}>
                   <Send className="w-3.5 h-3.5" /> Send Now
                 </motion.button>
               </div>

@@ -630,7 +630,7 @@ export default function FiveELessonPage() {
                     <p className="text-[11px] text-surface-400 leading-relaxed">{std.desc}</p>
                   </motion.div>
                 ))}
-                <button className="w-full text-[11px] text-teal-400 hover:text-teal-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => showToast('Opening standards browser…')} className="w-full text-[11px] text-teal-400 hover:text-teal-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   Add standard
                 </button>
@@ -752,6 +752,7 @@ export default function FiveELessonPage() {
                     key={action.label}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                     whileHover={{ x: 2 }}
+                    onClick={() => { if (action.label === 'Print Lesson Plan') window.print(); else showToast(`${action.label}…`) }}
                   >
                     <div
                       className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -774,7 +775,7 @@ export default function FiveELessonPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent 5E Lessons</h3>
-            <button className="text-xs text-teal-400 hover:text-teal-300 transition-colors">
+            <button className="text-xs text-teal-400 hover:text-teal-300 transition-colors" onClick={() => showToast('Loading all 5E lessons…')}>
               View All
             </button>
           </div>

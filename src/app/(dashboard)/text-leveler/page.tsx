@@ -744,7 +744,7 @@ export default function TextLevelerPage() {
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-surface-200">Recently Leveled</h3>
-              <button className="text-xs text-accent-400 hover:text-accent-300">View All →</button>
+              <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Loading all leveled texts…')}>View All →</button>
             </div>
             <div className="space-y-2">
               {[
