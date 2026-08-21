@@ -105,6 +105,43 @@ function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).join('')
 }
 
+const REGEN_COMMENTS: Record<string, string[]> = {
+  Biology:     ['Demonstrates strong scientific reasoning and consistent lab performance.',
+                'Shows curiosity and initiative; lab write-ups are detailed and well-evidenced.',
+                'Engages deeply with biological concepts; excellent at connecting theory to practice.'],
+  Mathematics: ['Problem-solving approach is methodical and accurate with strong conceptual grasp.',
+                'Shows real improvement in algebraic reasoning; consistent effort on assignments.',
+                'Excels at multi-step problems; growing confidence when tackling novel question types.'],
+  English:     ['Writing shows clear voice and developing analytical depth.',
+                'Reading comprehension is excellent; essay structure continues to improve.',
+                'Strong oral contributions; written work reflects careful revision and thoughtfulness.'],
+  History:     ['Connects primary sources to broader historical narratives with insight.',
+                'Critical thinking is evident; research projects are well-organized and thorough.',
+                'Excellent discussion participant who brings unique perspectives to class debates.'],
+}
+
+const DEFAULT_REGEN = ['Demonstrates consistent engagement and a positive learning attitude.',
+  'Shows growth across all assessed areas; effort and improvement are clearly visible.',
+  'Participates actively and submits work on time; quality continues to improve.']
+
+function buildFallbackReport(student: Student): ReportData {
+  const subjectPool = [
+    { name: 'Biology',     grade: student.grade, score: student.gpa * 25, comment: REGEN_COMMENTS.Biology[0] },
+    { name: 'Mathematics', grade: student.grade, score: student.gpa * 25, comment: REGEN_COMMENTS.Mathematics[0] },
+    { name: 'English',     grade: student.grade, score: student.gpa * 25, comment: REGEN_COMMENTS.English[0] },
+    { name: 'History',     grade: student.grade, score: student.gpa * 25, comment: REGEN_COMMENTS.History[0] },
+  ]
+  return {
+    studentId: student.id,
+    student: student.name,
+    period: 'Quarter 2, Fall 2026',
+    subjects: subjectPool,
+    strengths: ['Class participation', 'Assignment completion', 'Effort and growth'],
+    growth: ['Analytical writing', 'Test preparation', 'Note-taking strategies'],
+    teacherNote: `${student.name.split(' ')[0]} is a hardworking student who brings dedication to every task. ${student.trend === 'up' ? 'Progress this quarter has been impressive.' : student.trend === 'stable' ? 'Performance has been consistent throughout the quarter.' : 'I encourage continued focus and ask-for-help strategies to build momentum next quarter.'}`,
+  }
+}
+
 export default function ReportCardsPage() {
   const [step, setStep]                     = useState<Step>('select')
   const [search, setSearch]                 = useState('')
@@ -126,7 +163,10 @@ export default function ReportCardsPage() {
 
   const selectedList = students.filter(s => selectedStudents.has(s.id))
   const currentPreviewStudent = selectedList[previewStudentIdx]
-  const currentReport = currentPreviewStudent ? (sampleReports[currentPreviewStudent.id] ?? sampleReports['1']) : sampleReports['1']
+  const [customComments, setCustomComments] = useState<Record<string, string>>({})
+  const currentReport = currentPreviewStudent
+    ? (sampleReports[currentPreviewStudent.id] ?? buildFallbackReport(currentPreviewStudent))
+    : sampleReports['1']
 
   function toggleStudent(id: string) {
     const next = new Set(selectedStudents)
@@ -147,8 +187,19 @@ export default function ReportCardsPage() {
   }
 
   async function regenerateSubject(i: number) {
+    if (i < 0) {
+      showToast('Teacher note regenerated')
+      return
+    }
     setRegeneratingSubject(i)
     await new Promise(r => setTimeout(r, 1600))
+    const subj = currentReport.subjects[i]
+    const pool = REGEN_COMMENTS[subj?.name] ?? DEFAULT_REGEN
+    const key = `${currentReport.studentId}-${i}`
+    const prev = customComments[key]
+    const candidates = pool.filter(c => c !== prev)
+    const next = candidates[Math.floor(candidates.length * 0.5)] ?? pool[0]
+    setCustomComments(p => ({ ...p, [key]: next }))
     setRegeneratingSubject(null)
   }
 
@@ -770,7 +821,7 @@ export default function ReportCardsPage() {
                                   Regenerating comment with {tone} tone…
                                 </div>
                               ) : (
-                                <p className="text-sm text-surface-300 leading-relaxed mt-3">{subj.comment}</p>
+                                <p className="text-sm text-surface-300 leading-relaxed mt-3">{customComments[`${currentReport.studentId}-${i}`] ?? subj.comment}</p>
                               )}
                             </div>
                           </motion.div>
@@ -873,17 +924,34 @@ export default function ReportCardsPage() {
                 </div>
               )}
               <div className="space-y-1.5">
-                {['Send Approved Reports Now', 'Schedule for Monday 8 AM', 'Download All as ZIP', 'Print All Reports'].map(opt => (
+                {[
+                  { label: 'Send Approved Reports Now', action: () => { setShareOpen(false); showToast('Sending approved reports to parents…') } },
+                  { label: 'Schedule for Monday 8 AM',  action: () => { setShareOpen(false); showToast('Reports scheduled for Monday 8 AM') } },
+                  { label: 'Download All as ZIP', action: () => {
+                    const csv = Array.from(selectedStudents).map(id => {
+                      const s = students.find(st => st.id === id)
+                      return s ? `${s.name},${s.grade},${s.gpa},${s.attendance}%` : ''
+                    }).join('\n')
+                    const blob = new Blob([`Name,Grade,GPA,Attendance\n${csv}`], { type: 'text/csv' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a'); a.href = url; a.download = 'report-cards.csv'; a.click(); URL.revokeObjectURL(url)
+                    setShareOpen(false); showToast('Report cards downloaded')
+                  }},
+                  { label: 'Print All Reports', action: () => { setShareOpen(false); window.print() } },
+                ].map(opt => (
                   <button
-                    key={opt}
-                    onClick={() => { setShareOpen(false); showToast(opt) }}
+                    key={opt.label}
+                    onClick={opt.action}
                     className="w-full text-left px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] text-xs text-surface-300 hover:text-white transition-all"
                   >
-                    {opt}
+                    {opt.label}
                   </button>
                 ))}
               </div>
-              <button onClick={() => { setShareOpen(false); showToast('Report cards sent to all parents!') }} className="btn-gradient text-xs px-4 py-2 w-full mt-3">
+              <button onClick={() => {
+                if (selectedStudents.size - approvedCount > 0) { showToast('Please approve all reports before sending'); return }
+                setShareOpen(false); showToast('Report cards sent to all parents!')
+              }} className="btn-gradient text-xs px-4 py-2 w-full mt-3">
                 <Mail className="w-3.5 h-3.5" /> Confirm & Send
               </button>
             </motion.div>
