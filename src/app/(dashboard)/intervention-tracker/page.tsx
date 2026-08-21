@@ -228,6 +228,15 @@ function buildSparkArea(data: number[], W: number, H: number): string {
 ───────────────────────────────────────────── */
 
 export default function InterventionTrackerPage() {
+  const [caseload, setCaseload]       = useState<Intervention[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_interventions')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return interventions
+  })
   const [search, setSearch]           = useState('')
   const [filterTier, setFilterTier]   = useState<Tier | 0>(0)
   const [sortField, setSortField]     = useState<'student' | 'progress' | 'sessions'>('student')
@@ -245,7 +254,7 @@ export default function InterventionTrackerPage() {
     else { setSortField(field); setSortAsc(true) }
   }
 
-  const filtered = interventions
+  const filtered = caseload
     .filter(iv => {
       const matchSearch = iv.student.toLowerCase().includes(search.toLowerCase())
         || iv.type.toLowerCase().includes(search.toLowerCase())
@@ -259,8 +268,8 @@ export default function InterventionTrackerPage() {
       return 0
     })
 
-  const atRiskCount  = interventions.filter(iv => iv.status === 'At Risk').length
-  const onTrackCount = interventions.filter(iv => iv.status === 'On Track').length
+  const atRiskCount  = caseload.filter(iv => iv.status === 'At Risk').length
+  const onTrackCount = caseload.filter(iv => iv.status === 'On Track').length
 
   return (
     <div className="space-y-6">
@@ -485,7 +494,7 @@ export default function InterventionTrackerPage() {
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-white">Active Interventions</h2>
-                    <p className="text-[10px] text-surface-500">{filtered.length} of {interventions.length} plans displayed</p>
+                    <p className="text-[10px] text-surface-500">{filtered.length} of {caseload.length} plans displayed</p>
                   </div>
                 </div>
 
@@ -696,7 +705,7 @@ export default function InterventionTrackerPage() {
                     <div key={s} className="flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: STATUS_CONFIG[s].dot }} />
                       <span className="text-[9px] text-surface-500">
-                        {interventions.filter(iv => iv.status === s).length} {s}
+                        {caseload.filter(iv => iv.status === s).length} {s}
                       </span>
                     </div>
                   ))}
@@ -1003,8 +1012,8 @@ export default function InterventionTrackerPage() {
               </h3>
               <div className="space-y-3">
                 {(['Reading', 'Math', 'Behavior', 'Social-Emotional'] as Area[]).map((area, ai) => {
-                  const count = interventions.filter(iv => iv.area === area).length
-                  const pct   = Math.round((count / interventions.length) * 100)
+                  const count = caseload.filter(iv => iv.area === area).length
+                  const pct   = Math.round((count / caseload.length) * 100)
                   const color = AREA_COLORS[area]
                   const W = 200, H = 6
                   const bw  = (pct / 100) * W

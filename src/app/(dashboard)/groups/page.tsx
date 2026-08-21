@@ -192,7 +192,15 @@ const TYPE_COLORS: Record<GroupType, string> = { Lab: '#6366f1', Reading: '#10b9
 const NEW_COLORS = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6', '#22d3ee', '#f59e0b']
 
 export default function GroupsPage() {
-  const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS)
+  const [groups, setGroups] = useState<Group[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_groups')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return INITIAL_GROUPS
+  })
   const [expandedGroup, setExpandedGroup] = useState<string | null>('1')
   const [filter, setFilter] = useState<'all' | GroupType>('all')
   const [search, setSearch] = useState('')
@@ -229,14 +237,22 @@ export default function GroupsPage() {
       totalTasks: 0,
       students: [],
     }
-    setGroups(prev => [g, ...prev])
+    setGroups(prev => {
+      const next = [g, ...prev]
+      try { localStorage.setItem('taleeko_groups', JSON.stringify(next)) } catch {}
+      return next
+    })
     setNewName('')
     setCreateOpen(false)
     showToast(`Created "${g.name}"`)
   }
 
   const handleDelete = (group: Group) => {
-    setGroups(prev => prev.filter(g => g.id !== group.id))
+    setGroups(prev => {
+      const next = prev.filter(g => g.id !== group.id)
+      try { localStorage.setItem('taleeko_groups', JSON.stringify(next)) } catch {}
+      return next
+    })
     setDeleteTarget(null)
     showToast(`Deleted "${group.name}"`)
   }

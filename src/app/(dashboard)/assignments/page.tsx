@@ -164,7 +164,15 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 export default function AssignmentsPage() {
-  const [assignments, setAssignments] = useState<Assignment[]>(INITIAL_ASSIGNMENTS)
+  const [assignments, setAssignments] = useState<Assignment[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_assignments')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return INITIAL_ASSIGNMENTS
+  })
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<AssignType>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
@@ -230,14 +238,22 @@ export default function AssignmentsPage() {
       rubric: [],
       tags: [],
     }
-    setAssignments(prev => [a, ...prev])
+    setAssignments(prev => {
+      const next = [a, ...prev]
+      try { localStorage.setItem('taleeko_assignments', JSON.stringify(next)) } catch {}
+      return next
+    })
     setNewTitle('')
     setCreateOpen(false)
     showToast(`Created "${a.title}"`)
   }
 
   const handleDelete = (a: Assignment) => {
-    setAssignments(prev => prev.filter(x => x.id !== a.id))
+    setAssignments(prev => {
+      const next = prev.filter(x => x.id !== a.id)
+      try { localStorage.setItem('taleeko_assignments', JSON.stringify(next)) } catch {}
+      return next
+    })
     setDeleteTarget(null)
     showToast(`Deleted "${a.title}"`)
   }

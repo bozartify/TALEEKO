@@ -61,7 +61,15 @@ export default function CoursesPage() {
   const [aiOpen, setAiOpen] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [actionMenu, setActionMenu] = useState<string | null>(null)
-  const [courses, setCourses] = useState<Course[]>(COURSES)
+  const [courses, setCourses] = useState<Course[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_courses')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return COURSES
+  })
   const [newTitle, setNewTitle] = useState('')
   const [newSubject, setNewSubject] = useState('Science')
   const [newGrade, setNewGrade] = useState('7th')
@@ -114,14 +122,22 @@ export default function CoursesPage() {
       lastUpdated: 'Just now',
       status: 'draft',
     }
-    setCourses(prev => [newCourse, ...prev])
+    setCourses(prev => {
+      const next = [newCourse, ...prev]
+      try { localStorage.setItem('taleeko_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
     setCreateOpen(false)
     setNewTitle('')
     showToast('Course created successfully')
   }
 
   function archiveCourse(id: string) {
-    setCourses(prev => prev.map(c => c.id === id ? { ...c, status: 'archived' as const } : c))
+    setCourses(prev => {
+      const next = prev.map(c => c.id === id ? { ...c, status: 'archived' as const } : c)
+      try { localStorage.setItem('taleeko_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
     setActionMenu(null)
     showToast('Course archived')
   }
@@ -130,14 +146,22 @@ export default function CoursesPage() {
     const orig = courses.find(c => c.id === id)
     if (!orig) return
     const dup = { ...orig, id: String(Date.now()), title: orig.title + ' (Copy)', status: 'draft' as const, completion: 0, lastUpdated: 'Just now' }
-    setCourses(prev => [dup, ...prev])
+    setCourses(prev => {
+      const next = [dup, ...prev]
+      try { localStorage.setItem('taleeko_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
     setActionMenu(null)
     showToast('Course duplicated')
   }
 
   function confirmDelete() {
     if (!deleteTarget) return
-    setCourses(prev => prev.filter(c => c.id !== deleteTarget.id))
+    setCourses(prev => {
+      const next = prev.filter(c => c.id !== deleteTarget.id)
+      try { localStorage.setItem('taleeko_courses', JSON.stringify(next)) } catch {}
+      return next
+    })
     setDeleteTarget(null)
     showToast('Course deleted')
   }

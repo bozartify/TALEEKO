@@ -184,7 +184,15 @@ const PROGRESS_LOG: ProgressEntry[] = [
 
 export default function IepGoalsPage() {
   const [selectedStudentId, setSelectedStudentId] = useState<string>('s1')
-  const [goals, setGoals]                         = useState<IEPGoal[]>(INITIAL_GOALS)
+  const [goals, setGoals]                         = useState<IEPGoal[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_iep_goals')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return INITIAL_GOALS
+  })
   const [showModal, setShowModal]                 = useState(false)
   const [toastMsg, setToastMsg]                   = useState('')
 
@@ -223,7 +231,11 @@ export default function IepGoalsPage() {
       lastUpdated: 'Aug 19, 2026',
       status:      'On Track',
     }
-    setGoals(prev => [...prev, newGoal])
+    setGoals(prev => {
+      const next = [...prev, newGoal]
+      try { localStorage.setItem('taleeko_iep_goals', JSON.stringify(next)) } catch {}
+      return next
+    })
     setShowModal(false)
     setNewGoalText('')
     setNewBaseline('')
@@ -233,17 +245,21 @@ export default function IepGoalsPage() {
   }
 
   function handleQuickUpdate(goalId: string) {
-    setGoals(prev => prev.map(g => {
-      if (g.id !== goalId) return g
-      const newCurrent = Math.min(g.current + 5, 100)
-      let newStatus: GoalStatus = g.status
-      if (newCurrent >= g.target) {
-        newStatus = 'Met'
-      } else if (g.status === 'At Risk' && newCurrent > g.baseline + 10) {
-        newStatus = 'On Track'
-      }
-      return { ...g, current: newCurrent, status: newStatus, lastUpdated: 'Aug 19, 2026' }
-    }))
+    setGoals(prev => {
+      const next = prev.map(g => {
+        if (g.id !== goalId) return g
+        const newCurrent = Math.min(g.current + 5, 100)
+        let newStatus: GoalStatus = g.status
+        if (newCurrent >= g.target) {
+          newStatus = 'Met'
+        } else if (g.status === 'At Risk' && newCurrent > g.baseline + 10) {
+          newStatus = 'On Track'
+        }
+        return { ...g, current: newCurrent, status: newStatus, lastUpdated: 'Aug 19, 2026' }
+      })
+      try { localStorage.setItem('taleeko_iep_goals', JSON.stringify(next)) } catch {}
+      return next
+    })
     showToast('Progress updated +5%')
   }
 

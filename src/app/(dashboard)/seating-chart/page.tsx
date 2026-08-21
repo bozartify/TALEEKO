@@ -95,7 +95,15 @@ export default function SeatingChartPage() {
   const students = INITIAL_STUDENTS
   const [rows, setRows]             = useState(3)
   const [cols, setCols]             = useState(4)
-  const [seats, setSeats]           = useState<Seat[]>(() => generateSeats(3, 4, INITIAL_STUDENTS))
+  const [seats, setSeats]           = useState<Seat[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_seating_chart')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return generateSeats(3, 4, INITIAL_STUDENTS)
+  })
   const [selectedSeat, setSelectedSeat] = useState<string | null>(null)
   const [saved, setSaved]           = useState(false)
   const [layout, setLayout]         = useState<LayoutOption>('3x4')
@@ -130,6 +138,7 @@ export default function SeatingChartPage() {
   }
 
   function handleSave() {
+    try { localStorage.setItem('taleeko_seating_chart', JSON.stringify(seats)) } catch {}
     setSaved(true)
     showToast('Seating chart saved')
     setTimeout(() => setSaved(false), 2000)

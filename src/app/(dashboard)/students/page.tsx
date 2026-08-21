@@ -64,7 +64,15 @@ const filterLabels: Record<FilterStatus, string> = {
 }
 
 export default function StudentsPage() {
-  const [students, setStudents]             = useState<Student[]>(INITIAL_STUDENTS)
+  const [students, setStudents]             = useState<Student[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_students')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return INITIAL_STUDENTS
+  })
   const [search, setSearch]                 = useState('')
   const [filterStatus, setFilterStatus]     = useState<FilterStatus>('all')
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
@@ -136,7 +144,11 @@ export default function StudentsPage() {
       missing: 0,
       parentEmail: newParent.trim() || 'parent@example.com',
     }
-    setStudents(prev => [newS, ...prev])
+    setStudents(prev => {
+      const next = [newS, ...prev]
+      try { localStorage.setItem('taleeko_students', JSON.stringify(next)) } catch {}
+      return next
+    })
     setAddStudentModal(false)
     setNewName(''); setNewEmail(''); setNewParent('')
     setNewIEP(false); setNewELL(false)
@@ -144,7 +156,11 @@ export default function StudentsPage() {
   }
 
   function handleRemoveStudent(s: Student) {
-    setStudents(prev => prev.filter(st => st.id !== s.id))
+    setStudents(prev => {
+      const next = prev.filter(st => st.id !== s.id)
+      try { localStorage.setItem('taleeko_students', JSON.stringify(next)) } catch {}
+      return next
+    })
     setDeleteTarget(null)
     setActionMenu(null)
     showToast(`${s.name} removed from roster`)

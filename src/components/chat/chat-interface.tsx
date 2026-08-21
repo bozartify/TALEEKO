@@ -26,7 +26,15 @@ export default function ChatInterface() {
   const initialMode = (searchParams.get('mode') as TeachingMode) ?? 'general'
 
   const [mode, setMode] = useState<TeachingMode>(initialMode)
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_chat_history')
+        if (saved) return JSON.parse(saved)
+      } catch {}
+    }
+    return []
+  })
   const [input, setInput] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const abortRef = useRef<AbortController | null>(null)
@@ -124,7 +132,16 @@ export default function ChatInterface() {
     } finally {
       setIsStreaming(false)
       abortRef.current = null
+      setMessages(prev => {
+        try { localStorage.setItem('taleeko_chat_history', JSON.stringify(prev.slice(-50))) } catch {}
+        return prev
+      })
     }
+  }
+
+  function clearChat() {
+    setMessages([])
+    try { localStorage.removeItem('taleeko_chat_history') } catch {}
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -257,7 +274,14 @@ export default function ChatInterface() {
             </button>
           )}
         </div>
-        <p className="text-center text-xs text-surface-500 mt-2">Shift+Enter for new line · Enter to send</p>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-xs text-surface-500">Shift+Enter for new line · Enter to send</p>
+          {messages.length > 0 && !isStreaming && (
+            <button onClick={clearChat} className="text-xs text-surface-600 hover:text-surface-400 transition-colors">
+              Clear history
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

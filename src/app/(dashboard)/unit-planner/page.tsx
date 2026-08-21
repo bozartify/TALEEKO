@@ -260,7 +260,15 @@ const initialUnits: Unit[] = [
 ───────────────────────────────────────────── */
 
 export default function UnitPlannerPage() {
-  const [units, setUnits] = useState<Unit[]>(initialUnits)
+  const [units, setUnits] = useState<Unit[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('taleeko_units')
+        if (saved) return JSON.parse(saved) as Unit[]
+      } catch {}
+    }
+    return initialUnits
+  })
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null)
   const [toastMsg, setToastMsg] = useState('')
   const [form, setForm] = useState<UnitForm>({
@@ -303,7 +311,11 @@ export default function UnitPlannerPage() {
         topic: `Week ${i + 1} — to be planned`,
       })),
     }
-    setUnits(prev => [...prev, newUnit])
+    setUnits(prev => {
+      const next = [...prev, newUnit]
+      try { localStorage.setItem('taleeko_units', JSON.stringify(next)) } catch {}
+      return next
+    })
     setForm({ title: '', subject: 'Biology', grade: '', durationWeeks: '', standards: '' })
     showToast(`"${newUnit.title}" added to your unit list`)
   }
