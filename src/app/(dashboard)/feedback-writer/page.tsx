@@ -147,6 +147,7 @@ export default function FeedbackWriterPage() {
   const [avoidCliches, setAvoidCliches] = useState(true)
   const [includeExamples, setIncludeExamples] = useState(true)
   const [ferpaCheck, setFerpaCheck] = useState(true)
+  const [iepEllAware, setIepEllAware] = useState(true)
 
   const feedback = SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
   const wordCount = (feedback || '').split(' ').length
@@ -812,7 +813,7 @@ export default function FeedbackWriterPage() {
                   { label: 'FERPA-safe check', desc: 'Removes identifying info', state: ferpaCheck, set: setFerpaCheck, color: '#10b981' },
                   { label: 'Avoid clichés', desc: 'Unique phrasing per comment', state: avoidCliches, set: setAvoidCliches, color: '#6366f1' },
                   { label: 'Include examples', desc: 'References specific moments', state: includeExamples, set: setIncludeExamples, color: '#f59e0b' },
-                  { label: 'IEP/ELL aware', desc: 'Considers accommodations', state: selectedStudent.iep || selectedStudent.ell, set: () => {}, color: '#ec4899' },
+                  { label: 'IEP/ELL aware', desc: 'Considers accommodations', state: iepEllAware, set: setIepEllAware, color: '#ec4899' },
                 ].map(feat => (
                   <button
                     key={feat.label}

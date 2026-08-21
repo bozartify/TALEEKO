@@ -217,6 +217,11 @@ export default function SubPlansPage() {
   const [aiOpen, setAiOpen] = useState(true)
   const [exportOpen, setExportOpen] = useState(false)
   const [addPeriodOpen, setAddPeriodOpen] = useState(false)
+  const [newPeriodName, setNewPeriodName] = useState('')
+  const [newPeriodTime, setNewPeriodTime] = useState('')
+  const [newPeriodActivity, setNewPeriodActivity] = useState('')
+  const [newPeriodMaterials, setNewPeriodMaterials] = useState('')
+  const [newPeriodNotes, setNewPeriodNotes] = useState('')
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [actionMenu, setActionMenu] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
@@ -590,7 +595,7 @@ export default function SubPlansPage() {
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}>
                     <Printer className="w-3.5 h-3.5" /> Print
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5">
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening plan editor…')}>
                     <Edit className="w-3.5 h-3.5" /> Edit
                   </button>
                 </div>
@@ -756,10 +761,10 @@ export default function SubPlansPage() {
                                   : <><Copy className="w-3.5 h-3.5" /> Copy Period</>
                                 }
                               </motion.button>
-                              <button className="btn-secondary text-xs px-3 py-1.5">
+                              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Editing "${period.name}"…`)}>
                                 <Edit className="w-3.5 h-3.5" /> Edit
                               </button>
-                              <button className="btn-secondary text-xs px-3 py-1.5 ml-auto">
+                              <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => showToast(`AI improving "${period.name}"…`)}>
                                 <Sparkles className="w-3.5 h-3.5 text-accent-400" /> AI Improve
                               </button>
                             </div>
@@ -972,27 +977,25 @@ export default function SubPlansPage() {
                 </button>
               </div>
               <div className="space-y-3">
-                {[
-                  { label: 'Period Name', placeholder: 'e.g. Period 3 – Biology' },
-                  { label: 'Time', placeholder: 'e.g. 10:05 – 10:55' },
-                  { label: 'Activity', placeholder: 'e.g. Independent Reading + Reflection' },
-                  { label: 'Materials', placeholder: 'e.g. Worksheets in red folder' },
-                ].map(field => (
-                  <div key={field.label}>
-                    <label className="text-[10px] text-surface-500 block mb-1">{field.label}</label>
-                    <input
-                      className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40"
-                      placeholder={field.placeholder}
-                    />
-                  </div>
-                ))}
+                <div>
+                  <label className="text-[10px] text-surface-500 block mb-1">Period Name</label>
+                  <input value={newPeriodName} onChange={e => setNewPeriodName(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40" placeholder="e.g. Period 3 – Biology" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-surface-500 block mb-1">Time</label>
+                  <input value={newPeriodTime} onChange={e => setNewPeriodTime(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40" placeholder="e.g. 10:05 – 10:55" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-surface-500 block mb-1">Activity</label>
+                  <input value={newPeriodActivity} onChange={e => setNewPeriodActivity(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40" placeholder="e.g. Independent Reading + Reflection" />
+                </div>
+                <div>
+                  <label className="text-[10px] text-surface-500 block mb-1">Materials</label>
+                  <input value={newPeriodMaterials} onChange={e => setNewPeriodMaterials(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40" placeholder="e.g. Worksheets in red folder" />
+                </div>
                 <div>
                   <label className="text-[10px] text-surface-500 block mb-1">Sub Notes</label>
-                  <textarea
-                    rows={2}
-                    className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40 resize-none"
-                    placeholder="Any special instructions for the substitute..."
-                  />
+                  <textarea value={newPeriodNotes} onChange={e => setNewPeriodNotes(e.target.value)} rows={2} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-accent-500/40 resize-none" placeholder="Any special instructions for the substitute..." />
                 </div>
               </div>
               <div className="flex gap-2 mt-5">
@@ -1001,7 +1004,19 @@ export default function SubPlansPage() {
                   className="flex-1 btn-gradient text-xs py-2"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => { showToast('Period added!'); setAddPeriodOpen(false) }}
+                  onClick={() => {
+                    const name = newPeriodName.trim() || `Period ${selectedPlan.periods.length + 1}`
+                    const newP: Period = {
+                      id: `p${Date.now()}`, time: newPeriodTime || 'TBD', name, grade: '9th', students: 25,
+                      activity: newPeriodActivity || 'See instructions', color: PERIOD_COLORS[selectedPlan.periods.length % PERIOD_COLORS.length],
+                      materials: newPeriodMaterials ? [newPeriodMaterials] : [], notes: newPeriodNotes,
+                    }
+                    const updated = { ...selectedPlan, periods: [...selectedPlan.periods, newP] }
+                    setSelectedPlan(updated)
+                    setPlans(prev => prev.map(p => p.id === updated.id ? updated : p))
+                    setNewPeriodName(''); setNewPeriodTime(''); setNewPeriodActivity(''); setNewPeriodMaterials(''); setNewPeriodNotes('')
+                    showToast(`"${name}" added!`); setAddPeriodOpen(false)
+                  }}
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Period
                 </motion.button>

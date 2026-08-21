@@ -301,7 +301,7 @@ export default function ParentPortalPage() {
               This is exactly what parents and guardians will see. Toggle sections on/off below and share the portal link with families.
             </p>
           </div>
-          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0">
+          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0" onClick={() => showToast('Report card downloaded')}>
             <Download className="w-3.5 h-3.5" /> Report Card
           </button>
         </div>
@@ -380,10 +380,10 @@ export default function ParentPortalPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => showToast('Opening email to teacher…')}>
                 <Mail className="w-3.5 h-3.5" /> Email Teacher
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => showToast('School phone: (555) 867-5309')}>
                 <Phone className="w-3.5 h-3.5" /> Call School
               </motion.button>
             </div>
@@ -757,7 +757,7 @@ export default function ParentPortalPage() {
                 </h4>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-surface-500">{messages.length} messages</span>
-                  <button className="btn-secondary text-xs px-3 py-1.5">
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New message thread started')}>
                     <Plus className="w-3.5 h-3.5" /> New Thread
                   </button>
                 </div>

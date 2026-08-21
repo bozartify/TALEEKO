@@ -757,10 +757,10 @@ export default function DiscussionPromptsPage() {
                           ))}
                         </ul>
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.04]">
-                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors">
+                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => showToast('Follow-ups added to slide deck')}>
                             <Target className="w-3 h-3" /> Add to Slide Deck
                           </button>
-                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors">
+                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => { navigator.clipboard?.writeText(prompt.followUps?.join('\n') ?? '').catch(() => {}); showToast('Follow-ups copied') }}>
                             <Copy className="w-3 h-3" /> Copy All
                           </button>
                         </div>
@@ -950,14 +950,14 @@ export default function DiscussionPromptsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Copy Link',              emoji: '🔗', desc: 'Share a read-only link' },
-                  { label: 'Email to Team',           emoji: '📧', desc: 'Send to colleagues' },
-                  { label: 'Export as PDF',           emoji: '📄', desc: 'Student-ready handout' },
-                  { label: 'Post to Google Classroom',emoji: '🏫', desc: 'Push to active class' },
+                  { label: 'Copy Link',              emoji: '🔗', desc: 'Share a read-only link',   toast: 'Link copied to clipboard' },
+                  { label: 'Email to Team',           emoji: '📧', desc: 'Send to colleagues',        toast: 'Email sent to team' },
+                  { label: 'Export as PDF',           emoji: '📄', desc: 'Student-ready handout',     toast: 'Exported as PDF' },
+                  { label: 'Post to Google Classroom',emoji: '🏫', desc: 'Push to active class',      toast: 'Posted to Google Classroom' },
                 ].map(opt => (
                   <button
                     key={opt.label}
-                    onClick={() => setShareOpen(false)}
+                    onClick={() => { showToast(opt.toast); setShareOpen(false) }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all text-left"
                   >
                     <span className="text-xl">{opt.emoji}</span>

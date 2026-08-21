@@ -161,6 +161,8 @@ export default function ExitTicketsPage() {
   const [actionMenu, setActionMenu] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
   const [newQType, setNewQType] = useState<QuestionType | null>(null)
+  const [newTitle, setNewTitle] = useState('')
+  const [newPeriod, setNewPeriod] = useState('Period 1')
 
   const gotItCount  = STUDENT_RESULTS.filter(s => s.status === 'got-it').length
   const almostCount = STUDENT_RESULTS.filter(s => s.status === 'almost').length
@@ -701,7 +703,13 @@ export default function ExitTicketsPage() {
                     <motion.button
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-white/[0.08] text-surface-500 hover:border-amber-500/30 hover:text-amber-400 transition-all text-sm"
                       whileHover={{ scale: 1.01 }}
-                      onClick={() => showToast('Question added!')}
+                      onClick={() => {
+                        const newQ: Question = { id: `q${Date.now()}`, type: 'short-answer', text: 'New question — click to edit' }
+                        const updated = { ...selectedTicket, questions: [...selectedTicket.questions, newQ] }
+                        setSelectedTicket(updated)
+                        setTickets(prev => prev.map(t => t.id === updated.id ? updated : t))
+                        showToast('Question added!')
+                      }}
                     >
                       <Plus className="w-4 h-4" /> Add Question
                     </motion.button>
@@ -882,11 +890,11 @@ export default function ExitTicketsPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[10px] text-surface-500 block mb-1">Title</label>
-                      <input className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-amber-500/40" placeholder="e.g. Photosynthesis Check" />
+                      <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white placeholder-surface-600 focus:outline-none focus:border-amber-500/40" placeholder="e.g. Photosynthesis Check" />
                     </div>
                     <div>
                       <label className="text-[10px] text-surface-500 block mb-1">Period</label>
-                      <select className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500/40" style={{ backgroundColor: 'rgba(15,15,35,0.6)' }}>
+                      <select value={newPeriod} onChange={e => setNewPeriod(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500/40" style={{ backgroundColor: 'rgba(15,15,35,0.6)' }}>
                         {['Period 1', 'Period 2', 'Period 3', 'Period 4', 'Period 5', 'Period 6'].map(p => (
                           <option key={p}>{p}</option>
                         ))}
@@ -926,7 +934,20 @@ export default function ExitTicketsPage() {
                       className="flex-1 btn-gradient text-xs py-2"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => { showToast('New exit ticket created!'); setView('overview') }}
+                      onClick={() => {
+                        const title = newTitle.trim() || 'New Exit Ticket'
+                        const newTicket: ExitTicket = {
+                          id: `et${Date.now()}`, title, topic: 'General',
+                          period: newPeriod, status: 'draft',
+                          responses: 0, totalStudents: 28, completionRate: 0, avgScore: 0,
+                          createdAt: new Date().toISOString().slice(0, 10),
+                          questions: newQType ? [{ id: 'q1', type: newQType, text: 'Enter your question here' }] : [],
+                        }
+                        setTickets(prev => [newTicket, ...prev])
+                        setSelectedTicket(newTicket)
+                        setNewTitle(''); setNewPeriod('Period 1'); setNewQType(null)
+                        showToast(`"${title}" created!`); setView('overview')
+                      }}
                     >
                       <Plus className="w-3.5 h-3.5" /> Create Ticket
                     </motion.button>

@@ -193,10 +193,10 @@ export default function AssessmentCenterPage() {
                 : <><Sparkles className="w-4 h-4" /> AI Insights</>
               }
             </button>
-            <button className="btn-secondary text-sm flex items-center gap-2">
+            <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => showToast('Assessments exported')}>
               <Download className="w-4 h-4" /> Export
             </button>
-            <button className="btn-gradient text-sm flex items-center gap-2">
+            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening assessment builder…')}>
               <Plus className="w-4 h-4" /> New Assessment
             </button>
           </div>

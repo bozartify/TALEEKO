@@ -529,7 +529,8 @@ export default function GameBuilderPage() {
                               <div>
                                 <label className="text-[10px] text-surface-500 font-semibold uppercase tracking-wider block mb-1">Question</label>
                                 <textarea
-                                  defaultValue={q.question}
+                                  value={q.question}
+                                  onChange={e => setQuestions(prev => prev.map(qx => qx.id === q.id ? { ...qx, question: e.target.value } : qx))}
                                   rows={3}
                                   className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40 resize-none"
                                 />
@@ -537,7 +538,8 @@ export default function GameBuilderPage() {
                               <div>
                                 <label className="text-[10px] text-success-400 font-semibold uppercase tracking-wider block mb-1">Answer</label>
                                 <textarea
-                                  defaultValue={q.answer}
+                                  value={q.answer}
+                                  onChange={e => setQuestions(prev => prev.map(qx => qx.id === q.id ? { ...qx, answer: e.target.value } : qx))}
                                   rows={3}
                                   className="w-full px-3 py-2 text-xs rounded-xl bg-success-500/5 border border-success-500/20 text-success-200 focus:outline-none focus:border-success-500/40 resize-none"
                                 />
@@ -547,7 +549,7 @@ export default function GameBuilderPage() {
                               <div className="flex items-center gap-2">
                                 <span className="text-[10px] text-surface-500">Points:</span>
                                 {[100, 200, 300, 400].map(pts => (
-                                  <button key={pts} className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${q.points === pts ? 'border-accent-500/40 bg-accent-500/20 text-accent-300' : 'border-white/[0.06] text-surface-500 hover:text-surface-300'}`}>
+                                  <button key={pts} onClick={() => setQuestions(prev => prev.map(qx => qx.id === q.id ? { ...qx, points: pts } : qx))} className={`text-[10px] px-2 py-0.5 rounded-full border transition-colors ${q.points === pts ? 'border-accent-500/40 bg-accent-500/20 text-accent-300' : 'border-white/[0.06] text-surface-500 hover:text-surface-300'}`}>
                                     {pts}
                                   </button>
                                 ))}

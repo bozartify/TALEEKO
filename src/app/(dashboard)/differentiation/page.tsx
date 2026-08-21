@@ -427,7 +427,7 @@ export default function DifferentiationPage() {
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
+                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => { setSaveToast(alert.action + '…'); setTimeout(() => setSaveToast(''), 2000) }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -732,6 +732,7 @@ export default function DifferentiationPage() {
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 title="Copy adaptation"
+                                onClick={() => { navigator.clipboard?.writeText(adaptation.bullets.join('\n')).catch(() => {}); showSaveToast('Copied to clipboard!') }}
                               >
                                 <Copy className="w-3 h-3 text-surface-400" />
                               </motion.button>
@@ -852,7 +853,7 @@ export default function DifferentiationPage() {
                   <GraduationCap className="w-4 h-4 text-blue-400" />
                   Per-Student Adaptation Tracker
                 </h3>
-                <button className="text-[11px] text-accent-400 flex items-center gap-1">
+                <button className="text-[11px] text-accent-400 flex items-center gap-1" onClick={() => showSaveToast('Loading full tracker…')}>
                   View All <ExternalLink className="w-3 h-3" />
                 </button>
               </div>
