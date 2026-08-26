@@ -35,6 +35,7 @@ export default function SettingsPage() {
   const [active, setActive] = useState('profile')
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
+  const [apiKey, setApiKey] = useState('sk-ant-api03-xxxxxxxxxxxx')
   const [darkMode, setDarkMode] = useState(false)
   const [profile, setProfile] = useState({
     firstName: 'Alex', lastName: 'Johnson',
@@ -563,7 +564,8 @@ export default function SettingsPage() {
                       <div className="flex gap-2">
                         <input
                           type={showKey ? 'text' : 'password'}
-                          defaultValue="sk-ant-api03-xxxxxxxxxxxx"
+                          value={apiKey}
+                          onChange={e => setApiKey(e.target.value)}
                           className="input-base font-mono flex-1"
                         />
                         <button onClick={() => setShowKey(!showKey)} className="btn-secondary text-xs px-3">
