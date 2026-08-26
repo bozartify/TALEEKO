@@ -40,8 +40,14 @@ export default function OnboardingPage() {
   }
 
   function next() {
-    if (step < 3) setStep(step + 1)
-    else router.push('/dashboard')
+    if (step < 3) {
+      setStep(step + 1)
+    } else {
+      try {
+        localStorage.setItem('taleeko_onboarding', JSON.stringify({ name, grade, school, selectedSubjects, tone, complexity, autoSave, completedAt: new Date().toISOString() }))
+      } catch {}
+      router.push('/dashboard')
+    }
   }
 
   function back() {

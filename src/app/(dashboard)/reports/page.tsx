@@ -184,6 +184,15 @@ export default function ReportsPage() {
   const [scheduleModal, setScheduleModal] = useState(false)
   const [shareModal, setShareModal] = useState<string | null>(null)
   const [scheduledList, setScheduledList] = useState(scheduledReports)
+  const [schedTitle, setSchedTitle] = useState('')
+  const [schedType, setSchedType] = useState('')
+  const [schedFreq, setSchedFreq] = useState('Weekly')
+  const [schedEmail, setSchedEmail] = useState('')
+  const [shareEmail, setShareEmail] = useState('')
+  const [fieldChecks, setFieldChecks] = useState<Record<string, boolean>>({})
+  const [fieldSelects, setFieldSelects] = useState<Record<string, string>>({})
+  const [fieldDatesFrom, setFieldDatesFrom] = useState<Record<string, string>>({})
+  const [fieldDatesTo, setFieldDatesTo] = useState<Record<string, string>>({})
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -396,7 +405,7 @@ export default function ReportsPage() {
                       <div className="w-1.5 h-1.5 rounded-full mb-2" style={{ backgroundColor: ins.color }} />
                       <h4 className="text-xs font-bold text-white mb-1">{ins.title}</h4>
                       <p className="text-[10px] text-surface-400 leading-relaxed mb-3">{ins.desc}</p>
-                      <button className="text-[10px] font-bold flex items-center gap-1" style={{ color: ins.color }}>
+                      <button onClick={() => showToast(`${ins.cta}…`)} className="text-[10px] font-bold flex items-center gap-1" style={{ color: ins.color }}>
                         {ins.cta} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -555,13 +564,13 @@ export default function ReportsPage() {
                                   <div key={f.label}>
                                     {f.type === 'checkbox' ? (
                                       <label className="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" defaultChecked className="w-3 h-3 accent-accent-500 rounded" />
+                                        <input type="checkbox" checked={fieldChecks[`${report.id}-${f.label}`] ?? true} onChange={e => setFieldChecks(p => ({ ...p, [`${report.id}-${f.label}`]: e.target.checked }))} className="w-3 h-3 accent-accent-500 rounded" />
                                         <span className="text-[10px] text-surface-400">{f.label}</span>
                                       </label>
                                     ) : f.type === 'select' && f.options ? (
                                       <div>
                                         <span className="text-[10px] text-surface-500 block mb-0.5">{f.label}</span>
-                                        <select className="w-full text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-accent-500">
+                                        <select value={fieldSelects[`${report.id}-${f.label}`] ?? f.options[0]} onChange={e => setFieldSelects(p => ({ ...p, [`${report.id}-${f.label}`]: e.target.value }))} className="w-full text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-accent-500">
                                           {f.options.map(o => <option key={o} value={o} className="bg-surface-900">{o}</option>)}
                                         </select>
                                       </div>
@@ -569,9 +578,9 @@ export default function ReportsPage() {
                                       <div>
                                         <span className="text-[10px] text-surface-500 block mb-0.5">{f.label}</span>
                                         <div className="flex gap-1">
-                                          <input type="date" className="flex-1 text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none" />
+                                          <input type="date" value={fieldDatesFrom[`${report.id}-${f.label}`] ?? ''} onChange={e => setFieldDatesFrom(p => ({ ...p, [`${report.id}-${f.label}`]: e.target.value }))} className="flex-1 text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none" />
                                           <span className="text-surface-600 self-center">–</span>
-                                          <input type="date" className="flex-1 text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none" />
+                                          <input type="date" value={fieldDatesTo[`${report.id}-${f.label}`] ?? ''} onChange={e => setFieldDatesTo(p => ({ ...p, [`${report.id}-${f.label}`]: e.target.value }))} className="flex-1 text-[10px] bg-white/[0.06] border border-white/[0.08] text-surface-200 rounded-lg px-2 py-1 focus:outline-none" />
                                         </div>
                                       </div>
                                     )}
@@ -640,6 +649,7 @@ export default function ReportsPage() {
                             key={q.label}
                             className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                             initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
+                            onClick={() => showToast(`Generating: ${q.label}…`)}
                           >
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: q.color + '18' }}>
                               <q.icon className="w-3.5 h-3.5" style={{ color: q.color }} />
@@ -686,7 +696,7 @@ export default function ReportsPage() {
                       })()}
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-[10px] text-surface-500">7 of 10 used</span>
-                        <button className="text-[10px] text-accent-400 font-semibold hover:text-accent-300">Upgrade Plan</button>
+                        <button onClick={() => showToast('Opening upgrade options…')} className="text-[10px] text-accent-400 font-semibold hover:text-accent-300">Upgrade Plan</button>
                       </div>
                     </div>
                   </FadeInWhenVisible>
@@ -736,7 +746,7 @@ export default function ReportsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button className="text-surface-500 hover:text-surface-200 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
+                    <button onClick={() => showToast(`Editing schedule: ${sched.title}`)} className="text-surface-500 hover:text-surface-200 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
                       <Settings className="w-3.5 h-3.5" />
                     </button>
                     <button
@@ -789,8 +799,8 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Report History</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
-                <button className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
+                <button onClick={() => showToast('Opening filter options…')} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button onClick={() => showToast('Exporting all reports…')} className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
               </div>
             </div>
             <div className="glass-card overflow-hidden">
@@ -877,6 +887,7 @@ export default function ReportsPage() {
             <motion.button
               className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0"
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              onClick={() => showToast('Opening Reports API documentation…')}
             >
               View API Docs <ChevronRight className="w-3 h-3" />
             </motion.button>
@@ -903,12 +914,12 @@ export default function ReportsPage() {
                 ].map(f => (
                   <div key={f.label}>
                     <label className="block text-xs font-semibold text-surface-300 mb-1.5">{f.label}</label>
-                    <input type="text" placeholder={f.placeholder} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                    <input type="text" value={schedTitle} onChange={e => setSchedTitle(e.target.value)} placeholder={f.placeholder} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
                   </div>
                 ))}
                 <div>
                   <label className="block text-xs font-semibold text-surface-300 mb-1.5">Report Type</label>
-                  <select className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                  <select value={schedType} onChange={e => setSchedType(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
                     {reportTypes.map(r => <option key={r.id} value={r.id} className="bg-surface-900">{r.title}</option>)}
                   </select>
                 </div>
@@ -916,7 +927,7 @@ export default function ReportsPage() {
                   <label className="block text-xs font-semibold text-surface-300 mb-1.5">Frequency</label>
                   <div className="flex gap-2">
                     {['Daily', 'Weekly', 'Monthly'].map(f => (
-                      <button key={f} className="flex-1 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-surface-300 hover:border-accent-500/40 hover:text-white transition-all">
+                      <button key={f} onClick={() => setSchedFreq(f)} className={`flex-1 py-2 rounded-xl border text-xs transition-all ${schedFreq === f ? 'border-accent-500/40 text-white bg-accent-500/10' : 'bg-white/[0.04] border-white/[0.08] text-surface-300 hover:border-accent-500/40 hover:text-white'}`}>
                         {f}
                       </button>
                     ))}
@@ -924,7 +935,7 @@ export default function ReportsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-surface-300 mb-1.5">Recipients (email)</label>
-                  <input type="email" placeholder="Add email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                  <input type="email" value={schedEmail} onChange={e => setSchedEmail(e.target.value)} placeholder="Add email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
                 </div>
               </div>
               <div className="flex gap-3 mt-6">
@@ -954,7 +965,7 @@ export default function ReportsPage() {
                   { label: 'Copy shareable link', icon: Globe, color: '#14b8a6' },
                   { label: 'Restrict access', icon: Lock, color: '#f59e0b' },
                 ].map(o => (
-                  <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] text-left transition-colors">
+                  <button key={o.label} onClick={() => showToast(o.label + '…')} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] text-left transition-colors">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: o.color + '18' }}>
                       <o.icon className="w-4 h-4" style={{ color: o.color }} />
                     </div>
@@ -963,7 +974,7 @@ export default function ReportsPage() {
                 ))}
                 <div>
                   <label className="block text-xs font-semibold text-surface-300 mb-1.5">Share with</label>
-                  <input type="email" placeholder="Enter email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                  <input type="email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} placeholder="Enter email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
                 </div>
               </div>
               <motion.button className="btn-gradient text-xs w-full mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setShareModal(null); showToast('Report shared successfully!') }}>

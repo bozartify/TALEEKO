@@ -406,8 +406,8 @@ export default function NewsletterPage() {
               {[
                 { label: 'Email Parents', icon: Mail, color: '#6366f1', action: () => setSendModal(true) },
                 { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => showToast('Newsletter downloaded as PDF') },
-                { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => showToast('Sending to printer…') },
-                { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => showToast('Shareable link copied to clipboard') },
+                { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => { window.print(); showToast('Sending to printer…') } },
+                { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Shareable link copied to clipboard') } },
               ].map(opt => (
                 <button
                   key={opt.label}
