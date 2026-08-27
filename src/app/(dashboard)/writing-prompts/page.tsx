@@ -251,28 +251,47 @@ export default function WritingPromptsPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
-  function handleGeneratePrompt() {
+  async function handleGeneratePrompt() {
     if (!genTopic.trim()) { showToast('Please enter a subject or topic'); return }
     setGenerating(true)
     setGeneratedText('')
-    setTimeout(() => {
-      const modeCfg = modeConfig[genMode]
-      const scaffold = genScaffold ? '\n\nScaffolding Questions:\n1. What is your central idea or argument?\n2. What evidence or examples will you use?\n3. How will you begin your response?' : ''
-      const rubric = genRubric ? '\n\nRubric Focus Areas: Organization · Voice · Word Choice · Conventions' : ''
-      const starters: Record<PromptMode, string> = {
-        narrative:   `Write a story about ${genTopic}`,
-        persuasive:  `Write a persuasive essay arguing a position on ${genTopic}`,
-        expository:  `Write an expository essay explaining ${genTopic}`,
-        descriptive: `Write a descriptive piece about ${genTopic}`,
-        creative:    `Write a creative piece inspired by ${genTopic}`,
-        reflective:  `Write a personal reflection on ${genTopic}`,
-        research:    `Write a research-based response on ${genTopic}`,
+    try {
+      const diffGuide: Record<DifficultyLevel, string> = { scaffolded: 'with sentence starters and scaffolding questions', standard: 'at grade level', advanced: 'with complex academic demands and a thesis requirement', 'open-ended': 'open-ended with minimal constraints' }
+      const prompt = `Create a ${genMode} writing prompt for grade ${genGrade} students about "${genTopic}".
+${genInstructions ? `Additional context: ${genInstructions}` : ''}
+Difficulty: ${diffGuide[genDiff]}.
+${genScaffold ? 'Include 3-4 scaffolding questions at the end to guide students.' : ''}
+${genRubric ? 'Include a brief rubric focus section (Organization, Voice, Word Choice, Conventions).' : ''}
+Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the prompt itself.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], mode: 'general' }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = ''
+      let text = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') break
+          try { const p = JSON.parse(data); if (p.type === 'text') text += p.text } catch { /* ignore */ }
+        }
       }
-      const text = `${modeCfg.label} Writing Prompt — ${genGrade}\n\nTopic: ${genTopic}\nDifficulty: ${difficultyConfig[genDiff].label}\n\n${genInstructions ? `Context: ${genInstructions}\n\n` : ''}Prompt:\n${starters[genMode]}. Use specific details and ${genMode === 'persuasive' ? 'strong evidence to support your claim' : genMode === 'narrative' ? 'vivid sensory language to bring your story to life' : 'clear organization to guide your reader'}. Your response should be ${genDiff === 'scaffolded' ? 'at least 2 paragraphs' : genDiff === 'advanced' ? 'at least 5 paragraphs with a clear thesis' : '3–4 paragraphs'}.${scaffold}${rubric}`
-      setGeneratedText(text)
-      setGenerating(false)
+      setGeneratedText(text.trim())
       showToast('Writing prompt generated!')
-    }, 2200)
+    } catch {
+      showToast('Generation failed — check connection')
+    } finally {
+      setGenerating(false)
+    }
   }
 
   const filtered = prompts.filter(p => {
