@@ -137,10 +137,63 @@ export default function WordWallPage() {
   const [gotIt, setGotIt] = useState(0)
   const [stillLearning, setStillLearning] = useState(0)
   const [starFilter, setStarFilter] = useState(false)
+  const [generatingWord, setGeneratingWord] = useState(false)
+
+  const WORD_COLORS = ['#10b981', '#6366f1', '#f97316', '#ec4899', '#22d3ee', '#8b5cf6', '#f59e0b']
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function generateWord() {
+    if (!newWord.trim()) return
+    setGeneratingWord(true)
+    try {
+      const isMulti = newWord.split(/\s+/).length > 2 || /vocabular|unit|words/i.test(newWord)
+      const countDesc = isMulti ? '5–8 vocabulary words for this topic' : 'this single vocabulary word'
+      const prompt = `Generate ${countDesc}: "${newWord}". Return a JSON array: [{"word":"...","partOfSpeech":"noun|verb|adjective|adverb","definition":"1-2 sentence definition","example":"concrete grade-appropriate example sentence","etymology":"Greek/Latin origin if known, else empty string","synonyms":["...","..."]}]. Return ONLY the JSON array.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\[[\s\S]*\]/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>[]
+        const newWords: VocabWord[] = parsed.map((w, i) => ({
+          id: `w${Date.now()}-${i}`,
+          word: String(w.word ?? ''),
+          partOfSpeech: String(w.partOfSpeech ?? 'noun'),
+          definition: String(w.definition ?? ''),
+          example: String(w.example ?? ''),
+          etymology: w.etymology ? String(w.etymology) : undefined,
+          synonyms: Array.isArray(w.synonyms) ? w.synonyms.map(String) : [],
+          color: WORD_COLORS[(words.length + i) % WORD_COLORS.length],
+          unit: unitFilter !== 'All Units' ? unitFilter : 'Unit 1: Cell Biology',
+          mastery: 10 + (i * 7) % 30,
+          starred: false,
+        }))
+        setWords(prev => [...newWords, ...prev])
+        showToast(`Added ${newWords.length} word${newWords.length > 1 ? 's' : ''} to the wall!`)
+      } else { showToast('Generation failed — try again') }
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGeneratingWord(false); setAddingWord(false); setNewWord('') }
   }
 
   const filtered = words.filter(w => {
@@ -414,13 +467,14 @@ export default function WordWallPage() {
                 placeholder="Enter a word or topic (e.g. 'mitochondria' or 'ecology unit vocabulary')..."
                 className="flex-1 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white placeholder:text-surface-500 focus:outline-none focus:border-success-400/40 transition-all"
                 autoFocus
-                onKeyDown={e => { if (e.key === 'Enter' && newWord.trim()) { showToast(`Generating definitions for "${newWord}"…`); setAddingWord(false); setNewWord('') } }}
+                onKeyDown={e => { if (e.key === 'Enter' && newWord.trim() && !generatingWord) generateWord() }}
               />
               <button
                 className="btn-gradient text-xs px-4"
-                onClick={() => { if (newWord.trim()) { showToast(`Generating definitions for "${newWord}"…`); setAddingWord(false); setNewWord('') } }}
+                onClick={() => { if (!generatingWord) generateWord() }}
+                disabled={generatingWord}
               >
-                <Sparkles className="w-3.5 h-3.5" /> Generate
+                <Sparkles className="w-3.5 h-3.5" /> {generatingWord ? 'Generating…' : 'Generate'}
               </button>
               <button className="btn-secondary text-xs px-3" onClick={() => setAddingWord(false)}>Cancel</button>
             </div>

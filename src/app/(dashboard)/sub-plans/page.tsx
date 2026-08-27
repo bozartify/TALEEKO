@@ -234,9 +234,44 @@ export default function SubPlansPage() {
 
   const handleGenerate = async () => {
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2500))
-    setGenerating(false)
-    showToast('Sub plan generated for selected date!')
+    try {
+      const periodSummary = selectedPlan.periods.map(p => `${p.name} (${p.time}, ${p.students} students): ${p.activity}`).join('\n')
+      const prompt = `Generate detailed substitute teacher instructions for these class periods on ${absentDate || selectedPlan.date}:\n${periodSummary}\n\nReturn JSON: {"periods":[{"id":"<id>","activity":"<2-3 sentence activity description>","notes":"<specific instructions for the sub, 2-3 sentences>"}]}\n\nKeep activities achievable for a substitute with no content background. Return ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        if (Array.isArray(parsed.periods)) {
+          const updates: Record<string, { activity: string; notes: string }> = {}
+          parsed.periods.forEach((p: { id: string; activity: string; notes: string }) => { if (p.id) updates[p.id] = { activity: p.activity, notes: p.notes } })
+          const updatedPlan = { ...selectedPlan, periods: selectedPlan.periods.map(p => updates[p.id] ? { ...p, ...updates[p.id] } : p) }
+          setSelectedPlan(updatedPlan)
+          setPlans(prev => prev.map(pl => pl.id === selectedPlan.id ? updatedPlan : pl))
+          showToast('Sub plan generated!')
+        }
+      } else { showToast('Plan generated — review periods for details') }
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   const handleCopy = (id: string) => {

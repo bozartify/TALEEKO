@@ -266,6 +266,7 @@ export default function DifferentiationPage() {
   const [lessonStandard, setLessonStandard] = useState('MS-LS1-6')
   const [lessonTime, setLessonTime] = useState('50')
   const [saveToast, setSaveToast] = useState('')
+  const [aiAdaptations, setAiAdaptations] = useState<Partial<Record<string, Adaptation>>>({})
 
   const totalStudents = LEARNER_PROFILES.reduce((sum, p) => sum + p.students, 0)
 
@@ -294,12 +295,43 @@ export default function DifferentiationPage() {
     setTimeout(() => setSaveToast(''), 2500)
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setGenerating(true)
-    setTimeout(() => {
-      setGenerating(false)
-      showSaveToast('All 5 adaptations generated!')
-    }, 2200)
+    try {
+      const prompt = `Create differentiated adaptations for a ${lessonTime}-minute Grade ${lessonGrade} ${lessonSubject} lesson on "${lessonTopic}". Objective: ${lessonObjective}. Standard: ${lessonStandard}.\n\nGenerate 5 adaptations. Return JSON:\n{"advanced":{"title":"Enrichment Adaptation","bloomBadge":"Create","bullets":["...","...","...","...","..."]},"on-level":{"title":"Grade-Level Instruction","bloomBadge":"Apply","bullets":["...","...","..."]},"approaching":{"title":"Scaffolded Support","bloomBadge":"Understand","bullets":["...","...","..."]},"ell":{"title":"ELL Adaptation","bloomBadge":"Understand","bullets":["...","...","..."]},"iep":{"title":"IEP Accommodations","bloomBadge":"Remember","bullets":["...","...","..."]}}\n\nEach array: 4–6 concrete, actionable bullet points. Return ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        const updates: Partial<Record<string, Adaptation>> = {}
+        for (const id of ['advanced', 'on-level', 'approaching', 'ell', 'iep']) {
+          if (parsed[id]?.bullets) updates[id] = parsed[id] as Adaptation
+        }
+        setAiAdaptations(updates)
+        showSaveToast('All 5 adaptations generated!')
+      } else { showSaveToast('Generation failed — try again') }
+    } catch { showSaveToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   const handleCopyLink = () => {
@@ -308,7 +340,7 @@ export default function DifferentiationPage() {
   }
 
   const activeProfile = LEARNER_PROFILES.find(p => p.id === activeTab)!
-  const activeAdaptation = ADAPTATIONS[activeTab]
+  const activeAdaptation = aiAdaptations[activeTab] ?? ADAPTATIONS[activeTab]
 
   return (
     <div className="space-y-6">

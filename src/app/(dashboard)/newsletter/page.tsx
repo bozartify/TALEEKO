@@ -107,38 +107,74 @@ export default function NewsletterPage() {
     )
   }
 
+  async function streamText(prompt: string): Promise<string> {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+    })
+    const reader = res.body!.getReader()
+    const decoder = new TextDecoder()
+    let buf = '', fullText = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      const lines = buf.split('\n')
+      buf = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const raw = line.slice(6).trim()
+        if (raw === '[DONE]') break
+        try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+      }
+    }
+    return fullText
+  }
+
+  const SECTION_LABELS: Record<Section, string> = {
+    fromDesk: 'A warm personal message from the teacher',
+    highlights: 'Bullet-point class highlights (use ✦ bullets)',
+    upcoming: 'Upcoming events and reminders (use • bullets)',
+    reminders: 'Important reminders for families (use 📌 bullets)',
+    spotlight: 'Student spotlight — celebrate a student\'s growth without naming them',
+    resources: 'Helpful resources and links for families (use • bullets)',
+  }
+
   async function generateSection(section: Section) {
     setGeneratingSection(section)
-    await new Promise(r => setTimeout(r, 1800))
-    const cls = className || 'My Class'
-    const sectionDefaults: Partial<Record<Section, string>> = {
-      fromDesk: `Dear Families,\n\nThank you for your continued partnership in your student's education in ${cls}. It's been a wonderful period of learning and growth.\n\nWarm regards,\nYour Teacher`,
-      highlights: `✦ Students showed outstanding engagement throughout this period in ${cls}.\n✦ Collaborative work and discussions demonstrated real critical thinking growth.`,
-      upcoming: `• Please check the class website for updated assignment due dates\n• Reach out if your student needs additional support`,
-      reminders: `📌 All materials should be brought to class each day.\n📌 Check the portal regularly for grades and feedback.`,
-      spotlight: `This period's spotlight student in ${cls} has shown incredible growth and dedication. Congratulations!`,
-      resources: `• Class Website: Notes, slides, and assignments\n• Khan Academy: Free practice for all topics\n• Office Hours: Check the calendar for times`,
-    }
-    setContents(prev => ({ ...prev, [section]: sectionDefaults[section] ?? '' }))
+    try {
+      const cls = className || 'My Class'
+      const dr = dateRange || 'This Week'
+      const toneMap = { warm: 'warm and friendly', professional: 'professional', formal: 'formal' }
+      const prompt = `Write the "${SECTION_LABELS[section]}" section of a ${tone} family newsletter for "${cls}" covering ${dr}. ${toneMap[tone as keyof typeof toneMap]} tone. 3–5 lines max. Return ONLY the text with no heading.`
+      const text = await streamText(prompt)
+      if (text) setContents(prev => ({ ...prev, [section]: text }))
+    } catch {}
     setGeneratingSection(null)
   }
 
   async function generateAll() {
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2500))
-    const cls = className || 'My Class'
-    const dr = dateRange || 'This Week'
-    const generated: Partial<Record<Section, string>> = {
-      fromDesk: `Dear Families,\n\nWelcome to the latest newsletter for ${cls}! This has been an exciting and productive period, and I'm proud of everything our students have accomplished.\n\nPlease take a moment to review the highlights and upcoming events below. As always, please don't hesitate to reach out with any questions.\n\nWarm regards,\nYour Teacher`,
-      highlights: `✦ Students demonstrated outstanding engagement and effort throughout ${dr}.\n✦ Collaborative activities and discussions showed real growth in critical thinking.\n✦ ${cls} continues to impress with their curiosity and dedication to learning.`,
-      upcoming: `• Please check the class website for updated assignment due dates\n• Reach out if your student needs additional support\n• Stay tuned for the next update during ${dr}`,
-      reminders: `📌 Please ensure your student brings all required materials each day.\n📌 Check the online portal regularly for grades and feedback.\n📌 Contact us at any time with questions or concerns.`,
-      spotlight: `This period's Student Spotlight features one of our shining stars in ${cls} — a student who has shown remarkable growth, resilience, and enthusiasm for learning. Congratulations!`,
-      resources: `• Class Website: Review notes, slides, and assignments online\n• Khan Academy: Free practice and video tutorials for all topics\n• Office Hours: Available before and after school — check the calendar for times`,
-    }
-    setContents(generated)
-    setGenerating(false)
-    showToast('Newsletter generated!')
+    try {
+      const cls = className || 'My Class'
+      const dr = dateRange || 'This Week'
+      const toneMap = { warm: 'warm and friendly', professional: 'professional', formal: 'formal' }
+      const sectionList = activeSections.map(s => `"${s}": ${SECTION_LABELS[s]}`).join('; ')
+      const prompt = `Write a ${toneMap[tone as keyof typeof toneMap]} family newsletter for "${cls}" covering ${dr}. Generate these sections: ${sectionList}. Return a valid JSON object with section keys (${activeSections.join(', ')}) and string values. Use ✦ bullets for highlights, • bullets for lists, 📌 for reminders. 3–5 lines per section. Return ONLY the JSON.`
+      const text = await streamText(prompt)
+      const jsonMatch = text.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0])
+          const updated: Partial<Record<Section, string>> = {}
+          activeSections.forEach(s => { if (parsed[s]) updated[s] = String(parsed[s]) })
+          setContents(prev => ({ ...prev, ...updated }))
+          showToast('Newsletter generated!')
+        } catch { showToast('Generated — but parse failed, try individual sections') }
+      } else { showToast('Generation incomplete — try individual sections') }
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   function handleSend() {

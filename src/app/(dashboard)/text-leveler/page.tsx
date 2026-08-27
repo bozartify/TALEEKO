@@ -91,11 +91,45 @@ export default function TextLevelerPage() {
   const outputFK = fkScore(outputText)
 
   async function handleGenerate() {
+    if (!inputText.trim()) { showToast('Please enter text to level'); return }
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2000))
-    setOutputText(TEXTS[targetLevel])
-    setGenerating(false)
-    showToast(`Leveled to Grade ${targetConfig.label} — ${TEXTS[targetLevel].trim().split(/\s+/).length} words generated`)
+    setOutputText('')
+    try {
+      const modeLabels: Record<Mode, string> = {
+        simplify: 'Simplify and rewrite',
+        elevate: 'Elevate the complexity of',
+        translate: `Translate to ${outputLanguage} and adapt`,
+      }
+      const vocabNote = preserveVocab ? ' Preserve and bold key domain vocabulary.' : ''
+      const defNote = addDefinitions ? ' Add brief parenthetical definitions for difficult terms.' : ''
+      const countNote = keepSentenceCount ? ` Keep approximately ${inputText.split(/[.!?]+/).filter(Boolean).length} sentences.` : ''
+      const audienceNote = audience !== 'students' ? ` Audience: ${audience}.` : ''
+      const prompt = `${modeLabels[mode]} this text for Grade ${targetConfig.label} readers (Lexile ${targetConfig.lexile}, ${targetConfig.description}).${audienceNote}${vocabNote}${defNote}${countNote}\n\nOriginal:\n${inputText}\n\nReturn ONLY the adapted text with no labels or explanation.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') { fullText += p.text; setOutputText(fullText) } } catch {}
+        }
+      }
+      if (fullText) showToast(`Leveled to Grade ${targetConfig.label} — ${fullText.trim().split(/\s+/).length} words`)
+      else showToast('Generation failed — try again')
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   function handleCopy() {
