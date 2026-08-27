@@ -42,6 +42,10 @@ export default function SettingsPage() {
     email: 'demo@taleeko.ai', school: 'Lincoln Middle School',
     subjects: 'Science, Biology', grades: '7th, 8th, 9th',
     bio: 'Passionate science teacher with 8 years of experience in middle school education.',
+    role: 'Teacher', language: 'English',
+  })
+  const [aiPrefs, setAiPrefs] = useState({
+    gradeLevel: '7th Grade', standards: 'NGSS (Next Generation Science Standards)', outputLang: 'Same as input',
   })
 
   function toggleDarkMode() {
@@ -185,7 +189,7 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Role</label>
-                        <select className="input-base">
+                        <select value={profile.role} onChange={e => setProfile(p => ({...p, role: e.target.value}))} className="input-base">
                           <option>Teacher</option>
                           <option>Department Head</option>
                           <option>Curriculum Designer</option>
@@ -195,7 +199,7 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Language</label>
-                        <select className="input-base">
+                        <select value={profile.language} onChange={e => setProfile(p => ({...p, language: e.target.value}))} className="input-base">
                           <option>English</option>
                           <option>Español</option>
                           <option>Français</option>
@@ -228,11 +232,11 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold text-surface-200 mb-1.5">Default Grade Level</label>
-                        <select className="input-base">
+                        <select value={aiPrefs.gradeLevel} onChange={e => setAiPrefs(p => ({...p, gradeLevel: e.target.value}))} className="input-base">
                           <option>K-2nd Grade</option>
                           <option>3rd-5th Grade</option>
                           <option>6th-8th Grade</option>
-                          <option selected>7th Grade</option>
+                          <option>7th Grade</option>
                           <option>9th-10th Grade</option>
                           <option>11th-12th Grade</option>
                           <option>Higher Education</option>
@@ -245,7 +249,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Curriculum Standards</label>
-                      <select className="input-base">
+                      <select value={aiPrefs.standards} onChange={e => setAiPrefs(p => ({...p, standards: e.target.value}))} className="input-base">
                         <option>Common Core State Standards</option>
                         <option>NGSS (Next Generation Science Standards)</option>
                         <option>State Standards</option>
@@ -264,7 +268,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Default Output Language</label>
-                      <select className="input-base">
+                      <select value={aiPrefs.outputLang} onChange={e => setAiPrefs(p => ({...p, outputLang: e.target.value}))} className="input-base">
                         <option>Same as input</option>
                         <option>English</option>
                         <option>Español</option>
@@ -400,17 +404,17 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Font Size</label>
-                      <select className="input-base">
+                      <select defaultValue="Medium" className="input-base">
                         <option>Small</option>
-                        <option selected>Medium</option>
+                        <option>Medium</option>
                         <option>Large</option>
                         <option>Extra Large</option>
                       </select>
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Color Contrast</label>
-                      <select className="input-base">
-                        <option selected>Standard</option>
+                      <select defaultValue="Standard" className="input-base">
+                        <option>Standard</option>
                         <option>High Contrast</option>
                       </select>
                     </div>

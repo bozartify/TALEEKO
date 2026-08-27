@@ -778,7 +778,7 @@ export default function QuizBuilderPage() {
                     <div key={opt.label}>
                       <label className="text-[10px] font-semibold text-surface-500 uppercase tracking-wider block mb-1">{opt.label}</label>
                       {opt.type === 'select' ? (
-                        <select className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:outline-none focus:border-accent-500/40 transition-all appearance-none">
+                        <select defaultValue={opt.value} className="w-full px-3 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-sm text-white focus:outline-none focus:border-accent-500/40 transition-all appearance-none">
                           {opt.opts?.map(o => <option key={o} value={o} className="bg-surface-800">{o}</option>)}
                         </select>
                       ) : (

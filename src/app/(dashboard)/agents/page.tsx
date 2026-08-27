@@ -139,6 +139,8 @@ export default function AgentsPage() {
   const [showDeploy, setShowDeploy] = useState(false)
   const [deployAutonomy, setDeployAutonomy] = useState<Autonomy>('semi')
   const [deployTask, setDeployTask] = useState('')
+  const [deployAgentType, setDeployAgentType] = useState('')
+  const [deployClass, setDeployClass] = useState('AP Biology')
   const [toastMsg, setToastMsg] = useState('')
 
   function showToast(msg: string) {
@@ -696,13 +698,13 @@ export default function AgentsPage() {
               <div className="space-y-3">
                 <div>
                   <label className="text-xs text-surface-400 mb-1 block">Agent Type</label>
-                  <select className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
+                  <select value={deployAgentType} onChange={e => setDeployAgentType(e.target.value)} className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
                     {agentTemplates.map(t => <option key={t.name}>{t.name}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="text-xs text-surface-400 mb-1 block">Class / Context</label>
-                  <select className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
+                  <select value={deployClass} onChange={e => setDeployClass(e.target.value)} className="w-full px-3 py-2 text-xs bg-white/[0.06] border border-white/[0.08] rounded-xl text-surface-300 focus:outline-none focus:border-accent-500/50">
                     <option>AP Biology</option>
                     <option>10th English</option>
                     <option>Algebra II</option>
