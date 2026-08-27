@@ -217,6 +217,18 @@ export default function ReportCardsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportCSV() {
+    const headers = ['Student', 'Grade', 'GPA', 'Attendance %', 'Trend', 'IEP', 'ELL']
+    const rows = selectedList.map(s => [s.name, s.grade, String(s.gpa), String(s.attendance), s.trend, s.iep ? 'Yes' : 'No', s.ell ? 'Yes' : 'No'])
+    const csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'report-cards.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Report cards exported as CSV')
+  }
+
   const approvedCount = approvals.size
   const gradeDistribution = [
     { grade: 'A', count: students.filter(s => s.grade.startsWith('A')).length, color: '#10b981' },
@@ -249,11 +261,11 @@ export default function ReportCardsPage() {
               )}
               {step === 'preview' && (
                 <>
-                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Printing all report cards…')}>
+                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => { window.print(); showToast('Printing all report cards…') }}>
                     <Printer className="w-3.5 h-3.5" /> Print All
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Exporting report cards as PDF…')}>
-                    <Download className="w-3.5 h-3.5" /> Export PDF
+                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={exportCSV}>
+                    <Download className="w-3.5 h-3.5" /> Export CSV
                   </button>
                   <button className="btn-gradient text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => setShareOpen(true)}>
                     <Mail className="w-3.5 h-3.5" /> Email Parents

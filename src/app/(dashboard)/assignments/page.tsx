@@ -196,6 +196,18 @@ export default function AssignmentsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportCSV() {
+    const headers = ['Title', 'Type', 'Class', 'Due Date', 'Status', 'Submitted', 'Total', 'Avg Score', 'Points']
+    const rows = filtered.map(a => [a.title, a.type, a.class, a.dueLabel, a.status, String(a.submitted), String(a.total), a.avgScore !== null ? String(a.avgScore) : 'N/A', String(a.points)])
+    const csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'assignments.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Assignments exported as CSV')
+  }
+
   const filtered = useMemo(() => assignments.filter(a => {
     const matchSearch = !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.class.toLowerCase().includes(search.toLowerCase())
     const matchType = typeFilter === 'all' || a.type === typeFilter
@@ -287,7 +299,7 @@ export default function AssignmentsPage() {
                 <Sparkles className="w-3.5 h-3.5" /> AI Create
               </motion.button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Schedule view opened')}><Calendar className="w-3.5 h-3.5" /> Schedule</button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Exporting assignments…')}><Download className="w-3.5 h-3.5" /> Export</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}><Download className="w-3.5 h-3.5" /> Export CSV</button>
               <motion.button
                 className="btn-secondary text-xs px-3 py-1.5"
                 onClick={() => setCreateOpen(true)}
