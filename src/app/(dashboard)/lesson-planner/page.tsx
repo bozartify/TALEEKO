@@ -199,24 +199,86 @@ export default function LessonPlannerPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  function handleRegenerateSection(id: string) {
-    setGeneratingSection(id)
-    setTimeout(() => setGeneratingSection(null), 2000)
+  async function streamChat(userMessage: string): Promise<{ text: string; toolInput: Record<string, unknown> | null }> {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: userMessage }], mode: 'lesson' }),
+    })
+    const reader = res.body!.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    let fullText = ''
+    let toolInput: Record<string, unknown> | null = null
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const data = line.slice(6).trim()
+        if (data === '[DONE]') break
+        try {
+          const parsed = JSON.parse(data)
+          if (parsed.type === 'text') fullText += parsed.text
+          if (parsed.type === 'tool_result') toolInput = parsed.tool.input as Record<string, unknown>
+        } catch { /* ignore parse errors */ }
+      }
+    }
+    return { text: fullText, toolInput }
   }
 
-  function handleGenerateAll() {
+  async function handleRegenerateSection(id: string) {
+    setGeneratingSection(id)
+    try {
+      const sectionPrompts: Record<string, string> = {
+        objectives: `Write 4 clear, measurable learning objectives for a ${grade} ${subject} lesson on "${topic}". Use Bloom's taxonomy verbs. Format as bullet points starting with •.`,
+        materials: `List all materials and resources needed for a ${grade} ${subject} lesson on "${topic}". Format as bullet points starting with •.`,
+        hook: `Write an engaging hook/anticipatory set for a ${grade} ${subject} lesson on "${topic}". Include a thought-provoking question and a bridge statement leading into instruction.`,
+        direct: `Write the direct instruction content for a ${grade} ${subject} lesson on "${topic}" at ${grade} level. Include key vocabulary, core concept explanation, and a check for understanding.`,
+        guided: `Write a guided practice activity for a ${grade} ${subject} lesson on "${topic}". Include teacher support strategies and collaborative group tasks.`,
+        independent: `Write an independent practice activity for a ${grade} ${subject} lesson on "${topic}". Include scaffolding for struggling learners and extension challenges.`,
+        closure: `Write a lesson closure for a ${grade} ${subject} lesson on "${topic}". Summarize key takeaways, preview the next lesson, and connect to real-world relevance.`,
+        assessment: `Write a formative assessment exit ticket for a ${grade} ${subject} lesson on "${topic}". Include a data grouping strategy for the teacher.`,
+      }
+      const prompt = sectionPrompts[id] ?? `Write the content for the ${id} section of a ${grade} ${subject} lesson on "${topic}".`
+      const { text } = await streamChat(prompt)
+      if (text) setSections(prev => prev.map(s => s.id === id ? { ...s, content: text } : s))
+    } catch {
+      showToast('Regeneration failed — check connection')
+    } finally {
+      setGeneratingSection(null)
+    }
+  }
+
+  async function handleGenerateAll() {
     setGeneratingAll(true)
-    setTimeout(() => {
-      setSections(prev => prev.map(s => {
-        if (s.id === 'objectives') return { ...s, content: `• Identify and describe key concepts related to ${topic}\n• Analyze how ${topic} applies to real-world ${subject} scenarios\n• Evaluate evidence and draw conclusions about ${topic}\n• Create an original product or explanation demonstrating mastery of ${topic}` }
-        if (s.id === 'hook') return { ...s, content: `Display a thought-provoking image or short video clip related to ${topic}.\n\nAsk: "What do you already know about ${topic}? What surprises you?"\n\nAllow 60-second think-pair-share. Cold-call 2–3 students.\n\nBridge: "Today we'll dive deep into ${topic} and discover why it matters in ${subject}."` }
-        if (s.id === 'direct') return { ...s, content: `Mini-lecture (8 min) on core ${topic} concepts:\n• Key vocabulary and definitions for ${grade} level\n• Conceptual framework: How does ${topic} fit into ${subject}?\n• Visual model or diagram illustrating the main ideas\n\nGuided notes: Students complete a partially-filled graphic organizer as you model.` }
-        if (s.id === 'materials') return { ...s, content: `• Printed or digital notes on ${topic}\n• Chromebooks / tablets for research or simulations\n• Graphic organizer handout (printed or digital)\n• Whiteboard markers / chart paper for group work\n• Exit ticket slips (printed)` }
-        return s
-      }))
+    try {
+      const prompt = `Create a complete, detailed lesson plan for a ${grade} ${subject} lesson on "${topic}" lasting ${duration} minutes. Use the generate_lesson_plan tool.`
+      const { toolInput } = await streamChat(prompt)
+      if (toolInput) {
+        setSections(prev => prev.map(s => {
+          if (s.id === 'objectives' && toolInput.objective) return { ...s, content: String(toolInput.objective) }
+          if (s.id === 'materials' && toolInput.materials) return { ...s, content: (toolInput.materials as string[]).map(m => `• ${m}`).join('\n') }
+          if (s.id === 'hook' && toolInput.warmUp) return { ...s, content: String(toolInput.warmUp) }
+          if (s.id === 'direct' && toolInput.directInstruction) return { ...s, content: String(toolInput.directInstruction) }
+          if (s.id === 'guided' && toolInput.guidedPractice) return { ...s, content: String(toolInput.guidedPractice) }
+          if (s.id === 'independent' && toolInput.independentPractice) return { ...s, content: String(toolInput.independentPractice) }
+          if (s.id === 'closure' && toolInput.closure) return { ...s, content: String(toolInput.closure) }
+          if (s.id === 'assessment' && toolInput.assessment) return { ...s, content: String(toolInput.assessment) }
+          return s
+        }))
+        showToast('AI lesson plan generated!')
+      } else {
+        showToast('Lesson plan refreshed!')
+      }
+    } catch {
+      showToast('Generation failed — check connection')
+    } finally {
       setGeneratingAll(false)
-      showToast('AI lesson plan generated!')
-    }, 3500)
+    }
   }
 
   function handleSave() {

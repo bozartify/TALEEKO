@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageSquare, Sparkles, Copy, CheckCircle, RefreshCw, Download,
@@ -149,7 +149,11 @@ export default function FeedbackWriterPage() {
   const [ferpaCheck, setFerpaCheck] = useState(true)
   const [iepEllAware, setIepEllAware] = useState(true)
 
-  const feedback = SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
+  const [aiFeedback, setAiFeedback] = useState('')
+
+  useEffect(() => { setAiFeedback(''); setGenerated(false) }, [selectedStudent.id, tone, audience])
+
+  const feedback = aiFeedback || SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
   const wordCount = (feedback || '').split(' ').length
 
   const showToast = (msg: string) => {
@@ -157,16 +161,53 @@ export default function FeedbackWriterPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setGenerating(true)
     setGenerated(false)
-    setTimeout(() => {
+    try {
+      const lengthGuide: Record<LengthOption, string> = { brief: '50–80 words', standard: '100–150 words', detailed: '200–250 words' }
+      const toneGuide: Record<ToneOption, string> = { encouraging: 'warm and positive', formal: 'professional and structured', 'growth-focused': 'focused on growth areas and next steps', celebratory: 'celebratory and achievement-focused' }
+      const audienceGuide: Record<AudienceOption, string> = { parent: 'for the parent/guardian', student: 'directly to the student', portfolio: 'as a portfolio reflection note' }
+      const prompt = `Write a student comment ${audienceGuide[audience]} for ${selectedStudent.name}.
+Grade: ${selectedStudent.grade} average (${selectedStudent.avg}%)
+Strengths: ${selectedStudent.strengths.join(', ')}
+Growth areas: ${selectedStudent.growthAreas.join(', ')}
+Recent notes: ${selectedStudent.recentNotes}
+${selectedStudent.iep ? 'Note: Has an IEP — acknowledge accommodations positively.' : ''}${selectedStudent.ell ? ' Note: ELL student — keep sentence structure accessible.' : ''}
+Tone: ${toneGuide[tone]}. Length: ${lengthGuide[length]}.${avoidCliches ? ' Avoid educational clichés.' : ''}${ferpaCheck ? ' Do not mention specific grades, test scores, or other students.' : ''}${includeExamples ? ' Include a specific example from class.' : ''}
+Write ONLY the comment, no preamble or formatting.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], mode: 'general' }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = ''
+      let text = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') break
+          try { const p = JSON.parse(data); if (p.type === 'text') text += p.text } catch { /* ignore */ }
+        }
+      }
+      if (text.trim()) setAiFeedback(text.trim())
       setGenerating(false)
       setGenerated(true)
       setEditMode(false)
       setEditedText('')
       showToast(`Comment generated for ${selectedStudent.name}!`)
-    }, 2200)
+    } catch {
+      setGenerating(false)
+      showToast('Generation failed — check connection')
+    }
   }
 
   const handleCopy = () => {

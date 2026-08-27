@@ -100,46 +100,68 @@ export default function QuizBuilderPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
     setGenerating(true)
-    setTimeout(() => {
-      const id = () => `q${Date.now()}-${Math.floor(Math.random()*1000)}`
-      setQuestions([
-        {
-          id: id(), type: 'mcq', points: 2,
-          text: `Which statement BEST describes a key concept of ${topic}?`,
-          options: [`${topic} involves no interaction between variables`, `${topic} is a fundamental process in ${subject}`, `${topic} only occurs under specific artificial conditions`, `${topic} has no relevance to real-world ${subject}`],
-          correct: 1,
-          explanation: `${topic} is a core topic in ${subject} studied at the ${grade} level.`,
-        },
-        {
-          id: id(), type: 'true-false', points: 1,
-          text: `${topic} is an important concept studied in ${subject} at the ${grade} level.`,
-          correct: true,
-          explanation: `True — ${topic} is a key learning standard for ${grade} ${subject}.`,
-        },
-        {
-          id: id(), type: 'mcq', points: 2,
-          text: `What is the PRIMARY reason ${topic} is studied in ${grade} ${subject}?`,
-          options: ['It appears on standardized tests only', 'It builds foundational knowledge needed for advanced concepts', 'It is the simplest topic in the curriculum', 'It has no practical applications'],
-          correct: 1,
-          explanation: `Understanding ${topic} provides the foundation for deeper study in ${subject}.`,
-        },
-        {
-          id: id(), type: 'short-answer', points: 4,
-          text: `In your own words, explain what ${topic} is and why it matters in ${subject}.`,
-          explanation: `Students should define ${topic} and connect it to at least one real-world application or broader concept in ${subject}.`,
-        },
-        {
-          id: id(), type: 'fill-blank', points: 2,
-          text: `The study of ${topic} falls under the broader field of ________.`,
-          correct: subject,
-          explanation: `${topic} is a topic within ${subject}.`,
-        },
-      ])
+    try {
+      const prompt = `Create a quiz with 5 varied questions about "${topic}" for ${grade} ${subject} students. Use the create_quiz tool. Include a mix of multiple choice, true/false, short answer, and fill-in-the-blank questions with explanations.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], mode: 'quiz' }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = ''
+      let toolInput: Record<string, unknown> | null = null
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n')
+        buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const data = line.slice(6).trim()
+          if (data === '[DONE]') break
+          try {
+            const p = JSON.parse(data)
+            if (p.type === 'tool_result') toolInput = p.tool.input as Record<string, unknown>
+          } catch { /* ignore */ }
+        }
+      }
+      if (toolInput && Array.isArray(toolInput.questions)) {
+        const typeMap: Record<string, QuestionType> = {
+          multiple_choice: 'mcq', mcq: 'mcq', 'multiple-choice': 'mcq',
+          true_false: 'true-false', 'true-false': 'true-false', 'true/false': 'true-false',
+          short_answer: 'short-answer', 'short-answer': 'short-answer',
+          fill_blank: 'fill-blank', 'fill-blank': 'fill-blank', fill_in_blank: 'fill-blank',
+          matching: 'matching',
+        }
+        const mapped: Question[] = (toolInput.questions as Array<Record<string, unknown>>).map((q, i) => {
+          const qtype = typeMap[String(q.type ?? '').toLowerCase()] ?? 'mcq'
+          const opts = Array.isArray(q.options) ? q.options as string[] : undefined
+          let correct: number | boolean | string | undefined
+          if (qtype === 'mcq' && opts) {
+            const ans = String(q.answer ?? '')
+            const idx = opts.findIndex(o => o === ans || String(o).toLowerCase() === ans.toLowerCase())
+            correct = idx >= 0 ? idx : 0
+          } else if (qtype === 'true-false') {
+            correct = String(q.answer ?? '').toLowerCase() === 'true'
+          } else {
+            correct = String(q.answer ?? '')
+          }
+          return { id: `ai-q${i+1}-${Date.now()}`, type: qtype, text: String(q.question ?? ''), points: Number(q.points ?? 2), options: opts, correct, explanation: String(q.explanation ?? '') }
+        })
+        setQuestions(mapped)
+        showToast(`Quiz generated for "${topic}"`)
+      } else {
+        showToast(`Quiz refreshed for "${topic}"`)
+      }
+    } catch {
+      showToast('Generation failed — check connection')
+    } finally {
       setGenerating(false)
-      showToast(`Quiz generated for "${topic}"`)
-    }, 3000)
+    }
   }
 
   function handleSave() {
