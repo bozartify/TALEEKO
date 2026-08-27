@@ -132,6 +132,7 @@ export default function ApiKeysPage() {
   const [newKeyName, setNewKeyName] = useState('')
   const [selectedEnv, setSelectedEnv] = useState<'production' | 'development'>('development')
   const [selectedPerms, setSelectedPerms] = useState<string[]>(['read:students'])
+  const [selectedExpiry, setSelectedExpiry] = useState('Never')
   const [toastMsg, setToastMsg] = useState('')
 
   function showToast(msg: string) {
@@ -696,7 +697,11 @@ export default function ApiKeysPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-surface-300 mb-1.5">Expiration</label>
-                  <select className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                  <select
+                    value={selectedExpiry}
+                    onChange={e => setSelectedExpiry(e.target.value)}
+                    className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none"
+                  >
                     {['Never', '30 days', '90 days', '180 days', '1 year'].map(o => <option key={o} className="bg-surface-900">{o}</option>)}
                   </select>
                 </div>

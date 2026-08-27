@@ -176,33 +176,81 @@ export default function ExitTicketsPage() {
   const handleGenerate = async () => {
     if (!topic.trim()) return
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2000))
-    setGenerating(false)
-    const newTicket: ExitTicket = {
-      id: `et${Date.now()}`,
-      title: `${topic} Exit Ticket`,
-      topic,
-      period,
-      status: 'draft',
-      responses: 0,
-      totalStudents: 26,
-      completionRate: 0,
-      avgScore: 0,
-      createdAt: '2026-08-01',
-      questions: [
-        { id: 'q1', type: 'multiple-choice', text: `What is the most important concept in ${topic}?`, choices: [
-          { id: 'a', text: 'Option A' }, { id: 'b', text: 'Option B', correct: true },
-          { id: 'c', text: 'Option C' }, { id: 'd', text: 'Option D' }
-        ]},
-        { id: 'q2', type: 'thumbs', text: `I understand the key ideas of ${topic}.` },
-        { id: 'q3', type: 'short-answer', text: `Summarize ${topic} in one sentence.` },
-      ]
-    }
-    setTickets(prev => [newTicket, ...prev])
-    setSelectedTicket(newTicket)
-    setView('overview')
-    showToast(`Exit ticket created: "${topic} Exit Ticket"`)
-    setTopic('')
+    try {
+      const prompt = `Create a 3-question exit ticket for "${topic}". Return JSON: {"questions":[{"type":"multiple-choice","text":"...","choices":[{"id":"a","text":"..."},{"id":"b","text":"..."},{"id":"c","text":"..."},{"id":"d","text":"..."}],"correctId":"b"},{"type":"thumbs","text":"I can explain [key concept]..."},{"type":"short-answer","text":"In one sentence, explain..."}]}\n\nFor multiple-choice: write real content-specific options (not Option A/B/C/D) and mark the correct one with correctId. Return ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      let parsedQuestions: Question[] = []
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        if (Array.isArray(parsed.questions)) {
+          parsedQuestions = parsed.questions.map((q: Record<string, unknown>, i: number) => {
+            const qid = `q${i + 1}`
+            if (q.type === 'multiple-choice' && Array.isArray(q.choices)) {
+              return {
+                id: qid,
+                type: 'multiple-choice' as QuestionType,
+                text: String(q.text ?? ''),
+                choices: (q.choices as Record<string, string>[]).map(c => ({
+                  id: String(c.id),
+                  text: String(c.text),
+                  correct: c.id === q.correctId,
+                })),
+              }
+            }
+            return { id: qid, type: String(q.type ?? 'short-answer') as QuestionType, text: String(q.text ?? '') }
+          })
+        }
+      }
+      if (parsedQuestions.length === 0) {
+        parsedQuestions = [
+          { id: 'q1', type: 'multiple-choice', text: `What is the most important concept in ${topic}?`, choices: [
+            { id: 'a', text: 'Foundational understanding' }, { id: 'b', text: 'Application to real scenarios', correct: true },
+            { id: 'c', text: 'Historical context' }, { id: 'd', text: 'Terminology recall' }
+          ]},
+          { id: 'q2', type: 'thumbs', text: `I understand the key ideas of ${topic}.` },
+          { id: 'q3', type: 'short-answer', text: `Summarize ${topic} in one sentence.` },
+        ]
+      }
+      const newTicket: ExitTicket = {
+        id: `et${Date.now()}`,
+        title: `${topic} Exit Ticket`,
+        topic,
+        period,
+        status: 'draft',
+        responses: 0,
+        totalStudents: 26,
+        completionRate: 0,
+        avgScore: 0,
+        createdAt: '2026-08-27',
+        questions: parsedQuestions,
+      }
+      setTickets(prev => [newTicket, ...prev])
+      setSelectedTicket(newTicket)
+      setView('overview')
+      showToast(`Exit ticket created: "${topic} Exit Ticket"`)
+      setTopic('')
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   const toggleFlag = (name: string) => {

@@ -137,33 +137,59 @@ export default function StandardsUnpackerPage() {
   }
 
   async function handleUnpack() {
+    if (!input.trim()) return
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2000))
-    const raw = input.trim()
-    const codeMatch = raw.match(/^([A-Z0-9\.\-]+)/)
-    const code = codeMatch ? codeMatch[1] : 'Custom Standard'
-    const isCustom = !codeMatch || raw.length > 30
-    const verbsFound = raw.match(/\b(analyze|evaluate|create|understand|explain|construct|describe|identify|compare|argue|demonstrate|develop|apply|solve|interpret|design|classify|justify|synthesize)\b/gi)?.slice(0, 6)
-    const dynamicUnpacked: UnpackedStandard = {
-      ...UNPACKED,
-      code,
-      fullText: raw,
-      studentFriendly: isCustom
-        ? `I can understand and apply the ideas in: "${raw.slice(0, 80)}${raw.length > 80 ? '…' : ''}"`
-        : UNPACKED.studentFriendly,
-      assessmentIdeas: isCustom
-        ? [
-            `Exit ticket: Summarize the key idea of ${code} in 2–3 sentences`,
-            `Performance task: Apply ${code} concepts to a real-world scenario`,
-            `Multiple choice quiz assessing key vocabulary and concepts`,
-            `Written explanation with evidence using the RACE strategy`,
-          ]
-        : UNPACKED.assessmentIdeas,
-      bloomsLevels: verbsFound && verbsFound.length > 0 ? verbsFound : UNPACKED.bloomsLevels,
-    }
-    setUnpacked(dynamicUnpacked)
-    setGenerating(false)
-    setExpandedSection('studentFriendly')
+    try {
+      const raw = input.trim()
+      const codeMatch = raw.match(/^([A-Z0-9\.\-]+)/)
+      const code = codeMatch ? codeMatch[1] : 'Custom'
+      const prompt = `Unpack this academic standard for teachers:\n"${raw}"\n\nReturn a JSON object:\n{"code":"${code}","grade":"grade level or band","subject":"subject area","studentFriendly":"I can statement in student language","parentFriendly":"1-2 sentence parent explanation","prerequisites":["prior skill 1","prior skill 2","prior skill 3"],"keyVocabulary":[{"term":"word","definition":"brief definition"},{"term":"word2","definition":"def2"},{"term":"word3","definition":"def3"}],"suggestedActivities":["activity 1","activity 2","activity 3","activity 4"],"assessmentIdeas":["idea 1","idea 2","idea 3","idea 4"],"commonMisconceptions":["misconception 1","misconception 2"],"bloomsLevels":["Remember","Understand","Apply"],"rigor":3,"estimatedDays":5,"relatedStandards":["related 1","related 2"],"crossCurricular":["connection 1","connection 2"]}\n\nReturn ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw2 = line.slice(6).trim()
+          if (raw2 === '[DONE]') break
+          try { const p = JSON.parse(raw2); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        const result: UnpackedStandard = {
+          code: String(parsed.code ?? code),
+          fullText: raw,
+          grade: String(parsed.grade ?? 'Middle School'),
+          subject: String(parsed.subject ?? 'General'),
+          studentFriendly: String(parsed.studentFriendly ?? ''),
+          parentFriendly: String(parsed.parentFriendly ?? ''),
+          prerequisites: Array.isArray(parsed.prerequisites) ? parsed.prerequisites.map(String) : [],
+          keyVocabulary: Array.isArray(parsed.keyVocabulary) ? parsed.keyVocabulary.map((v: Record<string, string>) => ({ term: String(v.term ?? ''), definition: String(v.definition ?? '') })) : [],
+          suggestedActivities: Array.isArray(parsed.suggestedActivities) ? parsed.suggestedActivities.map(String) : [],
+          assessmentIdeas: Array.isArray(parsed.assessmentIdeas) ? parsed.assessmentIdeas.map(String) : [],
+          commonMisconceptions: Array.isArray(parsed.commonMisconceptions) ? parsed.commonMisconceptions.map(String) : [],
+          differentiations: UNPACKED.differentiations,
+          estimatedDays: Number(parsed.estimatedDays) || 5,
+          bloomsLevels: Array.isArray(parsed.bloomsLevels) ? parsed.bloomsLevels.map(String) : [],
+          rigor: Number(parsed.rigor) || 3,
+          relatedStandards: Array.isArray(parsed.relatedStandards) ? parsed.relatedStandards.map(String) : [],
+          crossCurricular: Array.isArray(parsed.crossCurricular) ? parsed.crossCurricular.map(String) : [],
+        }
+        setUnpacked(result)
+      } else { showToast('Parse failed — showing partial results') }
+    } catch { showToast('Unpack failed — check connection') }
+    finally { setGenerating(false); setExpandedSection('studentFriendly') }
   }
 
   function copySection(id: string, text: string) {

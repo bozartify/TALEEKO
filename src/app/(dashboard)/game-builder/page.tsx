@@ -116,9 +116,45 @@ export default function GameBuilderPage() {
 
   async function handleGenerate() {
     setGenerating(true)
-    await new Promise(r => setTimeout(r, 2200))
-    setGenerating(false)
-    setStep(2)
+    try {
+      const gameLabel = gameTypes[selectedType].label
+      const prompt = `Generate ${questionCount} educational game questions for a ${gameLabel} about "${title}" (${subject}, ${difficulty} difficulty). Return a JSON array: [{"question":"...","answer":"...","category":"${subject}","points":${difficulty === 'easy' ? 100 : difficulty === 'medium' ? 200 : 300},"difficulty":"${difficulty}"}]. Mix categories. Return ONLY the JSON array.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\[[\s\S]*\]/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>[]
+        const generated: Question[] = parsed.slice(0, questionCount).map((q, i) => ({
+          id: `q-${Date.now()}-${i}`,
+          question: String(q.question ?? ''),
+          answer: String(q.answer ?? ''),
+          category: String(q.category ?? subject),
+          points: Number(q.points) || (difficulty === 'easy' ? 100 : difficulty === 'medium' ? 200 : 300),
+          difficulty,
+        }))
+        setQuestions(generated)
+      }
+      setStep(2)
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   function deleteQuestion(id: string) {

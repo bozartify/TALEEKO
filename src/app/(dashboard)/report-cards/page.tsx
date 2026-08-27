@@ -192,15 +192,36 @@ export default function ReportCardsPage() {
       return
     }
     setRegeneratingSubject(i)
-    await new Promise(r => setTimeout(r, 1600))
-    const subj = currentReport.subjects[i]
-    const pool = REGEN_COMMENTS[subj?.name] ?? DEFAULT_REGEN
-    const key = `${currentReport.studentId}-${i}`
-    const prev = customComments[key]
-    const candidates = pool.filter(c => c !== prev)
-    const next = candidates[Math.floor(candidates.length * 0.5)] ?? pool[0]
-    setCustomComments(p => ({ ...p, [key]: next }))
-    setRegeneratingSubject(null)
+    try {
+      const subj = currentReport.subjects[i]
+      const student = selectedList[0] ?? { name: 'the student', grade: subj.grade }
+      const key = `${currentReport.studentId}-${i}`
+      const prev = customComments[key] ?? subj.comment
+      const prompt = `Write a 2-3 sentence subject comment for ${student.name} in ${subj.name}. Grade: ${subj.grade} (${subj.score}%). Previous comment to NOT repeat: "${prev.slice(0, 60)}...". Tone: professional and specific. Return ONLY the comment text.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText) setCustomComments(p => ({ ...p, [key]: fullText.trim() }))
+      else showToast('Regeneration failed — try again')
+    } catch { showToast('Regeneration failed — check connection') }
+    finally { setRegeneratingSubject(null) }
   }
 
   function toggleApproval(id: string) {

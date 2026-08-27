@@ -995,7 +995,7 @@ export default function InterventionTrackerPage() {
 
               <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
                 <p className="text-[9px] text-surface-600">Auto-checks run every 24 hours</p>
-                <button className="text-[9px] text-surface-500 hover:text-surface-300 font-semibold flex items-center gap-0.5">
+                <button onClick={() => showToast('Alert configuration opened')} className="text-[9px] text-surface-500 hover:text-surface-300 font-semibold flex items-center gap-0.5">
                   Configure <ChevronRight className="w-2.5 h-2.5" />
                 </button>
               </div>
