@@ -157,6 +157,7 @@ export default function ParentPortalPage() {
   const [aiOpen, setAiOpen] = useState(true)
   const [shareOpen, setShareOpen] = useState(false)
   const [meetingOpen, setMeetingOpen] = useState(false)
+  const [meetingFormat, setMeetingFormat] = useState('In-Person')
   const [replyText, setReplyText] = useState('')
   const [messages, setMessages] = useState<Message[]>(MESSAGES)
   const [toastMsg, setToastMsg] = useState('')
@@ -349,7 +350,7 @@ export default function ParentPortalPage() {
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
+                      <button onClick={() => showToast(`${alert.action}…`)} className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -459,7 +460,7 @@ export default function ParentPortalPage() {
                     <TrendingUp className="w-4 h-4 text-violet-400" />
                     Recent Grades
                   </h4>
-                  <button className="text-[11px] text-violet-400 flex items-center gap-1">
+                  <button onClick={() => showToast('Opening full gradebook…')} className="text-[11px] text-violet-400 flex items-center gap-1">
                     View All <ExternalLink className="w-3 h-3" />
                   </button>
                 </div>
@@ -914,7 +915,11 @@ export default function ParentPortalPage() {
                   <label className="text-[10px] text-surface-500 block mb-1">Meeting Format</label>
                   <div className="grid grid-cols-3 gap-2">
                     {['In-Person', 'Video Call', 'Phone'].map(format => (
-                      <button key={format} className="py-2 rounded-lg text-xs font-medium bg-white/[0.04] hover:bg-violet-500/15 hover:text-violet-400 text-surface-400 transition-colors border border-white/[0.06]">
+                      <button
+                        key={format}
+                        onClick={() => setMeetingFormat(format)}
+                        className={`py-2 rounded-lg text-xs font-medium transition-colors border ${meetingFormat === format ? 'bg-violet-500/15 text-violet-400 border-violet-500/30' : 'bg-white/[0.04] hover:bg-violet-500/15 hover:text-violet-400 text-surface-400 border-white/[0.06]'}`}
+                      >
                         {format}
                       </button>
                     ))}

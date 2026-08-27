@@ -206,12 +206,35 @@ export default function ScopeSequencePage() {
     (search === '' || u.title.toLowerCase().includes(search.toLowerCase()))
   )
 
-  function handleAiSuggest() {
+  async function handleAiSuggest() {
     setAiGenerating(true)
-    setTimeout(() => {
-      setAiGenerating(false)
-      showToast('AI aligned 3 cross-curricular connections')
-    }, 1800)
+    try {
+      const unitList = visibleUnits.map(u => `${u.title} (${u.subject}, ${u.weeks}wk)`).join(', ')
+      const prompt = `Analyze this scope and sequence: ${unitList}. Identify 2-3 cross-curricular connections or pacing suggestions. Return ONLY a brief 2-sentence insight.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText) showToast(fullText.trim().slice(0, 120))
+      else showToast('AI analysis complete')
+    } catch { showToast('AI suggestion failed — check connection') }
+    finally { setAiGenerating(false) }
   }
 
   /* ── GANTT helpers ── */

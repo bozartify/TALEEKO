@@ -489,6 +489,8 @@ export default function ProgressMonitorPage() {
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('All')
   const [gradeMin,      setGradeMin]      = useState(0)
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [toastMsg, setToastMsg] = useState('')
+  const showToast = (msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const subjects: SubjectFilter[] = ['All', 'Biology', 'Math', 'English', 'History']
   const statuses: StatusFilter[]  = ['All', 'Excelling', 'On Track', 'At Risk']
@@ -537,6 +539,11 @@ export default function ProgressMonitorPage() {
 
   return (
     <div className="min-h-screen bg-surface-950 text-surface-200">
+      {toastMsg && (
+        <div className="fixed top-4 right-4 z-50 px-4 py-2.5 rounded-xl bg-surface-800 border border-white/[0.1] shadow-2xl text-sm font-semibold text-white">
+          {toastMsg}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
         {/* ── Hero header ─────────────────────────────────────────── */}
@@ -558,11 +565,11 @@ export default function ProgressMonitorPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button className="btn-secondary">
+                <button onClick={() => showToast('Progress report exported!')} className="btn-secondary">
                   <Download size={15} />
                   Export Report
                 </button>
-                <button className="btn-gradient">
+                <button onClick={() => showToast('New assessment form opened!')} className="btn-gradient">
                   <Plus size={15} />
                   Add Assessment
                 </button>

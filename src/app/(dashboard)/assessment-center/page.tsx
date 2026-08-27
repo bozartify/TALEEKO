@@ -151,12 +151,35 @@ export default function AssessmentCenterPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  function handleAiInsight() {
+  async function handleAiInsight() {
     setAiLoading(true)
-    setTimeout(() => {
-      setAiLoading(false)
-      setAiInsight('3 students scored below 60% on RP.A.1 — consider a targeted small-group reteach session before the upcoming unit test. Cross-referencing attendance data shows 2 of those students also missed the ratio intro lesson.')
-    }, 1600)
+    try {
+      const assessSummary = assessments.map(a => `${a.title} (${a.subject}, ${a.status}, avg:${a.classAvg}%, standards:${a.standards.join(',')})`).join('; ')
+      const prompt = `Analyze these classroom assessments and provide one actionable instructional insight in 2-3 sentences: ${assessSummary}. Focus on patterns in scores, standards alignment, or students who need intervention. Be specific and concrete. Return ONLY the insight text.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText) setAiInsight(fullText.trim())
+      else setAiInsight('Analysis unavailable — check connection and try again.')
+    } catch { setAiInsight('Analysis failed — check connection.') }
+    finally { setAiLoading(false) }
   }
 
   const filtered = assessments.filter(a =>

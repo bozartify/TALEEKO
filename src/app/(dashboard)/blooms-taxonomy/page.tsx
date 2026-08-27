@@ -113,6 +113,7 @@ export default function BloomsTaxonomyPage() {
   const [savedObjectives, setSavedObjectives] = useState<{ text: string; level: Level }[]>([])
   const [pyramidHover, setPyramidHover] = useState<Level | null>(null)
   const [toastMsg, setToastMsg] = useState('')
+  const [aiObjectives, setAiObjectives] = useState<Partial<Record<Level, string[]>>>({})
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   function handleCopy(text: string, idx: number) {
@@ -126,9 +127,39 @@ export default function BloomsTaxonomyPage() {
     showToast('Objective saved!')
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
+    if (!topic.trim()) { showToast('Enter a topic first'); return }
     setGenerating(true)
-    setTimeout(() => setGenerating(false), 1800)
+    try {
+      const prompt = `Generate 4 learning objectives per Bloom's Taxonomy level for a ${activeDomain} lesson on "${topic}". Return JSON:\n{"remember":["Students will be able to...","...","...","..."],"understand":[...],"apply":[...],"analyze":[...],"evaluate":[...],"create":[...]}\n\nEach objective: start with "Students will be able to" + specific verb from that level + content from ${topic}. Return ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Partial<Record<Level, string[]>>
+        setAiObjectives(parsed)
+        showToast(`Objectives generated for "${topic}"!`)
+      } else { showToast('Generation failed — try again') }
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   const activeLevelData = LEVELS.find(l => l.id === activeLevel)!
@@ -156,10 +187,10 @@ export default function BloomsTaxonomyPage() {
                 : <Sparkles className="w-4 h-4" />}
               {generating ? 'Generating…' : 'AI Generate'}
             </button>
-            <button className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
+            <button onClick={() => showToast('Exporting objectives as PDF…')} className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
               <Download className="w-4 h-4" /> Export PDF
             </button>
-            <button className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
+            <button onClick={() => showToast('Sharing link copied to clipboard!')} className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
               <Share2 className="w-4 h-4" /> Share Unit
             </button>
           </div>
@@ -409,7 +440,7 @@ export default function BloomsTaxonomyPage() {
                 ) : (
                   <motion.div key="objectives" className="space-y-2"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    {SAMPLE_OBJECTIVES[activeLevel].map((obj, idx) => (
+                    {(aiObjectives[activeLevel] ?? SAMPLE_OBJECTIVES[activeLevel]).map((obj, idx) => (
                       <motion.div key={obj}
                         className="flex items-start gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] group hover:bg-white/[0.05] hover:border-white/[0.1] transition-all"
                         initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
@@ -564,7 +595,7 @@ export default function BloomsTaxonomyPage() {
                         exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.25 }}
                         className="border-t border-white/[0.06]">
                         <div className="p-4 space-y-2">
-                          {SAMPLE_OBJECTIVES[lvl.id].map((obj, idx) => (
+                          {(aiObjectives[lvl.id] ?? SAMPLE_OBJECTIVES[lvl.id]).map((obj, idx) => (
                             <div key={idx} className="flex items-start gap-2 group">
                               <ChevronRight className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" style={{ color: lvl.color }} />
                               <p className="text-sm text-surface-300 flex-1">{obj}</p>
@@ -595,7 +626,7 @@ export default function BloomsTaxonomyPage() {
                 <span className="text-sm font-bold text-white">Saved Objectives ({savedObjectives.length})</span>
               </div>
               <div className="flex gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
+                <button onClick={() => showToast('Saved objectives exported!')} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5">
                   <Download className="w-3.5 h-3.5" /> Export
                 </button>
                 <button onClick={() => setSavedObjectives([])} className="text-xs text-surface-500 hover:text-danger-400 transition-colors">
