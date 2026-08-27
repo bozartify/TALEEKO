@@ -130,6 +130,23 @@ export default function GradebookPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportCSV() {
+    const headers = ['Student', ...assignments.map(a => a.name), 'Overall %', 'Grade']
+    const rows = filteredStudents.map(s => {
+      const scores = localScores[s.id] ?? s.scores
+      const pct = getOverallPct(scores)
+      const { letter } = getLetterGrade(pct)
+      return [s.name, ...scores.map(sc => sc !== null ? String(sc) : 'M'), pct.toFixed(1), letter]
+    })
+    const csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'gradebook.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Gradebook exported as CSV')
+  }
+
   const filteredStudents = useMemo(() => {
     let list = students.filter(s =>
       s.name.toLowerCase().includes(search.toLowerCase())
@@ -224,8 +241,8 @@ export default function GradebookPage() {
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI analysis complete!')}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Analysis
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Gradebook exported!')}>
-                <Download className="w-3.5 h-3.5" /> Export
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
+                <Download className="w-3.5 h-3.5" /> Export CSV
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New assignment added!')}>
                 <Plus className="w-3.5 h-3.5" /> Assignment
@@ -721,10 +738,10 @@ export default function GradebookPage() {
                 <div className="px-4 py-2.5 border-t border-white/[0.06] flex items-center justify-between">
                   <span className="text-[10px] text-surface-500">Click any score to edit inline · Enter to confirm</span>
                   <div className="flex items-center gap-3">
-                    <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
-                      <FileText className="w-3 h-3" /> Export PDF
+                    <button onClick={() => { window.print(); showToast('Printing gradebook…') }} className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
+                      <FileText className="w-3 h-3" /> Print / PDF
                     </button>
-                    <button className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
+                    <button onClick={exportCSV} className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
                       <Download className="w-3 h-3" /> Export CSV
                     </button>
                   </div>

@@ -113,6 +113,22 @@ export default function AttendancePage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportCSV() {
+    const headers = ['Student', ...days.map((d, i) => `${d} (${weekDates[i]?.month} ${weekDates[i]?.date})`), 'Absences (30d)']
+    const rows = studentNames.map(name => [
+      name,
+      ...days.map(day => attendance[name]?.[day] ?? 'present'),
+      String(STUDENTS.find(s => s.name === name)?.absences30d ?? 0),
+    ])
+    const csv = [headers, ...rows].map(row => row.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'attendance.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Attendance exported as CSV')
+  }
+
   const weekDates = getWeekDates(weekOffset)
 
   const toggleStatus = (student: string, day: string) => {
@@ -847,9 +863,15 @@ export default function AttendancePage() {
                 Quick Export
               </h4>
               <div className="space-y-1.5">
-                {['Weekly PDF Report', 'Monthly CSV', 'At-Risk Summary', 'Parent Contact List'].map(label => (
+                {[
+                  { label: 'Weekly PDF Report', action: () => { window.print(); showToast('Printing attendance…') } },
+                  { label: 'Monthly CSV',        action: () => exportCSV() },
+                  { label: 'At-Risk Summary',    action: () => { const atRisk = STUDENTS.filter(s => s.absences30d >= 3); showToast(`${atRisk.length} at-risk students — downloading…`); const csv = ['Student,Absences', ...atRisk.map(s => `"${s.name}",${s.absences30d}`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'at-risk.csv'; a.click(); URL.revokeObjectURL(url) } },
+                  { label: 'Parent Contact List',action: () => exportCSV() },
+                ].map(({ label, action }) => (
                   <button
                     key={label}
+                    onClick={action}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] hover:bg-white/[0.06] text-xs text-surface-300 hover:text-white transition-all"
                   >
                     {label}
@@ -1001,14 +1023,14 @@ export default function AttendancePage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Weekly PDF Report',      desc: 'Formatted for printing',       emoji: '📄' },
-                  { label: 'Monthly CSV Data',        desc: 'For spreadsheet analysis',      emoji: '📊' },
-                  { label: 'At-Risk Student Report',  desc: 'Students with 3+ absences',    emoji: '⚠️' },
-                  { label: 'Parent Contact List',     desc: 'CSV with parent email list',    emoji: '📧' },
+                  { label: 'Weekly PDF Report',      desc: 'Formatted for printing',       emoji: '📄', action: () => { window.print(); showToast('Printing attendance report…') } },
+                  { label: 'Monthly CSV Data',        desc: 'For spreadsheet analysis',      emoji: '📊', action: () => exportCSV() },
+                  { label: 'At-Risk Student Report',  desc: 'Students with 3+ absences',    emoji: '⚠️', action: () => { const atRisk = STUDENTS.filter(s => s.absences30d >= 3); const csv = ['Student,Parent Email,Absences (30d)', ...atRisk.map(s => `"${s.name}","${s.parentEmail}",${s.absences30d}`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'at-risk.csv'; a.click(); URL.revokeObjectURL(url); showToast(`At-risk report: ${atRisk.length} students`) } },
+                  { label: 'Parent Contact List',     desc: 'CSV with parent email list',    emoji: '📧', action: () => { const csv = ['Student,Parent Email', ...STUDENTS.map(s => `"${s.name}","${s.parentEmail}"`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'parent-contacts.csv'; a.click(); URL.revokeObjectURL(url); showToast('Parent contact list exported') } },
                 ].map(opt => (
                   <button
                     key={opt.label}
-                    onClick={() => { showToast(`${opt.label} downloading…`); setExportOpen(false) }}
+                    onClick={() => { opt.action(); setExportOpen(false) }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all text-left"
                   >
                     <span className="text-xl">{opt.emoji}</span>
