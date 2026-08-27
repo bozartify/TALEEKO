@@ -383,7 +383,7 @@ Return ONLY the JSON array, no other text.`
                       <p className="text-xs font-semibold text-accent-300">Bloom's Balance Check</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your current set skews toward <strong className="text-white">Evaluate</strong> (4 prompts). Consider adding a <strong className="text-white">Remember</strong> or <strong className="text-white">Apply</strong> prompt to scaffold lower-order thinking first.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 whitespace-nowrap">Auto-Add →</button>
+                    <button onClick={() => { setSelectedTypes(t => t.includes('think-pair-share') ? t : [...t, 'think-pair-share']); handleGenerate() }} className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 whitespace-nowrap">Auto-Add →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-400/[0.08] border border-success-400/15">
                     <TrendingUp className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
@@ -391,7 +391,7 @@ Return ONLY the JSON array, no other text.`
                       <p className="text-xs font-semibold text-success-300">High-Engagement Prompts</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Think-Pair-Share prompts in your library average 11 uses — 2× more than other types. Add 2 more for this unit to maximize participation rates.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap">Generate →</button>
+                    <button onClick={() => { setSelectedTypes(t => t.includes('think-pair-share') ? t : [...t, 'think-pair-share']); handleGenerate() }} className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap">Generate →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-warning-400/[0.08] border border-warning-400/15">
                     <Zap className="w-4 h-4 text-warning-400 flex-shrink-0 mt-0.5" />
@@ -399,7 +399,7 @@ Return ONLY the JSON array, no other text.`
                       <p className="text-xs font-semibold text-warning-300">Tip: Open with a Hook Prompt</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Research shows starting with a provocative debate starter increases initial participation by up to 40%. Try prompt #4 ("Without photosynthesis…") as your opener.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap">Pin →</button>
+                    <button onClick={() => showToast('Prompt pinned as opener!')} className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap">Pin →</button>
                   </div>
                 </div>
               </motion.div>

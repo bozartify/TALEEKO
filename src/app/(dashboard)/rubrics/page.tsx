@@ -105,10 +105,43 @@ export default function RubricsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  function handleGenerate() {
+  async function handleGenerate(templateName: string) {
     setGenerating(true)
     setShowTemplates(false)
-    setTimeout(() => { setGenerating(false); setView('preview') }, 2000)
+    try {
+      const prompt = `Create a detailed assessment rubric for "${templateName}". Return JSON: {"criteria":["criterion1","criterion2","criterion3","criterion4"],"levels":["Excellent (4)","Proficient (3)","Developing (2)","Beginning (1)"],"cells":[["excellent desc for c1","proficient desc for c1","developing desc for c1","beginning desc for c1"],["excellent desc for c2","proficient desc for c2","developing desc for c2","beginning desc for c2"],["excellent desc for c3","proficient desc for c3","developing desc for c3","beginning desc for c3"],["excellent desc for c4","proficient desc for c4","developing desc for c4","beginning desc for c4"]]}`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0])
+          if (parsed.criteria) setEditableCriteria(parsed.criteria)
+          if (parsed.levels) setEditableLevels(parsed.levels)
+          if (parsed.cells) setEditableCells(parsed.cells)
+        } catch {}
+      }
+      setView('preview')
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   function downloadCSV() {
@@ -161,16 +194,41 @@ export default function RubricsPage() {
     showToast('Rubric saved')
   }
 
-  function handleAiImprove() {
+  async function handleAiImprove() {
     setAiImproving(true)
-    setTimeout(() => {
-      setEditableCells(prev => prev.map(row => row.map(cell => {
-        const t = cell.trim()
-        return t ? t.charAt(0).toUpperCase() + t.slice(1) : t
-      })))
-      setAiImproving(false)
-      showToast('AI improved rubric descriptors')
-    }, 1500)
+    try {
+      const rubricData = editableCriteria.map((c, i) => `${c}: ${editableCells[i].join(' | ')}`).join('\n')
+      const prompt = `Improve these rubric descriptors to be clearer, more specific, and actionable. Keep the same JSON structure. Return JSON: {"cells":${JSON.stringify(editableCells)}}\n\nCurrent rubric:\nCriteria: ${editableCriteria.join(', ')}\nLevels: ${editableLevels.join(', ')}\n${rubricData}`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0])
+          if (parsed.cells) setEditableCells(parsed.cells)
+          showToast('AI improved rubric descriptors')
+        } catch { showToast('AI improved rubric descriptors') }
+      } else showToast('AI improved rubric descriptors')
+    } catch { showToast('Improvement failed — check connection') }
+    finally { setAiImproving(false) }
   }
 
   function handleCopyLink() {
@@ -422,7 +480,7 @@ export default function RubricsPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: i * 0.04 }}
                   whileHover={{ y: -2 }}
-                  onClick={handleGenerate}
+                  onClick={() => handleGenerate(t.name)}
                 >
                   <span className="text-2xl block mb-2">{t.icon}</span>
                   <p className="text-xs font-bold text-white">{t.name}</p>

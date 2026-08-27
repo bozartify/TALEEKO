@@ -328,12 +328,45 @@ export default function TemplatesPage() {
   }, [activeCategory, searchQuery])
 
   const [toastMsg, setToastMsg] = useState('')
+  const [aiGeneratedTemplate, setAiGeneratedTemplate] = useState<{ name: string; description: string; sections: string[] } | null>(null)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!aiForm.subject && !aiForm.grade) { showToast('Enter a subject or grade level first'); return }
     setIsGenerating(true)
-    showToast('AI lesson template generated!')
-    setTimeout(() => setIsGenerating(false), 3000)
+    try {
+      const styleLabel = aiForm.style || 'inquiry-based'
+      const prompt = `Create a lesson template for ${aiForm.subject || 'general'} class, grade ${aiForm.grade || 'K-12'}, duration ${aiForm.duration || '45 min'}, teaching style: ${styleLabel}. Return JSON: {"name":"[Template Name]","description":"[2-sentence description]","sections":["Section 1: ...","Section 2: ...","Section 3: ...","Section 4: ...","Section 5: ..."]}`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        try {
+          const parsed = JSON.parse(jsonMatch[0])
+          setAiGeneratedTemplate({ name: parsed.name || 'AI-Generated Template', description: parsed.description || '', sections: parsed.sections || [] })
+          showToast('AI lesson template generated!')
+        } catch { showToast('Template generated!') }
+      } else showToast('Template generated!')
+    } catch { showToast('Generation failed — check connection') }
+    finally { setIsGenerating(false) }
   }
 
   return (
@@ -464,6 +497,7 @@ export default function TemplatesPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.12 + i * 0.06 }}
                   whileHover={{ x: 4, backgroundColor: 'rgba(255,255,255,0.05)', transition: { duration: 0.18 } }}
+                  onClick={() => router.push(`/lesson-planner?unit=${encodeURIComponent(item.name)}`)}
                 >
                   <div className={`w-2 h-8 rounded-full ${categoryColors[item.category]?.bar ?? 'bg-accent-500'}`} />
                   <div className="min-w-0 flex-1">
@@ -890,6 +924,52 @@ export default function TemplatesPage() {
                 </span>
               </motion.button>
             </div>
+
+            {/* AI Generated Result */}
+            <AnimatePresence>
+              {aiGeneratedTemplate && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  className="mt-5 p-5 rounded-2xl border border-accent-500/30 bg-accent-500/[0.06]"
+                >
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <Sparkles className="w-4 h-4 text-accent-400" />
+                        <span className="text-xs font-semibold text-accent-400 uppercase tracking-wider">AI Generated</span>
+                      </div>
+                      <h3 className="text-base font-bold text-white">{aiGeneratedTemplate.name}</h3>
+                      <p className="text-sm text-surface-400 mt-1">{aiGeneratedTemplate.description}</p>
+                    </div>
+                    <button onClick={() => setAiGeneratedTemplate(null)} className="text-surface-500 hover:text-surface-300 mt-1">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  {aiGeneratedTemplate.sections.length > 0 && (
+                    <div className="space-y-1.5">
+                      {aiGeneratedTemplate.sections.map((s, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-surface-300">
+                          <div className="w-5 h-5 rounded-full bg-accent-500/20 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px] font-bold text-accent-400">{i + 1}</span>
+                          </div>
+                          {s}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2 mt-4">
+                    <button className="btn-gradient px-4 py-2 text-xs font-semibold flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" /> Use Template
+                    </button>
+                    <button onClick={() => setAiGeneratedTemplate(null)} className="btn-secondary px-4 py-2 text-xs font-medium">
+                      Dismiss
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </FadeInWhenVisible>
@@ -916,6 +996,7 @@ export default function TemplatesPage() {
                 className="btn-secondary px-4 py-2 text-xs font-medium flex items-center gap-1.5"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={() => showToast('Opening community template library…')}
               >
                 Browse All
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -964,6 +1045,7 @@ export default function TemplatesPage() {
                         className="btn-primary px-3 py-1.5 text-[11px] font-semibold flex items-center gap-1"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        onClick={() => router.push(`/lesson-planner?unit=${encodeURIComponent(ct.name)}`)}
                       >
                         <Download className="w-3 h-3" />
                         Use

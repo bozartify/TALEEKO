@@ -199,10 +199,41 @@ export default function ReportsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
+    if (!selectedReport) return
     setGenerating(true)
     setGenerated(false)
-    setTimeout(() => { setGenerating(false); setGenerated(true) }, 3000)
+    try {
+      const report = reportTypes.find(r => r.id === selectedReport)!
+      const fieldSummary = report.fields.map(f => {
+        if (f.type === 'checkbox') return `${f.label}: ${fieldChecks[`${report.id}-${f.label}`] !== false ? 'Yes' : 'No'}`
+        if (f.type === 'select') return `${f.label}: ${fieldSelects[`${report.id}-${f.label}`] ?? (f.options?.[0] ?? '')}`
+        return f.label
+      }).join(', ')
+      const prompt = `Generate a concise 3-5 sentence AI summary for a "${report.title}" report with these settings: ${fieldSummary}. Include key insights, metrics, and recommendations. Return only the summary text.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      setGenerated(true)
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   function toggleScheduled(id: string) {

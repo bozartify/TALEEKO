@@ -610,7 +610,7 @@ export default function CoursesPage() {
                             <span className={`badge ${course.status === 'active' ? 'bg-success-400/15 text-success-400' : 'bg-white/[0.06] text-surface-400'}`}>
                               {course.status === 'active' ? 'Active' : 'Draft'}
                             </span>
-                            <button className="text-surface-500 hover:text-surface-300 transition-colors" onClick={e => e.preventDefault()}>
+                            <button className="text-surface-500 hover:text-surface-300 transition-colors" onClick={e => { e.preventDefault(); setActionMenu(actionMenu === course.id ? null : course.id) }}>
                               <MoreHorizontal className="w-4 h-4" />
                             </button>
                           </div>

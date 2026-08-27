@@ -164,6 +164,7 @@ export default function ReportCardsPage() {
   const selectedList = students.filter(s => selectedStudents.has(s.id))
   const currentPreviewStudent = selectedList[previewStudentIdx]
   const [customComments, setCustomComments] = useState<Record<string, string>>({})
+  const [customTeacherNotes, setCustomTeacherNotes] = useState<Record<string, string>>({})
   const currentReport = currentPreviewStudent
     ? (sampleReports[currentPreviewStudent.id] ?? buildFallbackReport(currentPreviewStudent))
     : sampleReports['1']
@@ -178,17 +179,78 @@ export default function ReportCardsPage() {
     setSelectedStudents(new Set(students.map(s => s.id)))
   }
 
-  function handleGenerate() {
+  async function handleGenerate() {
     setGenerating(true)
-    setTimeout(() => {
-      setGenerating(false)
+    try {
+      const toneDesc = toneConfig[tone].desc
+      const lengthDesc = commentLength === 'short' ? '1-2 sentences' : commentLength === 'medium' ? '2-3 sentences' : '3-4 sentences'
+      const newComments: Record<string, string> = {}
+      for (const student of selectedList) {
+        const report = sampleReports[student.id] ?? buildFallbackReport(student)
+        for (let i = 0; i < report.subjects.length; i++) {
+          const subj = report.subjects[i]
+          const prompt = `Write a ${lengthDesc} subject comment for ${student.name} in ${subj.name}. Grade: ${subj.grade} (${subj.score}%). Tone: ${toneDesc}. Student trend: ${student.trend}. Return ONLY the comment text.`
+          const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+          })
+          const reader = res.body!.getReader()
+          const decoder = new TextDecoder()
+          let buf = '', fullText = ''
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buf += decoder.decode(value, { stream: true })
+            const lines = buf.split('\n'); buf = lines.pop() ?? ''
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue
+              const raw = line.slice(6).trim()
+              if (raw === '[DONE]') break
+              try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+            }
+          }
+          if (fullText) newComments[`${student.id}-${i}`] = fullText.trim()
+        }
+      }
+      setCustomComments(p => ({ ...p, ...newComments }))
       setStep('preview')
-    }, 2500)
+    } catch { showToast('Generation failed — check connection') }
+    finally { setGenerating(false) }
   }
 
   async function regenerateSubject(i: number) {
     if (i < 0) {
-      showToast('Teacher note regenerated')
+      setRegeneratingSubject(-1)
+      try {
+        const student = currentPreviewStudent ?? { name: 'the student', trend: 'stable' }
+        const report = currentReport
+        const toneDesc = toneConfig[tone].desc
+        const prompt = `Write a 2-3 sentence personalized teacher note for ${student.name}'s report card. Strengths: ${report.strengths.join(', ')}. Growth areas: ${report.growth.join(', ')}. Student trend: ${student.trend}. Tone: ${toneDesc}. Return ONLY the note text.`
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+        })
+        const reader = res.body!.getReader()
+        const decoder = new TextDecoder()
+        let buf = '', fullText = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          buf += decoder.decode(value, { stream: true })
+          const lines = buf.split('\n'); buf = lines.pop() ?? ''
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue
+            const raw = line.slice(6).trim()
+            if (raw === '[DONE]') break
+            try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {}
+          }
+        }
+        if (fullText) setCustomTeacherNotes(p => ({ ...p, [report.studentId]: fullText.trim() }))
+        else showToast('Regeneration failed — try again')
+      } catch { showToast('Regeneration failed — check connection') }
+      finally { setRegeneratingSubject(null) }
       return
     }
     setRegeneratingSubject(i)
@@ -899,7 +961,7 @@ export default function ReportCardsPage() {
                       <Zap className="w-3 h-3" /> Regenerate
                     </button>
                   </div>
-                  <p className="text-sm text-surface-300 leading-relaxed italic">&ldquo;{currentReport.teacherNote}&rdquo;</p>
+                  <p className="text-sm text-surface-300 leading-relaxed italic">&ldquo;{customTeacherNotes[currentReport.studentId] ?? currentReport.teacherNote}&rdquo;</p>
                   <p className="text-xs text-surface-500 mt-2">— Alex Johnson, Science Teacher</p>
                 </div>
               </motion.div>

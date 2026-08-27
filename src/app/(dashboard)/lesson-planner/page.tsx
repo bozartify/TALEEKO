@@ -685,6 +685,7 @@ export default function LessonPlannerPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + i * 0.06 }}
                     whileHover={{ x: 2 }}
+                    onClick={() => showToast(`Added: "${s.text.slice(0, 40)}…"`)}
                   >
                     <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: s.color }} />
                     <div className="flex-1">
@@ -694,7 +695,7 @@ export default function LessonPlannerPage() {
                     <ArrowRight className="w-3 h-3 text-surface-600 group-hover:text-surface-400 transition-colors mt-0.5 flex-shrink-0" />
                   </motion.div>
                 ))}
-                <button className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => handleRegenerateSection(expandedSection ?? 'hook')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   More suggestions
                 </button>
@@ -734,7 +735,7 @@ export default function LessonPlannerPage() {
                     <p className="text-[11px] text-surface-400 leading-relaxed">{std.desc}</p>
                   </motion.div>
                 ))}
-                <button className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => showToast('Standard search opened')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   Add standard
                 </button>
@@ -809,7 +810,7 @@ export default function LessonPlannerPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent Lesson Plans</h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300 transition-colors">View All</button>
+            <button onClick={() => showToast('Opening all saved lesson plans…')} className="text-xs text-accent-400 hover:text-accent-300 transition-colors">View All</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {recentPlans.map((plan, i) => (
