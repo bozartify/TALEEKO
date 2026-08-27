@@ -150,10 +150,11 @@ export default function FeedbackWriterPage() {
   const [iepEllAware, setIepEllAware] = useState(true)
 
   const [aiFeedback, setAiFeedback] = useState('')
+  const [batchFeedback, setBatchFeedback] = useState<Record<string, string>>({})
 
   useEffect(() => { setAiFeedback(''); setGenerated(false) }, [selectedStudent.id, tone, audience])
 
-  const feedback = aiFeedback || SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
+  const feedback = aiFeedback || batchFeedback[selectedStudent.id] || SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
   const wordCount = (feedback || '').split(' ').length
 
   const showToast = (msg: string) => {
@@ -223,13 +224,42 @@ Write ONLY the comment, no preamble or formatting.`
   const handleBatchGenerate = async () => {
     setBatchGenerating(true)
     setBatchProgress(0)
-    for (let i = 1; i <= STUDENTS.length; i++) {
-      await new Promise(r => setTimeout(r, 500))
-      setBatchProgress(i)
-    }
-    setBatchGenerating(false)
-    setApproved(new Set(STUDENTS.map(s => s.id)))
-    showToast(`All ${STUDENTS.length} comments generated!`)
+    try {
+      const toneMap: Record<string, string> = { formal: 'formal and professional', encouraging: 'warm and encouraging', 'growth-focused': 'growth-focused and specific', celebratory: 'celebratory and enthusiastic' }
+      const studentSummaries = STUDENTS.map(s =>
+        `id:${s.id} name:${s.name} grade:${s.grade} avg:${s.avg}% trend:${s.trend} strengths:${s.strengths.join(',')} areas:${s.growthAreas.join(',')}`
+      ).join('\n')
+      const prompt = `Write ${toneMap[tone] || 'professional'} report card comments for each student. Return a JSON object mapping student id to comment text (2-3 sentences each, specific to their data). Format: {"s1":"...","s2":"...",...}\n\nStudents:\n${studentSummaries}\n\nReturn ONLY the JSON.`
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', fullText = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const raw = line.slice(6).trim()
+          if (raw === '[DONE]') break
+          try { const p = JSON.parse(raw); if (p.type === 'text') { fullText += p.text; setBatchProgress(Math.min(STUDENTS.length, Math.floor(fullText.length / 40))) } } catch {}
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Record<string, string>
+        setBatchFeedback(parsed)
+        setBatchProgress(STUDENTS.length)
+        setApproved(new Set(STUDENTS.map(s => s.id)))
+        showToast(`All ${STUDENTS.length} comments generated!`)
+      } else { showToast('Batch generation incomplete — try individual students') }
+    } catch { showToast('Batch generation failed — check connection') }
+    finally { setBatchGenerating(false) }
   }
 
   const handleApprove = () => {
