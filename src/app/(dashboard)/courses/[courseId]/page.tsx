@@ -337,11 +337,11 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Units & Lessons</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5">
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening unit builder…')}>
                   <Plus className="w-3.5 h-3.5" />
                   Add Unit
                 </button>
-                <button className="btn-secondary text-xs px-3 py-1.5">
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('AI generating unit sequence…')}>
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Sequence
                 </button>
@@ -432,10 +432,10 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                               </Link>
                             ))}
                             <div className="px-5 py-3 border-t border-white/[0.04] flex items-center gap-2">
-                              <button className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
+                              <button onClick={() => showToast('Opening lesson builder…')} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
                                 <Plus className="w-3 h-3" /> Add Lesson
                               </button>
-                              <button className="flex items-center gap-1.5 text-[11px] text-neon-400 hover:text-neon-300 transition-colors ml-3">
+                              <button onClick={() => showToast('AI generating lesson…')} className="flex items-center gap-1.5 text-[11px] text-neon-400 hover:text-neon-300 transition-colors ml-3">
                                 <Sparkles className="w-3 h-3" /> Generate with AI
                               </button>
                             </div>
@@ -462,11 +462,11 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
               <p className="text-sm font-bold text-white">{courseInfo.nextClass}</p>
               <p className="text-xs text-surface-500 mt-1">Cell Structure · 28 students</p>
               <div className="flex gap-2 mt-3">
-                <button className="btn-gradient text-xs flex-1 justify-center">
+                <button onClick={() => showToast('Starting class session…')} className="btn-gradient text-xs flex-1 justify-center">
                   <Zap className="w-3 h-3" />
                   Start Class
                 </button>
-                <button className="btn-secondary text-xs px-3">
+                <button onClick={() => showToast('Opening class message…')} className="btn-secondary text-xs px-3">
                   <MessageSquare className="w-3 h-3" />
                 </button>
               </div>
@@ -501,7 +501,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                     </span>
                   </motion.div>
                 ))}
-                <button className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1 transition-colors flex items-center justify-center gap-1">
+                <button onClick={() => showToast('Opening deadline picker…')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1 transition-colors flex items-center justify-center gap-1">
                   <Plus className="w-3 h-3" /> Add deadline
                 </button>
               </div>

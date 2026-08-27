@@ -469,7 +469,7 @@ export default function LibraryPage() {
                     <div>
                       <p className="text-xs font-bold text-electric-300">Batch Generation Ready</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">You have 3 lesson plans but no matching exit tickets. AI can auto-generate exit tickets for each lesson in one click.</p>
-                      <button className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline">Generate now →</button>
+                      <button onClick={() => showToast('Generating exit tickets for all lessons…')} className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline">Generate now →</button>
                     </div>
                   </div>
                 </div>
@@ -549,10 +549,11 @@ export default function LibraryPage() {
               <Check className="w-3.5 h-3.5" />
             </button>
             {/* Upload */}
-            <button className="p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-surface-400 hover:bg-white/[0.06] transition-colors" title="Import file">
+            <button onClick={() => showToast('Upload dialog opening…')} className="p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-surface-400 hover:bg-white/[0.06] transition-colors" title="Import file">
               <Upload className="w-3.5 h-3.5" />
             </button>
             <motion.button
+              onClick={() => showToast('New resource created!')}
               className="btn-gradient text-xs whitespace-nowrap"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -600,7 +601,7 @@ export default function LibraryPage() {
             <div className="glass-card p-3 flex items-center justify-between">
               <span className="text-xs text-accent-300 font-semibold">{selected.size} item{selected.size !== 1 ? 's' : ''} selected</span>
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs text-surface-300 hover:bg-white/[0.1] transition-colors">
+                <button onClick={() => showToast(`Exporting ${selected.size} item${selected.size !== 1 ? 's' : ''}…`)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs text-surface-300 hover:bg-white/[0.1] transition-colors">
                   <Download className="w-3.5 h-3.5" /> Export
                 </button>
                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-danger-500/10 text-xs text-danger-400 border border-danger-500/20 hover:bg-danger-500/20 transition-colors" onClick={bulkDelete}>
@@ -617,7 +618,7 @@ export default function LibraryPage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Collections</h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">+ New Collection</button>
+            <button onClick={() => showToast('New collection created!')} className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">+ New Collection</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {collections.map((col, i) => (
@@ -794,10 +795,10 @@ export default function LibraryPage() {
                       >
                         <Eye className="w-3.5 h-3.5" /> View
                       </motion.button>
-                      <motion.button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
+                      <motion.button onClick={e => { e.stopPropagation(); showToast(`Editing "${item.title}"`) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
                         <Edit3 className="w-3.5 h-3.5" /> Edit
                       </motion.button>
-                      <motion.button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
+                      <motion.button onClick={e => { e.stopPropagation(); showToast(`"${item.title}" duplicated`) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
                         <Copy className="w-3.5 h-3.5" /> Copy
                       </motion.button>
                       <motion.button

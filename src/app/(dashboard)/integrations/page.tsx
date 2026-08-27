@@ -643,6 +643,7 @@ export default function IntegrationsPage() {
                       {integration.status === 'connected' && (
                         <>
                           <motion.button
+                            onClick={e => { e.stopPropagation(); showToast(`Syncing ${integration.name}…`) }}
                             className="btn-secondary text-xs px-3 py-1.5 flex-1 flex items-center justify-center gap-1.5"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -667,6 +668,7 @@ export default function IntegrationsPage() {
                       {integration.status === 'not_connected' && (
                         <>
                           <motion.button
+                            onClick={e => { e.stopPropagation(); showToast(`Starting ${integration.name} setup…`) }}
                             className="btn-primary text-xs px-3 py-1.5 flex-1 flex items-center justify-center gap-1.5"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -761,6 +763,7 @@ export default function IntegrationsPage() {
                           {/* Connect / Disconnect button */}
                           {integration.status === 'connected' ? (
                             <motion.button
+                              onClick={() => showToast(`${integration.name} disconnected`)}
                               className="w-full text-xs px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all flex items-center justify-center gap-1.5 font-semibold"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
@@ -770,6 +773,7 @@ export default function IntegrationsPage() {
                             </motion.button>
                           ) : integration.status === 'not_connected' ? (
                             <motion.button
+                              onClick={() => showToast(`Starting ${integration.name} setup…`)}
                               className="btn-gradient text-xs px-4 py-2 w-full flex items-center justify-center gap-1.5"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
@@ -843,6 +847,7 @@ export default function IntegrationsPage() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <motion.button
+                  onClick={() => showToast('Integration request submitted!')}
                   className="btn-gradient text-xs px-5 py-2 flex items-center gap-1.5"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
@@ -851,6 +856,7 @@ export default function IntegrationsPage() {
                   Request Integration
                 </motion.button>
                 <motion.button
+                  onClick={() => showToast('Opening integration roadmap…')}
                   className="btn-secondary text-xs px-4 py-2 flex items-center gap-1.5"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}

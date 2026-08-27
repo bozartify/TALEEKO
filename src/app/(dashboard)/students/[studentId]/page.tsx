@@ -101,8 +101,32 @@ export default function StudentProfilePage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
   const [addingNote, setAddingNote] = useState(false)
   const [newNote, setNewNote] = useState('')
+  const [noteList, setNoteList] = useState<Note[]>(notes)
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  function saveNote() {
+    if (!newNote.trim()) return
+    const n: Note = { date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), author: 'Ms. Johnson', text: newNote.trim(), type: 'academic' }
+    setNoteList(prev => [n, ...prev])
+    setNewNote('')
+    setAddingNote(false)
+    showToast('Note saved')
+  }
+
+  function exportStudentCSV() {
+    const rows = [
+      ['Name', student.name], ['Grade', student.grade], ['GPA', String(student.gpa)],
+      ['Attendance', `${student.attendance}%`], ['Email', student.email],
+    ]
+    const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `${student.name.replace(' ', '_')}_report.csv`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Student report exported')
+  }
 
   const completedAssignments = assignments.filter(a => a.submitted)
   const avgPct = Math.round(
@@ -184,7 +208,7 @@ export default function StudentProfilePage() {
                 <button onClick={() => showToast('AI profile summary generated!')} className="btn-gradient text-xs px-3 py-1.5">
                   <Sparkles className="w-3.5 h-3.5" /> AI Profile Summary
                 </button>
-                <button onClick={() => showToast('Report exported!')} className="btn-secondary text-xs px-3 py-1.5">
+                <button onClick={exportStudentCSV} className="btn-secondary text-xs px-3 py-1.5">
                   <Download className="w-3.5 h-3.5" /> Export Report
                 </button>
               </div>
@@ -488,13 +512,13 @@ export default function StudentProfilePage() {
                   placeholder="Add a note about this student…"
                 />
                 <div className="flex items-center gap-2">
-                  <button onClick={() => setAddingNote(false)} className="btn-gradient text-xs px-3 py-1.5">Save Note</button>
-                  <button onClick={() => setAddingNote(false)} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
+                  <button onClick={saveNote} className="btn-gradient text-xs px-3 py-1.5">Save Note</button>
+                  <button onClick={() => { setAddingNote(false); setNewNote('') }} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
                 </div>
               </div>
             )}
 
-            {notes.map((note, i) => {
+            {noteList.map((note, i) => {
               const ntc = noteTypeConfig[note.type]
               return (
                 <motion.div key={i} className="glass-card p-4" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
