@@ -766,6 +766,7 @@ export default function NotificationsPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => showToast('Notifications snoozed for 1 hour')}
                   className="flex items-center gap-1 text-[11px] font-medium text-surface-400 hover:text-warning-300 transition-colors"
                 >
                   <BellOff className="w-3 h-3" /> Snooze 1h
@@ -860,6 +861,7 @@ export default function NotificationsPage() {
               </div>
 
               <motion.button
+                onClick={() => showToast('Opening full activity log…')}
                 className="w-full mt-3 flex items-center justify-center gap-1 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors py-2 rounded-xl hover:bg-white/[0.03]"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}

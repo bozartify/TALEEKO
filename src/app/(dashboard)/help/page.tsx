@@ -235,7 +235,7 @@ export default function HelpPage() {
               <TrendingUp className="w-5 h-5 text-success-400" />
               What&apos;s New
             </h2>
-            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+            <button onClick={() => showToast('Full changelog coming soon')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
               Full changelog <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -314,7 +314,7 @@ export default function HelpPage() {
                   <BookmarkCheck className="w-3 h-3 inline text-accent-400 mr-1" />{saved.size} saved
                 </span>
               )}
-              <button className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+              <button onClick={() => showToast('Opening knowledge base…')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </button>
             </div>
@@ -418,7 +418,7 @@ export default function HelpPage() {
                                 <span className="text-[10px] font-semibold text-surface-500 bg-white/[0.04] px-2.5 py-1 rounded-full">
                                   {categories.find(c => c.id === faq.category)?.label}
                                 </span>
-                                <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors">
+                                <button onClick={() => showToast('Opening full article…')} className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors">
                                   Full article <ArrowUpRight className="w-2.5 h-2.5" />
                                 </button>
                               </div>
@@ -474,7 +474,7 @@ export default function HelpPage() {
               <Play className="w-5 h-5 text-accent-400" />
               Video Tutorials
             </h2>
-            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+            <button onClick={() => showToast('Opening video library…')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
               View all <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -597,6 +597,7 @@ export default function HelpPage() {
               return (
                 <motion.button
                   key={res.label}
+                  onClick={() => showToast(`Opening ${res.label}…`)}
                   className="glass-card p-4 flex flex-col items-center text-center gap-2 group cursor-pointer"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -636,6 +637,7 @@ export default function HelpPage() {
                 <h3 className="text-base font-bold text-white mb-2">{channel.title}</h3>
                 <p className="text-xs text-surface-400 leading-relaxed mb-5 flex-1">{channel.desc}</p>
                 <motion.button
+                  onClick={() => showToast(`${channel.action}…`)}
                   className="btn-secondary text-xs w-full justify-center"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
@@ -676,6 +678,7 @@ export default function HelpPage() {
                 Email Support
               </motion.a>
               <motion.button
+                onClick={() => showToast('Connecting to Live Chat…')}
                 className="btn-secondary"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}

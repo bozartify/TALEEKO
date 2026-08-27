@@ -580,7 +580,7 @@ export default function ApiKeysPage() {
           <motion.div key="oauth" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">OAuth Integrations</h3>
-              <button className="btn-secondary text-xs px-3 py-1.5"><Search className="w-3.5 h-3.5" /> Browse Apps</button>
+              <button onClick={() => showToast('Opening app directory…')} className="btn-secondary text-xs px-3 py-1.5"><Search className="w-3.5 h-3.5" /> Browse Apps</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {oauthApps.map((app, i) => (
@@ -634,7 +634,7 @@ export default function ApiKeysPage() {
                       <p className="text-xs text-surface-400">Explore endpoints, authentication guides, and code examples.</p>
                     </div>
                   </div>
-                  <motion.button className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.button onClick={() => showToast('Opening API documentation…')} className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     View Docs <ChevronRight className="w-3 h-3" />
                   </motion.button>
                 </div>
