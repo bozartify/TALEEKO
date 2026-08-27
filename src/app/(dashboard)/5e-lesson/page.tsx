@@ -216,17 +216,72 @@ export default function FiveELessonPage() {
 
   const totalPhaseMins = Object.values(durations).reduce((a, b) => a + b, 0)
 
-  function handleRegeneratePhase(id: string) {
-    setGeneratingPhase(id)
-    setTimeout(() => setGeneratingPhase(null), 2200)
+  async function streamText(prompt: string): Promise<string> {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], mode: 'general' }),
+    })
+    const reader = res.body!.getReader()
+    const decoder = new TextDecoder()
+    let buf = ''
+    let text = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buf += decoder.decode(value, { stream: true })
+      const lines = buf.split('\n')
+      buf = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        const data = line.slice(6).trim()
+        if (data === '[DONE]') break
+        try { const p = JSON.parse(data); if (p.type === 'text') text += p.text } catch { /* ignore */ }
+      }
+    }
+    return text.trim()
   }
 
-  function handleGenerateAll() {
+  async function handleRegeneratePhase(id: string) {
+    setGeneratingPhase(id)
+    try {
+      const phasePrompts: Record<string, string> = {
+        engage:    `Write the Engage phase (hook/anticipatory set) for a ${grade} ${subject} 5E lesson on "${topic}". Include a compelling question, visual or scenario, and brief activity. 3-4 sentences max per idea.`,
+        explore:   `Write the Explore phase for a ${grade} ${subject} 5E lesson on "${topic}". Include a hands-on inquiry activity, student directions, and guiding questions.`,
+        explain:   `Write the Explain phase for a ${grade} ${subject} 5E lesson on "${topic}". Include direct instruction content, key vocabulary, and a student note-taking guide.`,
+        elaborate: `Write the Elaborate phase for a ${grade} ${subject} 5E lesson on "${topic}". Include an extension activity where students apply concepts in a new context.`,
+        evaluate:  `Write the Evaluate phase for a ${grade} ${subject} 5E lesson on "${topic}". Include a formative assessment strategy and exit ticket prompts.`,
+      }
+      const prompt = phasePrompts[id] ?? `Write content for the ${id} phase of a ${grade} ${subject} 5E lesson on "${topic}".`
+      const text = await streamText(prompt)
+      if (text) setContents(prev => ({ ...prev, [id]: text }))
+    } catch {
+      showToast('Regeneration failed')
+    } finally {
+      setGeneratingPhase(null)
+    }
+  }
+
+  async function handleGenerateAll() {
     setGeneratingAll(true)
-    setTimeout(() => {
+    try {
+      const prompt = `Create a complete 5E lesson plan (Engage, Explore, Explain, Elaborate, Evaluate) for a ${grade} ${subject} lesson on "${topic}" lasting ${lessonDuration} minutes. Standards: ${standardsText}.
+
+Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...","evaluate":"..."}`
+      const text = await streamText(prompt)
+      const jsonMatch = text.match(/\{[\s\S]*?\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as Record<string, string>
+        setContents(prev => ({ ...prev, ...parsed }))
+        showToast('AI 5E lesson plan generated!')
+      } else {
+        showToast('Lesson refreshed!')
+      }
+    } catch {
+      showToast('Generation failed — check connection')
+    } finally {
       setGeneratingAll(false)
-      showToast('AI lesson plan generated!')
-    }, 3500)
+    }
   }
 
   return (
