@@ -183,8 +183,69 @@ export default function SeatingChartPage() {
 
   function handleAIArrange() {
     if (!selectedStrategy) return
-    const arranged = [...students].sort(() => Math.random() - 0.5)
-    setSeats(prev => prev.map((seat, i) => ({ ...seat, studentId: arranged[i]?.id ?? null })))
+    const totalSeats = seats.length
+    let ordered: Student[]
+
+    if (selectedStrategy === 'ell-iep') {
+      // ELL/IEP students go first (front rows = low seat indices), rest after
+      const priority = students.filter(s => s.nearTeacher || s.ell || s.iep)
+      const rest = students.filter(s => !s.nearTeacher && !s.ell && !s.iep)
+      ordered = [...priority, ...rest]
+
+    } else if (selectedStrategy === 'behavior') {
+      // Place separateFrom pairs as far apart as possible — alternate sides
+      const placed: Student[] = []
+      const remaining = [...students]
+      while (remaining.length) {
+        const s = remaining.shift()!
+        placed.push(s)
+        // push their conflict partners to the end
+        remaining.sort((a, b) => {
+          const aConflict = s.separateFrom?.includes(a.id) ? 1 : 0
+          const bConflict = s.separateFrom?.includes(b.id) ? 1 : 0
+          return aConflict - bConflict
+        })
+      }
+      ordered = placed
+
+    } else if (selectedStrategy === 'peer-tutor') {
+      // Interleave excelling with needs-support, on-track fills gaps
+      const excelling = students.filter(s => s.status === 'excelling')
+      const needsSupport = students.filter(s => s.status === 'needs-support')
+      const onTrack = students.filter(s => s.status === 'on-track')
+      ordered = []
+      const maxLen = Math.max(excelling.length, needsSupport.length)
+      for (let i = 0; i < maxLen; i++) {
+        if (excelling[i]) ordered.push(excelling[i])
+        if (needsSupport[i]) ordered.push(needsSupport[i])
+      }
+      ordered = [...ordered, ...onTrack]
+
+    } else if (selectedStrategy === 'group-work') {
+      // Mixed-ability pods: one excelling + one needs-support + two on-track per group
+      const excelling = students.filter(s => s.status === 'excelling')
+      const needsSupport = students.filter(s => s.status === 'needs-support')
+      const onTrack = students.filter(s => s.status === 'on-track')
+      const pods: Student[] = []
+      const podCount = Math.ceil(students.length / 4)
+      for (let p = 0; p < podCount; p++) {
+        if (excelling[p]) pods.push(excelling[p])
+        if (needsSupport[p]) pods.push(needsSupport[p])
+        if (onTrack[p * 2]) pods.push(onTrack[p * 2])
+        if (onTrack[p * 2 + 1]) pods.push(onTrack[p * 2 + 1])
+      }
+      ordered = pods
+
+    } else {
+      // assessment: alphabetical — predictable, avoids social clusters
+      ordered = [...students].sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    // Pad or trim to match seat count
+    while (ordered.length < totalSeats) ordered.push(ordered[ordered.length % students.length])
+    ordered = ordered.slice(0, totalSeats)
+
+    setSeats(prev => prev.map((seat, i) => ({ ...seat, studentId: ordered[i]?.id ?? null })))
     setArrangeOpen(false)
     showToast(`Applied: ${ARRANGE_STRATEGIES.find(s => s.id === selectedStrategy)?.label}`)
     setSelectedStrategy(null)

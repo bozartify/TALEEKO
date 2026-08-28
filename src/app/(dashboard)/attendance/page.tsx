@@ -983,7 +983,23 @@ export default function AttendancePage() {
                     className="w-full px-3 py-2 text-xs rounded-xl bg-white/[0.04] border border-white/[0.08] text-surface-200 focus:outline-none focus:border-accent-500/40 resize-none"
                   />
                 </div>
-                <button onClick={() => { setNotifyMsg(`Dear Parent/Guardian,\n\nYour student ${notifyModal.name} has recorded ${notifyModal.absences30d} absence(s) in the past 30 days. Please contact us if you have any questions.\n\nBest regards,\nMs. Johnson`); showToast('AI draft generated') }} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
+                <button onClick={async () => {
+                  showToast('Drafting message with AI…')
+                  try {
+                    const prompt = `Write a brief, empathetic parent/guardian email about ${notifyModal.name} having ${notifyModal.absences30d} absence(s) in the past 30 days. Tone: warm and supportive, not punitive. 3-4 sentences max. Sign off as "Ms. Johnson". Return only the email body text.`
+                    const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+                    const reader = res.body!.getReader(); const decoder = new TextDecoder()
+                    let buf = '', fullText = ''
+                    while (true) {
+                      const { done, value } = await reader.read(); if (done) break
+                      buf += decoder.decode(value, { stream: true })
+                      const lines = buf.split('\n'); buf = lines.pop() ?? ''
+                      for (const line of lines) { if (!line.startsWith('data: ')) continue; const raw = line.slice(6).trim(); if (raw === '[DONE]') break; try { const p = JSON.parse(raw); if (p.type === 'text') fullText += p.text } catch {} }
+                    }
+                    if (fullText) setNotifyMsg(fullText.trim())
+                    showToast('AI draft ready')
+                  } catch { showToast('Draft generation failed') }
+                }} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
                   <Sparkles className="w-3.5 h-3.5" />
                   AI-Draft Message
                 </button>

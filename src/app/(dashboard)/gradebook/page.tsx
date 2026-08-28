@@ -536,6 +536,7 @@ export default function GradebookPage() {
                         className="text-[10px] font-semibold flex items-center gap-1"
                         style={{ color: insight.color }}
                         whileHover={{ x: 2 }}
+                        onClick={() => showToast(`${insight.action}…`)}
                       >
                         {insight.action} <ChevronRight className="w-2.5 h-2.5" />
                       </motion.button>
