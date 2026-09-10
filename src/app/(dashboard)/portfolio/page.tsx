@@ -190,6 +190,8 @@ export default function PortfolioPage() {
   const [extraGoals, setExtraGoals] = useState<Record<string, string[]>>({})
   const [awardedBadges, setAwardedBadges] = useState<Record<string, { title: string; date: string; icon: string }[]>>({})
   const [toastMsg, setToastMsg] = useState('')
+  const [aiInsightText, setAiInsightText] = useState<Record<string, string>>({})
+  const [generatingInsight, setGeneratingInsight] = useState<string | null>(null)
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -208,6 +210,36 @@ export default function PortfolioPage() {
   const toggleGoal = (studentId: string, i: number) => {
     const key = `${studentId}-${i}`
     setGoalsDone(prev => ({ ...prev, [key]: !getGoalDone(studentId, i) }))
+  }
+
+  async function generateAIInsights(student: typeof students[0]) {
+    if (generatingInsight === student.id) return
+    setGeneratingInsight(student.id)
+    showToast(`Generating AI insights for ${student.name}…`)
+    try {
+      const prompt = `Generate 3 concise bullet-point insights for student ${student.name} (${student.class}, Grade ${student.grade}). Average: ${student.avg}%. Attendance: ${student.attendance}%. Top skills: ${student.skills.slice(0,3).map(s => `${s.name} ${s.level}%`).join(', ')}. Strengths: ${student.strengths.join(', ')}. Include one praise, one growth area, and one recommendation. Keep each bullet under 20 words. Return only the 3 bullets, one per line, starting with • .`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value)
+        for (const line of chunk.split('\n')) {
+          const trimmed = line.replace(/^data:\s*/, '')
+          if (!trimmed || trimmed === '[DONE]') continue
+          try { const p = JSON.parse(trimmed); if (p.type === 'text') fullText += p.text } catch { /* skip */ }
+        }
+      }
+      setAiInsightText(prev => ({ ...prev, [student.id]: fullText.trim() }))
+      showToast(`AI insights ready for ${student.name}!`)
+    } catch {
+      showToast('AI generation failed — please try again')
+    } finally {
+      setGeneratingInsight(null)
+    }
   }
 
   const avgGrowth = selectedStudent.growth[selectedStudent.growth.length - 1] - selectedStudent.growth[0]
@@ -367,8 +399,10 @@ export default function PortfolioPage() {
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Message sent to ${selectedStudent.name.split(' ')[0]}'s parent`)}><Mail className="w-3 h-3" /> Message Parent</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening analytics for ${selectedStudent.name}`)}><BarChart2 className="w-3 h-3" /> Analytics</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Printing portfolio for ${selectedStudent.name}`)}><Printer className="w-3 h-3" /> Print</button>
-                  <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={() => showToast(`AI insights generated for ${selectedStudent.name}`)}><Sparkles className="w-3 h-3" /> AI Insights</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}><Printer className="w-3 h-3" /> Print</button>
+                  <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" disabled={generatingInsight === selectedStudent.id} onClick={() => generateAIInsights(selectedStudent)}>
+                    {generatingInsight === selectedStudent.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> AI Insights</>}
+                  </button>
                 </div>
                 <AnimatePresence>
                   {noteOpen && (
@@ -690,6 +724,13 @@ export default function PortfolioPage() {
                         </span>{' '}
                         by semester end if current pace is maintained.
                       </p>
+                      {aiInsightText[selectedStudent.id] && (
+                        <div className="mt-3 p-3 rounded-xl bg-accent-500/10 border border-accent-500/20 space-y-1">
+                          {aiInsightText[selectedStudent.id].split('\n').filter(Boolean).map((line, i) => (
+                            <p key={i} className="text-xs text-surface-200 leading-relaxed">{line}</p>
+                          ))}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2">
                         <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Acceleration plan created for ${selectedStudent.name}`)}><Zap className="w-3 h-3" /> Accelerate Plan</button>
                         <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Growth report exported')}><Download className="w-3 h-3" /> Export Report</button>
