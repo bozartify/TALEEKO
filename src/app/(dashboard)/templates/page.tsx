@@ -960,7 +960,7 @@ export default function TemplatesPage() {
                     </div>
                   )}
                   <div className="flex gap-2 mt-4">
-                    <button className="btn-gradient px-4 py-2 text-xs font-semibold flex items-center gap-1.5">
+                    <button className="btn-gradient px-4 py-2 text-xs font-semibold flex items-center gap-1.5" onClick={() => router.push(`/lesson-planner?template=${encodeURIComponent(aiGeneratedTemplate.name)}&subject=${encodeURIComponent(aiForm.subject || 'General')}`)}>
                       <Check className="w-3.5 h-3.5" /> Use Template
                     </button>
                     <button onClick={() => setAiGeneratedTemplate(null)} className="btn-secondary px-4 py-2 text-xs font-medium">

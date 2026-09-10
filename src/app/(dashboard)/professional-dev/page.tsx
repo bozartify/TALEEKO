@@ -330,6 +330,8 @@ export default function ProfessionalDevPage() {
   const [categoryFilter, setCategoryFilter] = useState<Category>('All')
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
+  const [aiRecText, setAiRecText] = useState('')
+  const [loadingRecs, setLoadingRecs] = useState(false)
   const [courseList, setCourseList] = useState<Course[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -343,6 +345,35 @@ export default function ProfessionalDevPage() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
   }
+
+  async function handleAIRecs() {
+    setLoadingRecs(true)
+    showToast('AI is personalizing your recommendations…')
+    try {
+      const inProgress = courseList.filter(c => c.status === 'in-progress').map(c => c.title).join(', ')
+      const completed = courseList.filter(c => c.status === 'completed').map(c => c.title).join(', ')
+      const prompt = `A teacher has completed: ${completed || 'none'}. Currently in progress: ${inProgress || 'none'}. Suggest 2 next professional development courses in 2 bullet points starting with • . Each bullet: course name and 1-sentence reason. Be specific.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      setAiRecText(fullText.trim())
+      showToast('AI recommendations ready!')
+    } catch { showToast('AI recommendations failed — check connection') }
+    finally { setLoadingRecs(false) }
+  }
+
   function enrollCourse(id: string, title: string) {
     setCourseList(prev => {
       const next = prev.map(c => c.id === id ? { ...c, status: 'in-progress' as CourseStatus, progress: 5 } : c)
@@ -397,8 +428,9 @@ export default function ProfessionalDevPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Browsing certificates…')}>
                 <Award className="w-3.5 h-3.5" /> Certificates
               </motion.button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Loading AI course recommendations…')}>
-                <Sparkles className="w-4 h-4" /> AI Recommendations
+              <motion.button className="btn-gradient text-xs flex items-center gap-1.5" disabled={loadingRecs} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={handleAIRecs}>
+                {loadingRecs ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                AI Recommendations
               </motion.button>
             </div>
           </div>
@@ -679,6 +711,24 @@ export default function ProfessionalDevPage() {
           </div>
         </div>
       </FadeInWhenVisible>
+
+      {/* AI Recommendations Result */}
+      <AnimatePresence>
+        {aiRecText && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+            className="glass-card p-4 border border-violet-500/30 bg-violet-500/[0.04]"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4 text-violet-400" />
+              <span className="text-xs font-bold text-violet-400 uppercase tracking-wider">AI Personalized Picks</span>
+            </div>
+            {aiRecText.split('\n').filter(Boolean).map((line, i) => (
+              <p key={i} className="text-sm text-surface-200 leading-relaxed">{line}</p>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Recommended for You */}
       <FadeInWhenVisible delay={0.05}>

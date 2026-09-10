@@ -206,6 +206,14 @@ export default function ScopeSequencePage() {
     (search === '' || u.title.toLowerCase().includes(search.toLowerCase()))
   )
 
+  function exportScopeCSV() {
+    const headers = ['Title', 'Subject', 'Quarter', 'Start Week', 'Weeks', 'Standards', 'Completion %']
+    const rows = units.map(u => [u.title, u.subject, u.quarter, u.startWeek, u.weeks, u.standards.join(' | '), u.completed])
+    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n')
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'scope-sequence.csv'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Scope & sequence exported')
+  }
+
   async function handleAiSuggest() {
     setAiGenerating(true)
     try {
@@ -278,7 +286,7 @@ export default function ScopeSequencePage() {
                 : <><Sparkles className="w-4 h-4" /> AI Align</>
               }
             </button>
-            <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => showToast('Scope & sequence exported')}>
+            <button className="btn-secondary text-sm flex items-center gap-2" onClick={exportScopeCSV}>
               <Download className="w-4 h-4" /> Export
             </button>
             <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening unit builder…')}>
@@ -637,7 +645,8 @@ export default function ScopeSequencePage() {
               <Link2 className="w-4 h-4 text-accent-400" /> Cross-Curricular Connections
             </h2>
             <button
-              onClick={() => showToast('AI found 2 new connections')}
+              onClick={handleAiSuggest}
+              disabled={aiGenerating}
               className="text-xs text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors"
             >
               <Sparkles className="w-3.5 h-3.5" /> AI Discover

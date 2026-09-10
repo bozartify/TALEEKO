@@ -107,10 +107,67 @@ export default function ClassroomPage() {
   const [aiDraftText, setAiDraftText] = useState('')
   const [annSchedule, setAnnSchedule] = useState('')
   const [toastMsg, setToastMsg] = useState('')
+  const [aiPlanId, setAiPlanId] = useState<string | null>(null)
+  const [draftingAI, setDraftingAI] = useState(false)
 
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function handleAIPlan(cls: ClassRecord) {
+    setAiPlanId(cls.name)
+    showToast(`AI is planning a lesson for ${cls.name}…`)
+    try {
+      const prompt = `Suggest one engaging 5-minute warm-up activity for a ${cls.subject} class (${cls.name}), average score ${cls.avgScore}%. One sentence only.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText.trim()) showToast(fullText.trim().slice(0, 120))
+      else showToast('AI lesson plan generated!')
+    } catch { showToast('AI plan failed — check connection') }
+    finally { setAiPlanId(null) }
+  }
+
+  async function handleAIDraft() {
+    if (!aiDraftText.trim()) { showToast('Describe your announcement first'); return }
+    setDraftingAI(true)
+    try {
+      const prompt = `Write a brief, professional school announcement for students and families: "${aiDraftText}". 2-3 sentences, friendly tone. Return only the announcement text.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText.trim()) {
+        setComposeAnn(a => ({ ...a, body: fullText.trim(), title: a.title || aiDraftText.slice(0, 50) }))
+        setAnnouncementModal(true)
+        showToast('AI draft ready — review and send!')
+      } else showToast('Draft ready — check announcement form')
+    } catch { showToast('AI draft failed — check connection') }
+    finally { setDraftingAI(false) }
   }
 
   const filteredStudents = students.filter(s =>
@@ -382,8 +439,8 @@ export default function ClassroomPage() {
                             >
                               <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center gap-2 flex-wrap">
                                 <Link href="/courses" className="btn-outline text-xs px-3 py-1.5" onClick={e => e.stopPropagation()}>View Roster</Link>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`AI lesson plan generated for ${cls.name}`) }}>
-                                  <Sparkles className="w-3 h-3" /> AI Plan
+                                <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1" disabled={aiPlanId === cls.name} onClick={e => { e.stopPropagation(); handleAIPlan(cls) }}>
+                                  {aiPlanId === cls.name ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3 h-3" />} AI Plan
                                 </button>
                                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Message sent to ${cls.students} students in ${cls.name}`) }}>
                                   <Mail className="w-3 h-3" /> Message
@@ -721,8 +778,9 @@ export default function ClassroomPage() {
                       placeholder="e.g. Remind students about the science fair deadline on Friday..."
                       className="w-full text-xs bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-600 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none"
                     />
-                    <motion.button className="btn-gradient text-xs w-full mt-3" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('AI-drafted announcement ready for review')}>
-                      <Sparkles className="w-3.5 h-3.5" /> Draft with AI
+                    <motion.button className="btn-gradient text-xs w-full mt-3 flex items-center justify-center gap-1.5" disabled={draftingAI} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAIDraft}>
+                      {draftingAI ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                      {draftingAI ? 'Drafting…' : 'Draft with AI'}
                     </motion.button>
                   </div>
                 </FadeInWhenVisible>
