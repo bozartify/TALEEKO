@@ -244,6 +244,17 @@ export default function InterventionTrackerPage() {
   const [toastMsg, setToastMsg]       = useState('')
   const [expandedDoc, setExpandedDoc] = useState<string | null>(null)
 
+  function exportInterventionCSV() {
+    const headers = ['Student', 'Tier', 'Area', 'Type', 'Start Date', 'Sessions', 'Progress %', 'Status', 'Next Session', 'IEP']
+    const rows = interventions.map(i => [i.student, i.tier, i.area, i.type, i.startDate, i.sessions, i.progress, i.status, i.nextSession, i.iep ? 'Yes' : 'No'])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'intervention-report.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Intervention report exported as CSV')
+  }
+
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2600)
@@ -307,7 +318,7 @@ export default function InterventionTrackerPage() {
                 className="btn-secondary text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('Intervention report exported!')}
+                onClick={exportInterventionCSV}
               >
                 <Download className="w-3.5 h-3.5" /> Export Report
               </motion.button>

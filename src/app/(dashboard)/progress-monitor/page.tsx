@@ -492,6 +492,17 @@ export default function ProgressMonitorPage() {
   const [toastMsg, setToastMsg] = useState('')
   const showToast = (msg: string) => { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportProgressCSV() {
+    const headers = ['Name', 'Subject', 'Grade %', 'Status', 'Trend', 'Attendance %', 'Assignments %', 'Growth %']
+    const rows = STUDENTS.map(s => [s.name, s.subject, s.grade, s.status, s.trend, s.attendance, s.assignments, s.growth])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'progress-report.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Progress report exported as CSV')
+  }
+
   const subjects: SubjectFilter[] = ['All', 'Biology', 'Math', 'English', 'History']
   const statuses: StatusFilter[]  = ['All', 'Excelling', 'On Track', 'At Risk']
 
@@ -565,7 +576,7 @@ export default function ProgressMonitorPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => showToast('Progress report exported!')} className="btn-secondary">
+                <button onClick={exportProgressCSV} className="btn-secondary">
                   <Download size={15} />
                   Export Report
                 </button>
