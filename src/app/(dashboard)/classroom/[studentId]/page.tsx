@@ -454,6 +454,7 @@ export default function StudentDetailPage() {
                   className="btn-primary text-xs"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
+                  onClick={() => showToast('Note saved!')}
                 >
                   <Plus className="w-3.5 h-3.5" /> Save Note
                 </motion.button>

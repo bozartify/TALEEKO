@@ -484,7 +484,7 @@ export default function GradebookPage() {
                   {curveAmount > 0 ? '+' : ''}{curveAmount}%
                 </span>
               </div>
-              <button className="btn-gradient text-xs ml-auto"><Save className="w-3 h-3" /> Save Changes</button>
+              <button className="btn-gradient text-xs ml-auto" onClick={() => showToast('Grade curve applied and saved!')}><Save className="w-3 h-3" /> Save Changes</button>
             </div>
           </motion.div>
         )}
@@ -1016,9 +1016,9 @@ export default function GradebookPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button className="btn-gradient text-xs flex-1"><MessageSquare className="w-3 h-3" /> Message</button>
-                <button className="btn-secondary text-xs flex-1"><Bell className="w-3 h-3" /> Set Alert</button>
-                <button className="btn-secondary text-xs flex-1"><FileText className="w-3 h-3" /> Report</button>
+                <button className="btn-gradient text-xs flex-1" onClick={() => showToast('Message drafted for student')}><MessageSquare className="w-3 h-3" /> Message</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Grade alert set!')}><Bell className="w-3 h-3" /> Set Alert</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Generating progress report…')}><FileText className="w-3 h-3" /> Report</button>
               </div>
             </motion.div>
           </motion.div>

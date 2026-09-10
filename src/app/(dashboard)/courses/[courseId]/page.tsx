@@ -259,7 +259,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-white leading-snug">{ins.title}</p>
-                    <button className="mt-1.5 text-[11px] font-medium flex items-center gap-1" style={{ color: ins.color }}>
+                    <button className="mt-1.5 text-[11px] font-medium flex items-center gap-1" style={{ color: ins.color }} onClick={() => showToast(`${ins.action}…`)}>
                       {ins.action} <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>

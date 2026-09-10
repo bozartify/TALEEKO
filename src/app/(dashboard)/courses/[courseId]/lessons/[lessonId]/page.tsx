@@ -257,7 +257,7 @@ export default function LessonDetailPage({
                   <p className="text-sm font-semibold text-white truncate group-hover:text-accent-400 transition-colors">{mat.title}</p>
                   <p className="text-xs text-surface-500">{meta.label} · {mat.date}</p>
                 </div>
-                <button className="btn-outline text-xs px-3 py-1.5">View</button>
+                <button className="btn-outline text-xs px-3 py-1.5" onClick={() => showToast(`Opening material: ${mat.title}`)}>View</button>
               </motion.div>
             )
           })}

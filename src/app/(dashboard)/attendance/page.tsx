@@ -340,7 +340,7 @@ export default function AttendancePage() {
                         Class attendance has dipped from 96% (Week 1) to {attendanceRate}% this week — a 4-point decline. Monday and Wednesday show the highest absence rates.
                       </p>
                     </div>
-                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 flex-shrink-0">View →</button>
+                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 flex-shrink-0" onClick={() => showToast('Opening attendance trend report…')}>View →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-accent-400/[0.08] border border-accent-400/15">
                     <Award className="w-4 h-4 text-accent-400 flex-shrink-0 mt-0.5" />
@@ -350,7 +350,7 @@ export default function AttendancePage() {
                         Isabella Jones has 0 absences this month. A public recognition can motivate peers and create a positive attendance culture.
                       </p>
                     </div>
-                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex-shrink-0">Award →</button>
+                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex-shrink-0" onClick={() => showToast('Perfect Attendance Award sent to Isabella!')}>Award →</button>
                   </div>
                 </div>
               </motion.div>
