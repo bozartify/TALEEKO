@@ -144,9 +144,75 @@ export default function StandardsPage() {
   const [compareList, setCompareList] = useState<string[]>([])
   const [gradeFilter, setGradeFilter] = useState('all')
   const [toastMsg, setToastMsg] = useState('')
+  const [fillingGaps, setFillingGaps] = useState(false)
+  const [gapFillText, setGapFillText] = useState('')
+  const [aligningAll, setAligningAll] = useState(false)
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function handleFillGaps() {
+    setFillingGaps(true)
+    setGapFillText('')
+    showToast('AI is analyzing gaps…')
+    try {
+      const gaps = gapAreas.map(g => `${g.standard} (${g.domain})`).join(', ')
+      const prompt = `For a 7th grade ELA teacher with these unaligned standards: ${gaps}. Suggest 3 quick activities (1 sentence each) that could fill these gaps and fit into existing lessons. Start each with "• ".`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      setGapFillText(fullText.trim())
+      showToast('AI gap suggestions ready!')
+    } catch { showToast('AI gap fill failed — check connection') }
+    finally { setFillingGaps(false) }
+  }
+
+  async function handleAutoAlignAll() {
+    setAligningAll(true)
+    showToast('AI is finding alignment opportunities…')
+    try {
+      const unaligned = allStandards.filter(s => !s.aligned).map(s => s.code).join(', ')
+      const prompt = `These 7th grade ELA standards need lesson alignment: ${unaligned}. Suggest 2 quick cross-standard lessons. One sentence per suggestion. Start each with "• ".`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText.trim()) showToast(fullText.trim().slice(0, 120))
+      else showToast('Alignment suggestions generated!')
+    } catch { showToast('Auto-align failed — check connection') }
+    finally { setAligningAll(false) }
+  }
+
+  function exportAlignmentCSV() {
+    const headers = ['Code', 'Domain', 'Text', 'Aligned', 'Lessons', 'Grade Range', 'Difficulty']
+    const rows = allStandards.map(s => [s.code, ccssStandards.find(d => d.standards.includes(s))?.domain ?? '', s.text, s.aligned ? 'Yes' : 'No', s.lessons, s.gradeRange, s.difficulty])
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n')
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'standards-alignment.csv'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Alignment report exported!')
   }
 
   const selectedFw = frameworks.find(f => f.id === selectedFramework)!
@@ -399,10 +465,10 @@ export default function StandardsPage() {
             {/* Quick actions */}
             <div className="glass-card p-3 space-y-2">
               <h4 className="text-xs font-semibold text-surface-300 mb-2">Quick Actions</h4>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Auto-aligning with AI…')}>
-                <Sparkles className="w-3.5 h-3.5 text-accent-400" /> Auto-align with AI
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={handleAutoAlignAll} disabled={aligningAll}>
+                {aligningAll ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-accent-400" />} Auto-align with AI
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Exporting alignment report…')}>
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={exportAlignmentCSV}>
                 <Download className="w-3.5 h-3.5 text-surface-400" /> Export alignment report
               </button>
               <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Syncing with lesson plans…')}>
@@ -442,9 +508,10 @@ export default function StandardsPage() {
                         className="btn-gradient text-xs"
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => showToast('Auto-aligning all standards with AI…')}
+                        onClick={handleAutoAlignAll}
+                        disabled={aligningAll}
                       >
-                        <Zap className="w-3 h-3" /> Auto-Align All
+                        {aligningAll ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Zap className="w-3 h-3" />} Auto-Align All
                       </motion.button>
                     </div>
                   </div>
@@ -675,10 +742,19 @@ export default function StandardsPage() {
                     <h3 className="text-sm font-bold text-white">Gap Analysis</h3>
                     <p className="text-xs text-surface-400">{gapCount} unaligned standards · AI-prioritized by impact</p>
                   </div>
-                  <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('Generating lessons for all gaps with AI…')}>
-                    <Sparkles className="w-3.5 h-3.5" /> Fill All Gaps with AI
+                  <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleFillGaps} disabled={fillingGaps}>
+                    {fillingGaps ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} Fill All Gaps with AI
                   </motion.button>
                 </div>
+
+                {gapFillText && (
+                  <div className="glass-card p-4 border border-accent-500/20">
+                    <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-accent-400" /> AI Gap Fill Suggestions
+                    </h4>
+                    <p className="text-xs text-surface-300 leading-relaxed whitespace-pre-wrap">{gapFillText}</p>
+                  </div>
+                )}
 
                 {/* AI Suggestions */}
                 <div className="glass-card p-4 border border-accent-500/15">
