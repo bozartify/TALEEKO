@@ -207,6 +207,7 @@ export default function GroupsPage() {
   const [aiOpen, setAiOpen] = useState(true)
   const [actionMenu, setActionMenu] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
+  const [aiGrouping, setAiGrouping] = useState(false)
   const [createOpen, setCreateOpen] = useState(false)
   const [newName, setNewName] = useState('')
   const [newType, setNewType] = useState<GroupType>('Lab')
@@ -220,6 +221,58 @@ export default function GroupsPage() {
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function handleAISmartGroup() {
+    setAiGrouping(true)
+    showToast('AI is analyzing class data and creating optimal groups…')
+    const allStudents = groups.flatMap(g => g.students)
+    const prompt = `Given these students with averages: ${allStudents.map(s => `${s.name} (${s.avg}%)`).join(', ')}, create 3 balanced study groups mixing performance levels. Return ONLY valid JSON: {"groups":[{"name":"Group Name","purpose":"Brief purpose","type":"Study","color":"#6366f1","students":["Name1","Name2"]}]}. Use colors: #6366f1, #10b981, #f97316.`
+    try {
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value)
+        for (const line of chunk.split('\n')) {
+          const trimmed = line.replace(/^data:\s*/, '')
+          if (!trimmed || trimmed === '[DONE]') continue
+          try { const p = JSON.parse(trimmed); if (p.type === 'text') fullText += p.text } catch { /* skip */ }
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('No JSON')
+      const { groups: aiGroups } = JSON.parse(jsonMatch[0]) as { groups: { name: string; purpose: string; type: string; color: string; students: string[] }[] }
+      const newGroups: Group[] = aiGroups.map((ag, i) => ({
+        id: `ai-${Date.now()}-${i}`,
+        name: ag.name,
+        color: ag.color,
+        type: ag.type as GroupType,
+        purpose: ag.purpose,
+        lastActive: 'Just now',
+        avgPerformance: Math.round(ag.students.reduce((sum, name) => {
+          const s = allStudents.find(st => st.name.includes(name.split(' ')[0]))
+          return sum + (s?.avg ?? 80)
+        }, 0) / ag.students.length),
+        trend: 'stable' as const,
+        completedTasks: 0,
+        totalTasks: 3,
+        students: ag.students.map(name => {
+          const found = allStudents.find(s => s.name.includes(name.split(' ')[0]))
+          return found ?? { name, initials: name.split(' ').map(n => n[0]).join('').slice(0,2), avg: 80, status: 'on-track' as const }
+        }),
+      }))
+      setGroups(prev => [...newGroups, ...prev])
+      showToast(`${newGroups.length} AI-optimized groups created!`)
+    } catch {
+      showToast('AI grouping failed — please try again')
+    } finally {
+      setAiGrouping(false)
+    }
   }
 
   const handleCreateGroup = () => {
@@ -287,9 +340,10 @@ export default function GroupsPage() {
               <motion.button
                 className="btn-gradient text-xs"
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('AI Smart Grouping is analyzing your class data…')}
+                disabled={aiGrouping}
+                onClick={handleAISmartGroup}
               >
-                <Sparkles className="w-3.5 h-3.5" /> AI Smart Group
+                {aiGrouping ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />&nbsp;Grouping…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Smart Group</>}
               </motion.button>
               <button
                 className="btn-secondary text-xs px-3 py-1.5"
