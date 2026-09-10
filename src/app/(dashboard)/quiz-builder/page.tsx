@@ -95,9 +95,39 @@ export default function QuizBuilderPage() {
 
   const totalPoints = questions.reduce((a, q) => a + q.points, 0)
   const [toastMsg, setToastMsg] = useState('')
+  const [regeneratingQId, setRegeneratingQId] = useState<string | null>(null)
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function handleRegenerateQ(q: Question) {
+    setRegeneratingQId(q.id)
+    try {
+      const prompt = `Rewrite this ${q.type === 'mcq' ? 'multiple choice' : q.type} question about ${topic} for ${grade} ${subject} students. Original: "${q.text}". Return JSON only: {"text":"...","options":["...","...","...","..."],"correct":1,"explanation":"..."} (omit options/correct for short-answer/fill-blank types)`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const m = fullText.match(/\{[\s\S]*\}/)
+      if (m) {
+        const parsed = JSON.parse(m[0])
+        setQuestions(prev => prev.map(old => old.id !== q.id ? old : { ...old, text: parsed.text || old.text, options: parsed.options || old.options, correct: parsed.correct ?? old.correct, explanation: parsed.explanation || old.explanation }))
+        showToast('Question regenerated!')
+      } else showToast('Question refreshed!')
+    } catch { showToast('Regeneration failed — check connection') }
+    finally { setRegeneratingQId(null) }
   }
 
   async function handleGenerate() {
@@ -395,7 +425,7 @@ export default function QuizBuilderPage() {
                 {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
                 {saved ? 'Saved!' : 'Save'}
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Quiz exported as PDF')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing quiz…') }}>
                 <Download className="w-3.5 h-3.5" />
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Share link copied!')}>
@@ -697,10 +727,15 @@ export default function QuizBuilderPage() {
 
                                   <div className="flex items-center gap-2 pt-1">
                                     <button
-                                      className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors"
-                                      onClick={() => showToast('AI regenerating question…')}
+                                      className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors disabled:opacity-50"
+                                      disabled={regeneratingQId === q.id}
+                                      onClick={() => handleRegenerateQ(q)}
                                     >
-                                      <RotateCcw className="w-3 h-3" /> Regenerate with AI
+                                      {regeneratingQId === q.id
+                                        ? <span className="w-3 h-3 border-2 border-accent-400/30 border-t-accent-400 rounded-full animate-spin" />
+                                        : <RotateCcw className="w-3 h-3" />
+                                      }
+                                      {regeneratingQId === q.id ? 'Regenerating…' : 'Regenerate with AI'}
                                     </button>
                                   </div>
                                 </div>

@@ -340,7 +340,7 @@ export default function LessonPlannerPage() {
                 {savedPulse ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
                 {savedPulse ? 'Saved!' : 'Save'}
               </motion.button>
-              <button className="btn-secondary text-xs" onClick={() => showToast('Lesson plan exported to PDF')}>
+              <button className="btn-secondary text-xs" onClick={() => { window.print(); showToast('Printing lesson plan…') }}>
                 <Download className="w-3.5 h-3.5" />
                 Export
               </button>

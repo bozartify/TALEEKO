@@ -141,6 +141,8 @@ export default function AssessmentCenterPage() {
   const [aiLoading, setAiLoading] = useState(false)
   const [aiInsight, setAiInsight] = useState('')
   const [toastMsg, setToastMsg] = useState('')
+  const [feedbackText, setFeedbackText] = useState('')
+  const [generatingFeedback, setGeneratingFeedback] = useState(false)
   const [aiSubject, setAiSubject] = useState('Science')
   const [aiAssessType, setAiAssessType] = useState('Quiz (10 questions)')
   const [aiStandard, setAiStandard] = useState('MS-LS1-1')
@@ -149,6 +151,33 @@ export default function AssessmentCenterPage() {
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function generateStudentFeedback(a: Assessment) {
+    setGeneratingFeedback(true)
+    setFeedbackText('')
+    showToast('AI is generating student feedback…')
+    try {
+      const prompt = `Generate 3 brief feedback bullet points (starting with •) for students who took "${a.title}" (${a.subject}, class avg ${a.classAvg}%). One for high performers, one for average, one for struggling students. Be specific and encouraging.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      setFeedbackText(fullText.trim())
+      showToast('AI feedback ready!')
+    } catch { showToast('Feedback generation failed — check connection') }
+    finally { setGeneratingFeedback(false) }
   }
 
   async function handleAiInsight() {
@@ -858,12 +887,27 @@ export default function AssessmentCenterPage() {
                     <Copy className="w-4 h-4" /> Duplicate Assessment
                   </button>
                   <button
-                    onClick={() => { showToast('Generating AI feedback…'); setSelectedAssessment(null) }}
-                    className="btn-secondary w-full justify-center text-sm"
+                    onClick={() => generateStudentFeedback(selectedAssessment)}
+                    disabled={generatingFeedback}
+                    className="btn-secondary w-full justify-center text-sm flex items-center gap-2"
                   >
-                    <Sparkles className="w-4 h-4" /> Generate Student Feedback
+                    {generatingFeedback ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                    {generatingFeedback ? 'Generating…' : 'Generate Student Feedback'}
                   </button>
                 </div>
+
+                {/* AI Feedback Result */}
+                {feedbackText && (
+                  <div className="mt-4 p-4 rounded-2xl border border-accent-500/30 bg-accent-500/[0.05]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-3.5 h-3.5 text-accent-400" />
+                      <span className="text-xs font-bold text-accent-400 uppercase tracking-wider">AI Feedback</span>
+                    </div>
+                    {feedbackText.split('\n').filter(Boolean).map((line, i) => (
+                      <p key={i} className="text-xs text-surface-200 leading-relaxed">{line}</p>
+                    ))}
+                  </div>
+                )}
               </div>
             </motion.div>
           </>
