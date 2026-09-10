@@ -210,6 +210,20 @@ export default function IepGoalsPage() {
   const atRiskGoals   = goals.filter(g => g.status === 'At Risk').length
   const reviewDue     = goals.filter(g => g.status === 'Met').length
 
+  function exportIEPCSV() {
+    const headers = ['Student', 'Grade', 'Area', 'Goal', 'Baseline %', 'Current %', 'Target %', 'Status', 'Last Updated']
+    const rows = goals.map(g => {
+      const student = STUDENTS.find(s => s.id === g.studentId)
+      return [student?.name ?? '', student?.grade ?? '', g.area, g.goalText, g.baseline, g.current, g.target, g.status, g.lastUpdated]
+    })
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'iep-compliance-report.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('IEP compliance report exported as CSV')
+  }
+
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2600)
@@ -317,7 +331,7 @@ export default function IepGoalsPage() {
                 className="btn-secondary text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('IEP compliance report exported!')}
+                onClick={exportIEPCSV}
               >
                 <Download className="w-3.5 h-3.5" /> Export Report
               </motion.button>

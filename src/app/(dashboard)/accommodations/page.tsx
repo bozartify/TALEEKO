@@ -169,6 +169,17 @@ export default function AccommodationsPage() {
   const [accStates, setAccStates]             = useState<Record<string, boolean>>({})
   const [toastMsg, setToastMsg]               = useState('')
 
+  function exportAccommodationsCSV() {
+    const headers = ['Student', 'Plan Type', 'Grade', 'Disability Category', 'Review Date', 'Meeting Date', 'Doc Status', 'Parent Email', 'Accommodations']
+    const rows = students.map(s => [s.name, s.planType, s.grade, s.disabilityCategory, s.reviewDate, s.meetingDate, s.docStatus, s.parentEmail, s.accommodations.map(a => a.label).join(' | ')])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'accommodation-records.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Accommodation records exported as CSV')
+  }
+
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
@@ -223,7 +234,7 @@ export default function AccommodationsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Records exported to CSV')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportAccommodationsCSV}>
                 <Download className="w-3.5 h-3.5" /> Export Records
               </button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAddModal(true)}>
@@ -643,7 +654,7 @@ export default function AccommodationsPage() {
                     }`}
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => action.label === 'Add Accommodation' ? setAddModal(true) : showToast(action.toast)}
+                    onClick={() => action.label === 'Add Accommodation' ? setAddModal(true) : action.label === 'Export All Records' ? exportAccommodationsCSV() : showToast(action.toast)}
                   >
                     <action.icon className="w-3.5 h-3.5 flex-shrink-0" />
                     {action.label}
