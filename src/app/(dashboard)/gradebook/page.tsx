@@ -128,7 +128,42 @@ export default function GradebookPage() {
     return Object.fromEntries(students.map(s => [s.id, s.scores]))
   })
   const [toastMsg, setToastMsg] = useState('')
+  const [aiAnalysisText, setAiAnalysisText] = useState('')
+  const [runningAnalysis, setRunningAnalysis] = useState(false)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  async function runAIAnalysis() {
+    setRunningAnalysis(true)
+    showToast('AI is analyzing gradebook data…')
+    try {
+      const avg = (s: typeof students[0]) => {
+        const divisors = [100, 50, 75, 200, 100, 20]
+        const vals = s.scores.map((v, i) => v !== null ? v / divisors[i] : 0.75)
+        return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 100)
+      }
+      const data = students.map(s => `${s.name}: ${avg(s)}% avg, trend: ${s.trend}${s.iep ? ', IEP' : ''}`).join('; ')
+      const prompt = `Gradebook analysis for 8 students: ${data}. Provide 2 brief AI insights (1-2 sentences each) with actionable recommendations. Format as a short paragraph. Be specific to the data.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error()
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        const chunk = decoder.decode(value)
+        for (const line of chunk.split('\n')) {
+          const trimmed = line.replace(/^data:\s*/, '')
+          if (!trimmed || trimmed === '[DONE]') continue
+          try { const p = JSON.parse(trimmed); if (p.type === 'text') fullText += p.text } catch { /* skip */ }
+        }
+      }
+      setAiAnalysisText(fullText.trim())
+      showToast('AI analysis complete!')
+    } catch { showToast('AI analysis failed — please try again') }
+    finally { setRunningAnalysis(false) }
+  }
 
   function exportCSV() {
     const headers = ['Student', ...assignments.map(a => a.name), 'Overall %', 'Grade']
@@ -238,8 +273,8 @@ export default function GradebookPage() {
               <button onClick={() => setShowWeightPanel(!showWeightPanel)} className="btn-secondary text-xs px-3 py-1.5">
                 <Percent className="w-3.5 h-3.5" /> Weights
               </button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI analysis complete!')}>
-                <Sparkles className="w-3.5 h-3.5" /> AI Analysis
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} disabled={runningAnalysis} onClick={runAIAnalysis}>
+                {runningAnalysis ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />&nbsp;Analyzing…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Analysis</>}
               </motion.button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
                 <Download className="w-3.5 h-3.5" /> Export CSV
@@ -508,6 +543,11 @@ export default function GradebookPage() {
               {showInsights ? 'Collapse' : 'Expand'}
             </button>
           </div>
+          {aiAnalysisText && (
+            <div className="mb-4 p-3 rounded-xl bg-accent-500/10 border border-accent-500/20">
+              <p className="text-xs text-surface-200 leading-relaxed">{aiAnalysisText}</p>
+            </div>
+          )}
           <AnimatePresence>
             {showInsights && (
               <motion.div
