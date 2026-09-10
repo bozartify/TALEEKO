@@ -164,6 +164,14 @@ export default function DiscussionPromptsPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportPromptsCSV() {
+    const headers = ['Type', 'Blooms Level', 'Prompt', 'Follow-Up', 'Starred']
+    const rows = prompts.map(p => [p.type, p.blooms, p.text, (p.followUps || []).join(' | '), p.starred ? 'Yes' : 'No'])
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'discussion-prompts.csv'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Prompts exported!')
+  }
+
   useEffect(() => {
     if (timerRunning && timerSecs > 0) {
       intervalRef.current = setInterval(() => setTimerSecs(s => s - 1), 1000)
@@ -315,7 +323,7 @@ Return ONLY the JSON array, no other text.`
               <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => { setShareOpen(true) }}>
                 <Share2 className="w-3.5 h-3.5" /> Share
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => showToast('Prompts exported!')}>
+              <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={exportPromptsCSV}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
               <motion.button onClick={handleGenerate} disabled={generating || !topic.trim()} className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
