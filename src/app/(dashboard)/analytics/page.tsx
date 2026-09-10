@@ -161,7 +161,47 @@ const languageUsage = [
 export default function AnalyticsPage() {
   const [range, setRange] = useState<TimeRange>('month')
   const [toastMsg, setToastMsg] = useState('')
+  const [dynamicInsights, setDynamicInsights] = useState<string[]>([])
+  const [loadingInsights, setLoadingInsights] = useState(false)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  function exportAnalyticsCSV() {
+    const headers = ['Day', 'Lessons', 'Minutes']
+    const rows = weekData.map(d => [d.day, d.lessons, d.minutes])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'analytics-report.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Analytics report exported as CSV')
+  }
+
+  async function refreshAIInsights() {
+    setLoadingInsights(true)
+    try {
+      const avgScore = Math.round(classPerformanceWeeks.reduce((s, d) => s + (d.science + d.math + d.english + d.history) / 4, 0) / classPerformanceWeeks.length)
+      const topTool = topTools[0]?.name ?? 'Lesson Planner'
+      const prompt = `Based on class analytics: average score ${avgScore}%, most used tool: ${topTool}, 4 active classes. Provide 3 short data-driven AI insights as bullet points starting with •. Each under 15 words. Focus on actionable recommendations.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error()
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value)
+        for (const line of chunk.split('\n')) {
+          const trimmed = line.replace(/^data:\s*/, '')
+          if (!trimmed || trimmed === '[DONE]') continue
+          try { const p = JSON.parse(trimmed); if (p.type === 'text') fullText += p.text } catch { /* skip */ }
+        }
+      }
+      setDynamicInsights(fullText.trim().split('\n').filter(Boolean))
+      showToast('AI insights updated!')
+    } catch { showToast('Could not refresh AI insights') }
+    finally { setLoadingInsights(false) }
+  }
   const maxLessons = Math.max(...weekData.map(d => d.lessons))
   const maxMonthly = Math.max(...monthlyTrend.map(d => d.value))
 
@@ -192,10 +232,10 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Analytics report exported!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={exportAnalyticsCSV}>
                 <Download className="w-3.5 h-3.5" /> Export Report
               </motion.button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('AI insights refreshed!')}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} disabled={loadingInsights} onClick={refreshAIInsights}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Insights
               </motion.button>
             </div>
@@ -317,6 +357,13 @@ export default function AnalyticsPage() {
                 <Sparkles className="w-2.5 h-2.5" /> AI-Powered
               </motion.div>
             </div>
+            {dynamicInsights.length > 0 && (
+              <div className="mb-4 p-3 rounded-xl bg-accent-500/10 border border-accent-500/20 space-y-1">
+                {dynamicInsights.map((line, i) => (
+                  <p key={i} className="text-xs text-surface-200 leading-relaxed">{line}</p>
+                ))}
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {aiInsights.map((insight, i) => (
                 <motion.div
