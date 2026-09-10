@@ -1,11 +1,11 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   User, Bell, Palette, Key, Globe, Save, Shield, Database, Plug,
   Monitor, Moon, Sun, Check, Upload, Download, Trash2, Eye, EyeOff,
   ChevronRight, Mail, Smartphone, Lock, RefreshCw, ExternalLink,
-  BarChart2, CreditCard, Users, Settings, CheckCircle
+  BarChart2, CreditCard, Users, Settings, CheckCircle, X
 } from 'lucide-react'
 import { FadeUp } from '@/components/ui/motion'
 
@@ -31,12 +31,27 @@ const integrations = [
   { name: 'Zoom',             desc: 'Schedule and launch virtual classes', connected: false, icon: '📹' },
 ]
 
+function ls(key: string, fallback: string): string {
+  if (typeof window === 'undefined') return fallback
+  try { return localStorage.getItem(key) ?? fallback } catch { return fallback }
+}
+function lsJSON<T>(key: string, fallback: T): T {
+  if (typeof window === 'undefined') return fallback
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback } catch { return fallback }
+}
+
 export default function SettingsPage() {
   const [active, setActive] = useState('profile')
   const [saved, setSaved] = useState(false)
   const [showKey, setShowKey] = useState(false)
   const [apiKey, setApiKey] = useState('sk-ant-api03-xxxxxxxxxxxx')
   const [darkMode, setDarkMode] = useState(false)
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteRole, setInviteRole] = useState('Teacher')
+  const [connectedIntegrations, setConnectedIntegrations] = useState<Set<string>>(new Set(['Google Classroom', 'Clever']))
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   const [profile, setProfile] = useState({
     firstName: 'Alex', lastName: 'Johnson',
     email: 'demo@taleeko.ai', school: 'Lincoln Middle School',
@@ -46,12 +61,58 @@ export default function SettingsPage() {
   })
   const [aiPrefs, setAiPrefs] = useState({
     gradeLevel: '7th Grade', standards: 'NGSS (Next Generation Science Standards)', outputLang: 'Same as input',
+    creativity: 60,
   })
+  const [aiToggles, setAiToggles] = useState({
+    differentiation: true, autoStandards: true, includeAssessments: true, multilingual: false,
+  })
+  const [notifEmail, setNotifEmail] = useState({
+    weeklySummary: true, announcements: true, tips: false, updates: true, agentAlerts: true,
+  })
+  const [notifPush, setNotifPush] = useState({
+    agentCompletions: true, milestones: false, reminders: true,
+  })
+  const [securityToggles, setSecurityToggles] = useState({
+    twoFactor: true, loginNotifs: true, sessionTimeout: false,
+  })
+  const [accessToggles, setAccessToggles] = useState({
+    reduceAnimations: false, screenReader: false, keyboardHints: false,
+  })
+  const [apiToggles, setApiToggles] = useState({ promptCaching: true })
+  const [fontSize, setFontSize] = useState('Medium')
+  const [colorContrast, setColorContrast] = useState('Standard')
+  const [aiModel, setAiModel] = useState('claude-sonnet-4-6')
+  const [maxTokens, setMaxTokens] = useState('2048 (Default)')
+
+  useEffect(() => {
+    const p = lsJSON('taleeko_profile', null as typeof profile | null)
+    if (p) setProfile(p)
+    const ai = lsJSON('taleeko_aiPrefs', null as typeof aiPrefs | null)
+    if (ai) setAiPrefs(ai)
+    const ait = lsJSON('taleeko_aiToggles', null as typeof aiToggles | null)
+    if (ait) setAiToggles(ait)
+    const ne = lsJSON('taleeko_notifEmail', null as typeof notifEmail | null)
+    if (ne) setNotifEmail(ne)
+    const np = lsJSON('taleeko_notifPush', null as typeof notifPush | null)
+    if (np) setNotifPush(np)
+    const sec = lsJSON('taleeko_security', null as typeof securityToggles | null)
+    if (sec) setSecurityToggles(sec)
+    const acc = lsJSON('taleeko_access', null as typeof accessToggles | null)
+    if (acc) setAccessToggles(acc)
+    const apt = lsJSON('taleeko_apiToggles', null as typeof apiToggles | null)
+    if (apt) setApiToggles(apt)
+    setFontSize(ls('taleeko_fontSize', 'Medium'))
+    setColorContrast(ls('taleeko_colorContrast', 'Standard'))
+    setAiModel(ls('taleeko_aiModel', 'claude-sonnet-4-6'))
+    setMaxTokens(ls('taleeko_maxTokens', '2048 (Default)'))
+    setDarkMode(ls('taleeko_darkMode', 'false') === 'true')
+  }, [])
 
   function toggleDarkMode() {
     const next = !darkMode
     setDarkMode(next)
     document.documentElement.setAttribute('data-theme', next ? 'dark' : 'light')
+    try { localStorage.setItem('taleeko_darkMode', String(next)) } catch {}
   }
 
   const [toastMsg, setToastMsg] = useState('')
@@ -62,11 +123,43 @@ export default function SettingsPage() {
 
   function handleSave() {
     setSaved(true)
-    if (typeof window !== 'undefined' && profile.firstName) {
+    try {
+      localStorage.setItem('taleeko_profile', JSON.stringify(profile))
+      localStorage.setItem('taleeko_aiPrefs', JSON.stringify(aiPrefs))
+      localStorage.setItem('taleeko_aiToggles', JSON.stringify(aiToggles))
+      localStorage.setItem('taleeko_notifEmail', JSON.stringify(notifEmail))
+      localStorage.setItem('taleeko_notifPush', JSON.stringify(notifPush))
+      localStorage.setItem('taleeko_security', JSON.stringify(securityToggles))
+      localStorage.setItem('taleeko_access', JSON.stringify(accessToggles))
+      localStorage.setItem('taleeko_apiToggles', JSON.stringify(apiToggles))
+      localStorage.setItem('taleeko_fontSize', fontSize)
+      localStorage.setItem('taleeko_colorContrast', colorContrast)
+      localStorage.setItem('taleeko_aiModel', aiModel)
+      localStorage.setItem('taleeko_maxTokens', maxTokens)
       localStorage.setItem('taleeko_firstName', profile.firstName)
-    }
+    } catch {}
     showToast('Settings saved successfully!')
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  function Toggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+    return (
+      <button
+        onClick={onToggle}
+        className={`w-10 h-6 rounded-full relative transition-colors duration-200 ${on ? 'bg-accent-600' : 'bg-surface-600'}`}
+      >
+        <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-200 ${on ? 'right-1' : 'left-1'}`} />
+      </button>
+    )
+  }
+
+  function toggleIntegration(name: string) {
+    setConnectedIntegrations(prev => {
+      const next = new Set(prev)
+      if (next.has(name)) { next.delete(name); showToast(`${name} disconnected`) }
+      else { next.add(name); showToast(`${name} connected!`) }
+      return next
+    })
   }
 
   return (
@@ -156,7 +249,8 @@ export default function SettingsPage() {
                         AJ
                       </motion.div>
                       <div className="space-y-1">
-                        <button className="btn-secondary text-xs">
+                        <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" className="hidden" onChange={() => showToast('Photo updated!')} />
+                        <button className="btn-secondary text-xs" onClick={() => fileInputRef.current?.click()}>
                           <Upload className="w-3 h-3" /> Change photo
                         </button>
                         <p className="text-xs text-surface-500">JPG, PNG up to 2MB</p>
@@ -262,7 +356,7 @@ export default function SettingsPage() {
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">AI Creativity Level</label>
                       <div className="flex items-center gap-3">
                         <span className="text-xs text-surface-500">Conservative</span>
-                        <input type="range" min="0" max="100" defaultValue="60" className="flex-1 accent-accent-600" />
+                        <input type="range" min="0" max="100" value={aiPrefs.creativity} onChange={e => setAiPrefs(p => ({...p, creativity: Number(e.target.value)}))} className="flex-1 accent-accent-600" />
                         <span className="text-xs text-surface-500">Creative</span>
                       </div>
                     </div>
@@ -279,12 +373,12 @@ export default function SettingsPage() {
                         <option>中文</option>
                       </select>
                     </div>
-                    {[
-                      { label: 'Include differentiation', desc: 'Always add differentiation strategies to materials' },
-                      { label: 'Auto-align standards', desc: 'Automatically tag materials with relevant standards' },
-                      { label: 'Include assessments', desc: 'Add assessment suggestions to every lesson plan' },
-                      { label: 'Multilingual support', desc: 'Offer translations and bilingual content options' },
-                    ].map((toggle, i) => (
+                    {([
+                      { key: 'differentiation', label: 'Include differentiation', desc: 'Always add differentiation strategies to materials' },
+                      { key: 'autoStandards', label: 'Auto-align standards', desc: 'Automatically tag materials with relevant standards' },
+                      { key: 'includeAssessments', label: 'Include assessments', desc: 'Add assessment suggestions to every lesson plan' },
+                      { key: 'multilingual', label: 'Multilingual support', desc: 'Offer translations and bilingual content options' },
+                    ] as const).map((toggle, i) => (
                       <motion.div
                         key={toggle.label}
                         className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
@@ -296,9 +390,7 @@ export default function SettingsPage() {
                           <p className="text-sm font-semibold text-white">{toggle.label}</p>
                           <p className="text-xs text-surface-400">{toggle.desc}</p>
                         </div>
-                        <button className="w-10 h-6 bg-accent-600 rounded-full relative transition-colors">
-                          <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </button>
+                        <Toggle on={aiToggles[toggle.key]} onToggle={() => setAiToggles(t => ({...t, [toggle.key]: !t[toggle.key]}))} />
                       </motion.div>
                     ))}
                   </div>
@@ -324,12 +416,12 @@ export default function SettingsPage() {
                           <p className="text-sm font-semibold text-white">{int.name}</p>
                           <p className="text-xs text-surface-400">{int.desc}</p>
                         </div>
-                        {int.connected ? (
-                          <span className="flex items-center gap-1 text-xs font-semibold text-success-400 bg-success-400/15 px-2.5 py-1 rounded-full">
+                        {connectedIntegrations.has(int.name) ? (
+                          <button onClick={() => toggleIntegration(int.name)} className="flex items-center gap-1 text-xs font-semibold text-success-400 bg-success-400/15 px-2.5 py-1 rounded-full hover:bg-success-400/25 transition-colors">
                             <Check className="w-3 h-3" /> Connected
-                          </span>
+                          </button>
                         ) : (
-                          <button className="btn-secondary text-xs px-3 py-1.5">
+                          <button onClick={() => toggleIntegration(int.name)} className="btn-secondary text-xs px-3 py-1.5">
                             Connect
                           </button>
                         )}
@@ -344,9 +436,15 @@ export default function SettingsPage() {
                   <h3 className="text-base font-bold text-white mb-4">Notifications</h3>
                   <div className="space-y-2">
                     <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-3">Email Notifications</p>
-                    {['Weekly usage summary', 'New AI tool announcements', 'Tips & best practices', 'Product updates', 'Agent completion alerts'].map((n, i) => (
+                    {([
+                      { key: 'weeklySummary', label: 'Weekly usage summary' },
+                      { key: 'announcements', label: 'New AI tool announcements' },
+                      { key: 'tips', label: 'Tips & best practices' },
+                      { key: 'updates', label: 'Product updates' },
+                      { key: 'agentAlerts', label: 'Agent completion alerts' },
+                    ] as const).map((n, i) => (
                       <motion.div
-                        key={n}
+                        key={n.key}
                         className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -354,17 +452,19 @@ export default function SettingsPage() {
                       >
                         <div className="flex items-center gap-3">
                           <Mail className="w-4 h-4 text-surface-500" />
-                          <p className="text-sm font-medium text-white">{n}</p>
+                          <p className="text-sm font-medium text-white">{n.label}</p>
                         </div>
-                        <button className="w-10 h-6 bg-accent-600 rounded-full relative">
-                          <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </button>
+                        <Toggle on={notifEmail[n.key]} onToggle={() => setNotifEmail(t => ({...t, [n.key]: !t[n.key]}))} />
                       </motion.div>
                     ))}
                     <p className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-3 mt-6 pt-4 border-t border-white/[0.06]">Push Notifications</p>
-                    {['Agent task completions', 'Student milestone alerts', 'Schedule reminders'].map((n, i) => (
+                    {([
+                      { key: 'agentCompletions', label: 'Agent task completions' },
+                      { key: 'milestones', label: 'Student milestone alerts' },
+                      { key: 'reminders', label: 'Schedule reminders' },
+                    ] as const).map((n, i) => (
                       <motion.div
-                        key={n}
+                        key={n.key}
                         className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl"
                         initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -372,11 +472,9 @@ export default function SettingsPage() {
                       >
                         <div className="flex items-center gap-3">
                           <Smartphone className="w-4 h-4 text-surface-500" />
-                          <p className="text-sm font-medium text-white">{n}</p>
+                          <p className="text-sm font-medium text-white">{n.label}</p>
                         </div>
-                        <button className="w-10 h-6 bg-surface-600 rounded-full relative">
-                          <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </button>
+                        <Toggle on={notifPush[n.key]} onToggle={() => setNotifPush(t => ({...t, [n.key]: !t[n.key]}))} />
                       </motion.div>
                     ))}
                   </div>
@@ -404,7 +502,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Font Size</label>
-                      <select defaultValue="Medium" className="input-base">
+                      <select value={fontSize} onChange={e => setFontSize(e.target.value)} className="input-base">
                         <option>Small</option>
                         <option>Medium</option>
                         <option>Large</option>
@@ -413,24 +511,22 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Color Contrast</label>
-                      <select defaultValue="Standard" className="input-base">
+                      <select value={colorContrast} onChange={e => setColorContrast(e.target.value)} className="input-base">
                         <option>Standard</option>
                         <option>High Contrast</option>
                       </select>
                     </div>
-                    {[
-                      { label: 'Reduce animations', desc: 'Minimize motion for accessibility' },
-                      { label: 'Screen reader optimized', desc: 'Enhanced ARIA labels and focus management' },
-                      { label: 'Keyboard navigation hints', desc: 'Show keyboard shortcut indicators' },
-                    ].map((toggle, i) => (
+                    {([
+                      { key: 'reduceAnimations', label: 'Reduce animations', desc: 'Minimize motion for accessibility' },
+                      { key: 'screenReader', label: 'Screen reader optimized', desc: 'Enhanced ARIA labels and focus management' },
+                      { key: 'keyboardHints', label: 'Keyboard navigation hints', desc: 'Show keyboard shortcut indicators' },
+                    ] as const).map((toggle, i) => (
                       <div key={toggle.label} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                         <div>
                           <p className="text-sm font-semibold text-white">{toggle.label}</p>
                           <p className="text-xs text-surface-400">{toggle.desc}</p>
                         </div>
-                        <button className="w-10 h-6 bg-surface-600 rounded-full relative">
-                          <span className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </button>
+                        <Toggle on={accessToggles[toggle.key]} onToggle={() => setAccessToggles(t => ({...t, [toggle.key]: !t[toggle.key]}))} />
                       </div>
                     ))}
                   </div>
@@ -452,24 +548,22 @@ export default function SettingsPage() {
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Password</label>
                       <div className="flex gap-2">
                         <input type="password" defaultValue="••••••••••••" className="input-base flex-1" disabled />
-                        <button className="btn-secondary text-xs px-3">
+                        <button className="btn-secondary text-xs px-3" onClick={() => showToast('Password change email sent!')}>
                           <Lock className="w-3 h-3" /> Change
                         </button>
                       </div>
                     </div>
-                    {[
-                      { label: 'Two-factor authentication', desc: 'Require a code when signing in', enabled: true },
-                      { label: 'Login notifications', desc: 'Get notified of new sign-ins', enabled: true },
-                      { label: 'Session timeout', desc: 'Auto-logout after 30 minutes of inactivity', enabled: false },
-                    ].map((s, i) => (
+                    {([
+                      { key: 'twoFactor', label: 'Two-factor authentication', desc: 'Require a code when signing in' },
+                      { key: 'loginNotifs', label: 'Login notifications', desc: 'Get notified of new sign-ins' },
+                      { key: 'sessionTimeout', label: 'Session timeout', desc: 'Auto-logout after 30 minutes of inactivity' },
+                    ] as const).map((s, i) => (
                       <div key={s.label} className="flex items-center justify-between p-4 bg-white/[0.03] rounded-xl">
                         <div>
                           <p className="text-sm font-semibold text-white">{s.label}</p>
                           <p className="text-xs text-surface-400">{s.desc}</p>
                         </div>
-                        <button className={`w-10 h-6 rounded-full relative transition-colors ${s.enabled ? 'bg-accent-600' : 'bg-surface-600'}`}>
-                          <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm ${s.enabled ? 'right-1' : 'left-1'}`} />
-                        </button>
+                        <Toggle on={securityToggles[s.key]} onToggle={() => setSecurityToggles(t => ({...t, [s.key]: !t[s.key]}))} />
                       </div>
                     ))}
                     <div className="pt-4 border-t border-white/[0.06]">
@@ -489,7 +583,7 @@ export default function SettingsPage() {
                           {sess.current ? (
                             <span className="badge bg-success-400/15 text-success-400">Current</span>
                           ) : (
-                            <button className="text-xs text-danger-400 font-semibold hover:text-danger-300">Revoke</button>
+                            <button className="text-xs text-danger-400 font-semibold hover:text-danger-300" onClick={() => showToast(`Session revoked: ${sess.device}`)}>Revoke</button>
                           )}
                         </div>
                       ))}
@@ -516,6 +610,7 @@ export default function SettingsPage() {
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.06 }}
+                          onClick={() => showToast(`${exp.label} started — file will download shortly`)}
                         >
                           <div className="icon-bubble bg-accent-400/15 text-accent-400 flex-shrink-0">
                             <exp.icon className="w-4 h-4" />
@@ -544,9 +639,17 @@ export default function SettingsPage() {
                             <p className="text-xs text-danger-400/80">Permanently delete your account and all data</p>
                           </div>
                         </div>
-                        <button className="mt-3 text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors">
-                          Delete Account
-                        </button>
+                        {deleteConfirm ? (
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="text-xs text-danger-400">Are you sure? This cannot be undone.</span>
+                            <button onClick={() => showToast('Account deletion request submitted')} className="text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors">Confirm</button>
+                            <button onClick={() => setDeleteConfirm(false)} className="text-xs font-semibold text-surface-400 hover:text-white px-3 py-1.5 rounded-lg border border-white/[0.06] hover:bg-white/[0.04] transition-colors">Cancel</button>
+                          </div>
+                        ) : (
+                          <button className="mt-3 text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors" onClick={() => setDeleteConfirm(true)}>
+                            Delete Account
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -579,7 +682,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">AI Model</label>
-                      <select className="input-base">
+                      <select value={aiModel} onChange={e => setAiModel(e.target.value)} className="input-base">
                         <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (Recommended)</option>
                         <option value="claude-opus-4-8">Claude Opus 4.8 (Most Capable)</option>
                         <option value="claude-haiku-4-5">Claude Haiku 4.5 (Fastest)</option>
@@ -587,7 +690,7 @@ export default function SettingsPage() {
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Max Tokens</label>
-                      <select className="input-base">
+                      <select value={maxTokens} onChange={e => setMaxTokens(e.target.value)} className="input-base">
                         <option>2048 (Default)</option>
                         <option>4096 (Extended)</option>
                         <option>8192 (Maximum)</option>
@@ -598,9 +701,7 @@ export default function SettingsPage() {
                         <p className="text-sm font-semibold text-white">Prompt Caching</p>
                         <p className="text-xs text-surface-400">Cache system prompts to reduce latency and cost</p>
                       </div>
-                      <button className="w-10 h-6 bg-accent-600 rounded-full relative">
-                        <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                      </button>
+                      <Toggle on={apiToggles.promptCaching} onToggle={() => setApiToggles(t => ({...t, promptCaching: !t.promptCaching}))} />
                     </div>
                     <div className="pt-4 border-t border-white/[0.06]">
                       <h4 className="text-sm font-bold text-white mb-3">Usage This Month</h4>
@@ -752,7 +853,7 @@ export default function SettingsPage() {
                           <p className="text-xs text-surface-400">Expires 09/2027</p>
                         </div>
                       </div>
-                      <button className="btn-secondary text-xs px-3">
+                      <button className="btn-secondary text-xs px-3" onClick={() => showToast('Opening payment method update…')}>
                         Update
                       </button>
                     </motion.div>
@@ -783,7 +884,7 @@ export default function SettingsPage() {
                           <div className="flex items-center gap-4">
                             <p className="text-sm font-bold text-white">{inv.amount}</p>
                             <span className="badge bg-success-400/15 text-success-400">{inv.status}</span>
-                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300">
+                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300" onClick={() => showToast(`Downloading ${inv.invoice}…`)}>
                               <Download className="w-3 h-3" />
                             </button>
                           </div>
@@ -798,6 +899,7 @@ export default function SettingsPage() {
                       className="btn-gradient"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
+                      onClick={() => showToast('Opening plan upgrade page…')}
                     >
                       <ExternalLink className="w-4 h-4" />
                       Upgrade Plan
@@ -806,6 +908,7 @@ export default function SettingsPage() {
                       className="btn-secondary text-danger-400 border-danger-400/20 hover:bg-danger-400/10"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
+                      onClick={() => showToast('Cancellation request submitted — we\'ll be in touch')}
                     >
                       Cancel Subscription
                     </motion.button>
@@ -889,7 +992,7 @@ export default function SettingsPage() {
                           }`}>
                             {member.status}
                           </span>
-                          <button className="text-surface-500 hover:text-white transition-colors">
+                          <button className="text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Managing ${member.name}…`)}>
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </motion.div>
@@ -906,10 +1009,13 @@ export default function SettingsPage() {
                         <input
                           type="email"
                           placeholder="colleague@school.edu"
+                          value={inviteEmail}
+                          onChange={e => setInviteEmail(e.target.value)}
                           className="input-base pl-10 w-full"
+                          onKeyDown={e => { if (e.key === 'Enter' && inviteEmail) { showToast(`Invite sent to ${inviteEmail}`); setInviteEmail('') } }}
                         />
                       </div>
-                      <select className="input-base w-32">
+                      <select value={inviteRole} onChange={e => setInviteRole(e.target.value)} className="input-base w-32">
                         <option>Teacher</option>
                         <option>Viewer</option>
                         <option>Admin</option>
@@ -918,6 +1024,7 @@ export default function SettingsPage() {
                         className="btn-gradient"
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
+                        onClick={() => { if (inviteEmail) { showToast(`Invite sent to ${inviteEmail} as ${inviteRole}`); setInviteEmail('') } else showToast('Please enter an email address') }}
                       >
                         <Mail className="w-4 h-4" />
                         Invite
