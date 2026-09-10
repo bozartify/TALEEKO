@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Sparkles, Search, Globe, Check, ChevronDown, Bell } from 'lucide-react'
 import Breadcrumbs from '@/components/ui/breadcrumbs'
 
@@ -76,6 +76,7 @@ export default function Header() {
 
   const [lang, setLang] = useState(LANGUAGES[0])
   const [open, setOpen] = useState(false)
+  const router = useRouter()
 
   return (
     <header className="flex-shrink-0 border-b border-white/[0.06] bg-surface-950/50 backdrop-blur-xl">
@@ -100,7 +101,7 @@ export default function Header() {
         </button>
 
         {/* Notifications */}
-        <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-surface-400 hover:text-surface-200 hover:bg-white/[0.04] transition-colors">
+        <button onClick={() => router.push('/notifications')} className="relative w-9 h-9 rounded-xl flex items-center justify-center text-surface-400 hover:text-surface-200 hover:bg-white/[0.04] transition-colors">
           <Bell className="w-4 h-4" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-500 ring-2 ring-surface-950" />
         </button>

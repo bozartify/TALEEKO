@@ -1,5 +1,6 @@
 import Sidebar from '@/components/layout/sidebar'
 import Header from '@/components/layout/header'
+import CommandPalette from '@/components/ui/command-palette'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,6 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
+      <CommandPalette />
     </div>
   )
 }
