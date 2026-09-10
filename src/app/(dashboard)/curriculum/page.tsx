@@ -239,7 +239,44 @@ export default function CurriculumPage() {
   const [timelineMonth, setTimelineMonth] = useState(0)
   const [showAlert, setShowAlert] = useState(true)
   const [toastMsg, setToastMsg] = useState('')
+  const [generatingId, setGeneratingId] = useState<string | null>(null)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  async function generateLessons(unit: Unit) {
+    setGeneratingId(unit.id)
+    showToast(`AI is generating lessons for "${unit.title}"…`)
+    try {
+      const prompt = `Generate ${unit.weeksNum * 2} lessons for a ${unit.weeks} Biology unit titled "${unit.title}". Return ONLY valid JSON: {"lessons":[{"title":"Lesson Title","type":"lecture","duration":"50 min"}]} where type is one of: lecture, lab, discussion, assessment, project.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        const chunk = decoder.decode(value)
+        for (const line of chunk.split('\n')) {
+          const trimmed = line.replace(/^data:\s*/, '')
+          if (!trimmed || trimmed === '[DONE]') continue
+          try { const p = JSON.parse(trimmed); if (p.type === 'text') fullText += p.text } catch { /* skip */ }
+        }
+      }
+      const jsonMatch = fullText.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) throw new Error('No JSON')
+      const { lessons } = JSON.parse(jsonMatch[0]) as { lessons: { title: string; type: string; duration: string }[] }
+      setUnits(prev => prev.map(u => u.id !== unit.id ? u : {
+        ...u,
+        lessons: lessons.length,
+        lessonList: lessons.map((l, i) => ({ id: `${unit.id}-ai-${i}`, title: l.title, type: l.type as Lesson['type'], duration: l.duration, completed: false, aiGenerated: true })),
+      }))
+      showToast(`${lessons.length} lessons generated for "${unit.title}"!`)
+    } catch {
+      showToast('AI generation failed — please try again')
+    } finally {
+      setGeneratingId(null)
+    }
+  }
 
   function deleteUnit(id: string) {
     setUnits(prev => prev.filter(u => u.id !== id))
@@ -291,8 +328,8 @@ export default function CurriculumPage() {
                   </button>
                 ))}
               </div>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI curriculum plan generated!')}>
-                <Sparkles className="w-3.5 h-3.5" /> AI Plan
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} disabled={generatingId !== null} onClick={() => { const u = units.find(u => u.status !== 'completed'); if (u) generateLessons(u); else showToast('All units already have lessons!') }}>
+                {generatingId ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Planning…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Plan</>}
               </motion.button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New unit added!')}>
                 <Plus className="w-3.5 h-3.5" /> Add Unit
@@ -660,9 +697,10 @@ export default function CurriculumPage() {
                               className="btn-gradient text-xs"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
-                              onClick={() => showToast(`Generating lessons for "${unit.title}"…`)}
+                              disabled={generatingId === unit.id}
+                              onClick={() => generateLessons(unit)}
                             >
-                              <Sparkles className="w-3 h-3" /> Generate Lessons
+                              {generatingId === unit.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> Generate Lessons</>}
                             </motion.button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${unit.title}"…`)}><Eye className="w-3 h-3" /> Preview</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening "${unit.title}" in editor…`)}><Edit3 className="w-3 h-3" /> Edit</button>
