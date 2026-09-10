@@ -99,6 +99,21 @@ export default function StudentsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }, [])
 
+  function exportRosterCSV() {
+    const headers = ['Name', 'Email', 'Grade', 'Classes', 'Average', 'Attendance %', 'Streak', 'Status', 'IEP', 'ELL', 'Missing Work', 'Parent Email']
+    const rows = students.map(s => [
+      s.name, s.email, s.grade, s.classes.join(' | '), s.avg, s.attendance,
+      s.streak, s.status, s.iep ? 'Yes' : 'No', s.ell ? 'Yes' : 'No', s.missing, s.parentEmail,
+    ])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'student-roster.csv'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Roster exported to CSV')
+  }
+
   const filtered = students
     .filter(s => {
       const matchesSearch = !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase())
@@ -203,7 +218,7 @@ export default function StudentsPage() {
               >
                 <Layers className="w-3.5 h-3.5" /> Group
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Roster exported to CSV')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => exportRosterCSV()}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
               <button onClick={() => setAddStudentModal(true)} className="btn-secondary text-xs px-3 py-1.5">
@@ -822,7 +837,7 @@ export default function StudentsPage() {
                 { icon: Mail,        label: 'Message All Parents',    color: '#6366f1', action: () => showToast('Bulk parent message drafted') },
                 { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => showToast('Progress reports generating...') },
                 { icon: Sparkles,    label: 'AI Intervention Plan',   color: '#f59e0b', action: () => showToast('AI intervention plan created') },
-                { icon: Download,    label: 'Export Full Roster',      color: '#22d3ee', action: () => showToast('Roster exported to CSV') },
+                { icon: Download,    label: 'Export Full Roster',      color: '#22d3ee', action: () => exportRosterCSV() },
                 { icon: GraduationCap, label: 'Assign Peer Tutors',  color: '#a855f7', action: () => showToast('Peer tutor assignments saved') },
               ].map(item => (
                 <button
