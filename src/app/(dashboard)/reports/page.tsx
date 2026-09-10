@@ -236,6 +236,17 @@ export default function ReportsPage() {
     finally { setGenerating(false) }
   }
 
+  function downloadReportCSV(title: string, type: string) {
+    const headers = ['Report Title', 'Type', 'Date', 'Format', 'Size', 'Views']
+    const rows = recentReports.map(r => [r.title, r.type, r.date, r.format.toUpperCase(), r.size, r.views.toString()])
+    const csv = [headers, ...rows].map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `${title.replace(/\s+/g, '-').toLowerCase()}.csv`; a.click()
+    URL.revokeObjectURL(url)
+    showToast(`"${title}" downloaded as CSV`)
+  }
+
   function toggleScheduled(id: string) {
     setScheduledList(prev => prev.map(s => s.id === id ? { ...s, active: !s.active } : s))
   }
@@ -537,8 +548,8 @@ export default function ReportsPage() {
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening report preview…')}><Eye className="w-3.5 h-3.5" /> Preview</button>
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Downloading PDF…')}><File className="w-3.5 h-3.5" /> PDF</button>
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Downloading XLSX…')}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><File className="w-3.5 h-3.5" /> PDF</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
                       <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast('Report emailed successfully!')}><Mail className="w-3.5 h-3.5" /> Email</button>
                     </div>
                   </div>
@@ -831,7 +842,7 @@ export default function ReportsPage() {
               <h3 className="text-base font-bold text-white">Report History</h3>
               <div className="flex items-center gap-2">
                 <button onClick={() => showToast('Opening filter options…')} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
-                <button onClick={() => showToast('Exporting all reports…')} className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
+                <button onClick={() => downloadReportCSV('all-reports', 'all')} className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
               </div>
             </div>
             <div className="glass-card overflow-hidden">
@@ -884,7 +895,7 @@ export default function ReportsPage() {
                             <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => setShareModal(report.id)}>
                               <Share2 className="w-3.5 h-3.5" />
                             </button>
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast(`Downloading "${report.title}"…`)}>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => downloadReportCSV(report.title, report.type)}>
                               <Download className="w-3.5 h-3.5" />
                             </button>
                             <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast(`"${report.title}" deleted`)}>
