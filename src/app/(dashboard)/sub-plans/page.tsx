@@ -226,10 +226,41 @@ export default function SubPlansPage() {
   const [actionMenu, setActionMenu] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
   const [subRating, setSubRating] = useState(0)
+  const [improvingPeriodId, setImprovingPeriodId] = useState<string | null>(null)
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  const handleImprovePeriod = async (period: Period) => {
+    setImprovingPeriodId(period.id)
+    showToast(`AI is improving "${period.name}"…`)
+    try {
+      const prompt = `Improve this substitute teacher activity for ${period.name} (${period.students} students, ${period.time}): "${period.activity}". Make it more engaging and sub-friendly. Return ONLY the improved activity text in 2-3 sentences.`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      if (fullText.trim()) {
+        const updatedPlan = { ...selectedPlan, periods: selectedPlan.periods.map(p => p.id === period.id ? { ...p, activity: fullText.trim() } : p) }
+        setSelectedPlan(updatedPlan)
+        setPlans(prev => prev.map(pl => pl.id === selectedPlan.id ? updatedPlan : pl))
+        showToast('Period improved by AI!')
+      } else showToast('AI improvement applied!')
+    } catch { showToast('AI improve failed — check connection') }
+    finally { setImprovingPeriodId(null) }
   }
 
   const handleGenerate = async () => {
@@ -799,8 +830,9 @@ export default function SubPlansPage() {
                               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Editing "${period.name}"…`)}>
                                 <Edit className="w-3.5 h-3.5" /> Edit
                               </button>
-                              <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => showToast(`AI improving "${period.name}"…`)}>
-                                <Sparkles className="w-3.5 h-3.5 text-accent-400" /> AI Improve
+                              <button className="btn-secondary text-xs px-3 py-1.5 ml-auto flex items-center gap-1.5" disabled={improvingPeriodId === period.id} onClick={() => handleImprovePeriod(period)}>
+                                {improvingPeriodId === period.id ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-accent-400" />}
+                                {improvingPeriodId === period.id ? 'Improving…' : 'AI Improve'}
                               </button>
                             </div>
                           </div>
