@@ -799,6 +799,7 @@ export default function DifferentiationPage() {
                             <motion.button
                               className="px-3 py-2 rounded-lg text-xs font-semibold bg-white/[0.04] text-surface-400 hover:bg-white/[0.08] transition-colors"
                               whileTap={{ scale: 0.97 }}
+                              onClick={() => window.print()}
                             >
                               <Printer className="w-3.5 h-3.5" />
                             </motion.button>

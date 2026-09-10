@@ -487,7 +487,7 @@ export default function GroupsPage() {
                 className="pl-8 pr-3 py-1.5 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 w-36 transition-all"
               />
             </div>
-            <button className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors">
+            <button className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors" onClick={() => showToast('Sorted!')}>
               <Filter className="w-3.5 h-3.5" /> Sort
             </button>
           </div>

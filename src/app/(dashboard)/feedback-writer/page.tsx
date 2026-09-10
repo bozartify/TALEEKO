@@ -449,7 +449,7 @@ Write ONLY the comment, no preamble or formatting.`
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
+                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => showToast(`${alert.action}…`)}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>

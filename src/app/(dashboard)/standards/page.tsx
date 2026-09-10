@@ -305,10 +305,11 @@ export default function StandardsPage() {
                 <motion.button
                   className="text-xs text-accent-400 hover:text-accent-300 font-semibold"
                   whileHover={{ x: 2 }}
+                  onClick={() => showToast('Showing all AI suggestions…')}
                 >
                   View all suggestions →
                 </motion.button>
-                <button className="text-xs text-surface-500 hover:text-surface-300">Dismiss</button>
+                <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('Suggestion dismissed')}>Dismiss</button>
               </div>
             </div>
           </div>
@@ -398,16 +399,16 @@ export default function StandardsPage() {
             {/* Quick actions */}
             <div className="glass-card p-3 space-y-2">
               <h4 className="text-xs font-semibold text-surface-300 mb-2">Quick Actions</h4>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Auto-aligning with AI…')}>
                 <Sparkles className="w-3.5 h-3.5 text-accent-400" /> Auto-align with AI
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Exporting alignment report…')}>
                 <Download className="w-3.5 h-3.5 text-surface-400" /> Export alignment report
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Syncing with lesson plans…')}>
                 <RefreshCw className="w-3.5 h-3.5 text-surface-400" /> Sync with lessons
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors">
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Comparing frameworks…')}>
                 <Globe className="w-3.5 h-3.5 text-surface-400" /> Compare frameworks
               </button>
             </div>
@@ -434,13 +435,14 @@ export default function StandardsPage() {
                       <p className="text-xs text-surface-400">{selectedFw.standards} standards · {selectedFw.aligned} aligned · {selectedFw.grades} · {selectedFw.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="btn-secondary text-xs px-3 py-1.5">
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Filter panel opening…')}>
                         <Filter className="w-3 h-3" /> Filter
                       </button>
                       <motion.button
                         className="btn-gradient text-xs"
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
+                        onClick={() => showToast('Auto-aligning all standards with AI…')}
                       >
                         <Zap className="w-3 h-3" /> Auto-Align All
                       </motion.button>
@@ -673,7 +675,7 @@ export default function StandardsPage() {
                     <h3 className="text-sm font-bold text-white">Gap Analysis</h3>
                     <p className="text-xs text-surface-400">{gapCount} unaligned standards · AI-prioritized by impact</p>
                   </div>
-                  <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('Generating lessons for all gaps with AI…')}>
                     <Sparkles className="w-3.5 h-3.5" /> Fill All Gaps with AI
                   </motion.button>
                 </div>
@@ -746,10 +748,11 @@ export default function StandardsPage() {
                               className="btn-gradient text-[10px] px-2 py-1"
                               whileHover={{ scale: 1.03 }}
                               whileTap={{ scale: 0.97 }}
+                              onClick={() => showToast(`Generating lesson for ${gap.standard}…`)}
                             >
                               <Sparkles className="w-2.5 h-2.5" /> Generate Lesson
                             </motion.button>
-                            <button className="btn-secondary text-[10px] px-2 py-1">
+                            <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Aligning existing lesson to ${gap.standard}…`)}>
                               <Link2 className="w-2.5 h-2.5" /> Align Existing
                             </button>
                             <span className="text-[10px] text-surface-500 ml-auto">{gap.impact}</span>
@@ -903,7 +906,7 @@ export default function StandardsPage() {
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> Priority Standards
             </h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300">View all</button>
+            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Showing all starred standards…')}>View all</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {ccssStandards.flatMap(d => d.standards).filter(s => starred.has(s.code)).slice(0, 4).map((std, i) => (
