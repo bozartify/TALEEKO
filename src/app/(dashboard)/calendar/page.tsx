@@ -129,6 +129,35 @@ export default function CalendarPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportCalendarICS() {
+    const pad = (n: number) => String(n).padStart(2, '0')
+    const monthStr = String(month + 1).padStart(2, '0')
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TALEEKO//Calendar//EN']
+    allEvents.forEach(ev => {
+      const dayStr = String(ev.day).padStart(2, '0')
+      const dtStart = `${year}${monthStr}${dayStr}`
+      lines.push('BEGIN:VEVENT')
+      lines.push(`UID:taleeko-${ev.id}@taleeko.app`)
+      lines.push(`DTSTART;VALUE=DATE:${dtStart}`)
+      lines.push(`DTEND;VALUE=DATE:${dtStart}`)
+      lines.push(`SUMMARY:${ev.title}`)
+      if (ev.desc) lines.push(`DESCRIPTION:${ev.desc}`)
+      if (ev.location) lines.push(`LOCATION:${ev.location}`)
+      lines.push('END:VEVENT')
+    })
+    lines.push('END:VCALENDAR')
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = 'taleeko-calendar.ics'; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Calendar exported as .ics — open in any calendar app')
+  }
+
+  function deleteEvent(id: string) {
+    setAllEvents(prev => prev.filter(e => e.id !== id))
+    showToast('Event deleted')
+  }
+
   const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
   const today = 18
@@ -199,7 +228,7 @@ export default function CalendarPage() {
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShowNewEvent(true)}>
                 <Plus className="w-3.5 h-3.5" /> Add Event
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Calendar exported to PDF')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCalendarICS}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
             </div>
@@ -614,7 +643,7 @@ export default function CalendarPage() {
                                   <div className="flex items-center gap-2">
                                     <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Editing "${evt.title}"`)}><Edit3 className="w-2.5 h-2.5" /> Edit</button>
                                     <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Reminder set for "${evt.title}"`)}><Bell className="w-2.5 h-2.5" /> Remind</button>
-                                    <button className="btn-secondary text-[10px] px-2 py-1 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`"${evt.title}" deleted`)}><Trash2 className="w-2.5 h-2.5" /> Delete</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1 text-danger-400 hover:bg-danger-400/10" onClick={() => deleteEvent(evt.id)}><Trash2 className="w-2.5 h-2.5" /> Delete</button>
                                   </div>
                                 </div>
                               </motion.div>
