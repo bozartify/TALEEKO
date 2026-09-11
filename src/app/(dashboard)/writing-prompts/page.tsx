@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem } from '@/components/ui/motion'
 import {
@@ -216,18 +216,16 @@ const gradeRanges: GradeRange[] = ['K-2', '3-5', '6-8', '9-12', 'College']
 const modes: PromptMode[] = ['narrative', 'persuasive', 'expository', 'descriptive', 'creative', 'reflective', 'research']
 
 export default function WritingPromptsPage() {
-  const [prompts, setPrompts] = useState<WritingPrompt[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('taleeko_prompts_stars')
-        if (saved) {
-          const starredIds: string[] = JSON.parse(saved)
-          return PROMPTS.map(p => ({ ...p, starred: starredIds.includes(p.id) }))
-        }
-      } catch {}
-    }
-    return PROMPTS
-  })
+  const [prompts, setPrompts] = useState<WritingPrompt[]>(PROMPTS)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_prompts_stars')
+      if (saved) {
+        const ids: string[] = JSON.parse(saved)
+        setPrompts(PROMPTS.map(p => ({ ...p, starred: ids.includes(p.id) })))
+      }
+    } catch {}
+  }, [])
   const [selectedMode, setSelectedMode] = useState<PromptMode | 'all'>('all')
   const [selectedGrade, setSelectedGrade] = useState<GradeRange | 'all'>('all')
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | 'all'>('all')
