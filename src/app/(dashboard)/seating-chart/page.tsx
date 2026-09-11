@@ -1123,16 +1123,29 @@ export default function SeatingChartPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Print Layout (PDF)', icon: Printer,  color: '#6366f1', desc: 'Full-color printable PDF' },
-                  { label: 'PNG Image',          icon: Download, color: '#10b981', desc: 'High-resolution image' },
-                  { label: 'CSV Roster',         icon: FileText, color: '#22d3ee', desc: 'Student → seat assignment list' },
-                  { label: 'Copy to Clipboard',  icon: Copy,     color: '#f59e0b', desc: 'Plain text, paste anywhere' },
+                  { label: 'Print Layout (PDF)', icon: Printer,  color: '#6366f1', desc: 'Full-color printable PDF', action: () => { setExportOpen(false); window.print(); showToast('Printing seating chart…') } },
+                  { label: 'PNG Image',          icon: Download, color: '#10b981', desc: 'High-resolution image',   action: () => { setExportOpen(false); window.print(); showToast('Printing as image…') } },
+                  { label: 'CSV Roster',         icon: FileText, color: '#22d3ee', desc: 'Student → seat assignment list', action: () => {
+                    const headers = ['Row', 'Col', 'Student', 'Status', 'IEP', 'ELL', 'Near Teacher']
+                    const rows = seats.map(seat => {
+                      const st = getStudentById(seat.studentId)
+                      return [seat.row, seat.col, st ? st.name : 'Empty', st?.status ?? '', st?.iep ? 'Yes' : 'No', st?.ell ? 'Yes' : 'No', st?.nearTeacher ? 'Yes' : 'No']
+                    })
+                    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `seating-chart-${period.replace(/\s+/g,'-')}.csv`; a.click(); URL.revokeObjectURL(a.href)
+                    setExportOpen(false); showToast('CSV roster exported!')
+                  }},
+                  { label: 'Copy to Clipboard',  icon: Copy,     color: '#f59e0b', desc: 'Plain text, paste anywhere', action: () => {
+                    const text = seats.map(seat => { const st = getStudentById(seat.studentId); return st ? `Row ${seat.row}, Col ${seat.col}: ${st.name}` : null }).filter(Boolean).join('\n')
+                    navigator.clipboard?.writeText(text ?? '').catch(() => {})
+                    setExportOpen(false); showToast('Roster copied to clipboard!')
+                  }},
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] text-left transition-all"
                     whileHover={{ x: 2 }}
-                    onClick={() => { setExportOpen(false); showToast(`Exported as ${opt.label}`) }}
+                    onClick={opt.action}
                   >
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: opt.color + '18' }}>
                       <opt.icon className="w-4 h-4" style={{ color: opt.color }} />

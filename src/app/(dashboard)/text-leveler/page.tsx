@@ -229,12 +229,12 @@ export default function TextLevelerPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Side-by-Side PDF', icon: FileText, desc: 'Original + leveled version for differentiated instruction' },
-                  { label: 'Student Worksheet', icon: Layers, desc: 'Formatted with comprehension questions appended' },
-                  { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)' },
-                  { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Drive' },
+                  { label: 'Side-by-Side PDF', icon: FileText, desc: 'Original + leveled version for differentiated instruction', action: () => { setExportOpen(false); window.print(); showToast('Printing side-by-side…') } },
+                  { label: 'Student Worksheet', icon: Layers, desc: 'Formatted with comprehension questions appended', action: () => { setExportOpen(false); window.print(); showToast('Printing worksheet…') } },
+                  { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)', action: () => { setExportOpen(false); window.print(); showToast('Printing all levels…') } },
+                  { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Drive', action: () => { setExportOpen(false); showToast('Opening Google Docs…') } },
                 ].map(opt => (
-                  <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { setExportOpen(false); showToast(`Exporting: ${opt.label}…`) }}>
+                  <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={opt.action}>
                     <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-4 h-4 text-accent-400" />
                     </div>

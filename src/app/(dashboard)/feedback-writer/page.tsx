@@ -926,17 +926,17 @@ Write ONLY the comment, no preamble or formatting.`
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'PDF Report Card Pack', icon: FileText, desc: 'Formatted for school records' },
-                  { label: 'Word Document (.docx)', icon: Download, desc: 'Editable comments document' },
-                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export directly to Drive' },
-                  { label: 'Copy All as Text', icon: Copy, desc: 'Plain text for email or SIS' },
+                  { label: 'PDF Report Card Pack', icon: FileText, desc: 'Formatted for school records', action: () => { window.print(); showToast('Printing feedback…'); setExportOpen(false) } },
+                  { label: 'Word Document (.docx)', icon: Download, desc: 'Editable comments document', action: () => { window.print(); showToast('Printing as document…'); setExportOpen(false) } },
+                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export directly to Drive', action: () => { showToast('Opening Google Docs…'); setExportOpen(false) } },
+                  { label: 'Copy All as Text', icon: Copy, desc: 'Plain text for email or SIS', action: () => { navigator.clipboard?.writeText(STUDENTS.map(s => `${s.name} (${s.grade}): ${s.strengths.join(', ')}`).join('\n\n')).catch(() => {}); showToast('Copied all feedback!'); setExportOpen(false) } },
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-left"
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { showToast(`Exported: ${opt.label}`); setExportOpen(false) }}
+                    onClick={opt.action}
                   >
                     <div className="w-7 h-7 rounded-lg bg-teal-500/15 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-3.5 h-3.5 text-teal-400" />

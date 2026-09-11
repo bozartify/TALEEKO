@@ -356,7 +356,13 @@ export default function LibraryPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Library exported!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => {
+                const headers = ['Title', 'Type', 'Subject', 'Grade', 'Created', 'Uses', 'AI Generated', 'Starred']
+                const rows = items.map(it => [it.title, it.type, it.subject, it.grade, it.createdAt, it.uses, it.aiGenerated ? 'Yes' : 'No', it.starred ? 'Yes' : 'No'])
+                const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'library.csv'; a.click(); URL.revokeObjectURL(a.href)
+                showToast('Library exported to CSV!')
+              }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Upload started!')}>
@@ -601,7 +607,14 @@ export default function LibraryPage() {
             <div className="glass-card p-3 flex items-center justify-between">
               <span className="text-xs text-accent-300 font-semibold">{selected.size} item{selected.size !== 1 ? 's' : ''} selected</span>
               <div className="flex items-center gap-2">
-                <button onClick={() => showToast(`Exporting ${selected.size} item${selected.size !== 1 ? 's' : ''}…`)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs text-surface-300 hover:bg-white/[0.1] transition-colors">
+                <button onClick={() => {
+                  const sel = items.filter(it => selected.has(it.id))
+                  const headers = ['Title', 'Type', 'Subject', 'Grade', 'Created', 'Uses']
+                  const rows = sel.map(it => [it.title, it.type, it.subject, it.grade, it.createdAt, it.uses])
+                  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'selected-items.csv'; a.click(); URL.revokeObjectURL(a.href)
+                  showToast(`${selected.size} item${selected.size !== 1 ? 's' : ''} exported!`)
+                }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] text-xs text-surface-300 hover:bg-white/[0.1] transition-colors">
                   <Download className="w-3.5 h-3.5" /> Export
                 </button>
                 <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-danger-500/10 text-xs text-danger-400 border border-danger-500/20 hover:bg-danger-500/20 transition-colors" onClick={bulkDelete}>

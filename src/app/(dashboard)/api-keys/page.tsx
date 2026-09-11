@@ -217,7 +217,13 @@ export default function ApiKeysPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs exported to CSV')}><Download className="w-3.5 h-3.5" /> Export Logs</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
+                const headers = ['Method', 'Endpoint', 'Status', 'Time', 'Duration', 'Key']
+                const rows = recentLogs.map(l => [l.method, l.endpoint, l.status, l.time, l.duration, l.keyName])
+                const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'api-logs.csv'; a.click(); URL.revokeObjectURL(a.href)
+                showToast('Logs exported to CSV!')
+              }}><Download className="w-3.5 h-3.5" /> Export Logs</button>
               <motion.button
                 className="btn-gradient text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}

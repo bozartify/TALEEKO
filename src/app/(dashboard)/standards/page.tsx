@@ -316,7 +316,7 @@ export default function StandardsPage() {
                   </button>
                 )}
               </div>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Standards exported as PDF')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing standards…') }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
             </div>

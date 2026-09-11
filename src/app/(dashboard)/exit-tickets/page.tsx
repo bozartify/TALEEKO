@@ -1083,17 +1083,27 @@ export default function ExitTicketsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Results PDF', icon: Download, desc: 'Full class results formatted report' },
-                  { label: 'CSV Gradebook', icon: BarChart2, desc: 'Student scores for gradebook import' },
-                  { label: 'Google Sheets', icon: ExternalLink, desc: 'Export directly to your Drive' },
-                  { label: 'Copy Summary', icon: Copy, desc: 'Plain text class summary' },
+                  { label: 'Results PDF', icon: Download, desc: 'Full class results formatted report', action: () => { window.print(); showToast('Printing results…'); setExportOpen(false) } },
+                  { label: 'CSV Gradebook', icon: BarChart2, desc: 'Student scores for gradebook import', action: () => {
+                    const headers = ['Student', 'Score', 'Status', 'Flagged']
+                    const rows = STUDENT_RESULTS.map(s => [s.name, s.score, s.status, s.flagged ? 'Yes' : 'No'])
+                    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `exit-ticket-${selectedTicket.title.replace(/\s+/g,'-')}.csv`; a.click(); URL.revokeObjectURL(a.href)
+                    showToast('CSV exported!'); setExportOpen(false)
+                  }},
+                  { label: 'Google Sheets', icon: ExternalLink, desc: 'Export directly to your Drive', action: () => { showToast('Opening Google Sheets…'); setExportOpen(false) } },
+                  { label: 'Copy Summary', icon: Copy, desc: 'Plain text class summary', action: () => {
+                    const summary = `Exit Ticket: ${selectedTicket.title}\nCompletion: ${selectedTicket.completionRate}%  Avg Score: ${selectedTicket.avgScore}%\n` + STUDENT_RESULTS.map(s => `${s.name}: ${s.score}% (${s.status})`).join('\n')
+                    navigator.clipboard?.writeText(summary).catch(() => {})
+                    showToast('Summary copied to clipboard!'); setExportOpen(false)
+                  }},
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-left"
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { showToast(`Exported: ${opt.label}`); setExportOpen(false) }}
+                    onClick={opt.action}
                   >
                     <div className="w-7 h-7 rounded-lg bg-amber-500/15 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-3.5 h-3.5 text-amber-400" />

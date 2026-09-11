@@ -302,7 +302,7 @@ export default function ParentPortalPage() {
               This is exactly what parents and guardians will see. Toggle sections on/off below and share the portal link with families.
             </p>
           </div>
-          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0" onClick={() => showToast('Report card downloaded')}>
+          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0" onClick={() => { window.print(); showToast('Printing report card…') }}>
             <Download className="w-3.5 h-3.5" /> Report Card
           </button>
         </div>

@@ -818,7 +818,13 @@ export default function CoursesPage() {
               {[
                 { icon: Sparkles,  label: 'AI Lesson Generator',    color: '#6366f1', action: () => showToast('AI Lesson Generator opened') },
                 { icon: Copy,      label: 'Duplicate Best Course',   color: '#10b981', action: () => showToast('Top course duplicated as draft') },
-                { icon: Download,  label: 'Export All Courses',      color: '#f97316', action: () => showToast('Courses exported to PDF') },
+                { icon: Download,  label: 'Export All Courses',      color: '#f97316', action: () => {
+                  const headers = ['Title', 'Subject', 'Grade', 'Lessons', 'Students', 'Completion %', 'Status', 'Last Updated']
+                  const rows = courses.map(c => [c.title, c.subject, c.grade, c.lessons, c.students, c.completion, c.status, c.lastUpdated])
+                  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'courses.csv'; a.click(); URL.revokeObjectURL(a.href)
+                  showToast('Courses exported to CSV!')
+                }},
                 { icon: Users,     label: 'Bulk Enroll Students',    color: '#8b5cf6', action: () => showToast('Bulk enrollment panel opened') },
                 { icon: Star,      label: 'Mark as Template',        color: '#f59e0b', action: () => showToast('Course saved as template') },
               ].map(item => (

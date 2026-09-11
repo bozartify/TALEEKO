@@ -154,6 +154,8 @@ export default function WorkspacePage() {
   const [newColName, setNewColName] = useState('')
   const [collectionOpen, setCollectionOpen] = useState(false)
   const [deleteColId, setDeleteColId] = useState<string | null>(null)
+  const [aiSuggestText, setAiSuggestText] = useState('')
+  const [loadingAISuggest, setLoadingAISuggest] = useState(false)
 
   const allTools = toolCategories.flatMap(c => c.tools)
   const totalUses = allTools.reduce((a, t) => a + t.uses, 0)
@@ -161,6 +163,34 @@ export default function WorkspacePage() {
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function handleAISuggest() {
+    setLoadingAISuggest(true)
+    setAiSuggestText('')
+    showToast('AI is finding personalized tool suggestions…')
+    try {
+      const favList = Array.from(favorites).join(', ') || 'lesson planning and quizzes'
+      const prompt = `A teacher uses these tools most: ${favList}. Suggest 3 other teaching tools they should try next, with one sentence each on why. Start each with "• ".`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''
+      const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      setAiSuggestText(fullText.trim())
+      showToast('AI suggestions ready!')
+    } catch { showToast('AI suggest failed — check connection') }
+    finally { setLoadingAISuggest(false) }
   }
 
   const toggleFavorite = (label: string) => {
@@ -248,8 +278,8 @@ export default function WorkspacePage() {
                   </button>
                 )}
               </div>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI suggestions refreshed')}>
-                <Sparkles className="w-3.5 h-3.5" /> AI Suggest
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={handleAISuggest} disabled={loadingAISuggest}>
+                {loadingAISuggest ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />} AI Suggest
               </motion.button>
             </div>
           </div>
@@ -409,9 +439,10 @@ export default function WorkspacePage() {
             <div className="flex items-center gap-2">
               <button
                 className="text-xs text-surface-500 hover:text-surface-300 flex items-center gap-1"
-                onClick={e => { e.stopPropagation(); showToast('AI suggestions refreshed') }}
+                onClick={e => { e.stopPropagation(); handleAISuggest() }}
+                disabled={loadingAISuggest}
               >
-                <RefreshCw className="w-3 h-3" /> Refresh
+                {loadingAISuggest ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <RefreshCw className="w-3 h-3" />} Refresh
               </button>
               <motion.div animate={{ rotate: aiOpen ? 180 : 0 }} transition={{ duration: 0.25 }}>
                 <ChevronDown className="w-4 h-4 text-surface-500" />
@@ -427,6 +458,14 @@ export default function WorkspacePage() {
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
+                {aiSuggestText && (
+                  <div className="px-5 pt-0 pb-3">
+                    <div className="p-3 rounded-xl border border-accent-500/20 bg-accent-500/5">
+                      <p className="text-xs font-semibold text-accent-300 mb-1 flex items-center gap-1.5"><Sparkles className="w-3 h-3" /> AI Personalized Picks</p>
+                      <p className="text-xs text-surface-300 leading-relaxed whitespace-pre-wrap">{aiSuggestText}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   {aiSuggested.map((s, i) => (
                     <motion.div

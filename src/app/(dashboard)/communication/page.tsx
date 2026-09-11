@@ -363,7 +363,13 @@ export default function CommunicationPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Messages exported!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => {
+                const headers = ['To', 'Subject', 'Sent', 'Opens', 'Total']
+                const rows = SENT_MESSAGES.map(m => [m.to, m.subject, m.time, m.opens, m.total])
+                const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'messages.csv'; a.click(); URL.revokeObjectURL(a.href)
+                showToast('Messages exported to CSV!')
+              }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Bulk message composed!')}>

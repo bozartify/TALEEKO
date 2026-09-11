@@ -262,7 +262,7 @@ export default function GameBuilderPage() {
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShareOpen(true)}>
                 <Share2 className="w-3.5 h-3.5" /> Share Game
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Game library exported')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing game library…') }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
             </div>
@@ -632,7 +632,7 @@ export default function GameBuilderPage() {
                         <Share2 className="w-4 h-4" />
                         Share
                       </button>
-                      <button className="btn-secondary text-sm px-4 py-2.5" onClick={() => showToast('Game exported as PDF')}>
+                      <button className="btn-secondary text-sm px-4 py-2.5" onClick={() => { window.print(); showToast('Printing game…') }}>
                         <Download className="w-4 h-4" />
                         Export
                       </button>

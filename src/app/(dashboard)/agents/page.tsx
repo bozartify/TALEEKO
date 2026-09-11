@@ -226,7 +226,7 @@ export default function AgentsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Agent report exported to PDF')}><Download className="w-3.5 h-3.5" /> Export Report</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing agent report…') }}><Download className="w-3.5 h-3.5" /> Export Report</button>
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
