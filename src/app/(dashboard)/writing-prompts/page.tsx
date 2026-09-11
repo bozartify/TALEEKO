@@ -625,9 +625,12 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                     className="glass-card overflow-hidden"
                   >
                     {/* Card Header */}
-                    <button
-                      className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors"
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      className="w-full flex items-center gap-3 p-4 text-left hover:bg-white/[0.02] transition-colors cursor-pointer"
                       onClick={() => setExpandedId(isExpanded ? null : prompt.id)}
+                      onKeyDown={e => e.key === 'Enter' && setExpandedId(isExpanded ? null : prompt.id)}
                     >
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
@@ -667,7 +670,7 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                         </button>
                         <ChevronDown className={`w-4 h-4 text-surface-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                       </div>
-                    </button>
+                    </div>
 
                     {/* Expanded Content */}
                     <AnimatePresence>
@@ -756,11 +759,11 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                                 <Sparkles className="w-3.5 h-3.5" />
                                 AI Variant
                               </button>
-                              <button onClick={() => showToast('Prompt exported as PDF')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
+                              <button onClick={() => { window.print(); showToast('Printing prompt…') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
                                 <Download className="w-3.5 h-3.5" />
                                 Export
                               </button>
-                              <button onClick={() => showToast('Shareable link copied!')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors ml-auto">
+                              <button onClick={() => { navigator.clipboard?.writeText(prompt.prompt).catch(() => {}); showToast('Prompt copied to clipboard!') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors ml-auto">
                                 <Share2 className="w-3.5 h-3.5" />
                                 Share
                               </button>
