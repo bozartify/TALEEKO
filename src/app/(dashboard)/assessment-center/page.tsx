@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BarChart2, BookOpen, Brain, Calendar, CheckCircle,
@@ -134,6 +135,7 @@ function letterGrade(avg: number): string {
 ───────────────────────────────────────────── */
 
 export default function AssessmentCenterPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('overview')
   const [selectedAssessment, setSelectedAssessment] = useState<Assessment | null>(null)
   const [filterStatus, setFilterStatus] = useState<Status | 'All'>('All')
@@ -258,7 +260,7 @@ export default function AssessmentCenterPage() {
             }}>
               <Download className="w-4 h-4" /> Export
             </button>
-            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening assessment builder…')}>
+            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => router.push('/quiz-builder')}>
               <Plus className="w-4 h-4" /> New Assessment
             </button>
           </div>
@@ -773,7 +775,7 @@ export default function AssessmentCenterPage() {
                 </div>
               </div>
               <button
-                onClick={() => showToast(`Generating ${aiAssessType} for ${aiSubject} — check your Quiz Builder`)}
+                onClick={() => router.push(`/quiz-builder?subject=${encodeURIComponent(aiSubject)}&type=${encodeURIComponent(aiAssessType)}`)}
                 className="btn-gradient text-sm w-full justify-center flex items-center gap-2"
               >
                 <Sparkles className="w-4 h-4" /> Generate Assessment
@@ -881,7 +883,7 @@ export default function AssessmentCenterPage() {
                 {/* Actions */}
                 <div className="flex flex-col gap-2 mt-6">
                   <button
-                    onClick={() => { showToast('Opening gradebook…'); setSelectedAssessment(null) }}
+                    onClick={() => { router.push('/gradebook'); setSelectedAssessment(null) }}
                     className="btn-gradient w-full justify-center text-sm"
                   >
                     <Eye className="w-4 h-4" /> View Grades

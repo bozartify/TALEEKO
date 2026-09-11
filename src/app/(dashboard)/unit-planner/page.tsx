@@ -321,6 +321,12 @@ export default function UnitPlannerPage() {
     showToast(`"${newUnit.title}" added to your unit list`)
   }
 
+  function startEditUnit(unit: Unit) {
+    setForm({ title: unit.title, subject: unit.subject, grade: unit.grade, durationWeeks: String(unit.weekEnd - unit.weekStart + 1), standards: '' })
+    document.getElementById('quick-add-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    showToast(`Editing "${unit.title}" — update form and save`)
+  }
+
   async function handleGenerateUnit(unit: Unit) {
     setGeneratingUnit(unit.id)
     showToast('AI is planning your unit…')
@@ -578,7 +584,7 @@ export default function UnitPlannerPage() {
                         className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-[11px] font-semibold border border-white/[0.08] text-surface-300 hover:text-white hover:bg-white/[0.05] transition-all"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => showToast(`Editing "${unit.title}"…`)}
+                        onClick={() => startEditUnit(unit)}
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                         Edit
@@ -925,7 +931,7 @@ export default function UnitPlannerPage() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => {
-                      showToast(`Editing "${selectedUnit.title}"…`)
+                      startEditUnit(selectedUnit)
                       setSelectedUnit(null)
                     }}
                   >
