@@ -306,7 +306,13 @@ export default function ClassroomPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Exporting classroom data...')}>
+            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
+              const headers = ['Class', 'Subject', 'Period', 'Room', 'Students', 'Avg Score', 'Completion %', 'Trend']
+              const rows = classes.map(c => [c.name, c.subject, c.period, c.room, c.students, c.avgScore, c.completion, c.trend])
+              const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+              const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'classroom-data.csv'; a.click(); URL.revokeObjectURL(a.href)
+              showToast('Classroom data exported!')
+            }}>
               <Download className="w-3 h-3" /> Export
             </button>
             <motion.button

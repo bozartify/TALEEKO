@@ -418,7 +418,7 @@ export default function UnitPlannerPage() {
                 className="btn-secondary text-xs"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => showToast('Exporting unit plan to PDF…')}
+                onClick={() => { window.print(); showToast('Printing unit plan…') }}
               >
                 <Download className="w-3.5 h-3.5" />
                 Export PDF
@@ -936,7 +936,7 @@ export default function UnitPlannerPage() {
                     className="btn-secondary flex-1 justify-center text-sm"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => showToast(`Exporting "${selectedUnit.title}" to PDF…`)}
+                    onClick={() => { window.print(); showToast(`Printing "${selectedUnit.title}"…`) }}
                   >
                     <Download className="w-3.5 h-3.5" />
                     Export

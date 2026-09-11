@@ -868,7 +868,7 @@ export default function InterventionTrackerPage() {
                 <p className="text-[10px] text-surface-500">Benchmark target: 70% · Universal screening every 6 weeks</p>
                 <button
                   className="text-[10px] text-accent-400 hover:text-accent-300 font-semibold flex items-center gap-0.5"
-                  onClick={() => showToast('Full progress report opened!')}
+                  onClick={() => { window.print(); showToast('Printing full progress report…') }}
                 >
                   Full report <ChevronRight className="w-2.5 h-2.5" />
                 </button>

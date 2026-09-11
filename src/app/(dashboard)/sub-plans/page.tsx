@@ -998,17 +998,22 @@ export default function SubPlansPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Full Plan PDF', icon: FileText, desc: 'Formatted for printing — 1–2 pages' },
-                  { label: 'Period Cards (PDF)', icon: ClipboardList, desc: 'One card per period for quick reference' },
-                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing' },
-                  { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or sub portal' },
+                  { label: 'Full Plan PDF', icon: FileText, desc: 'Formatted for printing — 1–2 pages', action: () => { window.print(); showToast('Printing sub plan…'); setExportOpen(false) } },
+                  { label: 'Period Cards (PDF)', icon: ClipboardList, desc: 'One card per period for quick reference', action: () => { window.print(); showToast('Printing period cards…'); setExportOpen(false) } },
+                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing', action: () => { showToast('Opening Google Docs…'); setExportOpen(false) } },
+                  { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or sub portal', action: () => {
+                    const text = `${selectedPlan.title} — ${selectedPlan.date}\n\n` +
+                      selectedPlan.periods.map(p => `${p.name} (${p.time}):\n  Activity: ${p.activity}\n  Notes: ${p.notes || 'None'}`).join('\n\n')
+                    navigator.clipboard?.writeText(text).catch(() => {})
+                    showToast('Sub plan copied to clipboard!'); setExportOpen(false)
+                  }},
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-left"
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { showToast(`Exported: ${opt.label}`); setExportOpen(false) }}
+                    onClick={opt.action}
                   >
                     <div className="w-7 h-7 rounded-lg bg-accent-500/15 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-3.5 h-3.5 text-accent-400" />

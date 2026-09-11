@@ -249,7 +249,13 @@ export default function AssessmentCenterPage() {
                 : <><Sparkles className="w-4 h-4" /> AI Insights</>
               }
             </button>
-            <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => showToast('Assessments exported')}>
+            <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => {
+              const headers = ['Title', 'Type', 'Subject', 'Date', 'Avg', 'High', 'Low', 'Status', 'Submitted', 'Total']
+              const rows = assessments.map(a => [a.title, a.type, a.subject, a.date, a.classAvg, a.classHigh, a.classLow, a.status, a.submitted, a.totalStudents])
+              const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
+              const el = document.createElement('a'); el.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); el.download = 'assessments.csv'; el.click(); URL.revokeObjectURL(el.href)
+              showToast('Assessments exported to CSV!')
+            }}>
               <Download className="w-4 h-4" /> Export
             </button>
             <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening assessment builder…')}>
