@@ -208,7 +208,7 @@ export default function StudentsPage() {
               <motion.button
                 className="btn-gradient text-xs"
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => { setAiInsightOpen(true); showToast('AI insights refreshed') }}
+                onClick={() => { setAiInsightOpen(true) }}
               >
                 <Brain className="w-3.5 h-3.5" /> AI Insights
               </motion.button>
@@ -835,7 +835,7 @@ export default function StudentsPage() {
             <div className="space-y-2">
               {[
                 { icon: Mail,        label: 'Message All Parents',    color: '#6366f1', action: () => showToast('Bulk parent message drafted') },
-                { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => showToast('Progress reports generating...') },
+                { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => { window.print(); showToast('Printing progress reports…') } },
                 { icon: Sparkles,    label: 'AI Intervention Plan',   color: '#f59e0b', action: () => showToast('AI intervention plan created') },
                 { icon: Download,    label: 'Export Full Roster',      color: '#22d3ee', action: () => exportRosterCSV() },
                 { icon: GraduationCap, label: 'Assign Peer Tutors',  color: '#a855f7', action: () => showToast('Peer tutor assignments saved') },

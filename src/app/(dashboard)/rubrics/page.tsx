@@ -899,9 +899,9 @@ export default function RubricsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'PDF Rubric',        icon: Printer,  color: '#6366f1', desc: 'Print-ready PDF with scoring guide',  fn: () => { setExportOpen(false); showToast('Exported as PDF') } },
+                  { label: 'PDF Rubric',        icon: Printer,  color: '#6366f1', desc: 'Print-ready PDF with scoring guide',  fn: () => { setExportOpen(false); window.print(); showToast('Printing rubric…') } },
                   { label: 'CSV Spreadsheet',   icon: Download, color: '#10b981', desc: 'Criteria & levels in .csv format',     fn: downloadCSV },
-                  { label: 'Word Document',     icon: FileText,  color: '#8b5cf6', desc: 'Editable .docx format',               fn: () => { setExportOpen(false); showToast('Exported as Word') } },
+                  { label: 'Word Document',     icon: FileText,  color: '#8b5cf6', desc: 'Editable .docx format',               fn: () => { setExportOpen(false); window.print(); showToast('Printing as document…') } },
                   { label: 'Copy as Text',      icon: Copy,      color: '#f59e0b', desc: 'Plain text, paste anywhere',          fn: () => { navigator.clipboard.writeText(editableCriteria.map((c,i) => `${c}: ${editableCells[i].join(' | ')}`).join('\n')).then(() => { setExportOpen(false); showToast('Copied to clipboard!') }) } },
                 ].map(opt => (
                   <motion.button

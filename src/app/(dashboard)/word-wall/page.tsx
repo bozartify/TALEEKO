@@ -138,12 +138,40 @@ export default function WordWallPage() {
   const [stillLearning, setStillLearning] = useState(0)
   const [starFilter, setStarFilter] = useState(false)
   const [generatingWord, setGeneratingWord] = useState(false)
+  const [regeneratingWordId, setRegeneratingWordId] = useState<string | null>(null)
 
   const WORD_COLORS = ['#10b981', '#6366f1', '#f97316', '#ec4899', '#22d3ee', '#8b5cf6', '#f59e0b']
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  async function regenerateDefinition(word: VocabWord) {
+    setRegeneratingWordId(word.id)
+    try {
+      const prompt = `Give a fresh, clearer definition for the word "${word.word}" (${word.partOfSpeech}) suitable for middle school students. Return JSON: {"definition":"...","example":"..."}`
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] }) })
+      const reader = res.body?.getReader()
+      if (!reader) throw new Error('No stream')
+      let fullText = ''; const decoder = new TextDecoder()
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break; if (!value) continue
+        for (const line of decoder.decode(value).split('\n')) {
+          const t = line.replace(/^data:\s*/, '').trim()
+          if (!t || t === '[DONE]') continue
+          try { const p = JSON.parse(t); if (p.type === 'text') fullText += p.text } catch {}
+        }
+      }
+      const m = fullText.match(/\{[\s\S]*\}/)
+      if (m) {
+        const { definition, example } = JSON.parse(m[0])
+        setWords(ws => ws.map(w => w.id === word.id ? { ...w, definition: definition ?? w.definition, example: example ?? w.example } : w))
+        showToast(`Definition updated for "${word.word}"!`)
+      } else showToast('Definition regenerated!')
+    } catch { showToast('Regeneration failed — check connection') }
+    finally { setRegeneratingWordId(null) }
   }
 
   async function generateWord() {
@@ -640,10 +668,14 @@ export default function WordWallPage() {
                               <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast(`Translating "${word.word}"`)}>
                                 <Globe className="w-3 h-3" /> Translate
                               </button>
-                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast('Regenerating definition…')}>
-                                <RefreshCw className="w-3 h-3" /> Regenerate
+                              <button
+                                className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors"
+                                onClick={() => regenerateDefinition(word)}
+                                disabled={regeneratingWordId === word.id}
+                              >
+                                {regeneratingWordId === word.id ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <RefreshCw className="w-3 h-3" />} Regenerate
                               </button>
-                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast('Copied to clipboard')}>
+                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => { navigator.clipboard?.writeText(`${word.word}: ${word.definition}`).catch(() => {}); showToast(`"${word.word}" copied!`) }}>
                                 <Copy className="w-3 h-3" /> Copy
                               </button>
                               <button
