@@ -194,8 +194,10 @@ const NEW_COLORS = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6', '#22d
 
 export default function GroupsPage() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS)
   useEffect(() => {
+    setMounted(true)
     try {
       const saved = localStorage.getItem('taleeko_groups')
       if (saved) setGroups(JSON.parse(saved))
@@ -316,6 +318,8 @@ export default function GroupsPage() {
     return matchType && matchSearch
   })
 
+  if (!mounted) return <div className="space-y-6 animate-pulse"><div className="h-40 rounded-3xl bg-white/[0.03]" /><div className="h-48 rounded-2xl bg-white/[0.03]" /></div>
+
   return (
     <div className="space-y-6">
       {/* Hero */}
@@ -409,6 +413,14 @@ export default function GroupsPage() {
             const maxV = 100
             return (
               <svg viewBox={`0 0 ${W} ${H + 28}`} width="100%" className="overflow-visible" style={{ maxHeight: 148 }}>
+                <defs>
+                  {groups.map(g => (
+                    <linearGradient key={g.id} id={`gbar-${g.id}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={g.color} stopOpacity="0.9" />
+                      <stop offset="100%" stopColor={g.color} stopOpacity="0.4" />
+                    </linearGradient>
+                  ))}
+                </defs>
                 {[60, 70, 80, 90, 100].map(v => {
                   const y = PY + (H - PY * 2) * (1 - v / maxV)
                   return (
@@ -425,12 +437,6 @@ export default function GroupsPage() {
                   const shortName = g.name.length > 12 ? g.name.slice(0, 12) + '…' : g.name
                   return (
                     <g key={g.id}>
-                      <defs>
-                        <linearGradient id={`gbar-${g.id}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor={g.color} stopOpacity="0.9" />
-                          <stop offset="100%" stopColor={g.color} stopOpacity="0.4" />
-                        </linearGradient>
-                      </defs>
                       <motion.rect
                         x={x} y={y} width={barW} height={barH}
                         fill={`url(#gbar-${g.id})`} rx="5"
