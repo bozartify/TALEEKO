@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   TrendingUp, Activity, Download, Plus, X, ChevronRight,
@@ -485,6 +486,7 @@ function StudentDrawer({ student, onClose }: { student: Student; onClose: () => 
    Page
 ───────────────────────────────────────────────────────────── */
 export default function ProgressMonitorPage() {
+  const router = useRouter()
   const [subjectFilter, setSubjectFilter] = useState<SubjectFilter>('All')
   const [statusFilter,  setStatusFilter]  = useState<StatusFilter>('All')
   const [gradeMin,      setGradeMin]      = useState(0)
@@ -580,7 +582,7 @@ export default function ProgressMonitorPage() {
                   <Download size={15} />
                   Export Report
                 </button>
-                <button onClick={() => showToast('New assessment form opened!')} className="btn-gradient">
+                <button onClick={() => router.push('/quiz-builder')} className="btn-gradient">
                   <Plus size={15} />
                   Add Assessment
                 </button>

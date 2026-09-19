@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Shield, Users, FileText, CheckCircle2, TrendingUp,
@@ -151,6 +152,7 @@ const complianceTrend = [74, 78, 81, 84, 87, 88, 90, 92]
 const complianceTrendLabels = ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7', 'Now']
 
 export default function AccommodationsPage() {
+  const router = useRouter()
   const [studentList, setStudentList] = useState(students)
   const [expandedStudent, setExpandedStudent] = useState<string | null>(null)
   const [search, setSearch]                   = useState('')
@@ -326,7 +328,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-warning-300">Pending Accommodations — 4 Unimplemented</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">4 accommodations across 4 students are marked "Pending." Marcus Johnson's Modified Assignments and Jaylen Carter's Modified Assignments need follow-up this week.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap" onClick={() => showToast('Opening pending accommodations review')}>Review →</button>
+                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap" onClick={() => router.push('/students')}>Review →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-400/[0.08] border border-success-400/15">
                     <TrendingUp className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />

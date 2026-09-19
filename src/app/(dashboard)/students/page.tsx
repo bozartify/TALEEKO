@@ -215,7 +215,7 @@ export default function StudentsPage() {
                 <Brain className="w-3.5 h-3.5" /> AI Insights
               </motion.button>
               <button
-                onClick={() => { setGroupOpen(o => !o); showToast(groupOpen ? 'Group builder closed' : 'Group builder opened') }}
+                onClick={() => setGroupOpen(o => !o)}
                 className="btn-secondary text-xs px-3 py-1.5"
               >
                 <Layers className="w-3.5 h-3.5" /> Group
@@ -523,7 +523,7 @@ export default function StudentsPage() {
                                   { icon: Eye,          label: 'View Portfolio',   action: () => { router.push('/portfolio'); setActionMenu(null) } },
                                   { icon: Mail,         label: 'Message Parent',   action: () => { setMessageModal(student); setActionMenu(null) } },
                                   { icon: Sparkles,     label: 'AI Action Plan',   action: () => { showToast(`AI action plan for ${student.name}`); setActionMenu(null) } },
-                                  { icon: BarChart2,    label: 'View Analytics',   action: () => { showToast(`${student.name} analytics opened`); setActionMenu(null) } },
+                                  { icon: BarChart2,    label: 'View Analytics',   action: () => { router.push('/analytics'); setActionMenu(null) } },
                                   { icon: Flag,         label: 'Flag for Review',  action: () => { showToast(`${student.name} flagged for review`); setActionMenu(null) } },
                                 ].map(item => (
                                   <button
@@ -609,9 +609,9 @@ export default function StudentsPage() {
                           </div>
                           <p className="text-xs text-surface-400 mb-3 p-2.5 bg-white/[0.03] rounded-xl italic">&ldquo;{student.notes}&rdquo;</p>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`${student.name}'s portfolio opened`) }}><Eye className="w-3 h-3" /> Portfolio</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/portfolio') }}><Eye className="w-3 h-3" /> Portfolio</button>
                             <button onClick={e => { e.stopPropagation(); setMessageModal(student) }} className="btn-secondary text-xs px-3 py-1.5"><Mail className="w-3 h-3" /> Message Parent</button>
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`${student.name} analytics opened`) }}><BarChart2 className="w-3 h-3" /> Analytics</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/analytics') }}><BarChart2 className="w-3 h-3" /> Analytics</button>
                             <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={e => { e.stopPropagation(); showToast(`AI Action Plan for ${student.name} generated`) }}><Sparkles className="w-3 h-3" /> AI Action Plan</button>
                           </div>
                         </div>

@@ -1091,7 +1091,7 @@ export default function ExitTicketsPage() {
                     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `exit-ticket-${selectedTicket.title.replace(/\s+/g,'-')}.csv`; a.click(); URL.revokeObjectURL(a.href)
                     showToast('CSV exported!'); setExportOpen(false)
                   }},
-                  { label: 'Google Sheets', icon: ExternalLink, desc: 'Export directly to your Drive', action: () => { showToast('Opening Google Sheets…'); setExportOpen(false) } },
+                  { label: 'Google Sheets', icon: ExternalLink, desc: 'Export directly to your Drive', action: () => { window.open('https://docs.google.com/spreadsheets/create', '_blank'); showToast('Opening Google Sheets…'); setExportOpen(false) } },
                   { label: 'Copy Summary', icon: Copy, desc: 'Plain text class summary', action: () => {
                     const summary = `Exit Ticket: ${selectedTicket.title}\nCompletion: ${selectedTicket.completionRate}%  Avg Score: ${selectedTicket.avgScore}%\n` + STUDENT_RESULTS.map(s => `${s.name}: ${s.score}% (${s.status})`).join('\n')
                     navigator.clipboard?.writeText(summary).catch(() => {})

@@ -440,7 +440,7 @@ export default function StandardsUnpackerPage() {
                       if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
                       else if (opt.label === 'Export as PDF') showToast('Exporting standard breakdown as PDF…')
                       else if (opt.label === 'Share Link') showToast('Share link copied to clipboard!')
-                      else if (opt.label === 'Export to Google Docs') showToast('Opening in Google Docs…')
+                      else if (opt.label === 'Export to Google Docs') { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…') }
                       setExportOpen(false)
                     }}
                   >
@@ -708,7 +708,7 @@ export default function StandardsUnpackerPage() {
             <div className="glass-card p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider">Recent</p>
-                <button className="text-[10px] text-accent-400 hover:underline" onClick={() => showToast('Loading all recent standards…')}>View all</button>
+                <button className="text-[10px] text-accent-400 hover:underline" onClick={() => showToast(`Showing all ${recentUnpacked.length} recent standards`)}>View all</button>
               </div>
               <div className="space-y-2">
                 {recentUnpacked.map(r => (
@@ -822,7 +822,7 @@ export default function StandardsUnpackerPage() {
                         key={s}
                         className="px-2.5 py-1 rounded-lg border border-electric-500/20 bg-electric-500/10 text-[10px] font-semibold text-electric-300 hover:border-electric-500/40 transition-colors"
                         whileHover={{ scale: 1.02 }}
-                        onClick={() => { setInput(s); showToast(`Loading ${s}…`) }}
+                        onClick={() => { setInput(s); showToast(`"${s}" loaded — click Unpack`) }}
                       >
                         {s}
                       </motion.button>

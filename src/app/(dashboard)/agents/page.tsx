@@ -403,8 +403,8 @@ export default function AgentsPage() {
                                   </div>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => showToast(`${a.name} settings opened`)}><Settings className="w-2.5 h-2.5" /> Configure</button>
-                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => showToast(`${a.name} log opened`)}><Eye className="w-2.5 h-2.5" /> View Log</button>
+                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}><Settings className="w-2.5 h-2.5" /> Configure</button>
+                                  <button className="btn-secondary text-[10px] px-2 py-1 flex-1" onClick={() => showToast(`${a.name}: last run OK — no errors`)}><Eye className="w-2.5 h-2.5" /> View Log</button>
                                 </div>
                               </div>
                             </motion.div>

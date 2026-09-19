@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Activity, AlertTriangle, ArrowUpRight, Bell, BookOpen,
@@ -228,6 +229,7 @@ function buildSparkArea(data: number[], W: number, H: number): string {
 ───────────────────────────────────────────── */
 
 export default function InterventionTrackerPage() {
+  const router = useRouter()
   const [caseload, setCaseload]       = useState<Intervention[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -326,7 +328,7 @@ export default function InterventionTrackerPage() {
                 className="btn-primary text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('New intervention form opened!')}
+                onClick={() => showToast('Use the + button on a student card to log a new intervention')}
               >
                 <Plus className="w-3.5 h-3.5" /> Add Intervention
               </motion.button>
@@ -933,7 +935,7 @@ export default function InterventionTrackerPage() {
               <motion.button
                 className="mt-3 w-full py-2 rounded-xl text-[11px] font-semibold text-surface-400 hover:text-surface-200 border border-white/[0.06] hover:border-white/[0.1] transition-all flex items-center justify-center gap-1"
                 whileHover={{ scale: 1.01 }}
-                onClick={() => showToast('Full schedule opened!')}
+                onClick={() => router.push('/calendar')}
               >
                 <Calendar className="w-3 h-3" /> View Full Schedule
               </motion.button>
@@ -1006,7 +1008,7 @@ export default function InterventionTrackerPage() {
 
               <div className="mt-3 pt-3 border-t border-white/[0.05] flex items-center justify-between">
                 <p className="text-[9px] text-surface-600">Auto-checks run every 24 hours</p>
-                <button onClick={() => showToast('Alert configuration opened')} className="text-[9px] text-surface-500 hover:text-surface-300 font-semibold flex items-center gap-0.5">
+                <button onClick={() => router.push('/settings')} className="text-[9px] text-surface-500 hover:text-surface-300 font-semibold flex items-center gap-0.5">
                   Configure <ChevronRight className="w-2.5 h-2.5" />
                 </button>
               </div>
@@ -1084,7 +1086,7 @@ export default function InterventionTrackerPage() {
               <motion.button
                 className="btn-secondary text-xs px-3 py-1.5"
                 whileHover={{ scale: 1.02 }}
-                onClick={() => showToast('New session note opened!')}
+                onClick={() => showToast('Type your note in the field below and press Enter to save')}
               >
                 <Plus className="w-3 h-3" /> Add Note
               </motion.button>
@@ -1166,7 +1168,7 @@ export default function InterventionTrackerPage() {
                             <motion.button
                               className="btn-secondary text-[10px] px-3 py-1.5"
                               whileHover={{ scale: 1.02 }}
-                              onClick={() => showToast('Note editing opened!')}
+                              onClick={() => showToast('Click the note text to edit it inline')}
                             >
                               <FileText className="w-3 h-3" /> Edit Note
                             </motion.button>
@@ -1199,7 +1201,7 @@ export default function InterventionTrackerPage() {
             <motion.button
               className="text-[10px] text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1"
               whileHover={{ x: 1 }}
-              onClick={() => showToast('Full documentation archive opened!')}
+              onClick={() => router.push('/reports')}
             >
               View all notes <ChevronRight className="w-2.5 h-2.5" />
             </motion.button>

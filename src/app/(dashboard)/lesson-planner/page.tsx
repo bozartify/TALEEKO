@@ -736,7 +736,7 @@ export default function LessonPlannerPage() {
                     <p className="text-[11px] text-surface-400 leading-relaxed">{std.desc}</p>
                   </motion.div>
                 ))}
-                <button onClick={() => showToast('Standard search opened')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => router.push('/standards')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   Add standard
                 </button>
@@ -817,7 +817,7 @@ export default function LessonPlannerPage() {
             {recentPlans.map((plan, i) => (
               <motion.button
                 key={plan.title}
-                onClick={() => showToast(`"${plan.title}" opened for editing`)}
+                onClick={() => { showToast(`"${plan.title}" loaded`); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 className="glass-card p-4 text-left"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

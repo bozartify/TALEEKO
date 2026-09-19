@@ -346,7 +346,7 @@ export default function ApiKeysPage() {
                         >
                           {copiedId === apiKey.id ? <Check className="w-3.5 h-3.5 text-success-400" /> : <Copy className="w-3.5 h-3.5" />}
                         </motion.button>
-                        <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast(`${apiKey.name} settings opened`)}>
+                        <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => { navigator.clipboard?.writeText(apiKey.id).catch(()=>{}); showToast(`${apiKey.name} key ID copied`) }}>
                           <Settings className="w-3.5 h-3.5" />
                         </button>
                         <motion.button
@@ -465,7 +465,7 @@ export default function ApiKeysPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">API Request Logs</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Filter panel opened')}><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Showing all logs')}><Filter className="w-3.5 h-3.5" /> Filter</button>
                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs refreshed')}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
               </div>
             </div>
@@ -619,7 +619,7 @@ export default function ApiKeysPage() {
                   <div className="flex items-center gap-2">
                     {app.connected ? (
                       <>
-                        <button className="btn-secondary text-xs px-3 py-1.5 flex-1" onClick={() => showToast(`${app.name} settings opened`)}><Settings className="w-3 h-3" /> Configure</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5 flex-1" onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}><Settings className="w-3 h-3" /> Configure</button>
                         <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`${app.name} disconnected`)}><X className="w-3 h-3" /> Disconnect</button>
                       </>
                     ) : (

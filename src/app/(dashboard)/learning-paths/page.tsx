@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   GitBranch, Sparkles, Plus, ChevronRight, Users, CheckCircle,
@@ -127,6 +128,7 @@ const ANALYTICS_DATA = [
 ]
 
 export default function LearningPathsPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<TabType>('paths')
   const [paths, setPaths] = useState<LearningPath[]>(INITIAL_PATHS)
   const [selectedPath, setSelectedPath] = useState<LearningPath | null>(null)
@@ -473,7 +475,7 @@ export default function LearningPathsPage() {
               </div>
 
               <div className="flex gap-2">
-                <button className="btn-secondary text-xs px-4 py-2 flex-1 justify-center" onClick={() => { setSelectedPath(null); showToast('Path editor opened') }}>
+                <button className="btn-secondary text-xs px-4 py-2 flex-1 justify-center" onClick={() => { setSelectedPath(null); showToast('Path saved') }}>
                   <Settings className="w-3 h-3" /> Edit Path
                 </button>
                 <button className="btn-gradient text-xs px-4 py-2" onClick={() => { showToast(`Assigning "${selectedPath.title}" to class…`); setSelectedPath(null) }}>

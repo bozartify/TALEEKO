@@ -1000,7 +1000,7 @@ export default function SubPlansPage() {
                 {[
                   { label: 'Full Plan PDF', icon: FileText, desc: 'Formatted for printing — 1–2 pages', action: () => { window.print(); showToast('Printing sub plan…'); setExportOpen(false) } },
                   { label: 'Period Cards (PDF)', icon: ClipboardList, desc: 'One card per period for quick reference', action: () => { window.print(); showToast('Printing period cards…'); setExportOpen(false) } },
-                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing', action: () => { showToast('Opening Google Docs…'); setExportOpen(false) } },
+                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing', action: () => { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…'); setExportOpen(false) } },
                   { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or sub portal', action: () => {
                     const text = `${selectedPlan.title} — ${selectedPlan.date}\n\n` +
                       selectedPlan.periods.map(p => `${p.name} (${p.time}):\n  Activity: ${p.activity}\n  Notes: ${p.notes || 'None'}`).join('\n\n')

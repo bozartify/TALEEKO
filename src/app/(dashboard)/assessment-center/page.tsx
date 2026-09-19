@@ -721,7 +721,13 @@ export default function AssessmentCenterPage() {
                       <h3 className="text-sm font-bold text-white mb-1">{insight.title}</h3>
                       <p className="text-sm text-surface-300 leading-relaxed mb-3">{insight.body}</p>
                       <button
-                        onClick={() => showToast(`Opening: ${insight.action}`)}
+                        onClick={() => {
+                          if (insight.action.includes('Intervention')) router.push('/intervention-tracker')
+                          else if (insight.action.includes('Writing') || insight.action.includes('Report')) router.push('/reports')
+                          else if (insight.action.includes('Resource')) router.push('/library')
+                          else if (insight.action.includes('Differentiation')) router.push('/differentiation')
+                          else showToast(insight.action)
+                        }}
                         className="text-xs font-semibold flex items-center gap-1 transition-colors"
                         style={{ color: insight.color }}
                       >

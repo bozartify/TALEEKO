@@ -928,7 +928,7 @@ Write ONLY the comment, no preamble or formatting.`
                 {[
                   { label: 'PDF Report Card Pack', icon: FileText, desc: 'Formatted for school records', action: () => { window.print(); showToast('Printing feedback…'); setExportOpen(false) } },
                   { label: 'Word Document (.docx)', icon: Download, desc: 'Editable comments document', action: () => { window.print(); showToast('Printing as document…'); setExportOpen(false) } },
-                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export directly to Drive', action: () => { showToast('Opening Google Docs…'); setExportOpen(false) } },
+                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export directly to Drive', action: () => { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…'); setExportOpen(false) } },
                   { label: 'Copy All as Text', icon: Copy, desc: 'Plain text for email or SIS', action: () => { navigator.clipboard?.writeText(STUDENTS.map(s => `${s.name} (${s.grade}): ${s.strengths.join(', ')}`).join('\n\n')).catch(() => {}); showToast('Copied all feedback!'); setExportOpen(false) } },
                 ].map(opt => (
                   <motion.button

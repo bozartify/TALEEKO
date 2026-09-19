@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Target, Shield, Download, Plus, CheckCircle,
@@ -183,6 +184,7 @@ const PROGRESS_LOG: ProgressEntry[] = [
 ───────────────────────────────────────────── */
 
 export default function IepGoalsPage() {
+  const router = useRouter()
   const [selectedStudentId, setSelectedStudentId] = useState<string>('s1')
   const [goals, setGoals]                         = useState<IEPGoal[]>(() => {
     if (typeof window !== 'undefined') {
@@ -721,7 +723,7 @@ export default function IepGoalsPage() {
                 <motion.button
                   className="text-[9px] text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-0.5 transition-colors"
                   whileHover={{ x: 1 }}
-                  onClick={() => showToast('Full progress archive opened!')}
+                  onClick={() => router.push('/reports')}
                 >
                   View all <ChevronRight className="w-2.5 h-2.5" />
                 </motion.button>

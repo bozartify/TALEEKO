@@ -996,7 +996,7 @@ export default function TemplatesPage() {
                 className="btn-secondary px-4 py-2 text-xs font-medium flex items-center gap-1.5"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('Opening community template library…')}
+                onClick={() => router.push('/library')}
               >
                 Browse All
                 <ArrowRight className="w-3.5 h-3.5" />

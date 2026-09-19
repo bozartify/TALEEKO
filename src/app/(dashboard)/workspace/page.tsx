@@ -782,7 +782,7 @@ export default function WorkspacePage() {
                   )}
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-1">
-                  <button onClick={() => showToast(`Opening "${col.name}"…`)} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
+                  <button onClick={() => router.push('/library')} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
                   <button onClick={() => showToast(`Sharing "${col.name}"…`)} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
                 </div>
               </motion.div>
