@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -194,15 +194,13 @@ const NEW_COLORS = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6', '#22d
 
 export default function GroupsPage() {
   const router = useRouter()
-  const [groups, setGroups] = useState<Group[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('taleeko_groups')
-        if (saved) return JSON.parse(saved)
-      } catch {}
-    }
-    return INITIAL_GROUPS
-  })
+  const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_groups')
+      if (saved) setGroups(JSON.parse(saved))
+    } catch {}
+  }, [])
   const [expandedGroup, setExpandedGroup] = useState<string | null>('1')
   const [filter, setFilter] = useState<'all' | GroupType>('all')
   const [search, setSearch] = useState('')
