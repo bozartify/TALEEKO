@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   GraduationCap, Award, TrendingUp, Star, BookOpen, Target,
@@ -178,6 +179,7 @@ const overallStats = [
 ]
 
 export default function PortfolioPage() {
+  const router = useRouter()
   const [selectedStudent, setSelectedStudent] = useState(students[0])
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<PortfolioTab>('overview')
@@ -398,7 +400,7 @@ export default function PortfolioPage() {
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Message sent to ${selectedStudent.name.split(' ')[0]}'s parent`)}><Mail className="w-3 h-3" /> Message Parent</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening analytics for ${selectedStudent.name}`)}><BarChart2 className="w-3 h-3" /> Analytics</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/analytics')}><BarChart2 className="w-3 h-3" /> Analytics</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}><Printer className="w-3 h-3" /> Print</button>
                   <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" disabled={generatingInsight === selectedStudent.id} onClick={() => generateAIInsights(selectedStudent)}>
                     {generatingInsight === selectedStudent.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> AI Insights</>}

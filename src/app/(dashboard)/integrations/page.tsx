@@ -350,7 +350,7 @@ export default function IntegrationsPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('All integrations synced!')}>
                 <RefreshCw className="w-3.5 h-3.5" /> Sync All
               </motion.button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('Opening marketplace…')}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}>
                 <Sparkles className="w-3.5 h-3.5" /> Browse Marketplace
               </motion.button>
             </div>
@@ -856,7 +856,7 @@ export default function IntegrationsPage() {
                   Request Integration
                 </motion.button>
                 <motion.button
-                  onClick={() => showToast('Opening integration roadmap…')}
+                  onClick={() => showToast('Integration roadmap — Q4 2026')}
                   className="btn-secondary text-xs px-4 py-2 flex items-center gap-1.5"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}

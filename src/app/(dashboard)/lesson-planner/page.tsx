@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, Sparkles, Clock, Target, Layers, Users, Clipboard,
@@ -169,6 +169,7 @@ const standards = [
 ]
 
 export default function LessonPlannerPage() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [sections, setSections] = useState(initialSections)
   const [expandedSection, setExpandedSection] = useState<string | null>('hook')
@@ -810,13 +811,13 @@ export default function LessonPlannerPage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent Lesson Plans</h3>
-            <button onClick={() => showToast('Opening all saved lesson plans…')} className="text-xs text-accent-400 hover:text-accent-300 transition-colors">View All</button>
+            <button onClick={() => router.push('/library')} className="text-xs text-accent-400 hover:text-accent-300 transition-colors">View All</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {recentPlans.map((plan, i) => (
               <motion.button
                 key={plan.title}
-                onClick={() => showToast(`Opening "${plan.title}"`)}
+                onClick={() => showToast(`"${plan.title}" opened for editing`)}
                 className="glass-card p-4 text-left"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

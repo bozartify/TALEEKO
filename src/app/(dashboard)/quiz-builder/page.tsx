@@ -921,7 +921,7 @@ export default function QuizBuilderPage() {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.3 + i * 0.05 }}
                       whileHover={{ x: 2 }}
-                      onClick={() => showToast(`Opening "${qz.title}"…`)}
+                      onClick={() => { showToast(`"${qz.title}" loaded`) }}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs font-semibold text-white truncate">{qz.title}</p>

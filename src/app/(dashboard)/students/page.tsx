@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Search, Plus, Filter, Download, TrendingUp, TrendingDown, Minus,
@@ -64,6 +65,7 @@ const filterLabels: Record<FilterStatus, string> = {
 }
 
 export default function StudentsPage() {
+  const router = useRouter()
   const [students, setStudents]             = useState<Student[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -518,7 +520,7 @@ export default function StudentsPage() {
                                 transition={{ duration: 0.15 }}
                               >
                                 {[
-                                  { icon: Eye,          label: 'View Portfolio',   action: () => { showToast(`Opening ${student.name}'s portfolio`); setActionMenu(null) } },
+                                  { icon: Eye,          label: 'View Portfolio',   action: () => { router.push('/portfolio'); setActionMenu(null) } },
                                   { icon: Mail,         label: 'Message Parent',   action: () => { setMessageModal(student); setActionMenu(null) } },
                                   { icon: Sparkles,     label: 'AI Action Plan',   action: () => { showToast(`AI action plan for ${student.name}`); setActionMenu(null) } },
                                   { icon: BarChart2,    label: 'View Analytics',   action: () => { showToast(`${student.name} analytics opened`); setActionMenu(null) } },

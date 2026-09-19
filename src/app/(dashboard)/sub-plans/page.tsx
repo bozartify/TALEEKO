@@ -661,7 +661,7 @@ export default function SubPlansPage() {
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}>
                     <Printer className="w-3.5 h-3.5" /> Print
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening plan editor…')}>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Click any period to edit it inline')}>
                     <Edit className="w-3.5 h-3.5" /> Edit
                   </button>
                 </div>

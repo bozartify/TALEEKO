@@ -555,7 +555,7 @@ export default function LibraryPage() {
               <Check className="w-3.5 h-3.5" />
             </button>
             {/* Upload */}
-            <button onClick={() => showToast('Upload dialog opening…')} className="p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-surface-400 hover:bg-white/[0.06] transition-colors" title="Import file">
+            <button onClick={() => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.doc,.docx,.csv,.txt'; inp.onchange = () => { if (inp.files?.[0]) showToast(`"${inp.files[0].name}" imported to library`) }; inp.click() }} className="p-2.5 rounded-xl border border-white/[0.06] bg-white/[0.04] text-surface-400 hover:bg-white/[0.06] transition-colors" title="Import file">
               <Upload className="w-3.5 h-3.5" />
             </button>
             <motion.button

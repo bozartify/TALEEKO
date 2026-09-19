@@ -853,7 +853,7 @@ export default function SettingsPage() {
                           <p className="text-xs text-surface-400">Expires 09/2027</p>
                         </div>
                       </div>
-                      <button className="btn-secondary text-xs px-3" onClick={() => showToast('Opening payment method update…')}>
+                      <button className="btn-secondary text-xs px-3" onClick={() => showToast('Contact billing@taleeko.com to update payment method')}>
                         Update
                       </button>
                     </motion.div>
@@ -884,7 +884,7 @@ export default function SettingsPage() {
                           <div className="flex items-center gap-4">
                             <p className="text-sm font-bold text-white">{inv.amount}</p>
                             <span className="badge bg-success-400/15 text-success-400">{inv.status}</span>
-                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300" onClick={() => showToast(`Downloading ${inv.invoice}…`)}>
+                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300" onClick={() => { window.print(); showToast(`Downloading ${inv.invoice}…`) }}>
                               <Download className="w-3 h-3" />
                             </button>
                           </div>
@@ -899,7 +899,7 @@ export default function SettingsPage() {
                       className="btn-gradient"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => showToast('Opening plan upgrade page…')}
+                      onClick={() => showToast('Contact sales@taleeko.com to upgrade your plan')}
                     >
                       <ExternalLink className="w-4 h-4" />
                       Upgrade Plan

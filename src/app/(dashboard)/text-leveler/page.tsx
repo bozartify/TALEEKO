@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -59,6 +60,7 @@ function fkScore(text: string) {
 }
 
 export default function TextLevelerPage() {
+  const router = useRouter()
   const [inputText, setInputText] = useState(SAMPLE_TEXT)
   const [targetLevel, setTargetLevel] = useState<ReadingLevel>('3-5')
   const [originalLevel, setOriginalLevel] = useState<ReadingLevel>('6-8')
@@ -778,7 +780,7 @@ export default function TextLevelerPage() {
           <div className="glass-card p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-sm font-semibold text-surface-200">Recently Leveled</h3>
-              <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Loading all leveled texts…')}>View All →</button>
+              <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => router.push('/library')}>View All →</button>
             </div>
             <div className="space-y-2">
               {[

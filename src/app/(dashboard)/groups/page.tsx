@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Plus, Sparkles, Edit3, UserPlus, Shuffle, ChevronDown,
@@ -192,6 +193,7 @@ const TYPE_COLORS: Record<GroupType, string> = { Lab: '#6366f1', Reading: '#10b9
 const NEW_COLORS = ['#6366f1', '#10b981', '#f97316', '#ec4899', '#8b5cf6', '#22d3ee', '#f59e0b']
 
 export default function GroupsPage() {
+  const router = useRouter()
   const [groups, setGroups] = useState<Group[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -754,7 +756,7 @@ export default function GroupsPage() {
                         <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Message sent to group')}>
                           <MessageSquare className="w-3 h-3" /> Message
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => showToast('Opening analytics')}>
+                        <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => router.push('/analytics')}>
                           <BarChart2 className="w-3 h-3" /> Analytics
                         </button>
                       </div>

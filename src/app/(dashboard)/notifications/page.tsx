@@ -1,5 +1,6 @@
 'use client'
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion'
 import {
   Bell, Check, Sparkles, Info, AlertCircle, Users,
@@ -446,6 +447,7 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
 // Main page
 // ---------------------------------------------------------------------------
 export default function NotificationsPage() {
+  const router = useRouter()
   const [items, setItems] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -861,7 +863,7 @@ export default function NotificationsPage() {
               </div>
 
               <motion.button
-                onClick={() => showToast('Opening full activity log…')}
+                onClick={() => router.push('/reports')}
                 className="w-full mt-3 flex items-center justify-center gap-1 text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors py-2 rounded-xl hover:bg-white/[0.03]"
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}

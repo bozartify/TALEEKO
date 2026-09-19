@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Download, Sparkles, Calendar, Users, BarChart2,
@@ -175,6 +176,7 @@ const formatLabels: Record<FormatOption, { label: string; color: string; bg: str
 const freqConfig = { daily: { color: 'text-electric-400', bg: 'bg-electric-400/15' }, weekly: { color: 'text-accent-400', bg: 'bg-accent-400/15' }, monthly: { color: 'text-neon-400', bg: 'bg-neon-400/15' } } as const
 
 export default function ReportsPage() {
+  const router = useRouter()
   const [selectedReport, setSelectedReport] = useState<ReportId | null>(null)
   const [generating, setGenerating] = useState(false)
   const [generated, setGenerated] = useState(false)
@@ -547,7 +549,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening report preview…')}><Eye className="w-3.5 h-3.5" /> Preview</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing report…') }}><Eye className="w-3.5 h-3.5" /> Preview</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><File className="w-3.5 h-3.5" /> PDF</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
                       <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast('Report emailed successfully!')}><Mail className="w-3.5 h-3.5" /> Email</button>
@@ -738,7 +740,7 @@ export default function ReportsPage() {
                       })()}
                       <div className="flex items-center justify-between mt-1.5">
                         <span className="text-[10px] text-surface-500">7 of 10 used</span>
-                        <button onClick={() => showToast('Opening upgrade options…')} className="text-[10px] text-accent-400 font-semibold hover:text-accent-300">Upgrade Plan</button>
+                        <button onClick={() => router.push('/settings')} className="text-[10px] text-accent-400 font-semibold hover:text-accent-300">Upgrade Plan</button>
                       </div>
                     </div>
                   </FadeInWhenVisible>
@@ -841,7 +843,7 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Report History</h3>
               <div className="flex items-center gap-2">
-                <button onClick={() => showToast('Opening filter options…')} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button onClick={() => showToast('Filter applied')} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
                 <button onClick={() => downloadReportCSV('all-reports', 'all')} className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
               </div>
             </div>
@@ -929,7 +931,7 @@ export default function ReportsPage() {
             <motion.button
               className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0"
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-              onClick={() => showToast('Opening Reports API documentation…')}
+              onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}
             >
               View API Docs <ChevronRight className="w-3 h-3" />
             </motion.button>

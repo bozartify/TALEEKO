@@ -289,7 +289,7 @@ export default function ScopeSequencePage() {
             <button className="btn-secondary text-sm flex items-center gap-2" onClick={exportScopeCSV}>
               <Download className="w-4 h-4" /> Export
             </button>
-            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => showToast('Opening unit builder…')}>
+            <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => router.push('/unit-planner')}>
               <Plus className="w-4 h-4" /> Add Unit
             </button>
           </div>

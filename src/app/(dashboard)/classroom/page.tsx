@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -96,6 +97,7 @@ const recentActivity: ActivityItem[] = [
 type Tab = 'classes' | 'students' | 'announcements'
 
 export default function ClassroomPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('classes')
   const [search, setSearch] = useState('')
   const [selectedClass, setSelectedClass] = useState<string | null>(null)
@@ -109,6 +111,12 @@ export default function ClassroomPage() {
   const [toastMsg, setToastMsg] = useState('')
   const [aiPlanId, setAiPlanId] = useState<string | null>(null)
   const [draftingAI, setDraftingAI] = useState(false)
+  const [addClassModal, setAddClassModal] = useState(false)
+  const [addStudentModal, setAddStudentModal] = useState(false)
+  const [classList, setClassList] = useState(classes)
+  const [studentList, setStudentList] = useState(students)
+  const [newClass, setNewClass] = useState({ name: '', subject: '', period: '', room: '' })
+  const [newStudent, setNewStudent] = useState({ name: '', grade: '7th', class: 'Science' })
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -170,15 +178,15 @@ export default function ClassroomPage() {
     finally { setDraftingAI(false) }
   }
 
-  const filteredStudents = students.filter(s =>
+  const filteredStudents = studentList.filter(s =>
     (!search || s.name.toLowerCase().includes(search.toLowerCase())) &&
     (!selectedClass || s.class === selectedClass)
   )
 
-  const totalStudents = classes.reduce((sum, c) => sum + c.students, 0)
-  const avgScore = Math.round(classes.reduce((sum, c) => sum + c.avgScore, 0) / classes.length)
-  const needsAttention = students.filter(s => s.status === 'needs-attention').length
-  const totalPending = classes.reduce((sum, c) => sum + c.pending, 0)
+  const totalStudents = classList.reduce((sum, c) => sum + c.students, 0)
+  const avgScore = classList.length ? Math.round(classList.reduce((sum, c) => sum + c.avgScore, 0) / classList.length) : 0
+  const needsAttention = studentList.filter(s => s.status === 'needs-attention').length
+  const totalPending = classList.reduce((sum, c) => sum + c.pending, 0)
 
   return (
     <div className="space-y-6">
@@ -195,14 +203,14 @@ export default function ClassroomPage() {
                   <h1 className="text-2xl font-black text-white tracking-tight">Classroom</h1>
                   <span className="text-[10px] bg-accent-500/20 text-accent-400 px-2 py-0.5 rounded-full font-bold border border-accent-500/20">AI-Powered</span>
                 </div>
-                <p className="text-sm text-surface-400">{totalStudents} students across {classes.length} active classes · All sessions running on schedule</p>
+                <p className="text-sm text-surface-400">{totalStudents} students across {classList.length} active classes · All sessions running on schedule</p>
               </div>
             </div>
           </div>
           <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
             {[
               { label: 'Students', value: totalStudents.toString(), color: '#a78bfa' },
-              { label: 'Classes', value: classes.length.toString(), color: '#34d399' },
+              { label: 'Classes', value: classList.length.toString(), color: '#34d399' },
               { label: 'Avg Score', value: `${avgScore}%`, color: '#38bdf8' },
               { label: 'Needs Attention', value: needsAttention.toString(), color: '#fbbf24' },
               { label: 'Pending Items', value: totalPending.toString(), color: '#f87171' },
@@ -221,7 +229,7 @@ export default function ClassroomPage() {
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
         {[
           { label: 'Total Students', value: totalStudents.toString(), icon: Users, color: 'bg-accent-500/15 text-accent-400', delta: '+3 this week' },
-          { label: 'Active Classes',  value: classes.length.toString(), icon: BookOpen, color: 'bg-success-400/15 text-success-400', delta: 'All running' },
+          { label: 'Active Classes',  value: classList.length.toString(), icon: BookOpen, color: 'bg-success-400/15 text-success-400', delta: 'All running' },
           { label: 'Average Score',   value: `${avgScore}%`, icon: Target, color: 'bg-electric-400/15 text-electric-400', delta: '+2.1% this month' },
           { label: 'Pending Items', value: totalPending.toString(), icon: AlertTriangle, color: 'bg-warning-400/15 text-warning-400', delta: 'Needs review' },
         ].map(s => (
@@ -308,7 +316,7 @@ export default function ClassroomPage() {
           <div className="flex items-center gap-2">
             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
               const headers = ['Class', 'Subject', 'Period', 'Room', 'Students', 'Avg Score', 'Completion %', 'Trend']
-              const rows = classes.map(c => [c.name, c.subject, c.period, c.room, c.students, c.avgScore, c.completion, c.trend])
+              const rows = classList.map(c => [c.name, c.subject, c.period, c.room, c.students, c.avgScore, c.completion, c.trend])
               const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n')
               const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'classroom-data.csv'; a.click(); URL.revokeObjectURL(a.href)
               showToast('Classroom data exported!')
@@ -321,7 +329,7 @@ export default function ClassroomPage() {
               whileTap={{ scale: 0.97 }}
               onClick={() => {
                 if (tab === 'announcements') setAnnouncementModal(true)
-                else showToast(tab === 'classes' ? 'New class form coming soon' : 'New student form coming soon')
+                else if (tab === 'classes') setAddClassModal(true); else setAddStudentModal(true)
               }}
             >
               <Plus className="w-3.5 h-3.5" />
@@ -339,7 +347,7 @@ export default function ClassroomPage() {
               {/* Class cards */}
               <div className="lg:col-span-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {classes.map((cls, i) => (
+                  {classList.map((cls, i) => (
                     <motion.div
                       key={cls.name}
                       className="glass-card overflow-hidden cursor-pointer group"
@@ -451,7 +459,7 @@ export default function ClassroomPage() {
                                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Message sent to ${cls.students} students in ${cls.name}`) }}>
                                   <Mail className="w-3 h-3" /> Message
                                 </button>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Opening analytics for ${cls.name}`) }}>
+                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/analytics') }}>
                                   <BarChart2 className="w-3 h-3" /> Analytics
                                 </button>
                               </div>
@@ -499,7 +507,7 @@ export default function ClassroomPage() {
                       <Calendar className="w-4 h-4 text-neon-400" /> Today&apos;s Schedule
                     </h4>
                     <div className="space-y-2.5">
-                      {classes.map((cls, i) => (
+                      {classList.map((cls, i) => (
                         <div key={cls.name} className="flex items-center gap-3">
                           <div className="w-1.5 h-8 rounded-full flex-shrink-0" style={{ backgroundColor: cls.color }} />
                           <div className="flex-1 min-w-0">
@@ -521,19 +529,19 @@ export default function ClassroomPage() {
                     {(() => {
                       const W = 240, ROW = 18, GAP = 5, LW = 0, CW = 28
                       const BAR_MAX = W - CW - 6
-                      const maxScore = Math.max(...classes.map(c => c.avgScore))
-                      const H = classes.length * (ROW + GAP)
+                      const maxScore = Math.max(...classList.map(c => c.avgScore))
+                      const H = classList.length * (ROW + GAP)
                       return (
                         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: H }}>
                           <defs>
-                            {classes.map(c => (
+                            {classList.map(c => (
                               <linearGradient key={c.name} id={`cls-bar-${c.name.replace(/\s/g,'')}`} x1="0" y1="0" x2="1" y2="0">
                                 <stop offset="0%" stopColor={c.color} stopOpacity="0.9" />
                                 <stop offset="100%" stopColor={c.color} stopOpacity="0.45" />
                               </linearGradient>
                             ))}
                           </defs>
-                          {classes.map((c, i) => {
+                          {classList.map((c, i) => {
                             const y = i * (ROW + GAP)
                             const bw = (c.avgScore / maxScore) * BAR_MAX
                             const gid = `cls-bar-${c.name.replace(/\s/g,'')}`
@@ -860,6 +868,99 @@ export default function ClassroomPage() {
                 <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { const newAnn = { id: String(Date.now()), ...composeAnn, date: 'Just now', sent: true, views: 0 }; setAnnList(prev => [newAnn, ...prev]); showToast(`Announcement sent to ${composeAnn.class}`); setAnnouncementModal(false); setComposeAnn({ title: '', body: '', class: 'All Classes', urgent: false }); setAnnSchedule('') }}>
                   <Send className="w-3.5 h-3.5" /> Send Now
                 </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Class Modal */}
+      <AnimatePresence>
+        {addClassModal && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAddClassModal(false)} />
+            <motion.div className="relative glass-card p-6 w-full max-w-md z-10" initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}>
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-bold text-white">Add New Class</h3>
+                <button onClick={() => setAddClassModal(false)} className="text-surface-400 hover:text-white p-1"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-surface-300 mb-1.5">Class Name</label>
+                  <input type="text" placeholder="e.g. 11th Grade Biology" value={newClass.name} onChange={e => setNewClass(c => ({ ...c, name: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-surface-300 mb-1.5">Subject</label>
+                  <input type="text" placeholder="e.g. Advanced Biology" value={newClass.subject} onChange={e => setNewClass(c => ({ ...c, subject: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-surface-300 mb-1.5">Period</label>
+                    <input type="text" placeholder="e.g. 2nd Period" value={newClass.period} onChange={e => setNewClass(c => ({ ...c, period: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-surface-300 mb-1.5">Room</label>
+                    <input type="text" placeholder="e.g. Rm 101" value={newClass.room} onChange={e => setNewClass(c => ({ ...c, room: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button className="btn-secondary text-xs flex-1" onClick={() => setAddClassModal(false)}>Cancel</button>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => {
+                  if (!newClass.name.trim()) { showToast('Enter a class name'); return }
+                  const colors = ['#8b5cf6','#f97316','#14b8a6','#f43f5e','#6366f1']
+                  const added: ClassRecord = { name: newClass.name, subject: newClass.subject || 'General', period: newClass.period || '—', room: newClass.room || '—', students: 0, lessons: 0, color: colors[classList.length % colors.length], avgScore: 0, trend: 'up', pending: 0, nextClass: 'TBD', completion: 0 }
+                  setClassList(prev => [...prev, added])
+                  showToast('Class added!')
+                  setAddClassModal(false)
+                  setNewClass({ name: '', subject: '', period: '', room: '' })
+                }}>Add Class</motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Student Modal */}
+      <AnimatePresence>
+        {addStudentModal && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAddStudentModal(false)} />
+            <motion.div className="relative glass-card p-6 w-full max-w-md z-10" initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}>
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-bold text-white">Add New Student</h3>
+                <button onClick={() => setAddStudentModal(false)} className="text-surface-400 hover:text-white p-1"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-surface-300 mb-1.5">Student Name</label>
+                  <input type="text" placeholder="e.g. Jordan Smith" value={newStudent.name} onChange={e => setNewStudent(s => ({ ...s, name: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-surface-300 mb-1.5">Grade</label>
+                    <select value={newStudent.grade} onChange={e => setNewStudent(s => ({ ...s, grade: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                      {['6th','7th','8th','9th','10th','11th','12th'].map(g => <option key={g} value={g} className="bg-surface-900">{g}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-surface-300 mb-1.5">Class</label>
+                    <select value={newStudent.class} onChange={e => setNewStudent(s => ({ ...s, class: e.target.value }))} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none">
+                      {classList.map(c => <option key={c.name} value={c.subject.split(' ')[0]} className="bg-surface-900">{c.name}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button className="btn-secondary text-xs flex-1" onClick={() => setAddStudentModal(false)}>Cancel</button>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => {
+                  if (!newStudent.name.trim()) { showToast('Enter a student name'); return }
+                  const added: StudentRecord = { name: newStudent.name, grade: newStudent.grade, class: newStudent.class, avg: 0, status: 'active', streak: 0, lastActive: 'Just now', awards: 0, attendance: 100, iep: false, ell: false }
+                  setStudentList(prev => [...prev, added])
+                  showToast('Student added!')
+                  setAddStudentModal(false)
+                  setNewStudent({ name: '', grade: '7th', class: 'Science' })
+                }}>Add Student</motion.button>
               </div>
             </motion.div>
           </motion.div>

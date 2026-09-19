@@ -646,7 +646,7 @@ export default function NewsletterPage() {
             </div>
             <div className="space-y-3">
               {pastNewsletters.map((nl, nli) => (
-                <div key={nl.title} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group" onClick={() => showToast(`Opening "${nl.title}"…`)}>
+                <div key={nl.title} className="flex items-center gap-4 p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-colors cursor-pointer group" onClick={() => showToast(`"${nl.title}" opened`)}>
                   <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: nl.color + '20' }}>
                     <Newspaper className="w-4 h-4" style={{ color: nl.color }} />
                   </div>

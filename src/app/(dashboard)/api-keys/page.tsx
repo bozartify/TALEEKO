@@ -134,6 +134,9 @@ export default function ApiKeysPage() {
   const [selectedPerms, setSelectedPerms] = useState<string[]>(['read:students'])
   const [selectedExpiry, setSelectedExpiry] = useState('Never')
   const [toastMsg, setToastMsg] = useState('')
+  const [addWebhookOpen, setAddWebhookOpen] = useState(false)
+  const [webhookList, setWebhookList] = useState(webhooks)
+  const [newWebhookUrl, setNewWebhookUrl] = useState('')
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -372,7 +375,7 @@ export default function ApiKeysPage() {
                     <span className="text-xs font-bold text-white block mb-0.5">Security Best Practices</span>
                     <p className="text-xs text-surface-400 leading-relaxed">Rotate API keys every 90 days. Never expose production keys in client-side code. Use environment-specific keys and restrict permissions to the minimum required scope.</p>
                   </div>
-                  <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold flex-shrink-0" onClick={() => showToast('Security guide opened')}>Learn More</button>
+                  <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold flex-shrink-0" onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}>Learn More</button>
                 </div>
               </div>
             </FadeInWhenVisible>
@@ -384,12 +387,12 @@ export default function ApiKeysPage() {
           <motion.div key="webhooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Webhook Endpoints</h3>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Webhook form opened')}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setAddWebhookOpen(true)}>
                 <Plus className="w-3.5 h-3.5" /> Add Webhook
               </motion.button>
             </div>
             <div className="space-y-3">
-              {webhooks.map((webhook, i) => (
+              {webhookList.map((webhook, i) => (
                 <motion.div
                   key={webhook.id}
                   className="glass-card p-5"
@@ -421,10 +424,10 @@ export default function ApiKeysPage() {
                       <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" title="Test webhook" onClick={() => showToast('Test event sent to webhook')}>
                         <Zap className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast('Webhook settings opened')}>
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => { setWebhookList(prev => prev.map(w => w.id === webhook.id ? { ...w, status: w.status === 'active' ? 'inactive' as const : 'active' as const } : w)); showToast(webhook.status === 'active' ? 'Webhook paused' : 'Webhook enabled') }}>
                         <Settings className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => showToast('Webhook URL copied')}>
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => { navigator.clipboard?.writeText(webhook.url).catch(() => {}); showToast('Webhook URL copied') }}>
                         <Copy className="w-3.5 h-3.5" />
                       </button>
                       <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast('Webhook deleted')}>
@@ -587,7 +590,7 @@ export default function ApiKeysPage() {
           <motion.div key="oauth" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">OAuth Integrations</h3>
-              <button onClick={() => showToast('Opening app directory…')} className="btn-secondary text-xs px-3 py-1.5"><Search className="w-3.5 h-3.5" /> Browse Apps</button>
+              <button onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')} className="btn-secondary text-xs px-3 py-1.5"><Search className="w-3.5 h-3.5" /> Browse Apps</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {oauthApps.map((app, i) => (
@@ -641,7 +644,7 @@ export default function ApiKeysPage() {
                       <p className="text-xs text-surface-400">Explore endpoints, authentication guides, and code examples.</p>
                     </div>
                   </div>
-                  <motion.button onClick={() => showToast('Opening API documentation…')} className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.button onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')} className="btn-secondary text-xs px-4 py-1.5 flex-shrink-0" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                     View Docs <ChevronRight className="w-3 h-3" />
                   </motion.button>
                 </div>
@@ -721,6 +724,38 @@ export default function ApiKeysPage() {
                 >
                   <Key className="w-3.5 h-3.5" /> Generate Key
                 </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Add Webhook Modal */}
+      <AnimatePresence>
+        {addWebhookOpen && (
+          <motion.div className="fixed inset-0 z-50 flex items-center justify-center p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setAddWebhookOpen(false)} />
+            <motion.div className="relative glass-card p-6 w-full max-w-md z-10" initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.92, opacity: 0 }}>
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-base font-bold text-white flex items-center gap-2"><Globe className="w-4 h-4 text-accent-400" /> Add Webhook</h3>
+                <button onClick={() => setAddWebhookOpen(false)} className="text-surface-400 hover:text-white p-1"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-surface-300 mb-1.5">Endpoint URL</label>
+                  <input type="url" placeholder="https://your-server.com/webhook" value={newWebhookUrl} onChange={e => setNewWebhookUrl(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500" />
+                </div>
+              </div>
+              <div className="flex items-center gap-3 mt-6">
+                <button className="btn-secondary text-xs flex-1" onClick={() => setAddWebhookOpen(false)}>Cancel</button>
+                <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => {
+                  if (!newWebhookUrl.trim()) { showToast('Enter a webhook URL'); return }
+                  const added = { id: `wh-${Date.now()}`, url: newWebhookUrl, events: ['assignment.created'], status: 'active' as const, deliveries: 0, lastDelivery: 'Never' }
+                  setWebhookList(prev => [...prev, added])
+                  showToast('Webhook added!')
+                  setAddWebhookOpen(false)
+                  setNewWebhookUrl('')
+                }}>Add Webhook</motion.button>
               </div>
             </motion.div>
           </motion.div>

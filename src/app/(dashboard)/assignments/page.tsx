@@ -1,5 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ClipboardList, Plus, Sparkles, Search, Filter, Calendar, Clock,
@@ -164,6 +165,7 @@ const TYPE_COLORS: Record<string, string> = {
 }
 
 export default function AssignmentsPage() {
+  const router = useRouter()
   const [assignments, setAssignments] = useState<Assignment[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -294,11 +296,11 @@ export default function AssignmentsPage() {
               <motion.button
                 className="btn-gradient text-xs"
                 whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('AI Create launched')}
+                onClick={() => router.push('/quiz-builder')}
               >
                 <Sparkles className="w-3.5 h-3.5" /> AI Create
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Schedule view opened')}><Calendar className="w-3.5 h-3.5" /> Schedule</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/calendar')}><Calendar className="w-3.5 h-3.5" /> Schedule</button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}><Download className="w-3.5 h-3.5" /> Export CSV</button>
               <motion.button
                 className="btn-secondary text-xs px-3 py-1.5"
@@ -522,7 +524,7 @@ export default function AssignmentsPage() {
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-surface-500">{filtered.length} assignment{filtered.length !== 1 ? 's' : ''} shown</span>
-        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Advanced filter opened')}>
+        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setSearch(''); setTypeFilter('all'); setStatusFilter('all'); setClassFilter('all'); showToast('Filters cleared') }}>
           <Filter className="w-3 h-3" /> Advanced Filter
         </button>
       </div>
@@ -724,13 +726,13 @@ export default function AssignmentsPage() {
                         )}
 
                         <div className="flex items-center gap-2 flex-wrap">
-                          <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast('Opening submissions')}>
+                          <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => router.push('/gradebook')}>
                             <Eye className="w-3 h-3" /> View Submissions
                           </motion.button>
-                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Editing assignment')}><Edit3 className="w-3 h-3" /> Edit</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Assignment duplicated')}><Copy className="w-3 h-3" /> Duplicate</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening analytics')}><BarChart2 className="w-3 h-3" /> Analytics</button>
-                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening feedback tools')}><MessageSquare className="w-3 h-3" /> Feedback</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setExpandedId(null); setCreateOpen(true) }}><Edit3 className="w-3 h-3" /> Edit</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { const dup = { ...assignment, id: String(Date.now()), title: assignment.title + ' (Copy)', status: 'upcoming' as const }; setAssignments(prev => [dup, ...prev]); showToast(`"${assignment.title}" duplicated`) }}><Copy className="w-3 h-3" /> Duplicate</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/assessment-center')}><BarChart2 className="w-3 h-3" /> Analytics</button>
+                          <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/feedback-writer')}><MessageSquare className="w-3 h-3" /> Feedback</button>
                           {assignment.status === 'active' && (
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Reminder sent to missing students')}><Bell className="w-3 h-3" /> Remind</button>
                           )}
@@ -895,7 +897,7 @@ export default function AssignmentsPage() {
                 ))}
             </div>
             <div className="mt-4 pt-3 border-t border-white/[0.06]">
-              <button className="w-full text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors text-center" onClick={() => showToast('Opening full calendar view')}>
+              <button className="w-full text-xs font-semibold text-accent-400 hover:text-accent-300 transition-colors text-center" onClick={() => router.push('/calendar')}>
                 View Full Calendar →
               </button>
             </div>
@@ -941,9 +943,9 @@ export default function AssignmentsPage() {
                 ))}
               </div>
               <div className="flex gap-2 mt-4">
-                <button className="btn-gradient text-xs flex-1" onClick={() => showToast('AI improving rubric…')}><Sparkles className="w-3 h-3" /> AI Improve</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Exporting rubric')}><Download className="w-3 h-3" /> Export</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Editing rubric')}><Edit3 className="w-3 h-3" /> Edit</button>
+                <button className="btn-gradient text-xs flex-1" onClick={() => router.push('/rubrics')}><Sparkles className="w-3 h-3" /> AI Improve</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { window.print(); showToast('Printing rubric…') }}><Download className="w-3 h-3" /> Export</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => router.push('/rubrics')}><Edit3 className="w-3 h-3" /> Edit</button>
               </div>
             </motion.div>
           </motion.div>

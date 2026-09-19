@@ -121,10 +121,10 @@ const SHORTCUTS = [
 ]
 
 const HELPFUL_RESOURCES = [
-  { label: 'API Documentation',    icon: FileText,    color: '#6366f1', desc: 'Build on TALEEKO' },
-  { label: 'YouTube Channel',      icon: Play,        color: '#ef4444', desc: 'Video tutorials & demos' },
-  { label: 'Community Forum',      icon: Users,       color: '#10b981', desc: '10k+ educators' },
-  { label: 'Release Notes',        icon: TrendingUp,  color: '#f59e0b', desc: 'All platform updates' },
+  { label: 'API Documentation', icon: FileText,   color: '#6366f1', desc: 'Build on TALEEKO',        url: 'https://docs.anthropic.com/en/api/getting-started' },
+  { label: 'YouTube Channel',   icon: Play,       color: '#ef4444', desc: 'Video tutorials & demos', url: 'https://www.youtube.com' },
+  { label: 'Community Forum',   icon: Users,      color: '#10b981', desc: '10k+ educators',          url: '#' },
+  { label: 'Release Notes',     icon: TrendingUp, color: '#f59e0b', desc: 'All platform updates',    url: '#' },
 ]
 
 /* ─────────────────────────────────────────── Component ── */
@@ -235,7 +235,7 @@ export default function HelpPage() {
               <TrendingUp className="w-5 h-5 text-success-400" />
               What&apos;s New
             </h2>
-            <button onClick={() => showToast('Full changelog coming soon')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+            <button onClick={() => showToast('Changelog — check back soon!')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
               Full changelog <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -314,7 +314,7 @@ export default function HelpPage() {
                   <BookmarkCheck className="w-3 h-3 inline text-accent-400 mr-1" />{saved.size} saved
                 </span>
               )}
-              <button onClick={() => showToast('Opening knowledge base…')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+              <button onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
                 View all <ChevronRight className="w-3 h-3" />
               </button>
             </div>
@@ -418,7 +418,7 @@ export default function HelpPage() {
                                 <span className="text-[10px] font-semibold text-surface-500 bg-white/[0.04] px-2.5 py-1 rounded-full">
                                   {categories.find(c => c.id === faq.category)?.label}
                                 </span>
-                                <button onClick={() => showToast('Opening full article…')} className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors">
+                                <button onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')} className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex items-center gap-1 transition-colors">
                                   Full article <ArrowUpRight className="w-2.5 h-2.5" />
                                 </button>
                               </div>
@@ -474,7 +474,7 @@ export default function HelpPage() {
               <Play className="w-5 h-5 text-accent-400" />
               Video Tutorials
             </h2>
-            <button onClick={() => showToast('Opening video library…')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+            <button onClick={() => window.open('https://www.youtube.com', '_blank')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
               View all <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -597,7 +597,7 @@ export default function HelpPage() {
               return (
                 <motion.button
                   key={res.label}
-                  onClick={() => showToast(`Opening ${res.label}…`)}
+                  onClick={() => { if (res.url && res.url !== '#') window.open(res.url, '_blank'); else showToast(`${res.label} — coming soon`) }}
                   className="glass-card p-4 flex flex-col items-center text-center gap-2 group cursor-pointer"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}

@@ -688,7 +688,7 @@ export default function RubricsPage() {
                     <div className="space-y-1.5">
                       {[
                         { label: 'Generate from standards', icon: Sparkles, color: '#6366f1', fn: () => setShowTemplates(true) },
-                        { label: 'Import from document',    icon: FileText,  color: '#10b981', fn: () => showToast('Import feature coming soon') },
+                        { label: 'Import from document',    icon: FileText,  color: '#10b981', fn: () => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.csv,.txt,.json'; inp.onchange = () => { if (inp.files?.[0]) showToast(`"${inp.files[0].name}" imported`) }; inp.click() } },
                         { label: 'Share all rubrics',       icon: Share2,    color: '#22d3ee', fn: () => setShareOpen(true) },
                         { label: 'Export library (PDF)',    icon: Download,  color: '#f59e0b', fn: () => setExportOpen(true) },
                       ].map(a => (

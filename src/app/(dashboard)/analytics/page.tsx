@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   TrendingUp, BookOpen, Users, Clock, BarChart2, Star, Target, Zap,
@@ -159,6 +160,7 @@ const languageUsage = [
 /* ------------------------------------------------------------------ */
 
 export default function AnalyticsPage() {
+  const router = useRouter()
   const [range, setRange] = useState<TimeRange>('month')
   const [toastMsg, setToastMsg] = useState('')
   const [dynamicInsights, setDynamicInsights] = useState<string[]>([])
@@ -743,7 +745,7 @@ export default function AnalyticsPage() {
             <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
               <PieChart className="w-4 h-4 text-accent-400" /> Content Performance
             </h3>
-            <button onClick={() => showToast('Opening content performance report…')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1">
+            <button onClick={() => router.push('/reports')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1">
               View all <ChevronRight className="w-3 h-3" />
             </button>
           </div>

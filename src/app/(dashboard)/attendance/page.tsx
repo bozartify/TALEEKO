@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   CheckSquare, Check, X, Clock, Circle, ChevronLeft, ChevronRight,
@@ -86,6 +87,7 @@ function getWeekDates(offset: number) {
 }
 
 export default function AttendancePage() {
+  const router = useRouter()
   const [selectedClass, setSelectedClass] = useState(classes[0])
   const [selectedPeriod, setSelectedPeriod] = useState(periods[0])
   const [weekOffset, setWeekOffset] = useState(0)
@@ -340,7 +342,7 @@ export default function AttendancePage() {
                         Class attendance has dipped from 96% (Week 1) to {attendanceRate}% this week — a 4-point decline. Monday and Wednesday show the highest absence rates.
                       </p>
                     </div>
-                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 flex-shrink-0" onClick={() => showToast('Opening attendance trend report…')}>View →</button>
+                    <button className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 flex-shrink-0" onClick={() => router.push('/reports')}>View →</button>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-accent-400/[0.08] border border-accent-400/15">
                     <Award className="w-4 h-4 text-accent-400 flex-shrink-0 mt-0.5" />

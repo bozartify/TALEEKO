@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Eye, BookOpen, Calendar, MessageSquare, Star, TrendingUp,
@@ -153,6 +154,7 @@ function getGradeColor(grade: string): string {
    ───────────────────────────────────────────────────────── */
 
 export default function ParentPortalPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('overview')
   const [aiOpen, setAiOpen] = useState(true)
   const [shareOpen, setShareOpen] = useState(false)
@@ -381,7 +383,7 @@ export default function ParentPortalPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => showToast('Opening email to teacher…')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => { window.location.href = 'mailto:teacher@school.edu'; showToast('Opening email…') }}>
                 <Mail className="w-3.5 h-3.5" /> Email Teacher
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => showToast('School phone: (555) 867-5309')}>
@@ -460,7 +462,7 @@ export default function ParentPortalPage() {
                     <TrendingUp className="w-4 h-4 text-violet-400" />
                     Recent Grades
                   </h4>
-                  <button onClick={() => showToast('Opening full gradebook…')} className="text-[11px] text-violet-400 flex items-center gap-1">
+                  <button onClick={() => router.push('/gradebook')} className="text-[11px] text-violet-400 flex items-center gap-1">
                     View All <ExternalLink className="w-3 h-3" />
                   </button>
                 </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -84,6 +85,7 @@ const ENGAGEMENT_DATA = [68, 74, 79, 82, 88, 89, 91, 94]
 const ENGAGE_LABELS = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Now']
 
 export default function GameBuilderPage() {
+  const router = useRouter()
   const [selectedType, setSelectedType] = useState<GameType>('quiz-race')
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [title, setTitle] = useState('Photosynthesis & Cell Division Quiz Race')
@@ -802,7 +804,7 @@ export default function GameBuilderPage() {
             <div className="glass-card p-4">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-xs font-semibold text-surface-400 uppercase tracking-wider">Recent Games</h3>
-                <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Opening game library')}>All →</button>
+                <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => router.push('/library')}>All →</button>
               </div>
               <div className="space-y-2">
                 {recentGames.map(game => {

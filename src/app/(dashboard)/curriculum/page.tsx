@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Map, Plus, ChevronDown, Calendar, Target,
@@ -231,6 +232,7 @@ const standardsCoverage = [
 ]
 
 export default function CurriculumPage() {
+  const router = useRouter()
   const [units, setUnits] = useState<Unit[]>(initialUnits)
   const [expandedUnit, setExpandedUnit] = useState<string | null>('2')
   const [view, setView] = useState<ViewMode>('list')
@@ -703,7 +705,7 @@ export default function CurriculumPage() {
                               {generatingId === unit.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> Generate Lessons</>}
                             </motion.button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${unit.title}"…`)}><Eye className="w-3 h-3" /> Preview</button>
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Opening "${unit.title}" in editor…`)}><Edit3 className="w-3 h-3" /> Edit</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/unit-planner')}><Edit3 className="w-3 h-3" /> Edit</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => duplicateUnit(unit)}><Copy className="w-3 h-3" /> Duplicate</button>
                             <button className="btn-secondary text-xs px-3 py-1.5 ml-auto text-danger-400 hover:bg-danger-400/10" onClick={() => deleteUnit(unit.id)}>
                               <X className="w-3 h-3" />

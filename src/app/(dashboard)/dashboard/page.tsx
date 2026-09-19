@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useState } from 'react'
 import {
@@ -142,6 +143,7 @@ const achievements = [
 type DashTab = 'overview' | 'classes' | 'alerts'
 
 export default function DashboardPage() {
+  const router = useRouter()
   const maxActivity = Math.max(...weeklyActivity.map(d => d.value))
   const greeting = getGreeting()
   const [activeTab, setActiveTab] = useState<DashTab>('overview')
@@ -356,7 +358,7 @@ export default function DashboardPage() {
                           }`}>
                             {lesson.status}
                           </span>
-                          <button className="p-1.5 rounded-lg text-surface-500 hover:text-surface-200 hover:bg-white/[0.06] transition-colors" onClick={() => showToast(`Opening "${lesson.title}"`)}>
+                          <button className="p-1.5 rounded-lg text-surface-500 hover:text-surface-200 hover:bg-white/[0.06] transition-colors" onClick={() => router.push('/lesson-planner')}>
                             <Eye className="w-3.5 h-3.5" />
                           </button>
                         </div>

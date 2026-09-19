@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FlaskConical, Sparkles, RefreshCw, ChevronDown, BookOpen, Target, Clock, Brain,
@@ -197,6 +198,7 @@ const quickActions = [
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export default function FiveELessonPage() {
+  const router = useRouter()
   const [expandedPhase, setExpandedPhase] = useState<string | null>('engage')
   const [generatingPhase, setGeneratingPhase] = useState<string | null>(null)
   const [generatingAll, setGeneratingAll] = useState(false)
@@ -357,7 +359,7 @@ Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...
                 className="btn-secondary text-xs"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => showToast('New plan created!')}
+                onClick={() => { setContents(sampleContent); showToast('New blank plan started!') }}
               >
                 <Plus className="w-3.5 h-3.5" />
                 New Plan
@@ -685,7 +687,7 @@ Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...
                     <p className="text-[11px] text-surface-400 leading-relaxed">{std.desc}</p>
                   </motion.div>
                 ))}
-                <button onClick={() => showToast('Opening standards browser…')} className="w-full text-[11px] text-teal-400 hover:text-teal-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
+                <button onClick={() => router.push('/standards')} className="w-full text-[11px] text-teal-400 hover:text-teal-300 py-1.5 transition-colors flex items-center justify-center gap-1.5">
                   <Plus className="w-3 h-3" />
                   Add standard
                 </button>
@@ -830,7 +832,7 @@ Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent 5E Lessons</h3>
-            <button className="text-xs text-teal-400 hover:text-teal-300 transition-colors" onClick={() => showToast('Loading all 5E lessons…')}>
+            <button className="text-xs text-teal-400 hover:text-teal-300 transition-colors" onClick={() => router.push('/library')}>
               View All
             </button>
           </div>

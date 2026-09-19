@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, ClipboardList, FileText, Zap, BarChart2, Sparkles,
@@ -134,6 +135,7 @@ const INITIAL_COLLECTIONS: Collection[] = [
 type SortMode = 'category' | 'popular' | 'favorites'
 
 export default function WorkspacePage() {
+  const router = useRouter()
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortMode>('category')
   const [favorites, setFavorites] = useState<Set<string>>(() => {
@@ -496,7 +498,7 @@ export default function WorkspacePage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Recently Used</h3>
-            <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('Loading full history…')}>View History</button>
+            <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('History — last 30 days shown above')}>View History</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {recentlyUsed.map((tool, i) => (
@@ -629,7 +631,7 @@ export default function WorkspacePage() {
         <div>
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-base font-bold text-white">Recent Creations</h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Opening library…')}>View Library →</button>
+            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => router.push('/library')}>View Library →</button>
           </div>
           <div className="glass-card overflow-hidden">
             <div className="overflow-x-auto">
@@ -667,7 +669,7 @@ export default function WorkspacePage() {
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => showToast(`Previewing "${item.title}"`)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => showToast(`Downloading "${item.title}"…`)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => { window.print(); showToast(`Downloading "${item.title}"…`) }} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
                           <button
                             className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
                             onClick={() => showToast(`Shared "${item.title}"`)}
