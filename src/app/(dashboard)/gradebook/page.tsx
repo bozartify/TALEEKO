@@ -1,5 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, ChevronDown, Download, Filter, Plus, Search,
@@ -108,6 +109,7 @@ function getOverallPct(scores: (number | null)[]): number {
 }
 
 export default function GradebookPage() {
+  const router = useRouter()
   const [selectedClass, setSelectedClass] = useState('All Classes')
   const [search, setSearch] = useState('')
   const [showInsights, setShowInsights] = useState(true)
@@ -576,7 +578,12 @@ export default function GradebookPage() {
                         className="text-[10px] font-semibold flex items-center gap-1"
                         style={{ color: insight.color }}
                         whileHover={{ x: 2 }}
-                        onClick={() => showToast(`${insight.action}…`)}
+                        onClick={() => {
+                          if (insight.action.includes('Intervention')) router.push('/intervention-tracker')
+                          else if (insight.action.includes('Lesson') || insight.action.includes('Review')) router.push('/lesson-planner')
+                          else if (insight.action.includes('Enrichment')) router.push('/library')
+                          else showToast(`${insight.action}…`)
+                        }}
                       >
                         {insight.action} <ChevronRight className="w-2.5 h-2.5" />
                       </motion.button>

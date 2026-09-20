@@ -672,7 +672,7 @@ export default function WorkspacePage() {
                           <button onClick={() => { window.print(); showToast(`Downloading "${item.title}"…`) }} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
                           <button
                             className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
-                            onClick={() => showToast(`Shared "${item.title}"`)}
+                            onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/library?title=${encodeURIComponent(item.title)}`).catch(() => {}); showToast(`Link copied for "${item.title}"`) }}
                           >
                             <Share2 className="w-3.5 h-3.5" />
                           </button>

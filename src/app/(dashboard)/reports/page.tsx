@@ -693,7 +693,16 @@ export default function ReportsPage() {
                             key={q.label}
                             className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                             initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                            onClick={() => showToast(`Generating: ${q.label}…`)}
+                            onClick={() => {
+                              const map: Record<string, string> = {
+                                'Student Progress Summary': 'progress', 'Class Performance': 'class',
+                                'Curriculum Pacing': 'curriculum', 'Engagement Heatmap': 'engagement',
+                                'Assessment Analytics': 'assessment', 'AI Tools ROI': 'ai-usage',
+                              }
+                              const id = map[q.label] ?? 'progress'
+                              setSelectedReport(id as any); setActiveTab('generate')
+                              window.scrollTo({ top: 0, behavior: 'smooth' })
+                            }}
                           >
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: q.color + '18' }}>
                               <q.icon className="w-3.5 h-3.5" style={{ color: q.color }} />

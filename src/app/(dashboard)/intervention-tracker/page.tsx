@@ -1175,7 +1175,7 @@ export default function InterventionTrackerPage() {
                             <motion.button
                               className="btn-secondary text-[10px] px-3 py-1.5"
                               whileHover={{ scale: 1.02 }}
-                              onClick={() => showToast(`Opened ${entry.student}'s full profile!`)}
+                              onClick={() => router.push('/students')}
                             >
                               <Eye className="w-3 h-3" /> View Profile
                             </motion.button>

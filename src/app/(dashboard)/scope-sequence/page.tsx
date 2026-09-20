@@ -874,7 +874,11 @@ export default function ScopeSequencePage() {
                     <BookOpen className="w-4 h-4" /> Open Lesson Planner
                   </button>
                   <button
-                    onClick={() => showToast('Unit copied to clipboard')}
+                    onClick={() => {
+                      const text = `Unit: ${selectedUnit?.title}\nSubject: ${selectedUnit?.subject}\nQuarter: ${selectedUnit?.quarter}\nWeeks: ${selectedUnit?.weeks}\nStandards: ${(selectedUnit as any)?.standards?.join(', ') ?? ''}`
+                      navigator.clipboard?.writeText(text).catch(() => {})
+                      showToast('Unit copied to clipboard!')
+                    }}
                     className="btn-secondary w-full justify-center text-sm"
                   >
                     <Copy className="w-4 h-4" /> Copy Unit

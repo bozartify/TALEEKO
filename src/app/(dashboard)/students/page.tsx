@@ -316,7 +316,12 @@ export default function StudentsPage() {
                         <button
                           className="text-[10px] font-semibold px-2 py-1 rounded-lg"
                           style={{ backgroundColor: insight.color + '20', color: insight.color }}
-                          onClick={() => showToast(`${insight.cta} — generating now...`)}
+                          onClick={() => {
+                            if (insight.cta === 'Contact Parent') router.push('/communication')
+                            else if (insight.cta === 'Generate Resources') router.push('/library')
+                            else if (insight.cta === 'Create Action Plan') router.push('/intervention-tracker')
+                            else showToast(`${insight.cta}…`)
+                          }}
                         >
                           {insight.cta} →
                         </button>

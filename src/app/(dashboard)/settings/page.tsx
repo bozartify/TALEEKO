@@ -610,7 +610,13 @@ export default function SettingsPage() {
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.06 }}
-                          onClick={() => showToast(`${exp.label} started — file will download shortly`)}
+                          onClick={() => {
+                            const data = exp.label.includes('CSV') || exp.label.includes('Analytics')
+                              ? { content: `"Date","Metric","Value"\n"${new Date().toISOString().slice(0,10)}","Export","demo"`, type: 'text/csv', ext: 'csv' }
+                              : { content: JSON.stringify({ exported: new Date().toISOString(), label: exp.label, note: 'Demo export from TALEEKO' }, null, 2), type: 'application/json', ext: 'json' }
+                            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data.content], { type: data.type })); a.download = `taleeko-${exp.label.toLowerCase().replace(/\s+/g,'-')}.${data.ext}`; a.click(); URL.revokeObjectURL(a.href)
+                            showToast(`${exp.label} downloaded!`)
+                          }}
                         >
                           <div className="icon-bubble bg-accent-400/15 text-accent-400 flex-shrink-0">
                             <exp.icon className="w-4 h-4" />

@@ -1,5 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Shield, Search, ChevronDown, BookOpen, Check,
@@ -134,6 +135,7 @@ const difficultyConfig = {
 } as const
 
 export default function StandardsPage() {
+  const router = useRouter()
   const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('ccss')
   const [expandedDomains, setExpandedDomains] = useState<string[]>(['Reading: Literature'])
   const [search, setSearch] = useState('')
@@ -501,7 +503,7 @@ export default function StandardsPage() {
                       <p className="text-xs text-surface-400">{selectedFw.standards} standards · {selectedFw.aligned} aligned · {selectedFw.grades} · {selectedFw.description}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Filter panel opening…')}>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setFilterTab('gaps'); setViewMode('browser'); window.scrollTo({ top: 400, behavior: 'smooth' }) }}>
                         <Filter className="w-3 h-3" /> Filter
                       </button>
                       <motion.button
@@ -824,7 +826,7 @@ export default function StandardsPage() {
                               className="btn-gradient text-[10px] px-2 py-1"
                               whileHover={{ scale: 1.03 }}
                               whileTap={{ scale: 0.97 }}
-                              onClick={() => showToast(`Generating lesson for ${gap.standard}…`)}
+                              onClick={() => router.push(`/lesson-planner?standard=${encodeURIComponent(gap.standard)}`)}
                             >
                               <Sparkles className="w-2.5 h-2.5" /> Generate Lesson
                             </motion.button>

@@ -895,7 +895,7 @@ export default function AssessmentCenterPage() {
                     <Eye className="w-4 h-4" /> View Grades
                   </button>
                   <button
-                    onClick={() => showToast('Assessment duplicated')}
+                    onClick={() => { navigator.clipboard?.writeText(JSON.stringify(selectedAssessment, null, 2)).catch(() => {}); showToast(`"${selectedAssessment?.title}" copied — paste to duplicate`) }}
                     className="btn-secondary w-full justify-center text-sm"
                   >
                     <Copy className="w-4 h-4" /> Duplicate Assessment
