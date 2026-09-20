@@ -957,7 +957,7 @@ export default function RubricsPage() {
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:border-white/[0.1] text-left transition-all"
                     whileHover={{ x: 2 }}
-                    onClick={() => { setShareOpen(false); showToast(`${opt.label} — link sent!`) }}
+                    onClick={() => { if (opt.label.includes('Copy')) { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Link copied to clipboard!') } else if (opt.label.includes('Email')) { window.location.href = `mailto:?subject=Rubric&body=${encodeURIComponent(window.location.href)}`; showToast('Opening email client…') } else if (opt.label.includes('Collaborate')) { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Collaboration link copied!') } else { showToast(`${opt.label} — done!`) }; setShareOpen(false) }}
                   >
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: opt.color + '18' }}>
                       <opt.icon className="w-4 h-4" style={{ color: opt.color }} />

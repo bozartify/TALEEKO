@@ -656,7 +656,7 @@ export default function AccommodationsPage() {
                     }`}
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => action.label === 'Add Accommodation' ? setAddModal(true) : action.label === 'Export All Records' ? exportAccommodationsCSV() : showToast(action.toast)}
+                    onClick={() => { if (action.label === 'Add Accommodation') setAddModal(true); else if (action.label === 'Export All Records') exportAccommodationsCSV(); else if (action.label === 'Schedule IEP Meeting') setMeetingModal(studentList[0] ?? null); else if (action.label === 'Generate Progress Report') { window.print(); showToast('Printing progress report…') } else showToast(action.toast) }}
                   >
                     <action.icon className="w-3.5 h-3.5 flex-shrink-0" />
                     {action.label}

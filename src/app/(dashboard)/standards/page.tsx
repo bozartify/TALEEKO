@@ -149,6 +149,7 @@ export default function StandardsPage() {
   const [fillingGaps, setFillingGaps] = useState(false)
   const [gapFillText, setGapFillText] = useState('')
   const [aligningAll, setAligningAll] = useState(false)
+  const [showAlert, setShowAlert] = useState(true)
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
@@ -357,7 +358,7 @@ export default function StandardsPage() {
       </FadeUp>
 
       {/* AI Insight Banner */}
-      <FadeUp delay={0.08}>
+      {showAlert && <FadeUp delay={0.08}>
         <div className="glass-card p-4 border border-accent-500/20">
           <div className="flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)' }}>
@@ -373,16 +374,16 @@ export default function StandardsPage() {
                 <motion.button
                   className="text-xs text-accent-400 hover:text-accent-300 font-semibold"
                   whileHover={{ x: 2 }}
-                  onClick={() => showToast('Showing all AI suggestions…')}
+                  onClick={() => { setFilterTab('gaps'); setViewMode('browser'); window.scrollTo({ top: 400, behavior: 'smooth' }) }}
                 >
                   View all suggestions →
                 </motion.button>
-                <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('Suggestion dismissed')}>Dismiss</button>
+                <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => setShowAlert(false)}>Dismiss</button>
               </div>
             </div>
           </div>
         </div>
-      </FadeUp>
+      </FadeUp>}
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left: Framework selector */}
@@ -473,10 +474,10 @@ export default function StandardsPage() {
               <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={exportAlignmentCSV}>
                 <Download className="w-3.5 h-3.5 text-surface-400" /> Export alignment report
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Syncing with lesson plans…')}>
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => router.push('/lesson-planner')}>
                 <RefreshCw className="w-3.5 h-3.5 text-surface-400" /> Sync with lessons
               </button>
-              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => showToast('Comparing frameworks…')}>
+              <button className="w-full flex items-center gap-2 text-xs text-surface-400 hover:text-white px-2 py-1.5 rounded-lg hover:bg-white/[0.04] transition-colors" onClick={() => router.push('/scope-sequence')}>
                 <Globe className="w-3.5 h-3.5 text-surface-400" /> Compare frameworks
               </button>
             </div>

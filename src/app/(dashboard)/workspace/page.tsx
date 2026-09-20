@@ -498,7 +498,7 @@ export default function WorkspacePage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Recently Used</h3>
-            <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => showToast('History — last 30 days shown above')}>View History</button>
+            <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => router.push('/reports')}>View History</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {recentlyUsed.map((tool, i) => (
@@ -668,7 +668,7 @@ export default function WorkspacePage() {
                       </td>
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
-                          <button onClick={() => showToast(`Previewing "${item.title}"`)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => router.push('/library')} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
                           <button onClick={() => { window.print(); showToast(`Downloading "${item.title}"…`) }} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
                           <button
                             className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
@@ -783,7 +783,7 @@ export default function WorkspacePage() {
                 </div>
                 <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-1">
                   <button onClick={() => router.push('/library')} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Open</button>
-                  <button onClick={() => showToast(`Sharing "${col.name}"…`)} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
+                  <button onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/workspace?col=${col.id}`).catch(() => {}); showToast(`"${col.name}" link copied!`) }} className="flex-1 text-[10px] font-semibold text-surface-400 hover:text-white transition-colors py-1 rounded-lg hover:bg-white/[0.04]">Share</button>
                 </div>
               </motion.div>
             ))}

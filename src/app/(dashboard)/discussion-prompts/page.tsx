@@ -982,14 +982,14 @@ Return ONLY the JSON array, no other text.`
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Copy Link',              emoji: '🔗', desc: 'Share a read-only link',   toast: 'Link copied to clipboard' },
-                  { label: 'Email to Team',           emoji: '📧', desc: 'Send to colleagues',        toast: 'Email sent to team' },
-                  { label: 'Export as PDF',           emoji: '📄', desc: 'Student-ready handout',     toast: 'Exported as PDF' },
-                  { label: 'Post to Google Classroom',emoji: '🏫', desc: 'Push to active class',      toast: 'Posted to Google Classroom' },
+                  { label: 'Copy Link',              emoji: '🔗', desc: 'Share a read-only link',   fn: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Link copied to clipboard') } },
+                  { label: 'Email to Team',           emoji: '📧', desc: 'Send to colleagues',        fn: () => { window.location.href = `mailto:?subject=Discussion Prompt&body=${encodeURIComponent(window.location.href)}`; showToast('Opening email client…') } },
+                  { label: 'Export as PDF',           emoji: '📄', desc: 'Student-ready handout',     fn: () => { window.print(); showToast('Printing as PDF…') } },
+                  { label: 'Post to Google Classroom',emoji: '🏫', desc: 'Push to active class',      fn: () => { window.open('https://classroom.google.com', '_blank'); showToast('Opening Google Classroom…') } },
                 ].map(opt => (
                   <button
                     key={opt.label}
-                    onClick={() => { showToast(opt.toast); setShareOpen(false) }}
+                    onClick={() => { opt.fn(); setShareOpen(false) }}
                     className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] transition-all text-left"
                   >
                     <span className="text-xl">{opt.emoji}</span>

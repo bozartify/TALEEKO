@@ -726,7 +726,7 @@ export default function AssessmentCenterPage() {
                           else if (insight.action.includes('Writing') || insight.action.includes('Report')) router.push('/reports')
                           else if (insight.action.includes('Resource')) router.push('/library')
                           else if (insight.action.includes('Differentiation')) router.push('/differentiation')
-                          else showToast(insight.action)
+                          else router.push('/analytics')
                         }}
                         className="text-xs font-semibold flex items-center gap-1 transition-colors"
                         style={{ color: insight.color }}

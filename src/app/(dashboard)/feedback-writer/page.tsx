@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   MessageSquare, Sparkles, Copy, CheckCircle, RefreshCw, Download,
@@ -90,6 +91,12 @@ const SAMPLE_FEEDBACK: Record<string, Record<ToneOption, string>> = {
   },
 }
 
+const AI_ALERT_ROUTES: Record<string, string> = {
+  'Generate All Now': 'generate',
+  'Flag for Contact': 'communication',
+  'View ELL Tips': 'accommodations',
+}
+
 const AI_ALERTS = [
   {
     icon: AlertCircle,
@@ -128,6 +135,7 @@ const STATUS_CONFIG = {
    ───────────────────────────────────────────────────────── */
 
 export default function FeedbackWriterPage() {
+  const router = useRouter()
   const [selectedStudent, setSelectedStudent] = useState<Student>(STUDENTS[0])
   const [tone, setTone] = useState<ToneOption>('encouraging')
   const [length, setLength] = useState<LengthOption>('standard')
@@ -449,7 +457,7 @@ Write ONLY the comment, no preamble or formatting.`
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => showToast(`${alert.action}…`)}>
+                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => { const r = AI_ALERT_ROUTES[alert.action]; if (r === 'generate') handleGenerate(); else router.push('/' + r) }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -979,7 +987,18 @@ Write ONLY the comment, no preamble or formatting.`
                     className="px-3 py-2.5 rounded-xl text-xs font-medium bg-white/[0.04] hover:bg-teal-500/15 hover:text-teal-400 text-surface-300 transition-colors border border-white/[0.06] hover:border-teal-500/30 text-left"
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => { showToast(`Translating to ${lang}…`); setTranslateOpen(false) }}
+                    onClick={async () => {
+                      setTranslateOpen(false)
+                      const text = feedback
+                      if (!text) { showToast('Generate a comment first, then translate'); return }
+                      showToast(`Translating to ${lang}…`)
+                      try {
+                        const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: `Translate the following student comment to ${lang}. Return ONLY the translation, no preamble:\n\n${text}` }] }) })
+                        const reader = res.body?.getReader(); let out = ''; const dec = new TextDecoder()
+                        while (reader) { const { done, value } = await reader.read(); if (done) break; if (!value) continue; const chunk = dec.decode(value); for (const line of chunk.split('\n')) { if (!line.startsWith('data:')) continue; const d = line.slice(5).trim(); if (d === '[DONE]') break; try { const p = JSON.parse(d); if (p.type === 'text') out += p.text } catch {} } }
+                        if (out.trim()) { setAiFeedback(out.trim()); setGenerated(true); showToast(`Translated to ${lang}!`) }
+                      } catch { showToast('Translation failed — check connection') }
+                    }}
                   >
                     <Globe className="w-3 h-3 inline mr-1.5 opacity-60" />
                     {lang}
