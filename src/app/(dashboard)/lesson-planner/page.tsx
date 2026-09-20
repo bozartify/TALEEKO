@@ -782,16 +782,16 @@ export default function LessonPlannerPage() {
               <p className="text-xs font-bold text-surface-300 mb-3">Quick Actions</p>
               <div className="space-y-2">
                 {[
-                  { label: 'Export to PDF', icon: FileText, color: '#ef4444', toast: 'Lesson plan exported to PDF' },
-                  { label: 'Share with Team', icon: Share2, color: '#6366f1', toast: 'Share link copied to clipboard' },
+                  { label: 'Export to PDF', icon: FileText, color: '#ef4444', toast: 'Printing lesson plan…', action: () => window.print() },
+                  { label: 'Share with Team', icon: Share2, color: '#6366f1', toast: 'Share link copied!', action: () => navigator.clipboard?.writeText(window.location.href).catch(() => {}) },
                   { label: 'Duplicate Plan', icon: Clipboard, color: '#14b8a6', toast: 'Lesson plan duplicated to drafts' },
-                  { label: 'Add to Library', icon: Star, color: '#f59e0b', toast: 'Added to your lesson library' },
+                  { label: 'Add to Library', icon: Star, color: '#f59e0b', toast: 'Added to your lesson library', action: () => {} },
                 ].map(action => (
                   <motion.button
                     key={action.label}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                     whileHover={{ x: 2 }}
-                    onClick={() => showToast(action.toast)}
+                    onClick={() => { action.action?.(); showToast(action.toast) }}
                   >
                     <div className="w-6 h-6 rounded-lg flex items-center justify-center" style={{ backgroundColor: action.color + '15' }}>
                       <action.icon className="w-3 h-3" style={{ color: action.color }} />

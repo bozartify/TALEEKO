@@ -784,7 +784,7 @@ export default function QuizBuilderPage() {
                       className="flex items-center gap-2 px-3 py-2 rounded-xl border border-white/[0.06] bg-white/[0.03] text-xs font-medium text-surface-300 hover:border-white/[0.12] hover:bg-white/[0.06] hover:text-white transition-all"
                       whileHover={{ y: -1 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => showToast('Blank slide added')}
+                      onClick={() => { setQuestions(prev => [...prev, { id: `q${Date.now()}`, type: 'mcq', text: 'New question', points: 1, options: ['Option A', 'Option B', 'Option C', 'Option D'], correct: 0 }]); showToast('Blank question added') }}
                     >
                       <Plus className="w-3.5 h-3.5" /> Blank
                     </motion.button>
