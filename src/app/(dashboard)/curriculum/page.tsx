@@ -338,7 +338,7 @@ export default function CurriculumPage() {
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
                 const headers = ['Unit', 'Duration', 'Status', 'Lessons']
-                const rows = units.map(u => [u.title, u.weeks, u.status, u.lessons.length])
+                const rows = units.map(u => [u.title, u.weeks, u.status, u.lessons])
                 const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n')
                 const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='curriculum.csv'; a.click(); URL.revokeObjectURL(a.href)
                 showToast('Curriculum exported!')
