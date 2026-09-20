@@ -768,7 +768,7 @@ export default function NotificationsPage() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => showToast('Notifications snoozed for 1 hour')}
+                  onClick={() => { const until = Date.now() + 3600_000; try { localStorage.setItem('taleeko_notif_snooze', String(until)) } catch {} showToast('Notifications snoozed for 1 hour') }}
                   className="flex items-center gap-1 text-[11px] font-medium text-surface-400 hover:text-warning-300 transition-colors"
                 >
                   <BellOff className="w-3 h-3" /> Snooze 1h

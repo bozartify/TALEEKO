@@ -74,9 +74,9 @@ const classes: ClassCard[] = [
 ]
 
 const aiAlerts = [
-  { type: 'warning', title: '6 students haven\'t submitted Lab Report', desc: 'Due today — consider sending a parent reminder', action: 'Send Reminder', color: '#f59e0b', bg: 'bg-warning-500/10', border: 'border-warning-500/20' },
-  { type: 'info',    title: 'Unit 2 is 3 days behind pacing schedule',  desc: 'AP Biology — Genetics unit compression recommended', action: 'Adjust Pacing', color: '#6366f1', bg: 'bg-accent-500/10', border: 'border-accent-500/20' },
-  { type: 'success', title: 'Aisha Thompson reached 22-day streak!',    desc: '9th Math — Highest streak in your classes',          action: 'Celebrate',    color: '#10b981', bg: 'bg-success-500/10', border: 'border-success-500/20' },
+  { type: 'warning', title: '6 students haven\'t submitted Lab Report', desc: 'Due today — consider sending a parent reminder', action: 'Send Reminder', route: '/communication', color: '#f59e0b', bg: 'bg-warning-500/10', border: 'border-warning-500/20' },
+  { type: 'info',    title: 'Unit 2 is 3 days behind pacing schedule',  desc: 'AP Biology — Genetics unit compression recommended', action: 'Adjust Pacing', route: '/curriculum', color: '#6366f1', bg: 'bg-accent-500/10', border: 'border-accent-500/20' },
+  { type: 'success', title: 'Aisha Thompson reached 22-day streak!',    desc: '9th Math — Highest streak in your classes',          action: 'Celebrate',  route: '/students',  color: '#10b981', bg: 'bg-success-500/10', border: 'border-success-500/20' },
 ]
 
 const quickTools = [
@@ -148,6 +148,7 @@ export default function DashboardPage() {
   const greeting = getGreeting()
   const [activeTab, setActiveTab] = useState<DashTab>('overview')
   const [toastMsg, setToastMsg] = useState('')
+  const [dismissedAlerts, setDismissedAlerts] = useState<Set<number>>(new Set())
   const [userName] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('taleeko_firstName') || 'Alex'
@@ -722,7 +723,7 @@ export default function DashboardPage() {
             transition={{ duration: 0.2 }}
             className="space-y-3"
           >
-            {aiAlerts.map((alert, i) => (
+            {aiAlerts.filter((_, i) => !dismissedAlerts.has(i)).map((alert, i) => (
               <motion.div
                 key={alert.title}
                 className={`glass-card p-5 border ${alert.border}`}
@@ -738,10 +739,10 @@ export default function DashboardPage() {
                     <h4 className="text-sm font-bold text-white mb-1">{alert.title}</h4>
                     <p className="text-xs text-surface-400 mb-3">{alert.desc}</p>
                     <div className="flex items-center gap-3">
-                      <button className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all" style={{ backgroundColor: alert.color + '20', color: alert.color }} onClick={() => showToast(`${alert.action} — done`)}>
+                      <button className="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all" style={{ backgroundColor: alert.color + '20', color: alert.color }} onClick={() => router.push(alert.route)}>
                         {alert.action}
                       </button>
-                      <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors" onClick={() => showToast('Alert dismissed')}>Dismiss</button>
+                      <button className="text-xs text-surface-500 hover:text-surface-300 transition-colors" onClick={() => setDismissedAlerts(prev => { const next = new Set(prev); next.add(aiAlerts.indexOf(alert)); return next })}>Dismiss</button>
                     </div>
                   </div>
                 </div>
