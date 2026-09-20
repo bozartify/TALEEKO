@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -148,6 +149,7 @@ const NEW_QN_TYPES: { type: QuestionType; label: string; desc: string; color: st
    ───────────────────────────────────────────────────────── */
 
 export default function ExitTicketsPage() {
+  const router = useRouter()
   const [tickets, setTickets] = useState<ExitTicket[]>(TICKETS)
   const [selectedTicket, setSelectedTicket] = useState<ExitTicket>(TICKETS[0])
   const [view, setView] = useState<View>('overview')
@@ -306,7 +308,7 @@ export default function ExitTicketsPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('New exit ticket created!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setView('create')}>
                 <Plus className="w-3.5 h-3.5" /> New Ticket
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => setView('create')}>
@@ -385,7 +387,12 @@ export default function ExitTicketsPage() {
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => showToast(`${alert.action}…`)}>
+                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => {
+                        if (alert.action === 'Generate Lesson') router.push('/lesson-planner')
+                        else if (alert.action === 'Flag & Group') router.push('/groups')
+                        else if (alert.action === 'Live View') setView('results')
+                        else showToast(`${alert.action}…`)
+                      }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>

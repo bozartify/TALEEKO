@@ -425,7 +425,7 @@ export default function ProfessionalDevPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Browsing certificates…')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); showToast('Scrolling to certificates…') }}>
                 <Award className="w-3.5 h-3.5" /> Certificates
               </motion.button>
               <motion.button className="btn-gradient text-xs flex items-center gap-1.5" disabled={loadingRecs} whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={handleAIRecs}>
@@ -775,7 +775,7 @@ export default function ProfessionalDevPage() {
                   <span className="flex items-center gap-1 text-xs text-surface-400">
                     <Clock className="w-3 h-3" /> {rec.hours}h
                   </span>
-                  <button className="btn-secondary text-[11px] py-1 px-3" onClick={() => showToast(`Enrolled in "${rec.title}"`)}>
+                  <button className="btn-secondary text-[11px] py-1 px-3" onClick={() => { setCourseList(prev => prev.map(c => c.title === rec.title ? { ...c, enrolled: c.enrolled + 1 } : c)); showToast(`Enrolled in "${rec.title}"!`) }}>
                     Enroll <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>

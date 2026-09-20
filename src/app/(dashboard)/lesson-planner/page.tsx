@@ -345,7 +345,7 @@ export default function LessonPlannerPage() {
                 <Download className="w-3.5 h-3.5" />
                 Export
               </button>
-              <button className="btn-secondary text-xs" onClick={() => showToast('Share link copied to clipboard')}>
+              <button className="btn-secondary text-xs" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied!') }}>
                 <Share2 className="w-3.5 h-3.5" />
               </button>
             </div>

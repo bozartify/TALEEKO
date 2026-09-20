@@ -336,7 +336,7 @@ export default function AccommodationsPage() {
                       <p className="text-xs font-semibold text-success-300">Compliance Trending Up — {complianceRate}%</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your accommodation compliance rate has improved 18 points since Week 1. You're close to the 95% target — implementing the 4 pending accommodations will get you there.</p>
                     </div>
-                    <button className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap" onClick={() => showToast('All pending accommodations marked as implemented')}>Mark Done →</button>
+                    <button className="text-[10px] font-semibold text-success-400 hover:text-success-300 whitespace-nowrap" onClick={() => { setStudentList(prev => prev.map(s => ({ ...s, accommodations: s.accommodations.map(a => ({ ...a, implemented: true })) }))); showToast('All accommodations marked as implemented!') }}>Mark Done →</button>
                   </div>
                 </div>
               </motion.div>
@@ -461,7 +461,7 @@ export default function AccommodationsPage() {
                           <div className="px-5 pb-5 pt-2 border-t border-white/[0.06]">
                             {/* Action Row */}
                             <div className="flex items-center gap-2 mb-4 flex-wrap">
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => showToast(`Viewing ${student.planType} plan for ${student.name}`)}>
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => router.push('/iep-goals')}>
                                 <Eye className="w-3.5 h-3.5" /> View Plan
                               </button>
                               <button

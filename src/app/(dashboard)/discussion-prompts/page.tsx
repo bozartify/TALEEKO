@@ -407,7 +407,7 @@ Return ONLY the JSON array, no other text.`
                       <p className="text-xs font-semibold text-warning-300">Tip: Open with a Hook Prompt</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Research shows starting with a provocative debate starter increases initial participation by up to 40%. Try prompt #4 ("Without photosynthesis…") as your opener.</p>
                     </div>
-                    <button onClick={() => showToast('Prompt pinned as opener!')} className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap">Pin →</button>
+                    <button onClick={() => { const p = prompts[3]; if (p) { toggleStar(p.id); showToast('Prompt pinned as opener!') } }} className="text-[10px] font-semibold text-warning-400 hover:text-warning-300 whitespace-nowrap">Pin →</button>
                   </div>
                 </div>
               </motion.div>
