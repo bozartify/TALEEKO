@@ -270,9 +270,9 @@ export default function ClassroomPage() {
               <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} className="overflow-hidden">
                 <div className="px-5 pb-4 border-t border-white/[0.06] pt-4 space-y-3">
                   {[
-                    { color: '#ef4444', title: 'At-Risk Students', desc: 'Noah Williams (History) and Liam Chen (English) are showing declining performance. Parent contact recommended within 48 hours.', cta: 'Send Alert', toast: 'Alert sent to parents of at-risk students' },
-                    { color: '#f59e0b', title: 'Engagement Dip in 9th Math', desc: 'Engagement metrics for 9th Grade Math dropped 14% this week. Consider adding an interactive activity to Thursday\'s lesson.', cta: 'AI Suggestion', toast: 'AI lesson suggestion generated for 9th Math' },
-                    { color: '#6366f1', title: 'Assignment Gap Detected', desc: '3 students in 8th History have not submitted the Revolutionary War essay. Automated reminder can be sent in one click.', cta: 'Send Reminder', toast: 'Reminder sent to 3 students in 8th History' },
+                    { color: '#ef4444', title: 'At-Risk Students', desc: 'Noah Williams (History) and Liam Chen (English) are showing declining performance. Parent contact recommended within 48 hours.', cta: 'Send Alert', fn: () => router.push('/communication') },
+                    { color: '#f59e0b', title: 'Engagement Dip in 9th Math', desc: 'Engagement metrics for 9th Grade Math dropped 14% this week. Consider adding an interactive activity to Thursday\'s lesson.', cta: 'AI Suggestion', fn: () => router.push('/lesson-planner') },
+                    { color: '#6366f1', title: 'Assignment Gap Detected', desc: '3 students in 8th History have not submitted the Revolutionary War essay. Automated reminder can be sent in one click.', cta: 'Send Reminder', fn: () => router.push('/assignments') },
                   ].map((alert, i) => (
                     <div key={alert.title} className="flex items-start gap-3 p-3.5 rounded-2xl" style={{ backgroundColor: alert.color + '08', border: `1px solid ${alert.color}25` }}>
                       <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: alert.color }} />
@@ -280,7 +280,7 @@ export default function ClassroomPage() {
                         <span className="text-xs font-bold text-white block mb-0.5">{alert.title}</span>
                         <p className="text-[10px] text-surface-400 leading-relaxed">{alert.desc}</p>
                       </div>
-                      <button className="text-[10px] font-bold flex-shrink-0 flex items-center gap-1 mt-0.5" style={{ color: alert.color }} onClick={() => showToast(alert.toast)}>
+                      <button className="text-[10px] font-bold flex-shrink-0 flex items-center gap-1 mt-0.5" style={{ color: alert.color }} onClick={() => alert.fn()}>
                         {alert.cta} <ChevronRight className="w-3 h-3" />
                       </button>
                     </div>
@@ -568,16 +568,16 @@ export default function ClassroomPage() {
                     <h4 className="text-sm font-bold text-white mb-3">Quick Actions</h4>
                     <div className="space-y-2">
                       {[
-                        { label: 'Send Class Update', icon: Bell, color: '#6366f1', toast: 'Class update sent to all students' },
-                        { label: 'Generate AI Lesson', icon: Sparkles, color: '#8b5cf6', toast: 'AI lesson plan generated successfully' },
-                        { label: 'Export Grades', icon: Download, color: '#14b8a6', toast: 'Grades exported to CSV' },
-                        { label: 'View Analytics', icon: BarChart2, color: '#f97316', toast: 'Opening class analytics dashboard' },
+                        { label: 'Send Class Update', icon: Bell, color: '#6366f1', fn: () => { setAnnouncementModal(true) } },
+                        { label: 'Generate AI Lesson', icon: Sparkles, color: '#8b5cf6', fn: () => router.push('/lesson-planner') },
+                        { label: 'Export Grades', icon: Download, color: '#14b8a6', fn: () => router.push('/gradebook') },
+                        { label: 'View Analytics', icon: BarChart2, color: '#f97316', fn: () => router.push('/analytics') },
                       ].map((action, i) => (
                         <motion.button
                           key={action.label}
                           className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                           whileHover={{ x: 2 }}
-                          onClick={() => showToast(action.toast)}
+                          onClick={() => action.fn()}
                         >
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: action.color + '18' }}>
                             <action.icon className="w-3.5 h-3.5" style={{ color: action.color }} />
@@ -687,8 +687,8 @@ export default function ClassroomPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Viewing profile for ${s.name}`)}><Eye className="w-3.5 h-3.5" /></button>
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Message sent to ${s.name}'s parent`)}><Mail className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => router.push('/students')} title="View profile"><Eye className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => router.push('/communication')} title="Message parent"><Mail className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
                       </motion.tr>
@@ -736,12 +736,12 @@ export default function ClassroomPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.06]">
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${a.title}"`)}><Eye className="w-3 h-3" /> Preview</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { navigator.clipboard?.writeText(a.body).catch(() => {}); showToast(`"${a.title}" copied to clipboard`) }}><Eye className="w-3 h-3" /> Preview</button>
                       {!a.sent && (
-                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`"${a.title}" sent to ${a.class}`)}><Send className="w-3 h-3" /> Send Now</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { setAnnList(prev => prev.map(x => x.id === a.id ? { ...x, sent: true, date: 'Just now' } : x)); showToast(`"${a.title}" sent to ${a.class}!`) }}><Send className="w-3 h-3" /> Send Now</button>
                       )}
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Editing "${a.title}"`)}><FileText className="w-3 h-3" /> Edit</button>
-                      <button className="ml-auto btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`Announcement deleted`)}>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setComposeAnn({ title: a.title, body: a.body, class: a.class, urgent: a.urgent }); setAnnouncementModal(true) }}><FileText className="w-3 h-3" /> Edit</button>
+                      <button className="ml-auto btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => { setAnnList(prev => prev.filter(x => x.id !== a.id)); showToast('Announcement deleted') }}>
                         <X className="w-3 h-3" /> Delete
                       </button>
                     </div>
@@ -766,7 +766,7 @@ export default function ClassroomPage() {
                           key={tmpl.label}
                           className="w-full flex items-center gap-2.5 p-2.5 rounded-xl hover:bg-white/[0.04] text-left transition-colors group"
                           initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-                          onClick={() => showToast(`"${tmpl.label}" template loaded`)}
+                          onClick={() => { setComposeAnn({ title: tmpl.label, body: `Template: ${tmpl.label}\n\nEdit this announcement before sending.`, class: 'All Classes', urgent: false }); setAnnouncementModal(true) }}
                         >
                           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: tmpl.color + '18' }}>
                             <tmpl.icon className="w-3.5 h-3.5" style={{ color: tmpl.color }} />

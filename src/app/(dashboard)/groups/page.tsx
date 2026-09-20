@@ -351,7 +351,17 @@ export default function GroupsPage() {
               </motion.button>
               <button
                 className="btn-secondary text-xs px-3 py-1.5"
-                onClick={() => showToast('Groups shuffled randomly')}
+                onClick={() => {
+                  setGroups(prev => {
+                    const shuffled = [...prev]
+                    for (let i = shuffled.length - 1; i > 0; i--) {
+                      const j = Math.floor(Math.random() * (i + 1));
+                      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+                    }
+                    return shuffled
+                  })
+                  showToast('Groups shuffled!')
+                }}
               >
                 <Shuffle className="w-3.5 h-3.5" /> Random
               </button>
@@ -505,7 +515,12 @@ export default function GroupsPage() {
                           <button
                             className="mt-2 text-[11px] font-medium flex items-center gap-1 group-hover:gap-1.5 transition-all"
                             style={{ color: insight.color }}
-                            onClick={() => showToast(insight.action)}
+                            onClick={() => {
+                              if (insight.action === 'View Group') setExpandedGroup(groups[0]?.id ?? null)
+                              else if (insight.action === 'See Progress') router.push('/analytics')
+                              else if (insight.action === 'Review Suggestion') setExpandedGroup(groups[0]?.id ?? null)
+                              else showToast(insight.action)
+                            }}
                           >
                             {insight.action} <ArrowRight className="w-3 h-3" />
                           </button>
@@ -547,7 +562,7 @@ export default function GroupsPage() {
                 className="pl-8 pr-3 py-1.5 text-xs rounded-full bg-white/[0.04] border border-white/[0.08] text-surface-200 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-accent-500 w-36 transition-all"
               />
             </div>
-            <button className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors" onClick={() => showToast('Sorted!')}>
+            <button className="flex items-center gap-1.5 text-xs text-surface-400 hover:text-surface-200 transition-colors" onClick={() => { setGroups(prev => [...prev].sort((a, b) => b.avgPerformance - a.avgPerformance)); showToast('Sorted by performance!') }}>
               <Filter className="w-3.5 h-3.5" /> Sort
             </button>
           </div>
@@ -751,13 +766,13 @@ export default function GroupsPage() {
                       )}
 
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/[0.05]">
-                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Add student dialog')}>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/students')}>
                           <UserPlus className="w-3 h-3" /> Add Student
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Edit group dialog')}>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { navigator.clipboard?.writeText(JSON.stringify({ name: group.name, students: group.students.map(s => s.name), purpose: group.purpose }, null, 2)).catch(() => {}); showToast(`"${group.name}" config copied!`) }}>
                           <Edit3 className="w-3 h-3" /> Edit Group
                         </button>
-                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Message sent to group')}>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}>
                           <MessageSquare className="w-3 h-3" /> Message
                         </button>
                         <button className="btn-secondary text-xs px-3 py-1.5 ml-auto" onClick={() => router.push('/analytics')}>
@@ -906,17 +921,17 @@ export default function GroupsPage() {
             </div>
             <div className="space-y-2">
               {[
-                { label: 'Auto-balance by performance', icon: BarChart2, color: '#6366f1' },
-                { label: 'Create activity for all groups', icon: BookOpen, color: '#10b981' },
-                { label: 'Send group progress report', icon: TrendingUp, color: '#f97316' },
-                { label: 'Shuffle all groups randomly', icon: Shuffle, color: '#8b5cf6' },
-                { label: 'Export group roster (CSV)', icon: Download, color: '#22d3ee' },
+                { label: 'Auto-balance by performance', icon: BarChart2, color: '#6366f1', fn: () => { setGroups(prev => [...prev].sort((a,b) => b.avgPerformance - a.avgPerformance)); showToast('Groups sorted by performance!') } },
+                { label: 'Create activity for all groups', icon: BookOpen, color: '#10b981', fn: () => router.push('/lesson-planner') },
+                { label: 'Send group progress report', icon: TrendingUp, color: '#f97316', fn: () => router.push('/reports') },
+                { label: 'Shuffle all groups randomly', icon: Shuffle, color: '#8b5cf6', fn: () => { setGroups(prev => { const s=[...prev]; for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]]}; return s }); showToast('All groups shuffled!') } },
+                { label: 'Export group roster (CSV)', icon: Download, color: '#22d3ee', fn: () => { const rows=[['Group','Type','Students','Avg Performance'],...groups.map(g=>[g.name,g.type,g.students.map(s=>s.name).join('; '),g.avgPerformance])]; const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='groups.csv';a.click();URL.revokeObjectURL(a.href);showToast('Groups CSV exported!') } },
               ].map(action => (
                 <motion.button
                   key={action.label}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                   whileHover={{ x: 2 }}
-                  onClick={() => showToast(action.label)}
+                  onClick={() => action.fn()}
                 >
                   <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: action.color + '15' }}>
                     <action.icon className="w-3 h-3" style={{ color: action.color }} />

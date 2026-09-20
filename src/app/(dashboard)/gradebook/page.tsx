@@ -281,7 +281,7 @@ export default function GradebookPage() {
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
                 <Download className="w-3.5 h-3.5" /> Export CSV
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New assignment added!')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/assignments')}>
                 <Plus className="w-3.5 h-3.5" /> Assignment
               </button>
             </div>
@@ -521,7 +521,12 @@ export default function GradebookPage() {
                   {curveAmount > 0 ? '+' : ''}{curveAmount}%
                 </span>
               </div>
-              <button className="btn-gradient text-xs ml-auto" onClick={() => showToast('Grade curve applied and saved!')}><Save className="w-3 h-3" /> Save Changes</button>
+              <button className="btn-gradient text-xs ml-auto" onClick={() => {
+                if (curveAmount === 0) { showToast('No curve to apply'); return }
+                setLocalScores(prev => Object.fromEntries(Object.entries(prev).map(([id, scores]) => [id, scores.map(s => s === null ? s : Math.min(100, s + curveAmount))])))
+                showToast(`+${curveAmount}% curve applied to all scores!`)
+                setCurveAmount(0)
+              }}><Save className="w-3 h-3" /> Save Changes</button>
             </div>
           </motion.div>
         )}
@@ -1063,9 +1068,9 @@ export default function GradebookPage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button className="btn-gradient text-xs flex-1" onClick={() => showToast('Message drafted for student')}><MessageSquare className="w-3 h-3" /> Message</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Grade alert set!')}><Bell className="w-3 h-3" /> Set Alert</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Generating progress report…')}><FileText className="w-3 h-3" /> Report</button>
+                <button className="btn-gradient text-xs flex-1" onClick={() => router.push('/communication')}><MessageSquare className="w-3 h-3" /> Message</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { showToast(`Alert set for ${selectedStudent?.name}!`) }}><Bell className="w-3 h-3" /> Set Alert</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => router.push('/reports')}><FileText className="w-3 h-3" /> Report</button>
               </div>
             </motion.div>
           </motion.div>
