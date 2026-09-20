@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, Clock, BookOpen, Sparkles, FileText, ClipboardList,
@@ -50,6 +51,7 @@ export default function LessonDetailPage({
 }: {
   params: { courseId: string; lessonId: string }
 }) {
+  const router = useRouter()
   const [expandedSection, setExpandedSection] = useState<number>(0)
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
@@ -257,7 +259,11 @@ export default function LessonDetailPage({
                   <p className="text-sm font-semibold text-white truncate group-hover:text-accent-400 transition-colors">{mat.title}</p>
                   <p className="text-xs text-surface-500">{meta.label} · {mat.date}</p>
                 </div>
-                <button className="btn-outline text-xs px-3 py-1.5" onClick={() => showToast(`Opening material: ${mat.title}`)}>View</button>
+                <button className="btn-outline text-xs px-3 py-1.5" onClick={() => {
+                  if (mat.type === 'quiz') router.push('/quiz-builder')
+                  else if (mat.type === 'lesson_plan') router.push('/lesson-planner')
+                  else router.push('/library')
+                }}>View</button>
               </motion.div>
             )
           })}

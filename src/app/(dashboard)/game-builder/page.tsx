@@ -211,7 +211,7 @@ export default function GameBuilderPage() {
                 <button onClick={refreshPIN} className="text-[10px] text-surface-500 hover:text-accent-400 transition-colors">↻ Generate new PIN</button>
               </div>
               <div className="space-y-2">
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('Join link copied to clipboard'); setShareOpen(false) }}>
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { navigator.clipboard?.writeText(`https://gamepin.io/join/${PIN}`).catch(() => {}); showToast('Join link copied!'); setShareOpen(false) }}>
                   <div className="w-9 h-9 rounded-xl bg-accent-500/10 flex items-center justify-center">
                     <Link className="w-4 h-4 text-accent-400" />
                   </div>
@@ -220,7 +220,11 @@ export default function GameBuilderPage() {
                     <p className="text-[10px] text-surface-400">gamepin.io/join/{PIN}</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('QR code downloaded'); setShareOpen(false) }}>
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => {
+                  const html = `<!DOCTYPE html><html><head><title>Game PIN: ${PIN}</title><style>body{font-family:sans-serif;text-align:center;padding:40px}h1{font-size:48px;letter-spacing:12px;margin:20px 0}p{color:#666}</style></head><body><h2>Join the Game!</h2><p>Go to <strong>gamepin.io/join</strong> and enter:</p><h1>${PIN}</h1><p>Game PIN</p></body></html>`
+                  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = `game-pin-${PIN}.html`; a.click(); URL.revokeObjectURL(a.href)
+                  showToast('Game PIN card downloaded!'); setShareOpen(false)
+                }}>
                   <div className="w-9 h-9 rounded-xl bg-success-500/10 flex items-center justify-center">
                     <QrCode className="w-4 h-4 text-success-400" />
                   </div>

@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, BookOpen, Plus, Clock, ChevronRight, Sparkles,
@@ -116,6 +117,7 @@ const aiInsights = [
 ]
 
 export default function CourseDetailPage({ params }: { params: { courseId: string } }) {
+  const router = useRouter()
   const [expandedUnit, setExpandedUnit] = useState<string | null>('u1')
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
@@ -337,7 +339,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Units & Lessons</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Opening unit builder…')}>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/curriculum')}>
                   <Plus className="w-3.5 h-3.5" />
                   Add Unit
                 </button>
@@ -432,10 +434,10 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                               </Link>
                             ))}
                             <div className="px-5 py-3 border-t border-white/[0.04] flex items-center gap-2">
-                              <button onClick={() => showToast('Opening lesson builder…')} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
+                              <button onClick={() => router.push('/lesson-planner')} className="flex items-center gap-1.5 text-[11px] text-accent-400 hover:text-accent-300 transition-colors">
                                 <Plus className="w-3 h-3" /> Add Lesson
                               </button>
-                              <button onClick={() => showToast('AI generating lesson…')} className="flex items-center gap-1.5 text-[11px] text-neon-400 hover:text-neon-300 transition-colors ml-3">
+                              <button onClick={() => router.push('/lesson-planner')} className="flex items-center gap-1.5 text-[11px] text-neon-400 hover:text-neon-300 transition-colors ml-3">
                                 <Sparkles className="w-3 h-3" /> Generate with AI
                               </button>
                             </div>
@@ -466,7 +468,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                   <Zap className="w-3 h-3" />
                   Start Class
                 </button>
-                <button onClick={() => showToast('Opening class message…')} className="btn-secondary text-xs px-3">
+                <button onClick={() => router.push('/communication')} className="btn-secondary text-xs px-3">
                   <MessageSquare className="w-3 h-3" />
                 </button>
               </div>
@@ -501,7 +503,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                     </span>
                   </motion.div>
                 ))}
-                <button onClick={() => showToast('Opening deadline picker…')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1 transition-colors flex items-center justify-center gap-1">
+                <button onClick={() => router.push('/assignments')} className="w-full text-[11px] text-accent-400 hover:text-accent-300 py-1 transition-colors flex items-center justify-center gap-1">
                   <Plus className="w-3 h-3" /> Add deadline
                 </button>
               </div>
