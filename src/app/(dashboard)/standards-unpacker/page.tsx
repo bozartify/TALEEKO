@@ -438,7 +438,7 @@ export default function StandardsUnpackerPage() {
                     className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
                     onClick={() => {
                       if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
-                      else if (opt.label === 'Export as PDF') showToast('Exporting standard breakdown as PDF…')
+                      else if (opt.label === 'Export as PDF') { window.print(); showToast('Printing standard breakdown…') }
                       else if (opt.label === 'Share Link') showToast('Share link copied to clipboard!')
                       else if (opt.label === 'Export to Google Docs') { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…') }
                       setExportOpen(false)

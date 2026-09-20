@@ -441,7 +441,7 @@ export default function NewsletterPage() {
               <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Send / Export</p>
               {[
                 { label: 'Email Parents', icon: Mail, color: '#6366f1', action: () => setSendModal(true) },
-                { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => showToast('Newsletter downloaded as PDF') },
+                { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => { window.print(); showToast('Printing newsletter…') } },
                 { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => { window.print(); showToast('Sending to printer…') } },
                 { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Shareable link copied to clipboard') } },
               ].map(opt => (

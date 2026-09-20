@@ -268,7 +268,7 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Portfolio exported as PDF')}><Download className="w-3 h-3" /> Export PDF</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing portfolio…') }}><Download className="w-3 h-3" /> Export PDF</button>
               <button onClick={() => setShareModal(true)} className="btn-secondary text-xs px-3 py-1.5"><Share2 className="w-3 h-3" /> Share</button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI summary generated for all students')}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Summary
@@ -735,7 +735,7 @@ export default function PortfolioPage() {
                       )}
                       <div className="flex items-center gap-2">
                         <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Acceleration plan created for ${selectedStudent.name}`)}><Zap className="w-3 h-3" /> Accelerate Plan</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Growth report exported')}><Download className="w-3 h-3" /> Export Report</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing growth report…') }}><Download className="w-3 h-3" /> Export Report</button>
                       </div>
                     </div>
                   </motion.div>

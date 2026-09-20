@@ -383,7 +383,18 @@ export default function StudentsPage() {
                 <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Groups applied to roster')}>
                   <Sparkles className="w-3.5 h-3.5" /> Apply Groups
                 </motion.button>
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Group list exported')}><Download className="w-3.5 h-3.5" /> Export List</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
+                  const strategies = [
+                    { label: 'Mixed Ability',  groups: [['Emma', 'Mason'], ['Noah', 'Sofia'], ['Isabella', 'Ethan'], ['Ava', 'Liam']] },
+                    { label: 'Similar Level',  groups: [['Noah', 'Emma', 'Isabella'], ['Ava', 'Liam', 'Ethan'], ['Sofia', 'Mason']] },
+                    { label: 'Interest-Based', groups: [['Emma', 'Noah'], ['Liam', 'Isabella'], ['Ava', 'Sofia', 'Ethan', 'Mason']] },
+                  ]
+                  const rows: string[][] = [['Strategy', 'Group', 'Students']]
+                  strategies.forEach(s => s.groups.forEach((grp, gi) => rows.push([s.label, `Group ${gi + 1}`, grp.join('; ')])))
+                  const csv = rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(',')).join('\n')
+                  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'student-groups.csv'; a.click(); URL.revokeObjectURL(a.href)
+                  showToast('Group list exported!')
+                }}><Download className="w-3.5 h-3.5" /> Export List</button>
                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Regenerating groups...')}><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
               </div>
             </div>
