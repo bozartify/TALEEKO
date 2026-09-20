@@ -365,10 +365,10 @@ export default function LibraryPage() {
               }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Upload started!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.doc,.docx,.csv,.txt,.pptx'; inp.onchange = () => { if (inp.files?.[0]) showToast(`"${inp.files[0].name}" uploaded to library!`) }; inp.click() }}>
                 <Upload className="w-3.5 h-3.5" /> Upload
               </motion.button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('New resource created!')}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => router.push('/templates')}>
                 <Plus className="w-3.5 h-3.5" /> New Resource
               </motion.button>
             </div>
@@ -559,7 +559,7 @@ export default function LibraryPage() {
               <Upload className="w-3.5 h-3.5" />
             </button>
             <motion.button
-              onClick={() => showToast('New resource created!')}
+              onClick={() => router.push('/templates')}
               className="btn-gradient text-xs whitespace-nowrap"
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
