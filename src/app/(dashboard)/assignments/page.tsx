@@ -152,9 +152,9 @@ const typeConfig = {
 }
 
 const AI_SUGGESTIONS = [
-  { title: 'Differentiate Lab Report', desc: 'Generate 3 reading-level variants of the lab instructions for struggling readers.', color: '#8b5cf6' },
-  { title: 'Make-up Policy Alert', desc: "6 students haven't submitted the Photosynthesis Lab. Consider auto-sending a reminder today.", color: '#f59e0b' },
-  { title: 'Similar Assignment Found', desc: 'Shakespeare Scene Analysis is similar to last year\'s Character Analysis — import rubric?', color: '#14b8a6' },
+  { title: 'Differentiate Lab Report', desc: 'Generate 3 reading-level variants of the lab instructions for struggling readers.', color: '#8b5cf6', route: '/accommodations' },
+  { title: 'Make-up Policy Alert', desc: "6 students haven't submitted the Photosynthesis Lab. Consider auto-sending a reminder today.", color: '#f59e0b', route: '/communication' },
+  { title: 'Similar Assignment Found', desc: 'Shakespeare Scene Analysis is similar to last year\'s Character Analysis — import rubric?', color: '#14b8a6', route: '/rubrics' },
 ]
 
 const SCORE_TREND = [78, 81, 80, 85, 83, 87, 89, 88]
@@ -452,7 +452,7 @@ export default function AssignmentsPage() {
                       <button
                         className="text-[10px] font-semibold mt-2 flex items-center gap-1"
                         style={{ color: s.color }}
-                        onClick={() => showToast(`Taking action: ${s.title}`)}
+                        onClick={() => router.push(s.route)}
                       >
                         Take Action <ArrowRight className="w-2.5 h-2.5" />
                       </button>
@@ -658,7 +658,12 @@ export default function AssignmentsPage() {
                                 onClick={() => {
                                   setActionMenu(null)
                                   if (item.label === 'Delete') setDeleteTarget(assignment)
-                                  else showToast(`${item.label}: ${assignment.title}`)
+                                  else if (item.label === 'View Submissions') router.push('/gradebook')
+                                  else if (item.label === 'Edit Assignment') showToast(`Opening edit for "${assignment.title}"`)
+                                  else if (item.label === 'Duplicate') { const dup = { ...assignment, id: String(Date.now()), title: assignment.title + ' (Copy)', status: 'upcoming' as const }; setAssignments(prev => [dup, ...prev]); showToast(`"${assignment.title}" duplicated`) }
+                                  else if (item.label === 'Share') { navigator.clipboard?.writeText(`${window.location.origin}/assignments/${assignment.id}`).catch(() => {}); showToast(`Link to "${assignment.title}" copied!`) }
+                                  else if (item.label === 'Export') { const csv = `"Title","Class","Due","Points","Status"\n"${assignment.title}","${assignment.class}","${assignment.dueDate}","${assignment.points}","${assignment.status}"`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`${assignment.title.replace(/\s+/g,'-')}.csv`; a.click(); URL.revokeObjectURL(a.href); showToast('Assignment exported!') }
+                                  else if (item.label === 'Archive') { setAssignments(prev => prev.filter(x => x.id !== assignment.id)); showToast(`"${assignment.title}" archived`) }
                                 }}
                               >
                                 <item.icon className="w-3.5 h-3.5" style={{ color: item.color }} />
@@ -734,7 +739,7 @@ export default function AssignmentsPage() {
                           <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/assessment-center')}><BarChart2 className="w-3 h-3" /> Analytics</button>
                           <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/feedback-writer')}><MessageSquare className="w-3 h-3" /> Feedback</button>
                           {assignment.status === 'active' && (
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Reminder sent to missing students')}><Bell className="w-3 h-3" /> Remind</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}><Bell className="w-3 h-3" /> Remind</button>
                           )}
                           <button
                             className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10 ml-auto"

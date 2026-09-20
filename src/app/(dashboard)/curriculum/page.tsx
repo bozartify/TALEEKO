@@ -333,7 +333,7 @@ export default function CurriculumPage() {
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} disabled={generatingId !== null} onClick={() => { const u = units.find(u => u.status !== 'completed'); if (u) generateLessons(u); else showToast('All units already have lessons!') }}>
                 {generatingId ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Planning…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Plan</>}
               </motion.button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New unit added!')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { const id = `u${Date.now()}`; setUnits(prev => [...prev, { id, title: 'New Unit', weeks: '2 weeks', weeksNum: 2, startWeek: prev.length * 3 + 1, status: 'draft', color: '#6366f1', standards: 0, lessons: 0, progress: 0, paceStatus: 'on-track', description: 'Unit description…', objectives: [], topics: [], lessonList: [], assessments: [] }]); setExpandedUnit(id); showToast('New unit added — click to edit title') }}>
                 <Plus className="w-3.5 h-3.5" /> Add Unit
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
@@ -422,10 +422,10 @@ export default function CurriculumPage() {
                 Unit 2 (Genetics & Heredity) is running <span className="text-warning-400 font-semibold">3 days behind schedule</span>. At the current pace, the Evolution unit may need compression by 2 days. Recommended: skip the optional Biotechnology extension lab, or move it to the enrichment track.
               </p>
               <div className="flex items-center gap-3 mt-2">
-                <motion.button className="btn-gradient text-[10px] px-2.5 py-1" whileHover={{ scale: 1.02 }} onClick={() => showToast('Pacing auto-adjusted across all upcoming units')}>
+                <motion.button className="btn-gradient text-[10px] px-2.5 py-1" whileHover={{ scale: 1.02 }} onClick={() => { setUnits(prev => prev.map(u => ({ ...u, paceStatus: 'on-track' as PaceStatus }))); showToast('Pacing auto-adjusted across all upcoming units') }}>
                   <Zap className="w-2.5 h-2.5" /> Auto-Adjust Pacing
                 </motion.button>
-                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold" onClick={() => showToast('Showing 3 pacing alternatives')}>View alternatives</button>
+                <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold" onClick={() => router.push('/scope-sequence')}>View alternatives</button>
                 <button className="text-xs text-surface-500 hover:text-surface-300 ml-auto" onClick={() => setShowAlert(false)}>Dismiss</button>
               </div>
             </div>
@@ -710,7 +710,7 @@ export default function CurriculumPage() {
                             >
                               {generatingId === unit.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> Generate Lessons</>}
                             </motion.button>
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Previewing "${unit.title}"…`)}><Eye className="w-3 h-3" /> Preview</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push(`/lesson-planner?unit=${encodeURIComponent(unit.title)}`)}><Eye className="w-3 h-3" /> Preview</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/unit-planner')}><Edit3 className="w-3 h-3" /> Edit</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => duplicateUnit(unit)}><Copy className="w-3 h-3" /> Duplicate</button>
                             <button className="btn-secondary text-xs px-3 py-1.5 ml-auto text-danger-400 hover:bg-danger-400/10" onClick={() => deleteUnit(unit.id)}>
@@ -731,7 +731,7 @@ export default function CurriculumPage() {
             className="w-full glass-card p-4 border-2 border-dashed border-white/[0.08] hover:border-accent-500/30 flex items-center justify-center gap-2 text-surface-500 hover:text-white transition-all"
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            onClick={() => showToast('New unit added!')}
+            onClick={() => { const id = `u${Date.now()}`; setUnits(prev => [...prev, { id, title: 'New Unit', weeks: '2 weeks', weeksNum: 2, startWeek: prev.length * 3 + 1, status: 'draft', color: '#6366f1', standards: 0, lessons: 0, progress: 0, paceStatus: 'on-track', description: 'Unit description…', objectives: [], topics: [], lessonList: [], assessments: [] }]); setExpandedUnit(id); showToast('New unit added — click to edit title') }}
           >
             <Plus className="w-4 h-4" />
             <span className="text-sm font-semibold">Add New Unit</span>
@@ -863,11 +863,11 @@ export default function CurriculumPage() {
               </h3>
               <div className="space-y-2">
                 {[
-                  { icon: Zap, label: 'Generate Full Unit Plan', color: '#6366f1', desc: 'Complete unit with lessons, assessments & rubrics' },
-                  { icon: RefreshCw, label: 'Rebalance Pacing', color: '#f97316', desc: 'Auto-adjust week distribution to meet year-end goals' },
-                  { icon: Target, label: 'Fill Standards Gaps', color: '#10b981', desc: 'Identify and close alignment gaps automatically' },
-                  { icon: Users, label: 'Differentiation Layer', color: '#ec4899', desc: 'Add IEP/504 accommodations to every lesson' },
-                  { icon: BarChart2, label: 'Assessment Audit', color: '#14b8a6', desc: 'Balance formative/summative across the year' },
+                  { icon: Zap, label: 'Generate Full Unit Plan', color: '#6366f1', desc: 'Complete unit with lessons, assessments & rubrics', fn: () => { const u = units.find(u => u.status === 'draft' || u.status === 'upcoming'); if (u) generateLessons(u); else showToast('All units already have AI lessons!') } },
+                  { icon: RefreshCw, label: 'Rebalance Pacing', color: '#f97316', desc: 'Auto-adjust week distribution to meet year-end goals', fn: () => { setUnits(prev => prev.map(u => ({ ...u, paceStatus: 'on-track' as PaceStatus }))); showToast('Pacing rebalanced across all units!') } },
+                  { icon: Target, label: 'Fill Standards Gaps', color: '#10b981', desc: 'Identify and close alignment gaps automatically', fn: () => router.push('/standards') },
+                  { icon: Users, label: 'Differentiation Layer', color: '#ec4899', desc: 'Add IEP/504 accommodations to every lesson', fn: () => router.push('/accommodations') },
+                  { icon: BarChart2, label: 'Assessment Audit', color: '#14b8a6', desc: 'Balance formative/summative across the year', fn: () => router.push('/quiz-builder') },
                 ].map((tool, i) => (
                   <motion.button
                     key={tool.label}
@@ -876,7 +876,7 @@ export default function CurriculumPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
                     whileHover={{ x: 2 }}
-                    onClick={() => showToast(`Running: ${tool.label}…`)}
+                    onClick={() => tool.fn()}
                   >
                     <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: tool.color + '20' }}>
                       <tool.icon className="w-3.5 h-3.5" style={{ color: tool.color }} />

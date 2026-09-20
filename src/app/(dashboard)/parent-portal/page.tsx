@@ -119,6 +119,7 @@ const AI_ALERTS = [
     title: '2 Missing Assignments',
     body: 'Emma has 2 overdue assignments in World History and Art Studio. These may affect her grade if not submitted soon.',
     action: 'View Assignments',
+    route: '/assignments',
   },
   {
     icon: TrendingUp,
@@ -127,6 +128,7 @@ const AI_ALERTS = [
     title: 'AP Biology Trending Up',
     body: 'Emma\'s AP Biology grade has improved by 7 points over the last 5 weeks. Consistent lab report quality is the driver.',
     action: 'See Grade Trend',
+    route: '/gradebook',
   },
   {
     icon: Lightbulb,
@@ -135,6 +137,7 @@ const AI_ALERTS = [
     title: 'Chapter 8 Test in 3 Days',
     body: 'Emma has an AP Biology test on Aug 3. Her teacher recommends reviewing the Chapter 8 study guide and practice simulations.',
     action: 'Study Resources',
+    route: '/library',
   },
 ]
 
@@ -255,7 +258,7 @@ export default function ParentPortalPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setMeetingOpen(true)}>
                 <Calendar className="w-3.5 h-3.5" /> Schedule Meeting
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Portal customized!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { setTab('overview'); setShareOpen(true) }}>
                 <Settings className="w-3.5 h-3.5" /> Customize
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => setShareOpen(true)}>
@@ -352,7 +355,7 @@ export default function ParentPortalPage() {
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button onClick={() => showToast(`${alert.action}…`)} className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
+                      <button onClick={() => router.push(alert.route)} className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -386,7 +389,7 @@ export default function ParentPortalPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => { window.location.href = 'mailto:teacher@school.edu'; showToast('Opening email…') }}>
                 <Mail className="w-3.5 h-3.5" /> Email Teacher
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => showToast('School phone: (555) 867-5309')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileTap={{ scale: 0.97 }} onClick={() => { window.location.href = 'tel:+15558675309' }}>
                 <Phone className="w-3.5 h-3.5" /> Call School
               </motion.button>
             </div>
@@ -760,7 +763,7 @@ export default function ParentPortalPage() {
                 </h4>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-surface-500">{messages.length} messages</span>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('New message thread started')}>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}>
                     <Plus className="w-3.5 h-3.5" /> New Thread
                   </button>
                 </div>

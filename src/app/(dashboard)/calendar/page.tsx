@@ -68,9 +68,9 @@ const classList = ['All Classes', 'AP Biology', '10th English', '9th Math', '8th
 const weekHours = ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM']
 
 const aiSuggestions = [
-  { icon: AlertTriangle, color: '#f59e0b', text: 'Essay and Lab Report deadlines are 2 days apart — students may be overwhelmed. Consider shifting Lab Report to Oct 14.', toast: 'Lab Report deadline shifted to Oct 14' },
-  { icon: Zap, color: '#6366f1', text: 'No review session scheduled before Oct 24 Ecosystem Test. Add a 30-min review on Oct 22.', toast: 'Review session added for Oct 22' },
-  { icon: Brain, color: '#10b981', text: 'Oct 19 has no lesson events. Ideal day to run a differentiation activity or student work session.', toast: 'Differentiation activity scheduled for Oct 19' },
+  { icon: AlertTriangle, color: '#f59e0b', text: 'Essay and Lab Report deadlines are 2 days apart — students may be overwhelmed. Consider shifting Lab Report to Oct 14.', toast: 'Lab Report deadline shifted to Oct 14', event: { day: 14, title: 'Lab Report (Rescheduled)', type: 'deadline' as const, time: '11:59 PM', color: '#ef4444' } },
+  { icon: Zap, color: '#6366f1', text: 'No review session scheduled before Oct 24 Ecosystem Test. Add a 30-min review on Oct 22.', toast: 'Review session added for Oct 22', event: { day: 22, title: 'Ecosystem Test Review', type: 'lesson' as const, time: '2:00 PM', color: '#8b5cf6' } },
+  { icon: Brain, color: '#10b981', text: 'Oct 19 has no lesson events. Ideal day to run a differentiation activity or student work session.', toast: 'Differentiation activity scheduled for Oct 19', event: { day: 19, title: 'Differentiation Work Session', type: 'lesson' as const, time: '9:00 AM', color: '#8b5cf6' } },
 ]
 
 export default function CalendarPage() {
@@ -396,7 +396,7 @@ export default function CalendarPage() {
                 >
                   <s.icon className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" style={{ color: s.color }} />
                   <p className="text-xs text-surface-300 leading-relaxed">{s.text}</p>
-                  <button className="flex-shrink-0 text-[10px] text-accent-400 hover:text-accent-300 font-semibold" onClick={() => showToast(s.toast)}>Fix →</button>
+                  <button className="flex-shrink-0 text-[10px] text-accent-400 hover:text-accent-300 font-semibold" onClick={() => { setAllEvents(prev => [...prev, { id: `ai${Date.now()}`, ...s.event }]); showToast(s.toast) }}>Fix →</button>
                 </motion.div>
               ))}
             </div>
@@ -641,8 +641,8 @@ export default function CalendarPage() {
                                 <div className="px-4 pb-4 pt-1 border-t border-white/[0.06]">
                                   {evt.desc && <p className="text-xs text-surface-400 mb-3">{evt.desc}</p>}
                                   <div className="flex items-center gap-2">
-                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Editing "${evt.title}"`)}><Edit3 className="w-2.5 h-2.5" /> Edit</button>
-                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Reminder set for "${evt.title}"`)}><Bell className="w-2.5 h-2.5" /> Remind</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => { setNewTitle(evt.title); setNewType(evt.type); setNewTime(evt.time ?? ''); setShowNewEvent(true); showToast(`Editing "${evt.title}"`) }}><Edit3 className="w-2.5 h-2.5" /> Edit</button>
+                                    <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => { navigator.clipboard?.writeText(`Reminder: ${evt.title} on ${evt.time}`).catch(() => {}); showToast(`Reminder copied for "${evt.title}"`) }}><Bell className="w-2.5 h-2.5" /> Remind</button>
                                     <button className="btn-secondary text-[10px] px-2 py-1 text-danger-400 hover:bg-danger-400/10" onClick={() => deleteEvent(evt.id)}><Trash2 className="w-2.5 h-2.5" /> Delete</button>
                                   </div>
                                 </div>

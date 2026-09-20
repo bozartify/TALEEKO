@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FileText, Sparkles, Download, Users, Search,
@@ -143,6 +144,7 @@ function buildFallbackReport(student: Student): ReportData {
 }
 
 export default function ReportCardsPage() {
+  const router = useRouter()
   const [step, setStep]                     = useState<Step>('select')
   const [search, setSearch]                 = useState('')
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set(['1', '2', '3']))
@@ -409,7 +411,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-warning-300">Review Before Sending — Liam Chen</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Liam has an IEP. Ensure his report comments reference specific accommodations and IEP goals. The generated comments look accurate but confirm with your special education coordinator.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-warning-400 whitespace-nowrap" onClick={() => showToast('Reviewing Liam Chen\'s IEP report…')}>Review →</button>
+                      <button className="text-[10px] font-semibold text-warning-400 whitespace-nowrap" onClick={() => router.push('/iep-goals')}>Review →</button>
                     </div>
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-danger-400/[0.08] border border-danger-400/15">
                       <TrendingDown className="w-4 h-4 text-danger-400 flex-shrink-0 mt-0.5" />
@@ -417,7 +419,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-danger-300">Low GPA — Proactive Outreach Recommended</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Mia Thompson (C+, 2.4 GPA) and Ava Patel (B-, 2.8 GPA) may benefit from a parent conference conversation alongside the report card.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-danger-400 whitespace-nowrap" onClick={() => showToast('Scheduling parent conferences for Mia & Ava…')}>Schedule →</button>
+                      <button className="text-[10px] font-semibold text-danger-400 whitespace-nowrap" onClick={() => router.push('/calendar')}>Schedule →</button>
                     </div>
                     <div className="flex items-start gap-3 p-3 rounded-xl bg-success-400/[0.08] border border-success-400/15">
                       <Award className="w-4 h-4 text-success-400 flex-shrink-0 mt-0.5" />
@@ -425,7 +427,7 @@ export default function ReportCardsPage() {
                         <p className="text-xs font-semibold text-success-300">High Performers — Emma Davis & Ethan Kim</p>
                         <p className="text-[11px] text-surface-400 mt-0.5">Both students are near A/4.0 GPA. Their reports include enrichment recommendations. Consider noting advanced course eligibility for next year.</p>
                       </div>
-                      <button className="text-[10px] font-semibold text-success-400 whitespace-nowrap" onClick={() => showToast('Enrichment note added to Emma & Ethan\'s reports')}>Add Note →</button>
+                      <button className="text-[10px] font-semibold text-success-400 whitespace-nowrap" onClick={() => { setCustomTeacherNotes(prev => ({ ...prev, '1': (prev['1'] || '') + '\nEligible for AP/Honors track next year.', '3': (prev['3'] || '') + '\nEligible for AP/Honors track next year.' })); showToast('Enrichment note added to Emma & Ethan\'s reports') }}>Add Note →</button>
                     </div>
                   </div>
                 </motion.div>
