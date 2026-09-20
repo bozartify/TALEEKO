@@ -380,7 +380,7 @@ export default function CoursesPage() {
                     <div>
                       <p className="text-xs font-bold text-accent-300">Draft Needs Attention</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">World Geography has been in Draft for 2 weeks. 20 students are enrolled. AI can generate your first 5 lessons from the course description in under 2 minutes.</p>
-                      <button className="text-[10px] text-accent-400 font-semibold mt-1 hover:underline" onClick={() => showToast('Generating 5 lessons for World Geography...')}>Generate lessons →</button>
+                      <button className="text-[10px] text-accent-400 font-semibold mt-1 hover:underline" onClick={() => router.push('/lesson-planner')}>Generate lessons →</button>
                     </div>
                   </div>
                 </div>

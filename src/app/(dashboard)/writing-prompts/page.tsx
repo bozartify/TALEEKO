@@ -320,9 +320,38 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
     setTimeout(() => setCopiedId(null), 2000)
   }
 
-  function simulateRegenerate(id: string) {
+  async function handleRegenerate(id: string) {
+    const p = prompts.find(x => x.id === id)
+    if (!p) return
     setGeneratingId(id)
-    setTimeout(() => setGeneratingId(null), 1800)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: `Rewrite this ${p.mode} writing prompt for grade ${p.grade} students with a fresh angle, keeping the same difficulty and length. Return ONLY the prompt text.\n\nOriginal: ${p.prompt}` }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', text = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const d = line.slice(6).trim()
+          if (d === '[DONE]') break
+          try { const j = JSON.parse(d); if (j.type === 'text') text += j.text } catch { /* skip */ }
+        }
+      }
+      if (text.trim()) {
+        setPrompts(prev => prev.map(x => x.id === id ? { ...x, prompt: text.trim() } : x))
+        showToast('Prompt regenerated!')
+      }
+    } catch { showToast('Regeneration failed') }
+    finally { setGeneratingId(null) }
   }
 
   const statCards = [
@@ -386,7 +415,7 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                 Starred
               </button>
               <button
-                onClick={() => { simulateRegenerate('batch'); showToast('New prompts generated!') }}
+                onClick={() => { if (prompts.length > 0) handleRegenerate(prompts[0].id) }}
                 className="btn-secondary text-xs px-3 py-2"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${generatingId === 'batch' ? 'animate-spin' : ''}`} />
@@ -753,7 +782,7 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                                 {copiedId === prompt.id ? 'Copied!' : 'Copy Prompt'}
                               </button>
                               <button
-                                onClick={() => simulateRegenerate(prompt.id)}
+                                onClick={() => handleRegenerate(prompt.id)}
                                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-accent-500/15 border border-accent-500/25 text-accent-300 hover:bg-accent-500/25 transition-all"
                               >
                                 <Sparkles className="w-3.5 h-3.5" />

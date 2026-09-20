@@ -243,6 +243,37 @@ export default function CommunicationPage() {
     setTab('compose')
   }
 
+  async function handleAIDraft() {
+    setAiDraft(true)
+    const subject = composeSubject.trim() || 'student progress update'
+    const to = composeTo.trim() || 'parent'
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: `Write a professional, warm parent communication email for a K-12 teacher.\nSubject: ${subject}\nRecipient: ${to}\n\nWrite only the email body (no subject line, no "Subject:" header). Use [Student Name] and [Your Name] as placeholders. Keep it concise, supportive, and actionable (3-4 short paragraphs).` }] }),
+      })
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buf = '', text = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        if (!value) continue
+        buf += decoder.decode(value, { stream: true })
+        const lines = buf.split('\n'); buf = lines.pop() ?? ''
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const d = line.slice(6).trim()
+          if (d === '[DONE]') break
+          try { const j = JSON.parse(d); if (j.type === 'text') text += j.text } catch { /* skip */ }
+        }
+      }
+      if (text.trim()) { setComposeBody(text.trim()); setTab('compose'); showToast('AI draft ready!') }
+    } catch { showToast('AI draft failed — try again') }
+    finally { setAiDraft(false) }
+  }
+
   function toggleSelected(id: string) {
     setSelected(prev => {
       const n = new Set(prev)
@@ -375,8 +406,8 @@ export default function CommunicationPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Bulk message composed!')}>
                 <Users className="w-3.5 h-3.5" /> Bulk Message
               </motion.button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => showToast('AI draft created!')}>
-                <Sparkles className="w-3.5 h-3.5" /> AI Draft
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} disabled={aiDraft} onClick={handleAIDraft}>
+                {aiDraft ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />&nbsp;Drafting…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Draft</>}
               </motion.button>
             </div>
           </div>
