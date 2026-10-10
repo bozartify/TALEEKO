@@ -313,12 +313,13 @@ export default function IntegrationsPage() {
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
+  const [integrationList, setIntegrationList] = useState(integrations)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
-  const connectedIntegrations = integrations.filter(i => i.status === 'connected')
+  const connectedIntegrations = integrationList.filter(i => i.status === 'connected')
 
   const filtered = useMemo(() => {
-    return integrations.filter(i => {
+    return integrationList.filter(i => {
       const matchesSearch = !search.trim() ||
         i.name.toLowerCase().includes(search.toLowerCase()) ||
         i.description.toLowerCase().includes(search.toLowerCase())
@@ -358,7 +359,7 @@ export default function IntegrationsPage() {
           <div className="border-t border-white/[0.06] pt-4 flex items-center gap-6 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-[10px] text-surface-500 uppercase tracking-wider font-semibold">Available</span>
-              <span className="text-xs font-bold text-white">{integrations.length}</span>
+              <span className="text-xs font-bold text-white">{integrationList.length}</span>
             </div>
             <div className="w-px h-3 bg-white/[0.08]" />
             <div className="flex items-center gap-2">
@@ -418,15 +419,15 @@ export default function IntegrationsPage() {
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <BarChart2 className="w-4 h-4 text-accent-400" /> Integrations by Category
             </h3>
-            <span className="text-[10px] text-surface-500">{integrations.length} total</span>
+            <span className="text-[10px] text-surface-500">{integrationList.length} total</span>
           </div>
           {(() => {
             const cats: Exclude<Category, 'All'>[] = ['LMS', 'Communication', 'Storage', 'Analytics', 'Assessment']
             const catColors: Record<string, string> = { LMS: '#6366f1', Communication: '#10b981', Storage: '#f59e0b', Analytics: '#22d3ee', Assessment: '#ec4899' }
             const counts = cats.map(c => ({
               label: c, color: catColors[c],
-              total: integrations.filter(i => i.category === c).length,
-              connected: integrations.filter(i => i.category === c && i.status === 'connected').length,
+              total: integrationList.filter(i => i.category === c).length,
+              connected: integrationList.filter(i => i.category === c && i.status === 'connected').length,
             }))
             const maxC = Math.max(...counts.map(x => x.total), 1)
             const W = 560, ROW = 18, GAP = 5, LW = 90, CW = 24, BAR_MAX = W - LW - CW - 8
@@ -643,7 +644,7 @@ export default function IntegrationsPage() {
                       {integration.status === 'connected' && (
                         <>
                           <motion.button
-                            onClick={e => { e.stopPropagation(); showToast(`Syncing ${integration.name}…`) }}
+                            onClick={e => { e.stopPropagation(); setIntegrationList(prev => prev.map(i => i.id === integration.id ? { ...i, syncStatus: 'syncing' } : i)); setTimeout(() => setIntegrationList(prev => prev.map(i => i.id === integration.id ? { ...i, syncStatus: 'synced', lastSync: 'Just now' } : i)), 2000); showToast(`Syncing ${integration.name}…`) }}
                             className="btn-secondary text-xs px-3 py-1.5 flex-1 flex items-center justify-center gap-1.5"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -668,7 +669,7 @@ export default function IntegrationsPage() {
                       {integration.status === 'not_connected' && (
                         <>
                           <motion.button
-                            onClick={e => { e.stopPropagation(); showToast(`Starting ${integration.name} setup…`) }}
+                            onClick={e => { e.stopPropagation(); setIntegrationList(prev => prev.map(i => i.id === integration.id ? { ...i, status: 'connected', syncStatus: 'synced', lastSync: 'Just now' } : i)); showToast(`${integration.name} connected!`) }}
                             className="btn-primary text-xs px-3 py-1.5 flex-1 flex items-center justify-center gap-1.5"
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
@@ -763,7 +764,7 @@ export default function IntegrationsPage() {
                           {/* Connect / Disconnect button */}
                           {integration.status === 'connected' ? (
                             <motion.button
-                              onClick={() => showToast(`${integration.name} disconnected`)}
+                              onClick={() => { setIntegrationList(prev => prev.map(i => i.id === integration.id ? { ...i, status: 'not_connected' } : i)); showToast(`${integration.name} disconnected`) }}
                               className="w-full text-xs px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all flex items-center justify-center gap-1.5 font-semibold"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
@@ -773,7 +774,7 @@ export default function IntegrationsPage() {
                             </motion.button>
                           ) : integration.status === 'not_connected' ? (
                             <motion.button
-                              onClick={() => showToast(`Starting ${integration.name} setup…`)}
+                              onClick={() => { setIntegrationList(prev => prev.map(i => i.id === integration.id ? { ...i, status: 'connected', syncStatus: 'synced', lastSync: 'Just now' } : i)); showToast(`${integration.name} connected!`) }}
                               className="btn-gradient text-xs px-4 py-2 w-full flex items-center justify-center gap-1.5"
                               whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.98 }}
@@ -847,7 +848,7 @@ export default function IntegrationsPage() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <motion.button
-                  onClick={() => showToast('Integration request submitted!')}
+                  onClick={() => { window.open('mailto:integrations@taleeko.com?subject=Integration%20Request', '_blank'); showToast('Integration request email opened') }}
                   className="btn-gradient text-xs px-5 py-2 flex items-center gap-1.5"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
@@ -856,7 +857,7 @@ export default function IntegrationsPage() {
                   Request Integration
                 </motion.button>
                 <motion.button
-                  onClick={() => showToast('Integration roadmap — Q4 2026')}
+                  onClick={() => { window.open('https://taleeko.com/roadmap', '_blank') }}
                   className="btn-secondary text-xs px-4 py-2 flex items-center gap-1.5"
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}

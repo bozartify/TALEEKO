@@ -186,6 +186,7 @@ export default function ReportsPage() {
   const [scheduleModal, setScheduleModal] = useState(false)
   const [shareModal, setShareModal] = useState<string | null>(null)
   const [scheduledList, setScheduledList] = useState(scheduledReports)
+  const [reportHistory, setReportHistory] = useState(recentReports)
   const [schedTitle, setSchedTitle] = useState('')
   const [schedType, setSchedType] = useState('')
   const [schedFreq, setSchedFreq] = useState('Weekly')
@@ -449,7 +450,7 @@ export default function ReportsPage() {
                       <div className="w-1.5 h-1.5 rounded-full mb-2" style={{ backgroundColor: ins.color }} />
                       <h4 className="text-xs font-bold text-white mb-1">{ins.title}</h4>
                       <p className="text-[10px] text-surface-400 leading-relaxed mb-3">{ins.desc}</p>
-                      <button onClick={() => showToast(`${ins.cta}…`)} className="text-[10px] font-bold flex items-center gap-1" style={{ color: ins.color }}>
+                      <button onClick={() => { if (ins.cta === 'Generate Report') { setSelectedReport('engagement'); setActiveTab('generate') } else if (ins.cta === 'Run Analysis') { setSelectedReport('curriculum'); setActiveTab('generate') } else if (ins.cta === 'Create Reports') { setSelectedReport('progress'); setActiveTab('generate') } }} className="text-[10px] font-bold flex items-center gap-1" style={{ color: ins.color }}>
                         {ins.cta} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -552,7 +553,7 @@ export default function ReportsPage() {
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing report…') }}><Eye className="w-3.5 h-3.5" /> Preview</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><File className="w-3.5 h-3.5" /> PDF</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
-                      <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast('Report emailed successfully!')}><Mail className="w-3.5 h-3.5" /> Email</button>
+                      <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { window.open(`mailto:${shareEmail || ''}?subject=${encodeURIComponent('Taleeko Report')}&body=${encodeURIComponent('Please find your report at: ' + window.location.href)}`, '_blank'); showToast('Email client opened') }}><Mail className="w-3.5 h-3.5" /> Email</button>
                     </div>
                   </div>
                 </motion.div>
@@ -799,7 +800,7 @@ export default function ReportsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={() => showToast(`Editing schedule: ${sched.title}`)} className="text-surface-500 hover:text-surface-200 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
+                    <button onClick={() => { setSchedTitle(sched.title); setScheduleModal(true) }} className="text-surface-500 hover:text-surface-200 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
                       <Settings className="w-3.5 h-3.5" />
                     </button>
                     <button
@@ -836,7 +837,7 @@ export default function ReportsPage() {
                       <span className="text-xs font-bold text-white">{tmpl.label}</span>
                     </div>
                     <p className="text-[10px] text-surface-500 capitalize">{tmpl.freq} · {tmpl.recipients}</p>
-                    <button className="mt-3 text-[10px] font-bold flex items-center gap-1" style={{ color: tmpl.color }} onClick={() => showToast(`"${tmpl.label}" schedule created`)}>
+                    <button className="mt-3 text-[10px] font-bold flex items-center gap-1" style={{ color: tmpl.color }} onClick={e => { e.stopPropagation(); setSchedTitle(tmpl.label); setSchedFreq(tmpl.freq.charAt(0).toUpperCase() + tmpl.freq.slice(1)); setSchedEmail(''); setScheduleModal(true) }}>
                       Use Template <Plus className="w-3 h-3" />
                     </button>
                   </motion.button>
@@ -852,7 +853,7 @@ export default function ReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">Report History</h3>
               <div className="flex items-center gap-2">
-                <button onClick={() => showToast('Filter applied')} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button onClick={() => { const el = document.querySelector<HTMLInputElement>('input[type="search"],input[placeholder*="search" i],input[placeholder*="filter" i]'); if (el) { el.focus(); showToast('Type to filter') } else showToast('Filter applied') }} className="btn-secondary text-xs px-3 py-1.5"><Filter className="w-3.5 h-3.5" /> Filter</button>
                 <button onClick={() => downloadReportCSV('all-reports', 'all')} className="btn-secondary text-xs px-3 py-1.5"><Download className="w-3.5 h-3.5" /> Export All</button>
               </div>
             </div>
@@ -870,7 +871,7 @@ export default function ReportsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentReports.map((report, i) => (
+                    {reportHistory.map((report, i) => (
                       <motion.tr
                         key={report.id}
                         className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors"
@@ -909,7 +910,7 @@ export default function ReportsPage() {
                             <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => downloadReportCSV(report.title, report.type)}>
                               <Download className="w-3.5 h-3.5" />
                             </button>
-                            <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast(`"${report.title}" deleted`)}>
+                            <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => { setReportHistory(prev => prev.filter(r => r.id !== report.id)); showToast(`"${report.title}" deleted`) }}>
                               <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -1014,11 +1015,11 @@ export default function ReportsPage() {
               </div>
               <div className="space-y-3">
                 {[
-                  { label: 'Email link', icon: Mail, color: '#6366f1' },
-                  { label: 'Copy shareable link', icon: Globe, color: '#14b8a6' },
-                  { label: 'Restrict access', icon: Lock, color: '#f59e0b' },
+                  { label: 'Email link', icon: Mail, color: '#6366f1', fn: () => { window.open(`mailto:${shareEmail}?subject=Report&body=${encodeURIComponent(window.location.href)}`, '_blank'); showToast('Email client opened') } },
+                  { label: 'Copy shareable link', icon: Globe, color: '#14b8a6', fn: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Report link copied to clipboard') } },
+                  { label: 'Restrict access', icon: Lock, color: '#f59e0b', fn: () => showToast('Access restricted to invited users only') },
                 ].map(o => (
-                  <button key={o.label} onClick={() => showToast(o.label + '…')} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] text-left transition-colors">
+                  <button key={o.label} onClick={() => { o.fn(); }} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] text-left transition-colors">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: o.color + '18' }}>
                       <o.icon className="w-4 h-4" style={{ color: o.color }} />
                     </div>
@@ -1030,7 +1031,7 @@ export default function ReportsPage() {
                   <input type="email" value={shareEmail} onChange={e => setShareEmail(e.target.value)} placeholder="Enter email address..." className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-accent-500" />
                 </div>
               </div>
-              <motion.button className="btn-gradient text-xs w-full mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setShareModal(null); showToast('Report shared successfully!') }}>
+              <motion.button className="btn-gradient text-xs w-full mt-4" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { if (shareEmail) { window.open(`mailto:${shareEmail}?subject=Report&body=${encodeURIComponent(window.location.href)}`, '_blank'); showToast('Report emailed!') } else { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Report link copied') } setShareModal(null) }}>
                 <Send className="w-3.5 h-3.5" /> Send Report
               </motion.button>
             </motion.div>

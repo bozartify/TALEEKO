@@ -517,10 +517,10 @@ export default function ExitTicketsPage() {
                             transition={{ duration: 0.15 }}
                           >
                             {[
-                              { icon: Copy, label: 'Duplicate', action: () => { setActionMenu(null); showToast('Ticket duplicated!') } },
-                              { icon: Share2, label: 'Share', action: () => { setActionMenu(null); showToast('Share link copied!') } },
+                              { icon: Copy, label: 'Duplicate', action: () => { setTickets(prev => [...prev, { ...selectedTicket, id: `et${Date.now()}`, title: `${selectedTicket.title} (Copy)`, status: 'draft' as Status }]); setActionMenu(null); showToast('Ticket duplicated!') } },
+                              { icon: Share2, label: 'Share', action: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); setActionMenu(null); showToast('Ticket link copied to clipboard') } },
                               { icon: Download, label: 'Export', action: () => { setActionMenu(null); setExportOpen(true) } },
-                              { icon: Archive, label: 'Archive', action: () => { setActionMenu(null); showToast('Ticket archived') } },
+                              { icon: Archive, label: 'Archive', action: () => { setTickets(prev => prev.filter(t => t.id !== selectedTicket.id)); setActionMenu(null); showToast('Ticket archived') } },
                             ].map(item => (
                               <button
                                 key={item.label}

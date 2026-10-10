@@ -320,7 +320,7 @@ export default function LearningPathsPage() {
                         <button className="btn-secondary text-xs px-3 py-1.5 flex-1 justify-center" onClick={e => { e.stopPropagation(); setSelectedPath(path) }}>
                           <Eye className="w-3 h-3" /> View Path
                         </button>
-                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Assigning "${path.title}" to class…`) }}>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/students') }}>
                           <Share2 className="w-3 h-3" /> Assign
                         </button>
                       </div>
@@ -346,7 +346,7 @@ export default function LearningPathsPage() {
                   <p className="text-xs text-surface-400 mb-3">{t.desc}</p>
                   <p className="text-[11px] text-surface-500 mb-4 flex items-center gap-1"><Layers className="w-3 h-3" />{t.steps} steps</p>
                   <div className="flex gap-2">
-                    <button className="btn-secondary text-xs px-3 py-1.5 flex-1 justify-center" onClick={() => showToast(`Previewing "${t.title}"`)}>
+                    <button className="btn-secondary text-xs px-3 py-1.5 flex-1 justify-center" onClick={() => { const created: LearningPath = { id: `lp-preview-${Date.now()}`, title: t.title, subject: t.subject, grade: '7th Grade', description: t.desc, color: t.color, steps: [], enrolled: 0, completionPct: 0, status: 'draft', createdAt: 'Today', estimatedWeeks: t.steps }; setSelectedPath(created) }}>
                       <Eye className="w-3 h-3" /> Preview
                     </button>
                     <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => {
@@ -484,7 +484,7 @@ export default function LearningPathsPage() {
                 <button className="btn-secondary text-xs px-4 py-2 flex-1 justify-center" onClick={() => { setSelectedPath(null); showToast('Path saved') }}>
                   <Settings className="w-3 h-3" /> Edit Path
                 </button>
-                <button className="btn-gradient text-xs px-4 py-2" onClick={() => { showToast(`Assigning "${selectedPath.title}" to class…`); setSelectedPath(null) }}>
+                <button className="btn-gradient text-xs px-4 py-2" onClick={() => { setSelectedPath(null); router.push('/students') }}>
                   <ArrowRight className="w-3 h-3" /> Assign to Class
                 </button>
               </div>
