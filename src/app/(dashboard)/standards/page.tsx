@@ -831,7 +831,7 @@ export default function StandardsPage() {
                             >
                               <Sparkles className="w-2.5 h-2.5" /> Generate Lesson
                             </motion.button>
-                            <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => showToast(`Aligning existing lesson to ${gap.standard}…`)}>
+                            <button className="btn-secondary text-[10px] px-2 py-1" onClick={() => { router.push(`/library?standard=${encodeURIComponent(gap.standard)}`); showToast(`Opening library to align lesson to ${gap.standard}`) }}>
                               <Link2 className="w-2.5 h-2.5" /> Align Existing
                             </button>
                             <span className="text-[10px] text-surface-500 ml-auto">{gap.impact}</span>
@@ -985,7 +985,7 @@ export default function StandardsPage() {
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
               <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" /> Priority Standards
             </h3>
-            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => showToast('Showing all starred standards…')}>View all</button>
+            <button className="text-xs text-accent-400 hover:text-accent-300" onClick={() => { const codes = ccssStandards.flatMap(d => d.standards).filter(s => starred.has(s.code)).map(s => s.code); navigator.clipboard?.writeText(codes.join(', ')).catch(() => {}); showToast(`${codes.length} starred standards copied`) }}>View all</button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {ccssStandards.flatMap(d => d.standards).filter(s => starred.has(s.code)).slice(0, 4).map((std, i) => (

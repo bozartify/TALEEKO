@@ -476,7 +476,7 @@ export default function AccommodationsPage() {
                               >
                                 <Calendar className="w-3.5 h-3.5" /> Schedule Meeting
                               </button>
-                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => showToast(`Notification sent to ${student.parentEmail}`)}>
+                              <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] text-xs text-surface-300 hover:bg-white/[0.08] hover:text-white transition-all" onClick={() => { window.open(`mailto:${student.parentEmail}?subject=${encodeURIComponent('Accommodation Update: ' + student.name)}&body=${encodeURIComponent('Dear Parent,\n\nThis is a notification regarding accommodations for ' + student.name + '.\n\nPlease contact us if you have questions.\n\nBest regards')}`, '_blank'); showToast(`Email opened for ${student.parentEmail}`) }}>
                                 <Mail className="w-3.5 h-3.5" /> Notify Parent
                               </button>
                             </div>

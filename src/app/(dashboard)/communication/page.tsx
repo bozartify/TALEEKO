@@ -823,7 +823,7 @@ export default function CommunicationPage() {
                       )}
                       <button onClick={() => { window.location.href = 'tel:+1'; showToast('Opening phone…') }} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Call"><Phone className="w-4 h-4" /></button>
                       <button onClick={() => { window.open('https://meet.google.com/new', '_blank'); showToast('Opening Google Meet…') }} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="Video call"><Video className="w-4 h-4" /></button>
-                      <button onClick={() => { showToast('More options coming soon') }} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="More"><MoreHorizontal className="w-4 h-4" /></button>
+                      <button onClick={() => { const c = selectedConv; if (c) { navigator.clipboard?.writeText(`${c.parent} (${c.student})`).catch(() => {}); showToast('Contact info copied') } }} className="p-2 rounded-lg hover:bg-white/[0.06] text-surface-500" title="More"><MoreHorizontal className="w-4 h-4" /></button>
                     </div>
                   </div>
 

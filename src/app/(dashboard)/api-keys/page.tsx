@@ -138,6 +138,7 @@ export default function ApiKeysPage() {
   const [webhookList, setWebhookList] = useState(webhooks)
   const [newWebhookUrl, setNewWebhookUrl] = useState('')
   const [appList, setAppList] = useState<OAuthApp[]>(oauthApps)
+  const [logsRefreshedAt, setLogsRefreshedAt] = useState<string | null>(null)
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -422,7 +423,7 @@ export default function ApiKeysPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0">
-                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" title="Test webhook" onClick={() => showToast('Test event sent to webhook')}>
+                      <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" title="Test webhook" onClick={() => { navigator.clipboard?.writeText(webhook.url).catch(() => {}); showToast('Webhook URL copied — paste into curl to test') }}>
                         <Zap className="w-3.5 h-3.5" />
                       </button>
                       <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => { setWebhookList(prev => prev.map(w => w.id === webhook.id ? { ...w, status: w.status === 'active' ? 'inactive' as const : 'active' as const } : w)); showToast(webhook.status === 'active' ? 'Webhook paused' : 'Webhook enabled') }}>
@@ -431,7 +432,7 @@ export default function ApiKeysPage() {
                       <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-400 hover:text-white transition-colors" onClick={() => { navigator.clipboard?.writeText(webhook.url).catch(() => {}); showToast('Webhook URL copied') }}>
                         <Copy className="w-3.5 h-3.5" />
                       </button>
-                      <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => showToast('Webhook deleted')}>
+                      <button className="p-1.5 rounded-lg hover:bg-danger-400/10 text-surface-400 hover:text-danger-400 transition-colors" onClick={() => { setWebhookList(prev => prev.filter(w => w.id !== webhook.id)); showToast('Webhook deleted') }}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -467,7 +468,7 @@ export default function ApiKeysPage() {
               <h3 className="text-base font-bold text-white">API Request Logs</h3>
               <div className="flex items-center gap-2">
                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { const el = document.querySelector<HTMLInputElement>('input[placeholder="Filter logs..."]'); el?.focus(); showToast('Type to filter logs') }}><Filter className="w-3.5 h-3.5" /> Filter</button>
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs refreshed — showing latest calls')}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setLogsRefreshedAt(new Date().toLocaleTimeString()); showToast('Logs refreshed — showing latest calls') }}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
               </div>
             </div>
 

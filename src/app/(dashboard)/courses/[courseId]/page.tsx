@@ -163,11 +163,11 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <button onClick={() => showToast('Course updated!')} className="btn-secondary text-xs px-3 py-1.5">
+              <button onClick={() => router.push('/courses')} className="btn-secondary text-xs px-3 py-1.5">
                 <Edit3 className="w-3.5 h-3.5" />
                 Edit
               </button>
-              <button onClick={() => showToast('Announcement sent!')} className="btn-secondary text-xs px-3 py-1.5">
+              <button onClick={() => { window.open(`mailto:?subject=${encodeURIComponent('Course Update: ' + courseInfo.title)}&body=${encodeURIComponent('Hello students,\n\nHere is an update for ' + courseInfo.title + '.\n\nBest,')}`, '_blank'); showToast('Email client opened for announcement') }} className="btn-secondary text-xs px-3 py-1.5">
                 <Bell className="w-3.5 h-3.5" />
                 Announce
               </button>
@@ -261,7 +261,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-white leading-snug">{ins.title}</p>
-                    <button className="mt-1.5 text-[11px] font-medium flex items-center gap-1" style={{ color: ins.color }} onClick={() => showToast(`${ins.action}…`)}>
+                    <button className="mt-1.5 text-[11px] font-medium flex items-center gap-1" style={{ color: ins.color }} onClick={() => { if (ins.action === 'Plan intervention') router.push('/intervention-tracker'); else if (ins.action === 'View analytics') router.push('/reports'); else if (ins.action === 'Generate now') router.push('/lesson-planner'); else showToast(`${ins.action}…`) }}>
                       {ins.action} <ChevronRight className="w-3 h-3" />
                     </button>
                   </div>
@@ -343,7 +343,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                   <Plus className="w-3.5 h-3.5" />
                   Add Unit
                 </button>
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('AI generating unit sequence…')}>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/scope-sequence')}>
                   <Sparkles className="w-3.5 h-3.5" />
                   AI Sequence
                 </button>
@@ -464,7 +464,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
               <p className="text-sm font-bold text-white">{courseInfo.nextClass}</p>
               <p className="text-xs text-surface-500 mt-1">Cell Structure · 28 students</p>
               <div className="flex gap-2 mt-3">
-                <button onClick={() => showToast('Starting class session…')} className="btn-gradient text-xs flex-1 justify-center">
+                <button onClick={() => router.push('/game-builder')} className="btn-gradient text-xs flex-1 justify-center">
                   <Zap className="w-3 h-3" />
                   Start Class
                 </button>

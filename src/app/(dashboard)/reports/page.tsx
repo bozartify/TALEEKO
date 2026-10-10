@@ -280,7 +280,7 @@ export default function ReportsPage() {
               <button onClick={() => setScheduleModal(true)} className="btn-secondary text-xs px-3 py-1.5">
                 <Bell className="w-3.5 h-3.5" /> Schedule
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Report preferences saved')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setScheduleModal(true) }}>
                 <Settings className="w-3.5 h-3.5" /> Preferences
               </button>
               <motion.button

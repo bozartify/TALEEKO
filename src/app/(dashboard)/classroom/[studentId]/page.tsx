@@ -94,6 +94,7 @@ export default function StudentDetailPage() {
   const [tab, setTab] = useState<Tab>('overview')
   const [noteText, setNoteText] = useState('')
   const [toastMsg, setToastMsg] = useState('')
+  const [noteList, setNoteList] = useState(teacherNotes)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   return (
@@ -152,14 +153,14 @@ export default function StudentDetailPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => showToast('Message sent!')} className="btn-secondary text-xs px-3 py-1.5">
+              <button onClick={() => { window.open(`mailto:${student.email}`, '_blank'); showToast('Email client opened') }} className="btn-secondary text-xs px-3 py-1.5">
                 <MessageSquare className="w-3.5 h-3.5" /> Message
               </button>
               <motion.button
                 className="btn-primary text-xs"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('Profile updated!')}
+                onClick={() => { navigator.clipboard?.writeText(`${student.name} — ${student.grade} Grade | ${student.email}`).catch(() => {}); showToast('Student info copied to clipboard') }}
               >
                 <Edit3 className="w-3.5 h-3.5" /> Edit Profile
               </motion.button>
@@ -454,7 +455,7 @@ export default function StudentDetailPage() {
                   className="btn-primary text-xs"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => showToast('Note saved!')}
+                  onClick={() => { if (!noteText.trim()) return; const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); setNoteList(prev => [{ id: Date.now(), date: today, content: noteText.trim() }, ...prev]); setNoteText(''); showToast('Note saved!') }}
                 >
                   <Plus className="w-3.5 h-3.5" /> Save Note
                 </motion.button>
@@ -462,7 +463,7 @@ export default function StudentDetailPage() {
             </div>
 
             <div className="space-y-3">
-              {teacherNotes.map((note, i) => (
+              {noteList.map((note, i) => (
                 <motion.div
                   key={note.id}
                   className="glass-card p-5"

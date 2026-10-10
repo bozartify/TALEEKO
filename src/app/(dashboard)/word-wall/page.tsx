@@ -315,7 +315,7 @@ export default function WordWallPage() {
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
                 <Download className="w-3.5 h-3.5" /> Export
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Share link copied!')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied!') }}>
                 <Share2 className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -670,7 +670,7 @@ export default function WordWallPage() {
                               <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(word.word); u.rate = 0.85; window.speechSynthesis.speak(u) } else showToast(`"${word.word}" — no speech API`) }}>
                                 <Volume2 className="w-3 h-3" /> Pronounce
                               </button>
-                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast(`Translating "${word.word}"`)}>
+                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => { window.open(`https://translate.google.com/?sl=auto&tl=es&text=${encodeURIComponent(word.word)}`, '_blank'); showToast(`Translating "${word.word}"`) }}>
                                 <Globe className="w-3 h-3" /> Translate
                               </button>
                               <button
@@ -1062,7 +1062,13 @@ export default function WordWallPage() {
                   key={item.label}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                   whileHover={{ x: 2 }}
-                  onClick={() => showToast(`Starting: ${item.label}`)}
+                  onClick={() => {
+                    if (item.label.includes('Needs Review')) { setSearch(''); setUnitFilter('All Units'); setStarFilter(false); setView('wall'); showToast('Filtered to "Needs Review" words') }
+                    else if (item.label.includes('Starred')) { setStarFilter(true); setView('wall'); showToast('Showing starred word flashcards') }
+                    else if (item.label.includes('Unit 1')) { setUnitFilter('Unit 1'); setView('wall'); showToast('Filtered to Unit 1 vocabulary') }
+                    else if (item.label.includes('quiz')) { setView('flashcard'); showToast('Flashcard quiz started!') }
+                    else showToast(`Starting: ${item.label}`)
+                  }}
                 >
                   <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: item.color + '15' }}>
                     <item.icon className="w-3 h-3" style={{ color: item.color }} />

@@ -789,7 +789,7 @@ Return ONLY the JSON array, no other text.`
                           ))}
                         </ul>
                         <div className="flex items-center gap-2 mt-3 pt-2 border-t border-white/[0.04]">
-                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => showToast('Follow-ups added to slide deck')}>
+                          <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => { navigator.clipboard?.writeText(prompt.followUps?.join('\n') ?? '').catch(() => {}); showToast('Follow-ups copied — paste into your slides') }}>
                             <Target className="w-3 h-3" /> Add to Slide Deck
                           </button>
                           <button className="flex items-center gap-1 text-[10px] text-surface-500 hover:text-surface-300 transition-colors" onClick={() => { navigator.clipboard?.writeText(prompt.followUps?.join('\n') ?? '').catch(() => {}); showToast('Follow-ups copied') }}>

@@ -1069,7 +1069,7 @@ export default function GradebookPage() {
               )}
               <div className="flex gap-2">
                 <button className="btn-gradient text-xs flex-1" onClick={() => router.push('/communication')}><MessageSquare className="w-3 h-3" /> Message</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => { showToast(`Alert set for ${selectedStudent?.name}!`) }}><Bell className="w-3 h-3" /> Set Alert</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { if (selectedStudent) { try { const alerts = JSON.parse(localStorage.getItem('taleeko_grade_alerts') || '[]'); localStorage.setItem('taleeko_grade_alerts', JSON.stringify([...alerts, { student: selectedStudent.name, at: Date.now() }])) } catch {} showToast(`Alert set for ${selectedStudent.name}!`) } }}><Bell className="w-3 h-3" /> Set Alert</button>
                 <button className="btn-secondary text-xs flex-1" onClick={() => router.push('/reports')}><FileText className="w-3 h-3" /> Report</button>
               </div>
             </motion.div>

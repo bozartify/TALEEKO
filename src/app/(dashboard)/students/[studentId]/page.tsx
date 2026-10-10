@@ -103,7 +103,32 @@ export default function StudentProfilePage() {
   const [newNote, setNewNote] = useState('')
   const [noteList, setNoteList] = useState<Note[]>(notes)
   const [toastMsg, setToastMsg] = useState('')
+  const [aiSummary, setAiSummary] = useState('')
+  const [generatingSummary, setGeneratingSummary] = useState(false)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  async function generateSummary() {
+    setGeneratingSummary(true)
+    setAiSummary('')
+    setActiveTab('overview')
+    showToast('Generating AI profile summary…')
+    try {
+      const classAvgs = student.classes.map(c => `${c.name}: ${c.avg}%`).join(', ')
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: `Write a concise 2-paragraph academic profile summary for ${student.name}, grade ${student.grade}. GPA: ${student.gpa}. Attendance: ${student.attendance}%. Class averages: ${classAvgs}. Status: ${student.status}.` }] }) })
+      if (!res.body) throw new Error()
+      const reader = res.body.getReader(); const dec = new TextDecoder(); let out = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break; if (!value) continue
+        for (const line of dec.decode(value).split('\n')) {
+          if (!line.startsWith('data: ')) continue
+          const d = line.slice(6); if (d === '[DONE]') break
+          try { const p = JSON.parse(d); if (p.type === 'text') { out += p.text; setAiSummary(out) } } catch {}
+        }
+      }
+      showToast('AI profile summary generated!')
+    } catch { showToast('Generation failed — check connection') } finally { setGeneratingSummary(false) }
+  }
 
   function saveNote() {
     if (!newNote.trim()) return
@@ -205,8 +230,8 @@ export default function StudentProfilePage() {
                 <a href={`mailto:${student.parentEmail}`} className="btn-secondary text-xs px-3 py-1.5">
                   <Users className="w-3.5 h-3.5" /> Email Parent
                 </a>
-                <button onClick={() => showToast('AI profile summary generated!')} className="btn-gradient text-xs px-3 py-1.5">
-                  <Sparkles className="w-3.5 h-3.5" /> AI Profile Summary
+                <button onClick={generateSummary} disabled={generatingSummary} className="btn-gradient text-xs px-3 py-1.5">
+                  <Sparkles className="w-3.5 h-3.5" /> {generatingSummary ? 'Generating…' : 'AI Profile Summary'}
                 </button>
                 <button onClick={exportStudentCSV} className="btn-secondary text-xs px-3 py-1.5">
                   <Download className="w-3.5 h-3.5" /> Export Report
@@ -242,6 +267,19 @@ export default function StudentProfilePage() {
           </div>
         </div>
       </FadeUp>
+
+      {/* AI Summary */}
+      <AnimatePresence>
+        {aiSummary && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="glass-card p-4 border border-neon-500/20">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4 text-neon-400" />
+              <span className="text-xs font-bold text-neon-300">AI Profile Summary</span>
+            </div>
+            <p className="text-sm text-surface-300 leading-relaxed whitespace-pre-wrap">{aiSummary}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Stat Cards */}
       <FadeUp delay={0.06}>

@@ -708,7 +708,7 @@ export default function StandardsUnpackerPage() {
             <div className="glass-card p-4">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider">Recent</p>
-                <button className="text-[10px] text-accent-400 hover:underline" onClick={() => showToast(`Showing all ${recentUnpacked.length} recent standards`)}>View all</button>
+                <button className="text-[10px] text-accent-400 hover:underline" onClick={() => { navigator.clipboard?.writeText(recentUnpacked.map(r => r.code).join(', ')).catch(() => {}); showToast(`All ${recentUnpacked.length} standards copied`) }}>View all</button>
               </div>
               <div className="space-y-2">
                 {recentUnpacked.map(r => (

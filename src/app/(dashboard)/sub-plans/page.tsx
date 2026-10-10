@@ -386,7 +386,7 @@ export default function SubPlansPage() {
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('New plan created!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { const newPlan: SubPlan = { id: `sp${Date.now()}`, date: '', title: 'New Sub Plan', status: 'draft', periods: [], emergencyContact: '', seatingNote: '', behaviorNote: '', medicalAlerts: [], classroomProcedures: [] }; setPlans(prev => [newPlan, ...prev]); setSelectedPlan(newPlan); showToast('New plan created!') }}>
                 <Plus className="w-3.5 h-3.5" /> New Plan
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={handleGenerate}>

@@ -348,7 +348,7 @@ export default function IntegrationsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('All integrations synced!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { setIntegrationList(prev => prev.map(i => i.status === 'connected' ? { ...i, syncStatus: 'synced' as const, lastSync: 'Just now' } : i)); showToast('All integrations synced!') }}>
                 <RefreshCw className="w-3.5 h-3.5" /> Sync All
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}>

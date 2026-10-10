@@ -110,8 +110,8 @@ export default function LessonDetailPage({
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => showToast('Lesson exported!')} className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
-              <button onClick={() => showToast('Link copied!')} className="btn-secondary text-xs"><Share2 className="w-3.5 h-3.5" /> Share</button>
+              <button onClick={() => { window.print(); showToast('Lesson sent to printer') }} className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
+              <button onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Link copied!') }} className="btn-secondary text-xs"><Share2 className="w-3.5 h-3.5" /> Share</button>
               <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
                 <Sparkles className="w-4 h-4" /> Generate More
               </Link>

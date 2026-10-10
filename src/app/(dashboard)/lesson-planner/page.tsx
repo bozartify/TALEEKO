@@ -686,7 +686,7 @@ export default function LessonPlannerPage() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + i * 0.06 }}
                     whileHover={{ x: 2 }}
-                    onClick={() => showToast(`Added: "${s.text.slice(0, 40)}…"`)}
+                    onClick={() => { setSections(prev => prev.map(sec => sec.id === 'hook' ? { ...sec, content: sec.content + `\n\n💡 ${s.text}` } : sec)); setExpandedSection('hook'); showToast(`Added: "${s.text.slice(0, 40)}…`) }}
                   >
                     <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: s.color }} />
                     <div className="flex-1">
