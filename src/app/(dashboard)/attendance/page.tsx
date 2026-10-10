@@ -102,6 +102,7 @@ export default function AttendancePage() {
   })
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [aiOpen, setAiOpen] = useState(true)
+  const [awardedStudents, setAwardedStudents] = useState<Set<string>>(new Set())
   const [notifyModal, setNotifyModal] = useState<StudentRecord | null>(null)
   const [exportOpen, setExportOpen] = useState(false)
   const [noteModal, setNoteModal] = useState<StudentRecord | null>(null)
@@ -352,7 +353,7 @@ export default function AttendancePage() {
                         Isabella Jones has 0 absences this month. A public recognition can motivate peers and create a positive attendance culture.
                       </p>
                     </div>
-                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex-shrink-0" onClick={() => showToast('Perfect Attendance Award sent to Isabella!')}>Award →</button>
+                    <button className="text-[10px] font-semibold text-accent-400 hover:text-accent-300 flex-shrink-0" onClick={() => { const next = new Set(awardedStudents); next.add('Isabella Jones'); setAwardedStudents(next); showToast('🏆 Perfect Attendance award sent to Isabella!') }}>{awardedStudents.has('Isabella Jones') ? '✓ Awarded' : 'Award →'}</button>
                   </div>
                 </div>
               </motion.div>
@@ -1008,7 +1009,7 @@ export default function AttendancePage() {
               </div>
               <div className="flex justify-end gap-2 mt-4">
                 <button onClick={() => setNotifyModal(null)} className="btn-secondary text-xs px-4 py-2">Cancel</button>
-                <button onClick={() => { showToast(`Email sent to ${notifyModal.name}'s parent`); setNotifyModal(null) }} className="btn-gradient text-xs px-4 py-2">
+                <button onClick={() => { window.open(`mailto:${notifyModal.parentEmail}?subject=${encodeURIComponent(notifySubject)}&body=${encodeURIComponent(notifyMsg)}`, '_blank'); showToast(`Email client opened for ${notifyModal.name}'s parent`); setNotifyModal(null) }} className="btn-gradient text-xs px-4 py-2">
                   <Mail className="w-3.5 h-3.5" /> Send
                 </button>
               </div>

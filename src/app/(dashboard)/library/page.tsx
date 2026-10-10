@@ -114,6 +114,7 @@ export default function LibraryPage() {
   const [bulkMode, setBulkMode] = useState(false)
   const [deleteToast, setDeleteToast] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
+  const [collectionList, setCollectionList] = useState(collections)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   const filtered = items
@@ -475,7 +476,7 @@ export default function LibraryPage() {
                     <div>
                       <p className="text-xs font-bold text-electric-300">Batch Generation Ready</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">You have 3 lesson plans but no matching exit tickets. AI can auto-generate exit tickets for each lesson in one click.</p>
-                      <button onClick={() => showToast('Generating exit tickets for all lessons…')} className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline">Generate now →</button>
+                      <button onClick={() => router.push('/quiz-builder')} className="text-[10px] text-electric-400 font-semibold mt-1 hover:underline">Generate now →</button>
                     </div>
                   </div>
                 </div>
@@ -631,10 +632,10 @@ export default function LibraryPage() {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-white">Collections</h3>
-            <button onClick={() => showToast('New collection created!')} className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">+ New Collection</button>
+            <button onClick={() => { const n = collectionList.length + 1; setCollectionList(prev => [...prev, { name: `New Collection ${n}`, count: 0, color: '#8b5cf6', icon: '📁' }]); showToast('New collection created!') }} className="text-xs text-accent-400 hover:text-accent-300 font-semibold transition-colors">+ New Collection</button>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {collections.map((col, i) => (
+            {collectionList.map((col, i) => (
               <motion.div
                 key={col.name}
                 className="glass-card p-3.5 cursor-pointer group hover:bg-white/[0.06] transition-colors"
@@ -808,10 +809,10 @@ export default function LibraryPage() {
                       >
                         <Eye className="w-3.5 h-3.5" /> View
                       </motion.button>
-                      <motion.button onClick={e => { e.stopPropagation(); showToast(`Editing "${item.title}"`) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
+                      <motion.button onClick={e => { e.stopPropagation(); setPreviewItem(item) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
                         <Edit3 className="w-3.5 h-3.5" /> Edit
                       </motion.button>
-                      <motion.button onClick={e => { e.stopPropagation(); showToast(`"${item.title}" duplicated`) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
+                      <motion.button onClick={e => { e.stopPropagation(); setItems(prev => [...prev, { ...item, id: `${item.id}-copy-${Date.now()}`, title: `${item.title} (Copy)`, starred: false }]); showToast(`"${item.title}" duplicated`) }} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] text-surface-400 hover:text-white hover:bg-white/[0.06] transition-all" whileTap={{ scale: 0.95 }}>
                         <Copy className="w-3.5 h-3.5" /> Copy
                       </motion.button>
                       <motion.button

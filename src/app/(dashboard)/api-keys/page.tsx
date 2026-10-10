@@ -137,6 +137,7 @@ export default function ApiKeysPage() {
   const [addWebhookOpen, setAddWebhookOpen] = useState(false)
   const [webhookList, setWebhookList] = useState(webhooks)
   const [newWebhookUrl, setNewWebhookUrl] = useState('')
+  const [appList, setAppList] = useState<OAuthApp[]>(oauthApps)
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -465,8 +466,8 @@ export default function ApiKeysPage() {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-white">API Request Logs</h3>
               <div className="flex items-center gap-2">
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Showing all logs')}><Filter className="w-3.5 h-3.5" /> Filter</button>
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs refreshed')}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { const el = document.querySelector<HTMLInputElement>('input[placeholder="Filter logs..."]'); el?.focus(); showToast('Type to filter logs') }}><Filter className="w-3.5 h-3.5" /> Filter</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Logs refreshed — showing latest calls')}><RefreshCw className="w-3.5 h-3.5" /> Refresh</button>
               </div>
             </div>
 
@@ -593,7 +594,7 @@ export default function ApiKeysPage() {
               <button onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')} className="btn-secondary text-xs px-3 py-1.5"><Search className="w-3.5 h-3.5" /> Browse Apps</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {oauthApps.map((app, i) => (
+              {appList.map((app, i) => (
                 <motion.div
                   key={app.id}
                   className="glass-card p-5"
@@ -620,10 +621,10 @@ export default function ApiKeysPage() {
                     {app.connected ? (
                       <>
                         <button className="btn-secondary text-xs px-3 py-1.5 flex-1" onClick={() => window.open('https://docs.anthropic.com/en/api/getting-started', '_blank')}><Settings className="w-3 h-3" /> Configure</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => showToast(`${app.name} disconnected`)}><X className="w-3 h-3" /> Disconnect</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5 text-danger-400 hover:bg-danger-400/10" onClick={() => { setAppList(prev => prev.map(a => a.id === app.id ? { ...a, connected: false } : a)); showToast(`${app.name} disconnected`) }}><X className="w-3 h-3" /> Disconnect</button>
                       </>
                     ) : (
-                      <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => showToast(`Connecting to ${app.name}...`)}>
+                      <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { setAppList(prev => prev.map(a => a.id === app.id ? { ...a, connected: true } : a)); showToast(`${app.name} connected!`) }}>
                         <Plus className="w-3.5 h-3.5" /> Connect {app.name}
                       </motion.button>
                     )}

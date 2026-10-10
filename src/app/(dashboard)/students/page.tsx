@@ -86,6 +86,9 @@ export default function StudentsPage() {
   const [actionMenu, setActionMenu]         = useState<string | null>(null)
   const [toastMsg, setToastMsg]             = useState('')
   const [deleteTarget, setDeleteTarget]     = useState<Student | null>(null)
+  const [flaggedStudents, setFlaggedStudents] = useState<Set<string>>(new Set())
+  const [selectedGrouping, setSelectedGrouping] = useState<string | null>(null)
+  const [msgDraft, setMsgDraft] = useState('')
 
   // Add student form state
   const [newName, setNewName]       = useState('')
@@ -329,7 +332,7 @@ export default function StudentsPage() {
                     ))}
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold" onClick={() => showToast('Full action plan generated')}>View Full Action Plan</button>
+                    <button className="text-xs text-accent-400 hover:text-accent-300 font-semibold" onClick={() => router.push('/intervention-tracker')}>View Full Action Plan</button>
                     <span className="text-surface-600">·</span>
                     <button className="text-xs text-surface-500 hover:text-surface-300" onClick={() => setAiInsightOpen(false)}>Dismiss</button>
                   </div>
@@ -364,7 +367,7 @@ export default function StudentsPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.08 }}
-                    onClick={() => showToast(`${g.label} grouping selected`)}
+                    onClick={() => { setSelectedGrouping(g.label); showToast(`${g.label} grouping selected`) }}
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: g.color }} />
@@ -385,7 +388,7 @@ export default function StudentsPage() {
                 ))}
               </div>
               <div className="flex items-center gap-2">
-                <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('Groups applied to roster')}>
+                <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => router.push('/groups')}>
                   <Sparkles className="w-3.5 h-3.5" /> Apply Groups
                 </motion.button>
                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
@@ -400,7 +403,7 @@ export default function StudentsPage() {
                   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'student-groups.csv'; a.click(); URL.revokeObjectURL(a.href)
                   showToast('Group list exported!')
                 }}><Download className="w-3.5 h-3.5" /> Export List</button>
-                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Regenerating groups...')}><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
+                <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setSelectedGrouping(null); showToast('Groups reshuffled — pick a strategy') }}><RefreshCw className="w-3.5 h-3.5" /> Regenerate</button>
               </div>
             </div>
           </motion.div>
@@ -538,9 +541,9 @@ export default function StudentsPage() {
                                 {[
                                   { icon: Eye,          label: 'View Portfolio',   action: () => { router.push('/portfolio'); setActionMenu(null) } },
                                   { icon: Mail,         label: 'Message Parent',   action: () => { setMessageModal(student); setActionMenu(null) } },
-                                  { icon: Sparkles,     label: 'AI Action Plan',   action: () => { showToast(`AI action plan for ${student.name}`); setActionMenu(null) } },
+                                  { icon: Sparkles,     label: 'AI Action Plan',   action: () => { router.push('/intervention-tracker'); setActionMenu(null) } },
                                   { icon: BarChart2,    label: 'View Analytics',   action: () => { router.push('/analytics'); setActionMenu(null) } },
-                                  { icon: Flag,         label: 'Flag for Review',  action: () => { showToast(`${student.name} flagged for review`); setActionMenu(null) } },
+                                  { icon: Flag,         label: 'Flag for Review',  action: () => { const next = new Set(flaggedStudents); next.add(student.id); setFlaggedStudents(next); showToast(`${student.name} flagged for review`); setActionMenu(null) } },
                                 ].map(item => (
                                   <button
                                     key={item.label}
@@ -628,7 +631,7 @@ export default function StudentsPage() {
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/portfolio') }}><Eye className="w-3 h-3" /> Portfolio</button>
                             <button onClick={e => { e.stopPropagation(); setMessageModal(student) }} className="btn-secondary text-xs px-3 py-1.5"><Mail className="w-3 h-3" /> Message Parent</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/analytics') }}><BarChart2 className="w-3 h-3" /> Analytics</button>
-                            <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={e => { e.stopPropagation(); showToast(`AI Action Plan for ${student.name} generated`) }}><Sparkles className="w-3 h-3" /> AI Action Plan</button>
+                            <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={e => { e.stopPropagation(); router.push('/intervention-tracker') }}><Sparkles className="w-3 h-3" /> AI Action Plan</button>
                           </div>
                         </div>
                       </motion.div>
@@ -843,7 +846,7 @@ export default function StudentsPage() {
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
               <p className="text-[10px] text-surface-500">Class engagement is trending upward — highest in 2 months.</p>
-              <button className="text-[10px] text-accent-400 font-semibold hover:text-accent-300" onClick={() => showToast('Detailed engagement report generated')}>Full Report →</button>
+              <button className="text-[10px] text-accent-400 font-semibold hover:text-accent-300" onClick={() => router.push('/reports')}>Full Report →</button>
             </div>
           </div>
 
@@ -852,11 +855,11 @@ export default function StudentsPage() {
             <h4 className="text-sm font-bold text-white mb-3">Quick Actions</h4>
             <div className="space-y-2">
               {[
-                { icon: Mail,        label: 'Message All Parents',    color: '#6366f1', action: () => showToast('Bulk parent message drafted') },
+                { icon: Mail,        label: 'Message All Parents',    color: '#6366f1', action: () => router.push('/communication') },
                 { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => { window.print(); showToast('Printing progress reports…') } },
-                { icon: Sparkles,    label: 'AI Intervention Plan',   color: '#f59e0b', action: () => showToast('AI intervention plan created') },
+                { icon: Sparkles,    label: 'AI Intervention Plan',   color: '#f59e0b', action: () => router.push('/intervention-tracker') },
                 { icon: Download,    label: 'Export Full Roster',      color: '#22d3ee', action: () => exportRosterCSV() },
-                { icon: GraduationCap, label: 'Assign Peer Tutors',  color: '#a855f7', action: () => showToast('Peer tutor assignments saved') },
+                { icon: GraduationCap, label: 'Assign Peer Tutors',  color: '#a855f7', action: () => router.push('/groups') },
               ].map(item => (
                 <button
                   key={item.label}
@@ -902,17 +905,17 @@ export default function StudentsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-xs font-semibold text-surface-300">Message</label>
-                    <button className="text-[10px] text-accent-400 flex items-center gap-1" onClick={() => showToast('AI draft generated')}><Sparkles className="w-3 h-3" /> AI Draft</button>
+                    <button className="text-[10px] text-accent-400 flex items-center gap-1" onClick={() => { setMsgDraft(`Dear Parent/Guardian,\n\nI wanted to share an update regarding ${messageModal?.name ?? 'your student'}'s progress. Their current average is ${messageModal?.avg ?? '—'}%, with ${messageModal?.attendance ?? '—'}% attendance this term.\n\nPlease don't hesitate to reach out with any questions.\n\nBest regards,\nMs. Johnson`); showToast('AI draft ready') }}><Sparkles className="w-3 h-3" /> AI Draft</button>
                   </div>
-                  <textarea rows={4} defaultValue={`Dear Parent,\n\nI wanted to share a brief update on ${messageModal.name}'s progress in class...\n\nBest regards,`} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none" />
+                  <textarea rows={4} value={msgDraft || `Dear Parent,\n\nI wanted to share a brief update on ${messageModal.name}'s progress in class...\n\nBest regards,`} onChange={e => setMsgDraft(e.target.value)} className="w-full bg-white/[0.04] border border-white/[0.08] text-surface-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500 resize-none" />
                 </div>
               </div>
               <div className="flex gap-3 mt-5">
-                <button className="btn-secondary text-xs flex-1" onClick={() => showToast('Message scheduled for tomorrow 8am')}>Schedule Send</button>
+                <button className="btn-secondary text-xs flex-1" onClick={() => { localStorage.setItem('taleeko_scheduled_msg', JSON.stringify({ student: messageModal?.name, at: Date.now() + 86400000 })); showToast('Message scheduled for tomorrow 8am') }}>Schedule Send</button>
                 <motion.button
                   className="btn-gradient text-xs flex-1"
                   whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                  onClick={() => { showToast(`Message sent to ${messageModal.name}'s parent`); setMessageModal(null) }}
+                  onClick={() => { window.open(`mailto:${messageModal.parentEmail}?subject=${encodeURIComponent(`Update on ${messageModal.name}`)}&body=${encodeURIComponent(msgDraft || `Dear Parent,\n\nI wanted to share a brief update on ${messageModal.name}'s progress.\n\nBest regards,`)}`, '_blank'); showToast(`Email opened for ${messageModal.name}'s parent`); setMessageModal(null); setMsgDraft('') }}
                 >
                   <Send className="w-3.5 h-3.5" /> Send Now
                 </motion.button>

@@ -116,6 +116,7 @@ export default function SettingsPage() {
   }
 
   const [toastMsg, setToastMsg] = useState('')
+  const [revokedSessions, setRevokedSessions] = useState<Set<string>>(new Set())
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
@@ -548,7 +549,7 @@ export default function SettingsPage() {
                       <label className="block text-xs font-semibold text-surface-200 mb-1.5">Password</label>
                       <div className="flex gap-2">
                         <input type="password" defaultValue="••••••••••••" className="input-base flex-1" disabled />
-                        <button className="btn-secondary text-xs px-3" onClick={() => showToast('Password change email sent!')}>
+                        <button className="btn-secondary text-xs px-3" onClick={() => { window.open('mailto:support@taleeko.com?subject=Password%20Change%20Request', '_blank'); showToast('Password reset email sent!') }}>
                           <Lock className="w-3 h-3" /> Change
                         </button>
                       </div>
@@ -583,7 +584,7 @@ export default function SettingsPage() {
                           {sess.current ? (
                             <span className="badge bg-success-400/15 text-success-400">Current</span>
                           ) : (
-                            <button className="text-xs text-danger-400 font-semibold hover:text-danger-300" onClick={() => showToast(`Session revoked: ${sess.device}`)}>Revoke</button>
+                            <button className="text-xs text-danger-400 font-semibold hover:text-danger-300" onClick={() => { const next = new Set(revokedSessions); next.add(sess.device); setRevokedSessions(next); showToast(`Session revoked: ${sess.device}`) }} disabled={revokedSessions.has(sess.device)}>{revokedSessions.has(sess.device) ? '✓ Revoked' : 'Revoke'}</button>
                           )}
                         </div>
                       ))}
@@ -648,7 +649,7 @@ export default function SettingsPage() {
                         {deleteConfirm ? (
                           <div className="mt-3 flex items-center gap-2">
                             <span className="text-xs text-danger-400">Are you sure? This cannot be undone.</span>
-                            <button onClick={() => showToast('Account deletion request submitted')} className="text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors">Confirm</button>
+                            <button onClick={() => { window.open('mailto:support@taleeko.com?subject=Account%20Deletion%20Request', '_blank'); showToast('Deletion request sent — check your email'); setDeleteConfirm(false) }} className="text-xs font-semibold text-danger-400 border border-danger-400/20 px-3 py-1.5 rounded-lg hover:bg-danger-400/15 transition-colors">Confirm</button>
                             <button onClick={() => setDeleteConfirm(false)} className="text-xs font-semibold text-surface-400 hover:text-white px-3 py-1.5 rounded-lg border border-white/[0.06] hover:bg-white/[0.04] transition-colors">Cancel</button>
                           </div>
                         ) : (
@@ -859,7 +860,7 @@ export default function SettingsPage() {
                           <p className="text-xs text-surface-400">Expires 09/2027</p>
                         </div>
                       </div>
-                      <button className="btn-secondary text-xs px-3" onClick={() => showToast('Contact billing@taleeko.com to update payment method')}>
+                      <button className="btn-secondary text-xs px-3" onClick={() => { window.open('mailto:billing@taleeko.com?subject=Update%20Payment%20Method', '_blank'); showToast('Opening billing email…') }}>
                         Update
                       </button>
                     </motion.div>
@@ -905,7 +906,7 @@ export default function SettingsPage() {
                       className="btn-gradient"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => showToast('Contact sales@taleeko.com to upgrade your plan')}
+                      onClick={() => { window.open('mailto:sales@taleeko.com?subject=Plan%20Upgrade%20Request', '_blank'); showToast('Opening sales email…') }}
                     >
                       <ExternalLink className="w-4 h-4" />
                       Upgrade Plan
@@ -914,7 +915,7 @@ export default function SettingsPage() {
                       className="btn-secondary text-danger-400 border-danger-400/20 hover:bg-danger-400/10"
                       whileHover={{ scale: 1.03 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => showToast('Cancellation request submitted — we\'ll be in touch')}
+                      onClick={() => { window.open('mailto:support@taleeko.com?subject=Cancellation%20Request', '_blank'); showToast('Cancellation email opened — we\'ll be in touch') }}
                     >
                       Cancel Subscription
                     </motion.button>
@@ -998,7 +999,7 @@ export default function SettingsPage() {
                           }`}>
                             {member.status}
                           </span>
-                          <button className="text-surface-500 hover:text-white transition-colors" onClick={() => showToast(`Managing ${member.name}…`)}>
+                          <button className="text-surface-500 hover:text-white transition-colors" onClick={() => { navigator.clipboard?.writeText(member.email ?? member.name).catch(() => {}); showToast(`${member.name}'s info copied`) }}>
                             <ChevronRight className="w-4 h-4" />
                           </button>
                         </motion.div>

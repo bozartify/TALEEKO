@@ -91,6 +91,7 @@ export default function QuizBuilderPage() {
   const [timeLimit, setTimeLimit] = useState('30')
   const [currentPreviewQ, setCurrentPreviewQ] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [assignedClasses, setAssignedClasses] = useState<Set<string>>(new Set())
   const [showExplanation, setShowExplanation] = useState(false)
 
   const totalPoints = questions.reduce((a, q) => a + q.points, 0)
@@ -428,7 +429,7 @@ export default function QuizBuilderPage() {
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing quiz…') }}>
                 <Download className="w-3.5 h-3.5" />
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Share link copied!')}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Quiz link copied to clipboard') }}>
                 <Share2 className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -892,7 +893,7 @@ export default function QuizBuilderPage() {
                       key={cls.label}
                       className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-white/[0.06] hover:border-accent-500/30 hover:bg-accent-500/[0.04] transition-all group"
                       whileHover={{ x: 2 }}
-                      onClick={() => showToast(`Quiz assigned to ${cls.label}`)}
+                      onClick={() => { const next = new Set(assignedClasses); next.add(cls.label); setAssignedClasses(next); showToast(`Quiz assigned to ${cls.label}`) }}
                     >
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: cls.color + '18' }}>
                         <cls.icon className="w-3.5 h-3.5" style={{ color: cls.color }} />
@@ -921,7 +922,7 @@ export default function QuizBuilderPage() {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.3 + i * 0.05 }}
                       whileHover={{ x: 2 }}
-                      onClick={() => { showToast(`"${qz.title}" loaded`) }}
+                      onClick={() => { setTopic(qz.title); setTimeLimit(qz.time.replace(' min', '')); showToast(`"${qz.title}" loaded — click Generate to rebuild`) }}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-xs font-semibold text-white truncate">{qz.title}</p>

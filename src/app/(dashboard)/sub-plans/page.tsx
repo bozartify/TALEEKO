@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -171,6 +172,7 @@ const AI_ALERTS = [
     title: 'Plan Expiring Soon',
     body: '"PD Day Sub Plan" is still in Draft. You have 2 absences scheduled next month — finalize this plan before Aug 3.',
     action: 'Finalize Now',
+    route: 'markReady',
   },
   {
     icon: TrendingUp,
@@ -179,6 +181,7 @@ const AI_ALERTS = [
     title: 'High-Quality Activities',
     body: 'Plans with video + reflection outperform lecture-only plans by 23% on sub feedback ratings. Great choice for Period 3!',
     action: 'View Report',
+    route: '/reports',
   },
   {
     icon: Lightbulb,
@@ -187,6 +190,7 @@ const AI_ALERTS = [
     title: 'Add a Feedback Form',
     body: 'Subs who leave feedback improve your plan quality 2× faster. Add a quick end-of-day form to this plan.',
     action: 'Add Form',
+    route: 'feedback',
   },
 ]
 
@@ -207,6 +211,7 @@ const QUICK_ACTIVITIES = [
    ───────────────────────────────────────────────────────── */
 
 export default function SubPlansPage() {
+  const router = useRouter()
   const [plans, setPlans] = useState<SubPlan[]>(SAMPLE_PLANS)
   const [selectedPlan, setSelectedPlan] = useState<SubPlan>(SAMPLE_PLANS[0])
   const [expandedPeriod, setExpandedPeriod] = useState<string | null>('p1')
@@ -461,7 +466,7 @@ export default function SubPlansPage() {
                         <span className="text-xs font-bold text-white">{alert.title}</span>
                       </div>
                       <p className="text-[11px] text-surface-400 leading-relaxed mb-3">{alert.body}</p>
-                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => showToast(`${alert.action}…`)}>
+                      <button className="text-[11px] font-semibold flex items-center gap-1" style={{ color: alert.color }} onClick={() => { if (alert.route === 'markReady') { setSelectedPlan(prev => ({ ...prev, status: 'ready' })); showToast('Plan marked as Ready!') } else if (alert.route === 'feedback') setFeedbackOpen(true); else router.push(alert.route) }}>
                         {alert.action} <ArrowRight className="w-3 h-3" />
                       </button>
                     </motion.div>
@@ -590,9 +595,9 @@ export default function SubPlansPage() {
                           >
                             {[
                               { icon: Copy, label: 'Duplicate', action: () => handleDuplicate(plan.id) },
-                              { icon: Share2, label: 'Share', action: () => { setActionMenu(null); showToast('Share link copied!') } },
+                              { icon: Share2, label: 'Share', action: () => { setActionMenu(null); navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Plan link copied to clipboard') } },
                               { icon: Printer, label: 'Print', action: () => { setActionMenu(null); window.print() } },
-                              { icon: Archive, label: 'Archive', action: () => { setActionMenu(null); showToast('Plan archived') } },
+                              { icon: Archive, label: 'Archive', action: () => { setActionMenu(null); setPlans(prev => prev.filter(p => p.id !== plan.id)); showToast('Plan archived') } },
                             ].map(item => (
                               <button
                                 key={item.label}
@@ -661,7 +666,7 @@ export default function SubPlansPage() {
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}>
                     <Printer className="w-3.5 h-3.5" /> Print
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast('Click any period to edit it inline')}>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setExpandedPeriod(selectedPlan.periods[0]?.id ?? null); showToast('Period expanded — click fields to edit') }}>
                     <Edit className="w-3.5 h-3.5" /> Edit
                   </button>
                 </div>
@@ -827,7 +832,7 @@ export default function SubPlansPage() {
                                   : <><Copy className="w-3.5 h-3.5" /> Copy Period</>
                                 }
                               </motion.button>
-                              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Editing "${period.name}"…`)}>
+                              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setExpandedPeriod(period.id); showToast(`"${period.name}" — edit fields above`) }}>
                                 <Edit className="w-3.5 h-3.5" /> Edit
                               </button>
                               <button className="btn-secondary text-xs px-3 py-1.5 ml-auto flex items-center gap-1.5" disabled={improvingPeriodId === period.id} onClick={() => handleImprovePeriod(period)}>
@@ -967,7 +972,7 @@ export default function SubPlansPage() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.4 + i * 0.04 }}
                   whileTap={{ scale: 0.97 }}
-                  onClick={() => showToast(`Activity added: "${activity}"`)}
+                  onClick={() => { const pid = expandedPeriod ?? selectedPlan.periods[0]?.id; if (pid) { setSelectedPlan(prev => ({ ...prev, periods: prev.periods.map(p => p.id === pid ? { ...p, activity: (p.activity ? p.activity + '\n• ' : '• ') + activity } : p) })); showToast(`"${activity}" added to period`) } else showToast('Expand a period first') }}
                 >
                   <Plus className="w-3 h-3 text-accent-400 flex-shrink-0" />
                   <span className="text-[11px] text-surface-300">{activity}</span>
@@ -1141,10 +1146,10 @@ export default function SubPlansPage() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <motion.button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-400" whileHover={{ scale: 1.02 }} onClick={() => showToast('Good Day noted!')}>
+                  <motion.button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-400" whileHover={{ scale: 1.02 }} onClick={() => { setSelectedPlan(prev => ({ ...prev, status: 'ready' })); setFeedbackOpen(false); showToast('Good Day noted — plan marked complete!') }}>
                     <ThumbsUp className="w-3.5 h-3.5" /> Good Day
                   </motion.button>
-                  <motion.button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400" whileHover={{ scale: 1.02 }} onClick={() => showToast('Issues flagged for review')}>
+                  <motion.button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold bg-red-500/10 text-red-400" whileHover={{ scale: 1.02 }} onClick={() => { setFeedbackOpen(false); router.push('/communication'); }}>
                     <ThumbsDown className="w-3.5 h-3.5" /> Issues
                   </motion.button>
                 </div>

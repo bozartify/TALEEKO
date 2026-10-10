@@ -1003,10 +1003,10 @@ export default function SeatingChartPage() {
               <div className="space-y-1.5">
                 {[
                   { label: 'AI arrange by performance',   icon: Sparkles,      color: '#6366f1', fn: () => setArrangeOpen(true) },
-                  { label: 'Group ELL students together', icon: Users,         color: '#22d3ee', fn: () => showToast('ELL grouping applied') },
+                  { label: 'Group ELL students together', icon: Users,         color: '#22d3ee', fn: () => { const ellIds = students.filter(s => s.ell).map(s => s.id); const nonEll = students.filter(s => !s.ell).map(s => s.id); const ordered = [...ellIds, ...nonEll]; setSeats(prev => prev.map((seat, i) => ({ ...seat, studentId: ordered[i] ?? null }))); showToast(`${ellIds.length} ELL student${ellIds.length !== 1 ? 's' : ''} grouped at front`) } },
                   { label: 'Resolve behavior conflicts',  icon: AlertTriangle, color: '#f59e0b', fn: () => { shuffleSeats() } },
                   { label: 'Print seating chart',         icon: Printer,       color: '#10b981', fn: () => setExportOpen(true) },
-                  { label: 'Share with substitute',       icon: Share2,        color: '#8b5cf6', fn: () => showToast('Share link copied!') },
+                  { label: 'Share with substitute',       icon: Share2,        color: '#8b5cf6', fn: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Seating chart link copied to clipboard') } },
                 ].map(action => (
                   <motion.button
                     key={action.label}

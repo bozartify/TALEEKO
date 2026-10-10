@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen, Plus, Sparkles, Search, Star, Globe, Download,
@@ -100,6 +101,7 @@ const AI_INSIGHTS = [
     title: 'Catalyst needs reinforcement',
     desc: '55% class mastery — schedule a spaced-repetition session before the Unit 2 quiz on Friday.',
     action: 'Create Practice Quiz',
+    route: '/quiz-builder',
   },
   {
     color: '#10b981',
@@ -107,6 +109,7 @@ const AI_INSIGHTS = [
     title: 'Hypothesis mastered by 95%',
     desc: 'Strong mastery across the class. Consider moving this to the archived wall and adding new words.',
     action: 'Archive Word',
+    route: 'archive',
   },
   {
     color: '#6366f1',
@@ -114,6 +117,7 @@ const AI_INSIGHTS = [
     title: 'Add 8 more Cell Biology words',
     desc: 'Unit 1 has the most assignments coming up. AI recommends expanding the word wall for this unit.',
     action: 'Generate Words',
+    route: 'generate',
   },
 ]
 
@@ -123,6 +127,7 @@ const TREND_DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 type ViewMode = 'wall' | 'list' | 'flashcard'
 
 export default function WordWallPage() {
+  const router = useRouter()
   const [words, setWords] = useState<VocabWord[]>(INITIAL_WORDS)
   const [expandedWord, setExpandedWord] = useState<string | null>(null)
   const [view, setView] = useState<ViewMode>('wall')
@@ -460,7 +465,7 @@ export default function WordWallPage() {
                           <button
                             className="mt-1.5 text-[10px] font-semibold"
                             style={{ color: insight.color }}
-                            onClick={() => showToast(insight.action)}
+                            onClick={() => { if (insight.route === 'generate') { setNewWord('Cell Biology vocabulary'); generateWord() } else if (insight.route === 'archive') { setWords(prev => prev.map(w => w.word === 'Hypothesis' ? { ...w, mastered: true } : w)); showToast('"Hypothesis" archived as mastered') } else router.push(insight.route) }}
                           >
                             {insight.action} →
                           </button>
@@ -662,7 +667,7 @@ export default function WordWallPage() {
                               </div>
                             </div>
                             <div className="flex items-center gap-2 pt-1 flex-wrap">
-                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast(`Playing pronunciation for "${word.word}"`)}>
+                              <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(word.word); u.rate = 0.85; window.speechSynthesis.speak(u) } else showToast(`"${word.word}" — no speech API`) }}>
                                 <Volume2 className="w-3 h-3" /> Pronounce
                               </button>
                               <button className="flex items-center gap-1 text-[11px] text-accent-400 hover:text-accent-300 transition-colors" onClick={() => showToast(`Translating "${word.word}"`)}>

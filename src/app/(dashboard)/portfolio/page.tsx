@@ -270,7 +270,7 @@ export default function PortfolioPage() {
             <div className="flex items-center gap-2">
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing portfolio…') }}><Download className="w-3 h-3" /> Export PDF</button>
               <button onClick={() => setShareModal(true)} className="btn-secondary text-xs px-3 py-1.5"><Share2 className="w-3 h-3" /> Share</button>
-              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showToast('AI summary generated for all students')}>
+              <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => generateAIInsights(selectedStudent)}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Summary
               </motion.button>
             </div>
@@ -399,7 +399,7 @@ export default function PortfolioPage() {
                 {/* Action buttons */}
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => showToast(`Message sent to ${selectedStudent.name.split(' ')[0]}'s parent`)}><Mail className="w-3 h-3" /> Message Parent</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}><Mail className="w-3 h-3" /> Message Parent</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/analytics')}><BarChart2 className="w-3 h-3" /> Analytics</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}><Printer className="w-3 h-3" /> Print</button>
                   <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" disabled={generatingInsight === selectedStudent.id} onClick={() => generateAIInsights(selectedStudent)}>
@@ -734,7 +734,7 @@ export default function PortfolioPage() {
                         </div>
                       )}
                       <div className="flex items-center gap-2">
-                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Acceleration plan created for ${selectedStudent.name}`)}><Zap className="w-3 h-3" /> Accelerate Plan</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => router.push('/lesson-planner')}><Zap className="w-3 h-3" /> Accelerate Plan</button>
                         <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing growth report…') }}><Download className="w-3 h-3" /> Export Report</button>
                       </div>
                     </div>
@@ -747,7 +747,7 @@ export default function PortfolioPage() {
                     <div className="glass-card p-5">
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="text-sm font-bold text-white flex items-center gap-2"><Trophy className="w-4 h-4 text-warning-400" /> Earned Achievements</h4>
-                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`Badge awarded to ${selectedStudent.name}`)}><Plus className="w-3 h-3" /> Award Badge</button>
+                        <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); setAwardedBadges(prev => ({ ...prev, [selectedStudent.id]: [...(prev[selectedStudent.id] ?? []), { title: 'Star Student', icon: '🌟', date: today }] })); showToast(`"Star Student" badge awarded to ${selectedStudent.name}`) }}><Plus className="w-3 h-3" /> Award Badge</button>
                       </div>
                       {(() => {
                         const allAch = [...selectedStudent.achievements, ...(awardedBadges[selectedStudent.id] ?? [])]
@@ -756,7 +756,7 @@ export default function PortfolioPage() {
                           <Trophy className="w-8 h-8 text-surface-600 mx-auto mb-3" />
                           <p className="text-sm font-semibold text-surface-400">No achievements yet</p>
                           <p className="text-xs text-surface-500 mt-1">Award the first badge to motivate {selectedStudent.name.split(' ')[0]}</p>
-                          <button className="mt-3 btn-gradient text-xs px-3 py-1.5" onClick={() => showToast(`First badge awarded to ${selectedStudent.name}`)}><Plus className="w-3 h-3" /> Award First Badge</button>
+                          <button className="mt-3 btn-gradient text-xs px-3 py-1.5" onClick={() => { const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); setAwardedBadges(prev => ({ ...prev, [selectedStudent.id]: [...(prev[selectedStudent.id] ?? []), { title: '🏆 Pioneer', icon: '🏆', date: today }] })); showToast(`First badge awarded to ${selectedStudent.name.split(' ')[0]}!`) }}><Plus className="w-3 h-3" /> Award First Badge</button>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -832,11 +832,11 @@ export default function PortfolioPage() {
               <p className="text-xs text-surface-400 mb-4">Share {selectedStudent.name}&apos;s portfolio with parents or administrators</p>
               <div className="space-y-2 mb-4">
                 {[
-                  { label: 'Email to parent', icon: Mail, color: '#6366f1', toast: `Portfolio emailed to ${selectedStudent.name.split(' ')[0]}'s parent` },
-                  { label: 'Generate shareable link', icon: Share2, color: '#14b8a6', toast: 'Shareable link copied to clipboard' },
-                  { label: 'Export as PDF', icon: Download, color: '#f97316', toast: 'Portfolio exported as PDF' },
+                  { label: 'Email to parent', icon: Mail, color: '#6366f1', fn: () => { window.open(`mailto:?subject=${encodeURIComponent(selectedStudent.name + "'s Portfolio")}&body=${encodeURIComponent('Please find the portfolio attached. View it at: ' + window.location.href)}`, '_blank'); showToast(`Portfolio email opened for ${selectedStudent.name.split(' ')[0]}'s parent`) } },
+                  { label: 'Generate shareable link', icon: Share2, color: '#14b8a6', fn: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Shareable link copied to clipboard') } },
+                  { label: 'Export as PDF', icon: Download, color: '#f97316', fn: () => { window.print(); showToast('Portfolio sent to printer') } },
                 ].map(o => (
-                  <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors" onClick={() => { showToast(o.toast); setShareModal(false) }}>
+                  <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors" onClick={() => { o.fn(); setShareModal(false) }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: o.color + '18' }}>
                       <o.icon className="w-4 h-4" style={{ color: o.color }} />
                     </div>
@@ -844,7 +844,7 @@ export default function PortfolioPage() {
                   </button>
                 ))}
               </div>
-              <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { showToast(`Portfolio for ${selectedStudent.name} shared`); setShareModal(false) }}>
+              <motion.button className="btn-gradient text-xs w-full" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast(`Link to ${selectedStudent.name}'s portfolio copied`); setShareModal(false) }}>
                 <Send className="w-3.5 h-3.5" /> Share Now
               </motion.button>
             </motion.div>

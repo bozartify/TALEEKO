@@ -368,7 +368,7 @@ export default function ClassroomPage() {
                             {cls.pending > 0 && (
                               <span className="text-[9px] bg-warning-400/15 text-warning-400 px-1.5 py-0.5 rounded-full font-bold">{cls.pending} pending</span>
                             )}
-                            <button className="text-surface-500 hover:text-surface-200" onClick={e => { e.stopPropagation(); showToast(`Options for ${cls.name}`) }}><MoreHorizontal className="w-4 h-4" /></button>
+                            <button className="text-surface-500 hover:text-surface-200" onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(`${cls.name} — ${cls.subject} | ${cls.period}`).catch(() => {}); showToast(`${cls.name} info copied`) }}><MoreHorizontal className="w-4 h-4" /></button>
                           </div>
                         </div>
                         <div className="flex items-center gap-3 mb-3 text-xs text-surface-500">
@@ -456,7 +456,7 @@ export default function ClassroomPage() {
                                 <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1" disabled={aiPlanId === cls.name} onClick={e => { e.stopPropagation(); handleAIPlan(cls) }}>
                                   {aiPlanId === cls.name ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Sparkles className="w-3 h-3" />} AI Plan
                                 </button>
-                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); showToast(`Message sent to ${cls.students} students in ${cls.name}`) }}>
+                                <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/communication') }}>
                                   <Mail className="w-3 h-3" /> Message
                                 </button>
                                 <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/analytics') }}>
