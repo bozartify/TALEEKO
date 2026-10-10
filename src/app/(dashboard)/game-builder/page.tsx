@@ -101,6 +101,7 @@ export default function GameBuilderPage() {
   const [theme, setTheme] = useState<GameTheme>('space')
   const [shareOpen, setShareOpen] = useState(false)
   const [liveMode, setLiveMode] = useState(false)
+  const [gameMode, setGameMode] = useState<string | null>(null)
   const [PIN, setPIN] = useState('847291')
 
   function refreshPIN() {
@@ -233,7 +234,7 @@ export default function GameBuilderPage() {
                     <p className="text-[10px] text-surface-400">Project on board or print for students</p>
                   </div>
                 </button>
-                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { showToast('Game shared to Google Classroom'); setShareOpen(false) }}>
+                <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={() => { window.open('https://classroom.google.com', '_blank'); showToast('Opening Google Classroom…'); setShareOpen(false) }}>
                   <div className="w-9 h-9 rounded-xl bg-electric-500/10 flex items-center justify-center">
                     <Share2 className="w-4 h-4 text-electric-400" />
                   </div>
@@ -324,7 +325,7 @@ export default function GameBuilderPage() {
                     <div>
                       <p className="text-xs font-bold text-warning-300">Difficulty Imbalance</p>
                       <p className="text-[11px] text-surface-400 mt-0.5">Your current game is 50% hard questions — this risks disengaging lower-performing students. AI recommends 60% easy, 30% medium, 10% hard for optimal retention.</p>
-                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => showToast('Questions auto-balanced: 60% easy, 30% medium, 10% hard')}>Auto-balance →</button>
+                      <button className="text-[10px] text-warning-400 font-semibold mt-1 hover:underline" onClick={() => { const total = questions.length; const easyCount = Math.round(total * 0.6); const medCount = Math.round(total * 0.3); setQuestions(prev => prev.map((q, i) => ({ ...q, difficulty: i < easyCount ? 'easy' : i < easyCount + medCount ? 'medium' : 'hard' }))); showToast('Questions auto-balanced: 60% easy, 30% medium, 10% hard') }}>Auto-balance →</button>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-success-500/[0.08] border border-success-500/20">
@@ -702,7 +703,7 @@ export default function GameBuilderPage() {
                     { icon: Timer, label: 'Homework Mode', desc: 'Students play on their own time — due date assignable', color: '#10b981', toast: 'Homework Mode assigned to students' },
                     { icon: Flag, label: 'Competition Mode', desc: 'Head-to-head class challenge with bracket standings', color: '#f97316', toast: 'Competition bracket created' },
                   ].map(mode => (
-                    <div key={mode.label} className="glass-card p-4 hover:border-white/10 transition-colors cursor-pointer group" onClick={() => showToast(mode.toast)}>
+                    <div key={mode.label} className={`glass-card p-4 hover:border-white/10 transition-colors cursor-pointer group${gameMode === mode.label ? ' ring-1 ring-white/20' : ''}`} onClick={() => { setGameMode(mode.label); showToast(mode.toast) }}>
                       <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-3" style={{ background: mode.color + '20' }}>
                         <mode.icon className="w-4 h-4" style={{ color: mode.color }} />
                       </div>

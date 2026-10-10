@@ -328,7 +328,7 @@ export default function InterventionTrackerPage() {
                 className="btn-primary text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => showToast('Use the + button on a student card to log a new intervention')}
+                onClick={() => { window.scrollTo({ top: document.querySelector('[data-intervention-card]')?.getBoundingClientRect().top ?? 400, behavior: 'smooth' }); showToast('Scroll down to student cards to add an intervention') }}
               >
                 <Plus className="w-3.5 h-3.5" /> Add Intervention
               </motion.button>
@@ -997,7 +997,7 @@ export default function InterventionTrackerPage() {
                         className="mt-2 text-[9px] font-semibold flex items-center gap-0.5"
                         style={{ color: alert.color }}
                         whileHover={{ x: 1 }}
-                        onClick={() => showToast(`Reviewing ${alert.student}'s plan...`)}
+                        onClick={() => router.push('/iep-goals')}
                       >
                         Review Plan <ChevronRight className="w-2.5 h-2.5" />
                       </motion.button>
@@ -1086,7 +1086,7 @@ export default function InterventionTrackerPage() {
               <motion.button
                 className="btn-secondary text-xs px-3 py-1.5"
                 whileHover={{ scale: 1.02 }}
-                onClick={() => showToast('Type your note in the field below and press Enter to save')}
+                onClick={() => { const inp = document.querySelector<HTMLTextAreaElement>('textarea[placeholder*="note" i],textarea[placeholder*="Enter" i]'); if (inp) { inp.focus(); showToast('Type your note and press Enter') } else showToast('Note field ready below') }}
               >
                 <Plus className="w-3 h-3" /> Add Note
               </motion.button>
@@ -1168,7 +1168,7 @@ export default function InterventionTrackerPage() {
                             <motion.button
                               className="btn-secondary text-[10px] px-3 py-1.5"
                               whileHover={{ scale: 1.02 }}
-                              onClick={() => showToast('Click the note text to edit it inline')}
+                              onClick={() => { navigator.clipboard?.writeText(entry.note).catch(() => {}); showToast('Note copied — paste anywhere to edit') }}
                             >
                               <FileText className="w-3 h-3" /> Edit Note
                             </motion.button>
@@ -1182,7 +1182,7 @@ export default function InterventionTrackerPage() {
                             <motion.button
                               className="btn-secondary text-[10px] px-3 py-1.5"
                               whileHover={{ scale: 1.02 }}
-                              onClick={() => showToast('Message sent to intervention team!')}
+                              onClick={() => router.push('/communication')}
                             >
                               <MessageSquare className="w-3 h-3" /> Message Team
                             </motion.button>
