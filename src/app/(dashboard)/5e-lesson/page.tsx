@@ -809,7 +809,12 @@ Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...
                     key={action.label}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                     whileHover={{ x: 2 }}
-                    onClick={() => { if (action.label === 'Print Lesson Plan') window.print(); else showToast(`${action.label}…`) }}
+                    onClick={() => {
+                      if (action.label === 'Print Lesson Plan') { window.print(); showToast('Printing lesson plan…') }
+                      else if (action.label === 'Export to PDF') { window.print(); showToast('Printing lesson plan as PDF…') }
+                      else if (action.label === 'Share with Team') { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Lesson plan link copied to clipboard') }
+                      else if (action.label === 'Save to Library') { router.push('/library'); showToast('Navigating to Library…') }
+                    }}
                   >
                     <div
                       className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"

@@ -77,9 +77,9 @@ const videoTutorials = [
 ]
 
 const supportChannels = [
-  { icon: MessageSquare, title: 'Live Chat',        desc: 'Chat with our support team in real time. Average wait under 2 minutes during business hours.', action: 'Start Chat',  iconColor: 'text-accent-400',   gradient: 'from-accent-500/20 to-accent-600/5' },
-  { icon: Mail,          title: 'Email Support',    desc: 'Send us a detailed message and we\'ll respond within 2 hours. Perfect for complex questions.',  action: 'Send Email', iconColor: 'text-neon-400',     gradient: 'from-neon-400/20 to-neon-500/5' },
-  { icon: MessagesSquare,title: 'Community Forum',  desc: 'Connect with 10,000+ educators sharing tips, templates, and best practices.',                    action: 'Join Forum', iconColor: 'text-electric-400', gradient: 'from-electric-400/20 to-electric-500/5' },
+  { icon: MessageSquare, title: 'Live Chat',        desc: 'Chat with our support team in real time. Average wait under 2 minutes during business hours.', action: 'Start Chat',  iconColor: 'text-accent-400',   gradient: 'from-accent-500/20 to-accent-600/5',   href: 'mailto:support@taleeko.com?subject=Live%20Chat%20Request' },
+  { icon: Mail,          title: 'Email Support',    desc: 'Send us a detailed message and we\'ll respond within 2 hours. Perfect for complex questions.',  action: 'Send Email', iconColor: 'text-neon-400',     gradient: 'from-neon-400/20 to-neon-500/5',       href: 'mailto:support@taleeko.com' },
+  { icon: MessagesSquare,title: 'Community Forum',  desc: 'Connect with 10,000+ educators sharing tips, templates, and best practices.',                    action: 'Join Forum', iconColor: 'text-electric-400', gradient: 'from-electric-400/20 to-electric-500/5', href: 'https://community.taleeko.com' },
 ]
 
 const WHATS_NEW = [
@@ -235,7 +235,7 @@ export default function HelpPage() {
               <TrendingUp className="w-5 h-5 text-success-400" />
               What&apos;s New
             </h2>
-            <button onClick={() => showToast('Changelog — check back soon!')} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
+            <button onClick={() => { window.open('https://taleeko.com/changelog', '_blank') }} className="text-xs text-accent-400 font-semibold hover:text-accent-300 flex items-center gap-1 transition-colors">
               Full changelog <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -637,7 +637,7 @@ export default function HelpPage() {
                 <h3 className="text-base font-bold text-white mb-2">{channel.title}</h3>
                 <p className="text-xs text-surface-400 leading-relaxed mb-5 flex-1">{channel.desc}</p>
                 <motion.button
-                  onClick={() => showToast(`${channel.action}…`)}
+                  onClick={() => { window.open(channel.href, '_blank'); showToast(`${channel.action}…`) }}
                   className="btn-secondary text-xs w-full justify-center"
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.97 }}
@@ -678,7 +678,7 @@ export default function HelpPage() {
                 Email Support
               </motion.a>
               <motion.button
-                onClick={() => showToast('Connecting to Live Chat…')}
+                onClick={() => { window.open('mailto:support@taleeko.com?subject=Live%20Chat%20Request', '_blank'); showToast('Opening chat…') }}
                 className="btn-secondary"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}

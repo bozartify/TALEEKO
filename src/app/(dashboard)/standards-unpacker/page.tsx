@@ -439,7 +439,7 @@ export default function StandardsUnpackerPage() {
                     onClick={() => {
                       if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
                       else if (opt.label === 'Export as PDF') { window.print(); showToast('Printing standard breakdown…') }
-                      else if (opt.label === 'Share Link') showToast('Share link copied to clipboard!')
+                      else if (opt.label === 'Share Link') { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied to clipboard!') }
                       else if (opt.label === 'Export to Google Docs') { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…') }
                       setExportOpen(false)
                     }}
@@ -476,7 +476,7 @@ export default function StandardsUnpackerPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => showToast('Share link copied!')}>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied!') }}>
                 <Share2 className="w-3.5 h-3.5" /> Share
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => setExportOpen(true)}>
