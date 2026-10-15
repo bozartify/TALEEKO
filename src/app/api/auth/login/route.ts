@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
 import { createSession, DEMO_TEACHER_ID } from '@/lib/auth'
 
 export async function POST(request: Request) {
@@ -24,36 +23,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // Find or create user
-    let user = await prisma.user.findUnique({ where: { email } })
+    // Demo mode: create session directly without DB (no DATABASE_URL required)
+    const userId = email === 'demo@taleeko.ai' ? DEMO_TEACHER_ID : `demo_${email.replace(/[^a-z0-9]/gi, '_')}`
+    const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
 
-    if (!user) {
-      // For demo@taleeko.ai, use the known demo teacher ID
-      const id = email === 'demo@taleeko.ai' ? DEMO_TEACHER_ID : undefined
-      const name = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
-
-      user = await prisma.user.upsert({
-        where: { email },
-        update: {},
-        create: {
-          ...(id ? { id } : {}),
-          email,
-          name,
-          role: 'teacher',
-        },
-      })
-    }
-
-    // Create session
-    await createSession(user.id)
+    await createSession(userId)
 
     return NextResponse.json({
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        avatar: user.avatar,
+        id: userId,
+        name,
+        email,
+        role: 'teacher',
+        avatar: null,
       },
     })
   } catch (error) {
