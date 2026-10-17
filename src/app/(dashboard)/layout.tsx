@@ -1,10 +1,12 @@
 import Sidebar from '@/components/layout/sidebar'
 import Header from '@/components/layout/header'
 import CommandPalette from '@/components/ui/command-palette'
+import PageTitle from '@/components/layout/page-title'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-surface-950">
+      <PageTitle />
       <Sidebar />
       <div className="flex-1 flex flex-col lg:ml-[260px] min-h-screen">
         <Header />

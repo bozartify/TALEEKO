@@ -176,10 +176,18 @@ export default function LessonPlannerPage() {
   const [generatingSection, setGeneratingSection] = useState<string | null>(null)
   const [generatingAll, setGeneratingAll] = useState(false)
   const [savedPulse, setSavedPulse] = useState(false)
-  const [topic, setTopic] = useState(() => searchParams?.get('unit') || 'Photosynthesis & Light Intensity')
-  const [grade, setGrade] = useState('10th Grade')
-  const [subject, setSubject] = useState(() => searchParams?.get('subject') || 'AP Biology')
-  const [duration, setDuration] = useState('50')
+  const [topic, setTopic] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem('lesson-planner-draft') || '{}'); return d.topic || searchParams?.get('unit') || 'Photosynthesis & Light Intensity' } catch { return searchParams?.get('unit') || 'Photosynthesis & Light Intensity' }
+  })
+  const [grade, setGrade] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem('lesson-planner-draft') || '{}'); return d.grade || '10th Grade' } catch { return '10th Grade' }
+  })
+  const [subject, setSubject] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem('lesson-planner-draft') || '{}'); return d.subject || searchParams?.get('subject') || 'AP Biology' } catch { return searchParams?.get('subject') || 'AP Biology' }
+  })
+  const [duration, setDuration] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem('lesson-planner-draft') || '{}'); return d.duration || '50' } catch { return '50' }
+  })
 
   useEffect(() => {
     const tmpl = searchParams?.get('template')
@@ -191,6 +199,14 @@ export default function LessonPlannerPage() {
     const resource = searchParams?.get('resource')
     if (resource) setTopic(resource)
   }, [searchParams])
+
+  // Auto-save draft every 30s
+  useEffect(() => {
+    const id = setInterval(() => {
+      try { localStorage.setItem('lesson-planner-draft', JSON.stringify({ topic, grade, subject, duration, sections, savedAt: Date.now() })) } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [topic, grade, subject, duration, sections])
 
   const totalTime = sections.reduce((acc, s) => acc + s.duration, 0)
   const [toastMsg, setToastMsg] = useState('')
@@ -283,8 +299,9 @@ export default function LessonPlannerPage() {
   }
 
   function handleSave() {
+    try { localStorage.setItem('lesson-planner-draft', JSON.stringify({ topic, grade, subject, duration, sections, savedAt: Date.now() })) } catch {}
     setSavedPulse(true)
-    showToast('Lesson plan saved successfully')
+    showToast('Lesson plan saved!')
     setTimeout(() => setSavedPulse(false), 2000)
   }
 
