@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Key, Copy, Trash2, Plus, ExternalLink, Eye, EyeOff, Check, Shield,
@@ -124,6 +125,7 @@ const oauthApps: OAuthApp[] = [
 const maxCalls = Math.max(...usageData.map(d => d.calls))
 
 export default function ApiKeysPage() {
+  const router = useRouter()
   const [keyList, setKeyList] = useState<ApiKey[]>(apiKeys)
   const [revealedKeys, setRevealedKeys] = useState<Set<string>>(new Set())
   const [copiedId, setCopiedId] = useState<string | null>(null)
@@ -222,6 +224,7 @@ export default function ApiKeysPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/agents')}><Zap className="w-3.5 h-3.5" /> Agents</button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
                 const headers = ['Method', 'Endpoint', 'Status', 'Time', 'Duration', 'Key']
                 const rows = recentLogs.map(l => [l.method, l.endpoint, l.status, l.time, l.duration, l.keyName])

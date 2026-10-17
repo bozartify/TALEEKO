@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plug, Search, Check, Globe, ChevronRight, Zap, ExternalLink,
@@ -309,6 +310,7 @@ const stats = [
 ]
 
 export default function IntegrationsPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<Category>('All')
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -348,6 +350,9 @@ export default function IntegrationsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => router.push('/api-keys')}>
+                <Link2 className="w-3.5 h-3.5" /> API Keys
+              </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { setIntegrationList(prev => prev.map(i => i.status === 'connected' ? { ...i, syncStatus: 'synced' as const, lastSync: 'Just now' } : i)); showToast('All integrations synced!') }}>
                 <RefreshCw className="w-3.5 h-3.5" /> Sync All
               </motion.button>

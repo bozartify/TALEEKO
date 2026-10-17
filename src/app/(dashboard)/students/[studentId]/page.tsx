@@ -193,6 +193,15 @@ export default function StudentProfilePage({ params }: { params: { studentId: st
                 <button onClick={exportStudentCSV} className="btn-secondary text-xs px-3 py-1.5">
                   <Download className="w-3.5 h-3.5" /> Export Report
                 </button>
+                <button onClick={() => router.push('/gradebook')} className="btn-secondary text-xs px-3 py-1.5">
+                  <BarChart2 className="w-3.5 h-3.5" /> Grades
+                </button>
+                <button onClick={() => router.push('/attendance')} className="btn-secondary text-xs px-3 py-1.5">
+                  <CheckCircle className="w-3.5 h-3.5" /> Attendance
+                </button>
+                <button onClick={() => router.push('/iep-goals')} className="btn-secondary text-xs px-3 py-1.5">
+                  <Target className="w-3.5 h-3.5" /> IEP Goals
+                </button>
               </div>
             </div>
           </div>
