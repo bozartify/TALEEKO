@@ -104,6 +104,55 @@ export default function QuizBuilderPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportQuizHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const questionBlocks = questions.map((q, i) => {
+      const optionsHTML = q.type === 'mcq' && q.options ? q.options.map((opt, oi) => `
+        <div style="display:flex;align-items:flex-start;gap:10px;margin:6px 0;padding:8px 12px;background:${oi === q.correct ? '#10b98115' : '#ffffff08'};border-radius:8px;border:1px solid ${oi === q.correct ? '#10b98130' : 'transparent'}">
+          <span style="width:20px;height:20px;border-radius:50%;border:2px solid ${oi === q.correct ? '#10b981' : '#374151'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:${oi === q.correct ? '#10b981' : '#9ca3af'};flex-shrink:0;margin-top:1px">${String.fromCharCode(65 + oi)}</span>
+          <span style="font-size:13px;color:${oi === q.correct ? '#d1fae5' : '#d1d5db'}">${opt}</span>
+          ${oi === q.correct ? '<span style="margin-left:auto;font-size:11px;color:#10b981;font-weight:700">✓ Correct</span>' : ''}
+        </div>`).join('') : `<div style="background:#0a0f1a;border-radius:8px;padding:10px 14px;margin-top:8px;border:1px dashed #374151;color:#6b7280;font-size:12px">${q.type === 'true-false' ? 'Circle: TRUE / FALSE' : 'Student answer: ___________________________________________'}</div>`
+      const explanation = q.explanation ? `<div style="margin-top:10px;padding:10px 12px;background:#6366f110;border-radius:8px;border-left:3px solid #6366f1"><p style="margin:0;font-size:12px;color:#a5b4fc"><strong>Explanation:</strong> ${q.explanation}</p></div>` : ''
+      return `<div style="background:#0f172a;border-radius:12px;padding:18px;margin-bottom:14px;page-break-inside:avoid">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+          <h3 style="font-size:14px;font-weight:700;color:#f9fafb;margin:0">Q${i + 1}. ${q.text}</h3>
+          <span style="background:#1e293b;color:#94a3b8;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;margin-left:12px;flex-shrink:0">${q.points} pt${q.points !== 1 ? 's' : ''}</span>
+        </div>
+        ${optionsHTML}
+        ${explanation}
+      </div>`
+    }).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quiz — ${topic}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:800px}
+  @media print{body{background:#fff;color:#111;padding:16px}h1,h2,h3{color:#111!important}span,p{color:#333!important}}
+  .header{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:20px 24px;margin-bottom:24px}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 0;font-size:12px;opacity:.85}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <div class="header">
+    <h1 style="font-size:24px;font-weight:900;margin:0 0 4px;color:#fff">${topic}</h1>
+    <p style="margin:0;color:rgba(255,255,255,0.8);font-size:13px">${subject} · ${grade} · ${questions.length} questions · ${totalPoints} pts · ${timeLimit} min</p>
+    <div class="meta">
+      <span>📅 ${date}</span>
+      <span>👤 Name: ___________________________</span>
+      <span>📝 Date: ___________________________</span>
+    </div>
+  </div>
+  ${questionBlocks}
+  <div class="footer"><span>TALEEKO Education Platform</span><span>Score: _______ / ${totalPoints}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `quiz-${topic.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Quiz exported as printable HTML!')
+  }
+
   async function handleRegenerateQ(q: Question) {
     setRegeneratingQId(q.id)
     try {
@@ -432,7 +481,7 @@ export default function QuizBuilderPage() {
                 <BookOpen className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline ml-1">Assessment</span>
               </button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing quiz…') }}>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportQuizHTML} title="Export HTML">
                 <Download className="w-3.5 h-3.5" />
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Quiz link copied to clipboard') }}>

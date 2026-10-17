@@ -175,6 +175,68 @@ export default function ExitTicketsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportExitTicketHTML(ticket: ExitTicket) {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const statusColor = { 'got-it': '#10b981', 'almost': '#f59e0b', 'needs-help': '#ef4444' }
+    const studentRows = STUDENT_RESULTS.map(s => `<tr style="border-bottom:1px solid #1f2937">
+      <td style="padding:8px 12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:28px;height:28px;border-radius:8px;background:${s.color};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:#fff;flex-shrink:0">${s.initials}</div>
+          <span style="font-weight:600;color:#f9fafb">${s.name}</span>
+          ${s.flagged ? '<span style="background:#ef444420;color:#ef4444;padding:2px 6px;border-radius:4px;font-size:9px;font-weight:700">FLAGGED</span>' : ''}
+        </div>
+      </td>
+      <td style="padding:8px 12px;text-align:center;font-weight:700;color:#f9fafb">${s.score}%</td>
+      <td style="padding:8px 12px;text-align:center"><span style="background:${statusColor[s.status]}20;color:${statusColor[s.status]};padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;text-transform:capitalize">${s.status.replace('-', ' ')}</span></td>
+    </tr>`).join('')
+
+    const questionBlocks = ticket.questions.map((q, i) => {
+      const choicesHTML = q.choices ? q.choices.map(c => `<div style="padding:6px 10px;background:${c.correct ? '#10b98115' : '#ffffff06'};border-radius:6px;margin:3px 0;border-left:2px solid ${c.correct ? '#10b981' : 'transparent'}"><span style="font-size:12px;color:${c.correct ? '#6ee7b7' : '#9ca3af'}">${c.id.toUpperCase()}. ${c.text}${c.correct ? ' ✓' : ''}</span></div>`).join('') : ''
+      return `<div style="background:#0a0f1a;border-radius:8px;padding:12px;margin-bottom:8px">
+        <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;margin-bottom:6px">Q${i + 1} · ${TYPE_CONFIG[q.type].label}</div>
+        <p style="margin:0 0 8px;font-size:13px;color:#f9fafb;line-height:1.5">${q.text}</p>
+        ${choicesHTML}
+      </div>`
+    }).join('')
+
+    const got = STUDENT_RESULTS.filter(s => s.status === 'got-it').length
+    const almost = STUDENT_RESULTS.filter(s => s.status === 'almost').length
+    const needs = STUDENT_RESULTS.filter(s => s.status === 'needs-help').length
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Exit Ticket — ${ticket.title}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:900px}
+  @media print{body{background:#fff;color:#111;padding:16px}h2,h3{color:#111!important}td,span,p{color:#333!important}}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0 24px}
+  .stat{background:#111827;border-radius:12px;padding:14px;text-align:center}
+  h2{font-size:14px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #1f2937}
+  table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:12px;overflow:hidden;margin-bottom:20px}
+  th{background:#1e293b;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;color:#94a3b8;font-weight:600}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1 style="font-size:24px;font-weight:900;margin:0 0 4px">${ticket.title}</h1>
+  <p style="color:#6b7280;font-size:13px;margin:0">${ticket.period} · ${date}</p>
+  <div class="summary">
+    <div class="stat"><div style="font-size:22px;font-weight:900;color:#f9fafb">${ticket.completionRate}%</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Completion</div></div>
+    <div class="stat"><div style="font-size:22px;font-weight:900;color:#f9fafb">${ticket.avgScore}%</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Avg Score</div></div>
+    <div class="stat"><div style="font-size:22px;font-weight:900;color:#10b981">${got}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Got It</div></div>
+    <div class="stat"><div style="font-size:22px;font-weight:900;color:#f59e0b">${almost}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Almost</div></div>
+    <div class="stat"><div style="font-size:22px;font-weight:900;color:#ef4444">${needs}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Needs Help</div></div>
+  </div>
+  <h2>Questions</h2>
+  ${questionBlocks}
+  <h2>Student Results</h2>
+  <table><thead><tr><th>Student</th><th style="text-align:center">Score</th><th style="text-align:center">Status</th></tr></thead><tbody>${studentRows}</tbody></table>
+  <div class="footer"><span>TALEEKO Education Platform</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `exit-ticket-${ticket.title.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Exit ticket results exported as HTML!')
+  }
+
   const handleGenerate = async () => {
     if (!topic.trim()) return
     setGenerating(true)
@@ -1090,7 +1152,7 @@ export default function ExitTicketsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Results PDF', icon: Download, desc: 'Full class results formatted report', action: () => { window.print(); showToast('Printing results…'); setExportOpen(false) } },
+                  { label: 'Results HTML', icon: Download, desc: 'Full class results styled HTML report', action: () => { exportExitTicketHTML(selectedTicket); setExportOpen(false) } },
                   { label: 'CSV Gradebook', icon: BarChart2, desc: 'Student scores for gradebook import', action: () => {
                     const headers = ['Student', 'Score', 'Status', 'Flagged']
                     const rows = STUDENT_RESULTS.map(s => [s.name, s.score, s.status, s.flagged ? 'Yes' : 'No'])
