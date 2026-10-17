@@ -238,6 +238,55 @@ export default function SubPlansPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportSubPlanHTML(plan: SubPlan) {
+    const date = plan.date ? new Date(plan.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Undated'
+    const periodRows = plan.periods.map(p => `
+<div class="period" style="border-left:4px solid ${p.color}">
+<div class="period-header"><strong>${p.time}</strong><span>${p.name}</span><small>${p.grade} · ${p.students} students</small></div>
+<p class="activity">${p.activity || 'No activity specified.'}</p>
+${p.materials.length ? `<p class="materials">📦 Materials: ${p.materials.join(', ')}</p>` : ''}
+${p.notes ? `<p class="note">📝 Note: ${p.notes}</p>` : ''}
+</div>`).join('')
+    const alerts = plan.medicalAlerts.length ? `<div class="alert-box"><strong>⚠️ Medical Alerts</strong><ul>${plan.medicalAlerts.map(a => `<li>${a}</li>`).join('')}</ul></div>` : ''
+    const procs = plan.classroomProcedures.length ? `<ul class="procs">${plan.classroomProcedures.map(p => `<li>${p}</li>`).join('')}</ul>` : ''
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Sub Plan — ${plan.title}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;max-width:800px;margin:32px auto;padding:0 20px;color:#1e293b}
+.header{background:#1e293b;color:white;padding:24px;border-radius:12px;margin-bottom:24px}
+.header h1{font-size:22px;font-weight:800}.header p{opacity:.75;margin-top:4px;font-size:14px}
+.meta{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.meta span{background:rgba(255,255,255,.15);padding:4px 12px;border-radius:20px;font-size:12px}
+.section{margin-bottom:20px}.section h2{font-size:15px;font-weight:700;margin-bottom:10px;color:#334155;text-transform:uppercase;letter-spacing:.05em}
+.period{background:#f8fafc;border-radius:8px;padding:16px;margin-bottom:12px}
+.period-header{display:flex;gap:12px;align-items:baseline;margin-bottom:8px;flex-wrap:wrap}
+.period-header strong{font-size:13px;color:#64748b}.period-header span{font-size:15px;font-weight:700}
+.period-header small{font-size:12px;color:#94a3b8;margin-left:auto}
+.activity{font-size:14px;line-height:1.6;color:#334155}
+.materials,.note{font-size:12px;color:#64748b;margin-top:6px}
+.alert-box{background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:16px;margin-bottom:16px}
+.alert-box ul{margin-top:8px;padding-left:16px;font-size:14px;color:#92400e}
+.procs{padding-left:16px;font-size:14px;line-height:1.8;color:#334155}
+.footer{margin-top:32px;text-align:center;font-size:11px;color:#94a3b8;padding-bottom:24px}
+</style></head><body>
+<div class="header"><h1>${plan.title}</h1><p>${date}</p>
+<div class="meta">
+${plan.substitute ? `<span>👤 ${plan.substitute}</span>` : ''}
+${plan.emergencyContact ? `<span>📞 Emergency: ${plan.emergencyContact}</span>` : ''}
+<span>🕐 ${plan.periods.length} period${plan.periods.length !== 1 ? 's' : ''}</span>
+</div></div>
+${alerts}
+${plan.seatingNote ? `<div class="section"><h2>Seating</h2><p style="font-size:14px">${plan.seatingNote}</p></div>` : ''}
+${plan.behaviorNote ? `<div class="section"><h2>Behavior Notes</h2><p style="font-size:14px">${plan.behaviorNote}</p></div>` : ''}
+${procs ? `<div class="section"><h2>Classroom Procedures</h2>${procs}</div>` : ''}
+<div class="section"><h2>Schedule & Activities</h2>${periodRows}</div>
+<div class="footer">TALEEKO Sub Plan · Printed ${new Date().toLocaleDateString()}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `sub-plan-${plan.title.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Sub plan exported as printable HTML!')
+  }
+
   const handleImprovePeriod = async (period: Period) => {
     setImprovingPeriodId(period.id)
     showToast(`AI is improving "${period.name}"…`)
@@ -1003,8 +1052,8 @@ export default function SubPlansPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Full Plan PDF', icon: FileText, desc: 'Formatted for printing — 1–2 pages', action: () => { window.print(); showToast('Printing sub plan…'); setExportOpen(false) } },
-                  { label: 'Period Cards (PDF)', icon: ClipboardList, desc: 'One card per period for quick reference', action: () => { window.print(); showToast('Printing period cards…'); setExportOpen(false) } },
+                  { label: 'Download HTML', icon: FileText, desc: 'Print-ready formatted sub plan', action: () => { exportSubPlanHTML(selectedPlan); setExportOpen(false) } },
+                  { label: 'Full Plan PDF', icon: ClipboardList, desc: 'Print from browser to PDF', action: () => { window.print(); showToast('Printing sub plan…'); setExportOpen(false) } },
                   { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing', action: () => { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…'); setExportOpen(false) } },
                   { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or sub portal', action: () => {
                     const text = `${selectedPlan.title} — ${selectedPlan.date}\n\n` +
