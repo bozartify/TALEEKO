@@ -8,7 +8,7 @@ import {
   Clock, Flame, Trophy, Medal, Zap, Heart, Brain, Users,
   FileText, CheckCircle2, CheckCircle, Plus, X, MessageSquare, Eye,
   Sparkles, ChevronDown, Calendar, Mail, MoreHorizontal,
-  PenTool, Lightbulb, ArrowUpRight, Printer, Send, Check
+  PenTool, Lightbulb, ArrowUpRight, Printer, Send, Check, User
 } from 'lucide-react'
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -399,8 +399,8 @@ export default function PortfolioPage() {
                 {/* Action buttons */}
                 <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/[0.06] flex-wrap">
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push(`/students/${selectedStudent.id}`)}><User className="w-3 h-3" /> Full Profile</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}><Mail className="w-3 h-3" /> Message Parent</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/analytics')}><BarChart2 className="w-3 h-3" /> Analytics</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}><Printer className="w-3 h-3" /> Print</button>
                   <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" disabled={generatingInsight === selectedStudent.id} onClick={() => generateAIInsights(selectedStudent)}>
                     {generatingInsight === selectedStudent.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> AI Insights</>}
