@@ -146,6 +146,73 @@ export default function SeatingChartPage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
+  function exportSeatingHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const cellSize = 140
+    const gap = 10
+    const gridCols = Array.from({ length: cols }, (_, i) => `${cellSize}px`).join(' ')
+    const seatCells = seats.map(seat => {
+      const st = getStudentById(seat.studentId)
+      if (!st) return `<div style="width:${cellSize}px;height:80px;border:2px dashed #334155;border-radius:8px;background:#0f172a;display:flex;align-items:center;justify-content:center;color:#475569;font-size:11px;">Empty</div>`
+      const statusColor = st.status === 'excelling' ? '#10b981' : st.status === 'on-track' ? '#6366f1' : '#f59e0b'
+      const badges = [st.iep ? '🔵 IEP' : '', st.ell ? '🌐 ELL' : ''].filter(Boolean).join(' ')
+      return `<div style="width:${cellSize}px;height:80px;border:2px solid ${st.color}33;border-radius:8px;background:${st.color}11;padding:8px;box-sizing:border-box;">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${st.color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;flex-shrink:0">${st.initials}</div>
+          <div style="font-size:11px;font-weight:600;color:#e2e8f0;line-height:1.2;">${st.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:${statusColor}"></div>
+          <span style="font-size:9px;color:#94a3b8">${st.status === 'needs-support' ? 'Needs Support' : st.status === 'excelling' ? 'Excelling' : 'On Track'}</span>
+          ${badges ? `<span style="font-size:9px;color:#94a3b8;margin-left:2px">${badges}</span>` : ''}
+        </div>
+      </div>`
+    }).join('\n')
+    const legendRows = students.filter(s => seats.some(seat => seat.studentId === s.id)).map(st => {
+      const statusColor = st.status === 'excelling' ? '#10b981' : st.status === 'on-track' ? '#6366f1' : '#f59e0b'
+      const statusLabel = st.status === 'excelling' ? 'Excelling' : st.status === 'on-track' ? 'On Track' : 'Needs Support'
+      return `<tr><td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#e2e8f0;font-size:12px;">${st.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b"><span style="background:${statusColor}20;color:${statusColor};padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600">${statusLabel}</span></td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#94a3b8;font-size:11px">${[st.iep ? 'IEP' : '', st.ell ? 'ELL' : '', st.nearTeacher ? 'Near Teacher' : ''].filter(Boolean).join(', ') || '—'}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #1e293b;color:#64748b;font-size:11px">${st.notes || '—'}</td></tr>`
+    }).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Seating Chart — ${period}</title></head>
+<body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0">
+<div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:32px 40px 24px;border-bottom:1px solid #1e293b">
+  <div style="font-size:11px;color:#6366f1;font-weight:700;letter-spacing:0.1em;margin-bottom:8px">TALEEKO · CLASSROOM</div>
+  <h1 style="font-size:28px;font-weight:900;color:#f8fafc;margin:0 0 6px">Seating Chart</h1>
+  <div style="font-size:14px;color:#94a3b8">${period} &nbsp;·&nbsp; ${rows}×${cols} layout &nbsp;·&nbsp; ${date}</div>
+</div>
+<div style="padding:32px 40px">
+  <div style="display:inline-grid;grid-template-columns:${gridCols};gap:${gap}px;margin-bottom:8px">
+    ${Array.from({length:cols},(_,i)=>`<div style="text-align:center;font-size:10px;color:#475569;font-weight:600;padding-bottom:4px">COL ${i+1}</div>`).join('')}
+  </div>
+  <div style="display:flex;gap:16px">
+    <div style="display:flex;flex-direction:column;gap:${gap}px;justify-content:start;padding-top:0">
+      ${Array.from({length:rows},(_,i)=>`<div style="height:80px;display:flex;align-items:center;font-size:10px;color:#475569;font-weight:600;padding-right:8px">ROW ${i+1}</div>`).join('')}
+    </div>
+    <div style="display:grid;grid-template-columns:${gridCols};gap:${gap}px">${seatCells}</div>
+  </div>
+  <div style="margin-top:40px">
+    <h2 style="font-size:16px;font-weight:700;color:#f8fafc;margin:0 0 12px">Student Roster</h2>
+    <table style="width:100%;border-collapse:collapse;background:#1e293b;border-radius:10px;overflow:hidden">
+      <thead><tr style="background:#0f172a">
+        <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;font-weight:600">Name</th>
+        <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;font-weight:600">Status</th>
+        <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;font-weight:600">Flags</th>
+        <th style="padding:10px 12px;text-align:left;font-size:11px;color:#64748b;font-weight:600">Notes</th>
+      </tr></thead>
+      <tbody>${legendRows}</tbody>
+    </table>
+  </div>
+</div>
+<div style="background:#0f172a;border-top:1px solid #1e293b;padding:20px 40px;text-align:center;font-size:11px;color:#475569">
+  <strong style="color:#6366f1">TALEEKO</strong> · Generated ${date} · Confidential — For Classroom Use Only
+</div></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = `seating-chart-${period.replace(/\s+/g, '-')}.html`; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Seating chart exported as HTML!')
+  }
+
   function getStudentById(id: string | null): Student | null {
     if (!id) return null
     return students.find(s => s.id === id) ?? null
@@ -1128,8 +1195,8 @@ export default function SeatingChartPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Print Layout (PDF)', icon: Printer,  color: '#6366f1', desc: 'Full-color printable PDF', action: () => { setExportOpen(false); window.print(); showToast('Printing seating chart…') } },
-                  { label: 'PNG Image',          icon: Download, color: '#10b981', desc: 'High-resolution image',   action: () => { setExportOpen(false); window.print(); showToast('Printing as image…') } },
+                  { label: 'Export HTML',        icon: Printer,  color: '#6366f1', desc: 'Full-color printable layout', action: () => { setExportOpen(false); exportSeatingHTML() } },
+                  { label: 'Copy Roster',        icon: Download, color: '#10b981', desc: 'Copy student list to clipboard', action: () => { const roster = students.map((s,i)=>`${i+1}. ${s.name}`).join('\n'); navigator.clipboard?.writeText(roster).catch(()=>{}); setExportOpen(false); showToast('Roster copied!') } },
                   { label: 'CSV Roster',         icon: FileText, color: '#22d3ee', desc: 'Student → seat assignment list', action: () => {
                     const headers = ['Row', 'Col', 'Student', 'Status', 'IEP', 'ELL', 'Near Teacher']
                     const rows = seats.map(seat => {

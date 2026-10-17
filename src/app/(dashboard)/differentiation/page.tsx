@@ -297,6 +297,59 @@ export default function DifferentiationPage() {
     setTimeout(() => setSaveToast(''), 2500)
   }
 
+  function exportDifferentiationHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const profileOrder = ['advanced', 'on-level', 'approaching', 'ell', 'iep']
+    const adaptationBlocks = profileOrder.map(pid => {
+      const profile = LEARNER_PROFILES.find(p => p.id === pid)
+      if (!profile) return ''
+      const adaptation = ADAPTATIONS[pid]
+      const bullets = adaptation?.bullets ?? []
+      return `<div style="margin-bottom:20px;background:#0f172a;border-radius:10px;border-left:4px solid ${profile.color};padding:18px 20px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:800;color:#f1f5f9">${profile.label}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">${profile.students} students (${profile.pct}%) · Mastery: ${profile.mastery}%</div>
+          </div>
+          <span style="background:${profile.color}22;color:${profile.color};font-size:10px;font-weight:700;padding:3px 8px;border-radius:99px;border:1px solid ${profile.color}44">${profile.bloomLevel}</span>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#cbd5e1;margin-bottom:8px">${adaptation?.title ?? ''}</div>
+        <ul style="margin:0;padding-left:18px">${bullets.map(b => `<li style="color:#94a3b8;font-size:12px;line-height:1.7;margin-bottom:4px">${b}</li>`).join('')}</ul>
+      </div>`
+    }).join('')
+    const accomBadges = selectedAccommodations.map(a =>
+      `<span style="display:inline-block;background:#1e40af22;color:#93c5fd;font-size:11px;font-weight:600;padding:3px 10px;border-radius:99px;border:1px solid #1e40af44;margin:3px">${a}</span>`
+    ).join('')
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Differentiated Lesson – ${lessonTopic}</title>
+<style>body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9}@media print{body{background:#fff;color:#111}}</style></head><body>
+<div style="max-width:860px;margin:0 auto;padding:32px 24px">
+  <div style="background:linear-gradient(135deg,#1e293b,#0f172a);border-radius:16px;padding:28px 32px;margin-bottom:24px;border:1px solid #334155">
+    <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">TALEEKO · Differentiated Lesson Plan</div>
+    <h1 style="margin:0 0 4px;font-size:24px;font-weight:900;color:#f1f5f9">${lessonTopic}</h1>
+    <p style="margin:0 0 16px;color:#64748b;font-size:13px">${date}</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="background:#ffffff08;border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px">Subject</div><div style="font-size:13px;font-weight:700;color:#e2e8f0;margin-top:2px">${lessonSubject}</div></div>
+      <div style="background:#ffffff08;border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px">Grade</div><div style="font-size:13px;font-weight:700;color:#e2e8f0;margin-top:2px">Grade ${lessonGrade}</div></div>
+      <div style="background:#ffffff08;border-radius:8px;padding:10px 14px"><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px">Standard</div><div style="font-size:13px;font-weight:700;color:#e2e8f0;margin-top:2px">${lessonStandard}</div></div>
+      <div style="background:#ffffff08;border-radius:8px;padding:10px 14px;grid-column:span 1"><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:1px">Objective</div><div style="font-size:12px;font-weight:600;color:#e2e8f0;margin-top:2px">${lessonObjective}</div></div>
+    </div>
+  </div>
+  ${accomBadges ? `<div style="margin-bottom:20px;background:#0f172a;border-radius:10px;border:1px solid #1e293b;padding:16px 20px"><div style="font-size:12px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Active Accommodations</div><div>${accomBadges}</div></div>` : ''}
+  <div style="font-size:12px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Differentiated Adaptations</div>
+  ${adaptationBlocks}
+  <div style="text-align:center;padding:20px;border-top:1px solid #1e293b;margin-top:8px">
+    <div style="font-size:11px;font-weight:700;color:#6366f1;letter-spacing:2px">TALEEKO</div>
+    <div style="font-size:10px;color:#475569;margin-top:4px">Confidential · For educator use only · Generated ${date}</div>
+  </div>
+</div></body></html>`
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    a.download = `differentiated-lesson-${lessonTopic.replace(/\s+/g, '-').toLowerCase()}.html`
+    a.click()
+    URL.revokeObjectURL(a.href)
+    showSaveToast('Exported as HTML!')
+  }
+
   const handleGenerate = async () => {
     setGenerating(true)
     try {
@@ -1134,17 +1187,17 @@ export default function DifferentiationPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'All 5 Adaptations (PDF)', icon: FileText, desc: 'Full differentiated lesson packet' },
-                  { label: 'Student Handouts (PDF)', icon: Users, desc: 'Separate printable per group' },
-                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive' },
-                  { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or LMS' },
+                  { label: 'All 5 Adaptations (HTML)', icon: FileText, desc: 'Full differentiated lesson packet', action: () => { exportDifferentiationHTML(); setExportOpen(false) } },
+                  { label: 'Student Handouts (PDF)', icon: Users, desc: 'Separate printable per group', action: null },
+                  { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive', action: null },
+                  { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or LMS', action: null },
                 ].map(opt => (
                   <motion.button
                     key={opt.label}
                     className="w-full flex items-center gap-3 p-3 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-left"
                     whileHover={{ x: 2 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => { showSaveToast(`Exported: ${opt.label}`); setExportOpen(false) }}
+                    onClick={() => { opt.action ? opt.action() : (showSaveToast(`Exported: ${opt.label}`), setExportOpen(false)) }}
                   >
                     <div className="w-7 h-7 rounded-lg bg-accent-500/15 flex items-center justify-center flex-shrink-0">
                       <opt.icon className="w-3.5 h-3.5 text-accent-400" />
