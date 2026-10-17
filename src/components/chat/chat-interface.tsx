@@ -119,6 +119,13 @@ export default function ChatInterface() {
                   ? { ...m, toolResults: [...(m.toolResults ?? []), { type: parsed.tool.name, data: parsed.tool.input }] }
                   : m
               ))
+            } else if (parsed.type === 'error') {
+              const isKeyError = parsed.message?.includes('apiKey') || parsed.message?.includes('authentication')
+              setMessages(prev => prev.map(m =>
+                m.id === assistantId
+                  ? { ...m, content: isKeyError ? 'AI is not configured yet. Add your ANTHROPIC_API_KEY to enable Magic Chat.' : `Error: ${parsed.message}` }
+                  : m
+              ))
             }
           } catch { /* skip malformed */ }
         }
@@ -215,7 +222,7 @@ export default function ChatInterface() {
               </div>
             )}
             <div className={cn('max-w-2xl', msg.role === 'user' ? 'items-end' : 'items-start', 'flex flex-col gap-2')}>
-              {msg.content && (
+              {(msg.content || (msg.role === 'assistant' && isStreaming && msg.id === messages[messages.length - 1]?.id)) && (
                 <div
                   className={cn(
                     'px-4 py-3 rounded-2xl text-sm',
@@ -225,7 +232,7 @@ export default function ChatInterface() {
                   )}
                 >
                   {msg.role === 'assistant' && isStreaming && msg.content === '' ? (
-                    <span className="inline-flex gap-1">
+                    <span className="inline-flex gap-1 py-0.5">
                       <span className="w-1.5 h-1.5 bg-accent-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-1.5 h-1.5 bg-neon-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-1.5 h-1.5 bg-accent-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
