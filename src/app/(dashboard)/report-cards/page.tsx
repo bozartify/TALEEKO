@@ -314,6 +314,81 @@ export default function ReportCardsPage() {
     showToast('Report cards exported as CSV')
   }
 
+  function exportReportCardsHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const gradeColor = (g: string) => g.startsWith('A') ? '#10b981' : g.startsWith('B') ? '#6366f1' : g.startsWith('C') ? '#f59e0b' : '#ef4444'
+
+    const cards = selectedList.map(student => {
+      const report = sampleReports[student.id] ?? buildFallbackReport(student)
+      const subjectRows = report.subjects.map(sub => `<tr>
+        <td style="padding:10px 16px;color:#d1d5db;font-weight:600">${sub.name}</td>
+        <td style="padding:10px 16px;text-align:center;font-weight:800;font-size:16px;color:${gradeColor(sub.grade)}">${sub.grade}</td>
+        <td style="padding:10px 16px;text-align:center;color:#94a3b8">${Math.round(sub.score)}%</td>
+        <td style="padding:10px 16px;color:#9ca3af;font-size:12px">${sub.comment}</td>
+      </tr>`).join('')
+      const strengths = report.strengths.map(s => `<li style="margin:4px 0;color:#d1d5db;font-size:13px">${s}</li>`).join('')
+      const growth = report.growth.map(s => `<li style="margin:4px 0;color:#d1d5db;font-size:13px">${s}</li>`).join('')
+      const flags = [(student.iep ? '<span style="background:#6366f120;color:#818cf8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">IEP</span>' : ''), (student.ell ? '<span style="background:#22d3ee20;color:#67e8f9;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">ELL</span>' : '')].filter(Boolean).join(' ')
+      const trendArrow = student.trend === 'up' ? '↑' : student.trend === 'down' ? '↓' : '→'
+      const trendColor = student.trend === 'up' ? '#10b981' : student.trend === 'down' ? '#ef4444' : '#f59e0b'
+      const initials = student.name.split(' ').map(n => n[0]).join('')
+      return `<div style="background:#0f172a;border-radius:16px;padding:28px;margin-bottom:32px;page-break-inside:avoid">
+        <div style="display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #1f2937">
+          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:18px;color:#fff;flex-shrink:0">${initials}</div>
+          <div style="flex:1">
+            <h2 style="font-size:20px;font-weight:900;color:#f9fafb;margin:0 0 4px">${student.name}</h2>
+            <div style="font-size:12px;color:#6b7280">${report.period} &nbsp;·&nbsp; Attendance: ${student.attendance}% &nbsp;·&nbsp; <span style="color:${trendColor};font-weight:700">${trendArrow} Trend</span></div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:36px;font-weight:900;color:${gradeColor(student.grade)}">${student.grade}</div>
+            <div style="font-size:11px;color:#6b7280">GPA: ${student.gpa}</div>
+          </div>
+        </div>
+        ${flags ? `<div style="margin-bottom:16px">${flags}</div>` : ''}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+          <thead><tr style="background:#1e293b">
+            <th style="padding:8px 16px;text-align:left;font-size:11px;text-transform:uppercase;color:#94a3b8;letter-spacing:.05em">Subject</th>
+            <th style="padding:8px 16px;text-align:center;font-size:11px;text-transform:uppercase;color:#94a3b8;letter-spacing:.05em">Grade</th>
+            <th style="padding:8px 16px;text-align:center;font-size:11px;text-transform:uppercase;color:#94a3b8;letter-spacing:.05em">Score</th>
+            <th style="padding:8px 16px;text-align:left;font-size:11px;text-transform:uppercase;color:#94a3b8;letter-spacing:.05em">Comments</th>
+          </tr></thead>
+          <tbody>${subjectRows}</tbody>
+        </table>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div style="background:#0a0f1a;border-radius:10px;padding:14px"><div style="font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Strengths</div><ul style="margin:0;padding-left:16px">${strengths}</ul></div>
+          <div style="background:#0a0f1a;border-radius:10px;padding:14px"><div style="font-size:11px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Growth Areas</div><ul style="margin:0;padding-left:16px">${growth}</ul></div>
+        </div>
+        <div style="background:#0a0f1a;border-radius:10px;padding:14px;border-left:3px solid #6366f1">
+          <div style="font-size:11px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Teacher's Note</div>
+          <p style="margin:0;color:#d1d5db;font-size:13px;line-height:1.6">${report.teacherNote}</p>
+        </div>
+      </div>`
+    }).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Report Cards — ${date}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:960px}
+  @media print{body{background:#fff;color:#111;padding:16px}h1,h2{color:#111!important}p,td,li{color:#333!important}}
+  .school-header{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:16px;padding:24px 32px;margin-bottom:32px;color:#fff}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <div class="school-header">
+    <h1 style="font-size:28px;font-weight:900;margin:0 0 4px">TALEEKO Academy</h1>
+    <p style="margin:0;opacity:.8;font-size:14px">Official Report Cards — Quarter 2, Fall 2026 &nbsp;·&nbsp; Generated ${date}</p>
+    <p style="margin:8px 0 0;opacity:.7;font-size:12px">${selectedList.length} student${selectedList.length !== 1 ? 's' : ''} · Template: ${selectedTemplate.charAt(0).toUpperCase() + selectedTemplate.slice(1)} · Tone: ${toneConfig[tone].label}</p>
+  </div>
+  ${cards}
+  <div class="footer"><span>TALEEKO Education Platform · Confidential</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `report-cards-q2-fall-2026.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast(`${selectedList.length} report cards exported as HTML!`)
+  }
+
   const approvedCount = approvals.size
   const gradeDistribution = [
     { grade: 'A', count: students.filter(s => s.grade.startsWith('A')).length, color: '#10b981' },
@@ -348,6 +423,9 @@ export default function ReportCardsPage() {
                 <>
                   <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => { window.print(); showToast('Printing all report cards…') }}>
                     <Printer className="w-3.5 h-3.5" /> Print All
+                  </button>
+                  <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={exportReportCardsHTML}>
+                    <FileText className="w-3.5 h-3.5" /> Export HTML
                   </button>
                   <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={exportCSV}>
                     <Download className="w-3.5 h-3.5" /> Export CSV

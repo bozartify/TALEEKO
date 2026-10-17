@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   BookOpen, ClipboardList, FileText, Zap, BarChart2, Sparkles,
   ChevronRight, Users, Clock, TrendingUp, Calendar, Target,
@@ -142,6 +142,21 @@ const achievements = [
 
 type DashTab = 'overview' | 'classes' | 'alerts'
 
+const LIVE_FEED_POOL = [
+  { icon: BookOpen,      color: 'text-accent-400',   text: 'Lesson plan "Photosynthesis" updated',        time: 'just now' },
+  { icon: Sparkles,      color: 'text-purple-400',   text: 'AI generated 3 quiz questions',               time: 'just now' },
+  { icon: Users,         color: 'text-success-400',  text: 'Emma Wilson submitted assignment',             time: 'just now' },
+  { icon: CheckCircle,   color: 'text-success-400',  text: 'Gradebook sync completed (8 students)',       time: 'just now' },
+  { icon: Bell,          color: 'text-warning-400',  text: 'Noah Thompson flagged as at-risk (6 absences)', time: 'just now' },
+  { icon: Brain,         color: 'text-purple-400',   text: 'Differentiation agent ran successfully',      time: 'just now' },
+  { icon: Star,          color: 'text-yellow-400',   text: 'Liam Chen earned Perfect Attendance badge',   time: 'just now' },
+  { icon: Target,        color: 'text-electric-400', text: 'IEP goal progress saved for 2 students',      time: 'just now' },
+  { icon: ClipboardList, color: 'text-orange-400',   text: 'Quiz "Cell Division" shared with AP Biology', time: 'just now' },
+  { icon: Calendar,      color: 'text-indigo-400',   text: 'Unit plan "Climate Change" added to calendar','time': 'just now' },
+  { icon: TrendingUp,    color: 'text-success-400',  text: 'Class average rose to 87% (+2pts)',           time: 'just now' },
+  { icon: AlertTriangle, color: 'text-warning-400',  text: 'Parent notification sent: Noah Thompson',     time: 'just now' },
+]
+
 export default function DashboardPage() {
   const router = useRouter()
   const maxActivity = Math.max(...weeklyActivity.map(d => d.value))
@@ -155,6 +170,16 @@ export default function DashboardPage() {
     }
     return 'Alex'
   })
+  const [liveActivity, setLiveActivity] = useState(LIVE_FEED_POOL.slice(0, 4))
+  const feedIdx = useRef(4)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const next = LIVE_FEED_POOL[feedIdx.current % LIVE_FEED_POOL.length]
+      feedIdx.current++
+      setLiveActivity(prev => [next, ...prev.slice(0, 3)])
+    }, 4200)
+    return () => clearInterval(id)
+  }, [])
 
   function showToast(msg: string) {
     setToastMsg(msg)
@@ -586,6 +611,42 @@ export default function DashboardPage() {
                         </div>
                       </motion.div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Live Activity Feed */}
+                <div className="glass-card p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-success-400" />
+                      Live Activity
+                    </h3>
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-success-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success-400 animate-pulse" />
+                      LIVE
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    <AnimatePresence mode="popLayout">
+                      {liveActivity.map((item, i) => (
+                        <motion.div
+                          key={`${item.text}-${i}`}
+                          className="flex items-start gap-2.5"
+                          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div className="w-6 h-6 rounded-lg flex items-center justify-center bg-white/[0.05] flex-shrink-0 mt-0.5">
+                            <item.icon className={`w-3.5 h-3.5 ${item.color}`} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs text-surface-300 leading-snug">{item.text}</p>
+                            <p className="text-[10px] text-surface-600 mt-0.5">{i === 0 ? 'just now' : `${(i + 1) * 4}s ago`}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
                   </div>
                 </div>
 
