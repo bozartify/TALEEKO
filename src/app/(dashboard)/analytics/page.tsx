@@ -167,6 +167,73 @@ export default function AnalyticsPage() {
   const [loadingInsights, setLoadingInsights] = useState(false)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportAnalyticsHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const data = rangeData
+    const overallAvg = Math.round(classPerformanceWeeks.reduce((s, d) => s + (d.science + d.math + d.english + d.history) / 4, 0) / classPerformanceWeeks.length)
+
+    const activityTable = data.activity.map((d: {day:string;lessons:number;minutes:number}) => `<tr style="border-bottom:1px solid #1f2937">
+      <td style="padding:8px 12px;color:#d1d5db;font-weight:600">${d.day}</td>
+      <td style="padding:8px 12px;text-align:center;color:#818cf8">${d.lessons}</td>
+      <td style="padding:8px 12px;text-align:center;color:#94a3b8">${d.minutes} min</td>
+    </tr>`).join('')
+
+    const topStudentRows = topStudents.map(s => `<tr style="border-bottom:1px solid #1f2937">
+      <td style="padding:8px 12px;color:#f59e0b;font-weight:800;text-align:center">#${s.rank}</td>
+      <td style="padding:8px 12px;color:#d1d5db;font-weight:600">${s.name}</td>
+      <td style="padding:8px 12px;text-align:center;color:#10b981;font-weight:700">${s.score}%</td>
+    </tr>`).join('')
+
+    const contentRows = contentPerformance.map(c => `<tr style="border-bottom:1px solid #1f2937">
+      <td style="padding:8px 12px;color:#d1d5db;font-weight:600">${c.title}</td>
+      <td style="padding:8px 12px;text-align:center;color:#94a3b8;font-size:12px">${c.type}</td>
+      <td style="padding:8px 12px;text-align:center;color:#6b7280">${c.views}</td>
+      <td style="padding:8px 12px;text-align:center;color:#10b981">${c.completion}%</td>
+      <td style="padding:8px 12px;text-align:center;color:#818cf8">${c.avgScore}%</td>
+    </tr>`).join('')
+
+    const insightItems = (dynamicInsights.length ? dynamicInsights : aiInsights.map(i => `${i.title}: ${i.text}`)).map(i =>
+      `<li style="margin:6px 0;color:#d1d5db;font-size:13px;line-height:1.5">${i.replace(/^[•·-]\s*/, '')}</li>`
+    ).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Analytics Report — ${date}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:960px}
+  @media print{body{background:#fff;color:#111;padding:16px}h2{color:#111!important}td,li{color:#333!important}}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:20px 0 28px}
+  .kpi{background:#111827;border-radius:12px;padding:16px;text-align:center}
+  h2{font-size:15px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin:24px 0 12px;padding-bottom:8px;border-bottom:1px solid #1f2937}
+  table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:12px;overflow:hidden;margin-bottom:20px}
+  th{background:#1e293b;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;color:#94a3b8;font-weight:600}
+  th:not(:first-child){text-align:center}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1 style="font-size:26px;font-weight:900;margin:0 0 4px">Analytics Report</h1>
+  <p style="color:#6b7280;font-size:13px;margin:0">Period: ${range.charAt(0).toUpperCase() + range.slice(1)} · Generated ${date}</p>
+  <div class="kpi-grid">
+    <div class="kpi"><div style="font-size:24px;font-weight:900;color:#818cf8">${data.totals.lessons}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Lessons Created</div></div>
+    <div class="kpi"><div style="font-size:24px;font-weight:900;color:#10b981">${data.totals.students}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Students Reached</div></div>
+    <div class="kpi"><div style="font-size:24px;font-weight:900;color:#f59e0b">${data.totals.time}h</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Hours Saved</div></div>
+    <div class="kpi"><div style="font-size:24px;font-weight:900;color:#f9fafb">${overallAvg}%</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Avg Class Score</div></div>
+  </div>
+  <h2>Activity</h2>
+  <table><thead><tr><th>Day</th><th>Lessons</th><th>Minutes</th></tr></thead><tbody>${activityTable}</tbody></table>
+  <h2>Top Students</h2>
+  <table><thead><tr><th>Rank</th><th>Student</th><th>Score</th></tr></thead><tbody>${topStudentRows}</tbody></table>
+  <h2>Content Performance</h2>
+  <table><thead><tr><th>Title</th><th>Type</th><th>Views</th><th>Completion</th><th>Avg Score</th></tr></thead><tbody>${contentRows}</tbody></table>
+  <h2>AI Insights</h2>
+  <div style="background:#0f172a;border-radius:12px;padding:16px"><ul style="margin:0;padding-left:20px">${insightItems}</ul></div>
+  <div class="footer"><span>TALEEKO Education Platform</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `analytics-report-${range}-${date.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Analytics report exported as HTML!')
+  }
+
   function exportAnalyticsCSV() {
     const headers = ['Day', 'Lessons', 'Minutes']
     const rows = rangeData.activity.map(d => [d.day, d.lessons, d.minutes])
@@ -258,8 +325,11 @@ export default function AnalyticsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={exportAnalyticsHTML}>
+                <Download className="w-3.5 h-3.5" /> Export HTML
+              </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={exportAnalyticsCSV}>
-                <Download className="w-3.5 h-3.5" /> Export Report
+                <Download className="w-3.5 h-3.5" /> Export CSV
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} disabled={loadingInsights} onClick={refreshAIInsights}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Insights

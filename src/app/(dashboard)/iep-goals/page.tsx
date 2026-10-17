@@ -212,6 +212,79 @@ export default function IepGoalsPage() {
   const atRiskGoals   = goals.filter(g => g.status === 'At Risk').length
   const reviewDue     = goals.filter(g => g.status === 'Met').length
 
+  function exportIEPHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const statusColor: Record<string, string> = { 'On Track': '#10b981', 'At Risk': '#ef4444', 'Met': '#6366f1' }
+
+    const studentCards = STUDENTS.map(s => {
+      const sGoals = goals.filter(g => g.studentId === s.id)
+      if (!sGoals.length) return ''
+      const goalRows = sGoals.map(g => {
+        const pct = Math.round(((g.current - g.baseline) / (g.target - g.baseline + 0.001)) * 100)
+        const barColor = statusColor[g.status] || '#6366f1'
+        return `<div style="background:#0a0f1a;border-radius:10px;padding:14px;margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px">
+            <div style="flex:1">
+              <div style="font-size:11px;font-weight:700;color:${barColor};text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${g.area}</div>
+              <p style="margin:0;color:#d1d5db;font-size:13px;line-height:1.5">${g.goalText}</p>
+            </div>
+            <span style="background:${barColor}20;color:${barColor};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0">${g.status}</span>
+          </div>
+          <div style="display:flex;gap:16px;margin-bottom:8px;font-size:11px;color:#94a3b8">
+            <span>Baseline: <strong style="color:#f9fafb">${g.baseline}%</strong></span>
+            <span>Current: <strong style="color:${barColor}">${g.current}%</strong></span>
+            <span>Target: <strong style="color:#f9fafb">${g.target}%</strong></span>
+            <span>Updated: <strong style="color:#f9fafb">${g.lastUpdated}</strong></span>
+          </div>
+          <div style="background:#1f2937;border-radius:6px;height:8px;overflow:hidden">
+            <div style="height:100%;width:${Math.max(0, Math.min(100, pct))}%;background:${barColor};border-radius:6px;transition:.3s"></div>
+          </div>
+        </div>`
+      }).join('')
+      return `<div style="background:#0f172a;border-radius:14px;padding:20px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid #1f2937">
+          <div style="width:40px;height:40px;border-radius:10px;background:${s.avatarColor};display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;font-size:15px;flex-shrink:0">${s.initials}</div>
+          <div>
+            <h2 style="font-size:17px;font-weight:800;color:#f9fafb;margin:0 0 2px">${s.name}</h2>
+            <div style="font-size:12px;color:#6b7280">Grade ${s.grade} · ${sGoals.length} goal${sGoals.length !== 1 ? 's' : ''} · IEP</div>
+          </div>
+        </div>
+        ${goalRows}
+      </div>`
+    }).filter(Boolean).join('')
+
+    const totalGoals = goals.length
+    const onTrack = goals.filter(g => g.status === 'On Track').length
+    const atRisk = goals.filter(g => g.status === 'At Risk').length
+    const met = goals.filter(g => g.status === 'Met').length
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IEP Progress Report — ${date}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:900px}
+  @media print{body{background:#fff;color:#111;padding:16px}h1,h2{color:#111!important}p,div{color:#333!important}}
+  .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 28px}
+  .stat{background:#111827;border-radius:12px;padding:16px;text-align:center}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1 style="font-size:26px;font-weight:900;margin:0 0 4px">IEP Progress Report</h1>
+  <p style="color:#6b7280;font-size:13px;margin:0 0 0">Confidential · Generated ${date} · TALEEKO Education Platform</p>
+  <div class="summary">
+    <div class="stat"><div style="font-size:28px;font-weight:900;color:#f9fafb">${totalGoals}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Total Goals</div></div>
+    <div class="stat"><div style="font-size:28px;font-weight:900;color:#10b981">${onTrack}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">On Track</div></div>
+    <div class="stat"><div style="font-size:28px;font-weight:900;color:#ef4444">${atRisk}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">At Risk</div></div>
+    <div class="stat"><div style="font-size:28px;font-weight:900;color:#6366f1">${met}</div><div style="font-size:11px;color:#6b7280;margin-top:4px">Goals Met</div></div>
+  </div>
+  ${studentCards}
+  <div class="footer"><span>TALEEKO Education Platform · IEP Document — Confidential</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `iep-progress-report-${date.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('IEP progress report exported as HTML!')
+  }
+
   function exportIEPCSV() {
     const headers = ['Student', 'Grade', 'Area', 'Goal', 'Baseline %', 'Current %', 'Target %', 'Status', 'Last Updated']
     const rows = goals.map(g => {
@@ -333,9 +406,17 @@ export default function IepGoalsPage() {
                 className="btn-secondary text-xs px-4 py-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={exportIEPHTML}
+              >
+                <FileText className="w-3.5 h-3.5" /> Export HTML
+              </motion.button>
+              <motion.button
+                className="btn-secondary text-xs px-4 py-2"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={exportIEPCSV}
               >
-                <Download className="w-3.5 h-3.5" /> Export Report
+                <Download className="w-3.5 h-3.5" /> Export CSV
               </motion.button>
               <motion.button
                 className="btn-gradient text-xs px-4 py-2"
