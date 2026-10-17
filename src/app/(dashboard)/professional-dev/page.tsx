@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Award, BookOpen, Clock, Star, Play, Check, Lock,
@@ -327,6 +328,7 @@ const difficultyConfig: Record<Difficulty, { bg: string; text: string }> = {
 const weeklyGoal = { current: 3, target: 5, unit: 'hours' }
 
 export default function ProfessionalDevPage() {
+  const router = useRouter()
   const [categoryFilter, setCategoryFilter] = useState<Category>('All')
   const [expandedCourse, setExpandedCourse] = useState<string | null>(null)
   const [toastMsg, setToastMsg] = useState('')
@@ -344,6 +346,38 @@ export default function ProfessionalDevPage() {
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  function downloadCertificate(title: string, instructor: string, hours: number) {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Certificate of Completion</title>
+<style>body{font-family:Georgia,serif;background:#f8f6f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;padding:20px}
+.cert{background:#fff;border:8px solid #6366f1;max-width:720px;width:100%;padding:60px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.15);border-radius:4px}
+h1{font-size:14px;text-transform:uppercase;letter-spacing:.3em;color:#6366f1;margin:0 0 24px}
+h2{font-size:36px;color:#1a1a2e;margin:0 0 12px;font-weight:700}
+p{color:#555;font-size:16px;margin:8px 0;line-height:1.6}
+.name{font-size:28px;color:#6366f1;font-style:italic;border-bottom:2px solid #6366f1;display:inline-block;padding-bottom:4px;margin:24px 0}
+.meta{font-size:13px;color:#888;margin-top:32px}
+.seal{font-size:48px;margin:24px 0}</style></head>
+<body><div class="cert">
+<div class="seal">🎓</div>
+<h1>Certificate of Completion</h1>
+<p>This certifies that</p>
+<div class="name">Ms. Sarah Chen</div>
+<p>has successfully completed</p>
+<h2>${title}</h2>
+<p>Instructed by ${instructor} · ${hours} Professional Development Hours</p>
+<div class="meta">Issued on ${date} · TALEEKO Professional Learning Platform<br>
+Certificate ID: TLK-${Math.random().toString(36).substr(2,8).toUpperCase()}</div>
+</div></body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `certificate-${title.replace(/\s+/g,'-').toLowerCase()}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+    showToast(`Certificate downloaded for "${title}"`)
   }
 
   async function handleAIRecs() {
@@ -973,11 +1007,11 @@ export default function ProfessionalDevPage() {
                   onClick={() => {
                     if (course.status === 'not-started') enrollCourse(course.id, course.title)
                     else if (course.status === 'in-progress') { updateProgress(course.id, 10); showToast(`Progress updated for "${course.title}"`) }
-                    else showToast(`"${course.title}" certificate available!`)
+                    else downloadCertificate(course.title, course.instructor, course.hours)
                   }}
                 >
                   {course.status === 'completed' ? (
-                    <><Check className="w-3.5 h-3.5" /> Completed</>
+                    <><Award className="w-3.5 h-3.5" /> Download Certificate</>
                   ) : course.status === 'in-progress' ? (
                     <><Play className="w-3.5 h-3.5" /> Continue Learning</>
                   ) : (
