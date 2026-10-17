@@ -184,6 +184,37 @@ export default function GradebookPage() {
     showToast('Gradebook exported as CSV')
   }
 
+  function exportHTMLReport() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = filteredStudents.map(s => {
+      const scores = localScores[s.id] ?? s.scores
+      const pct = getOverallPct(scores)
+      const { letter, color } = getLetterGrade(pct)
+      const trend = s.trend === 'up' ? '↑' : s.trend === 'down' ? '↓' : '→'
+      return `<tr><td>${s.name}</td><td><span style="color:${color};font-weight:700">${letter}</span></td><td>${pct.toFixed(1)}%</td><td>${trend}</td><td>${s.missingCount} missing</td></tr>`
+    }).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Gradebook Report — ${date}</title>
+<style>body{font-family:Georgia,serif;max-width:900px;margin:40px auto;color:#1a1a2e;padding:20px}
+h1{font-size:28px;margin-bottom:4px}h2{font-size:14px;color:#666;font-weight:normal;margin:0 0 24px}
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th{background:#1a1a2e;color:white;padding:10px 14px;text-align:left;font-size:13px}
+td{padding:9px 14px;border-bottom:1px solid #e5e7eb;font-size:13px}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO — Gradebook Report</h1><h2>Generated ${date}</h2>
+<table><thead><tr><th>Student</th><th>Letter Grade</th><th>Overall %</th><th>Trend</th><th>Missing</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">TALEEKO AI Teaching Platform · Confidential · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `gradebook-report-${date.replace(/\s+/g,'-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('HTML report card downloaded!')
+  }
+
   const filteredStudents = useMemo(() => {
     let list = students.filter(s =>
       s.name.toLowerCase().includes(search.toLowerCase())
@@ -278,8 +309,11 @@ export default function GradebookPage() {
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} disabled={runningAnalysis} onClick={runAIAnalysis}>
                 {runningAnalysis ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />&nbsp;Analyzing…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Analysis</>}
               </motion.button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportHTMLReport}>
+                <FileText className="w-3.5 h-3.5" /> Report Card
+              </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportCSV}>
-                <Download className="w-3.5 h-3.5" /> Export CSV
+                <Download className="w-3.5 h-3.5" /> CSV
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/assignments')}>
                 <Plus className="w-3.5 h-3.5" /> Assignment
