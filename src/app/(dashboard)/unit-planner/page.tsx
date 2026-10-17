@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutGrid, Download, Plus, Eye, Edit2, X,
@@ -260,6 +261,7 @@ const initialUnits: Unit[] = [
 ───────────────────────────────────────────── */
 
 export default function UnitPlannerPage() {
+  const router = useRouter()
   const [units, setUnits] = useState<Unit[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -946,6 +948,15 @@ export default function UnitPlannerPage() {
                   >
                     <Download className="w-3.5 h-3.5" />
                     Export
+                  </motion.button>
+                  <motion.button
+                    className="btn-secondary flex-1 justify-center text-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => router.push(`/lesson-planner?unit=${encodeURIComponent(selectedUnit.title)}`)}
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Create Lesson
                   </motion.button>
                 </div>
               </div>
