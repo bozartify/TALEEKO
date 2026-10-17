@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { Sparkles, Search, Globe, Check, ChevronDown, Bell } from 'lucide-react'
 import Breadcrumbs from '@/components/ui/breadcrumbs'
@@ -77,6 +77,21 @@ export default function Header() {
   const [lang, setLang] = useState(LANGUAGES[0])
   const [open, setOpen] = useState(false)
   const router = useRouter()
+  const [unreadCount, setUnreadCount] = useState(3)
+  useEffect(() => {
+    function refreshCount() {
+      try {
+        const state = JSON.parse(localStorage.getItem('taleeko_notifications_state') || '{}')
+        const readIds: string[] = state.readIds ?? []
+        const dismissedIds: string[] = state.dismissedIds ?? []
+        const totalNotifs = 8
+        setUnreadCount(Math.max(0, totalNotifs - readIds.length - dismissedIds.length))
+      } catch {}
+    }
+    refreshCount()
+    window.addEventListener('storage', refreshCount)
+    return () => window.removeEventListener('storage', refreshCount)
+  }, [pathname])
 
   return (
     <header className="flex-shrink-0 border-b border-white/[0.06] bg-surface-950/50 backdrop-blur-xl">
@@ -103,7 +118,15 @@ export default function Header() {
         {/* Notifications */}
         <button onClick={() => router.push('/notifications')} className="relative w-9 h-9 rounded-xl flex items-center justify-center text-surface-400 hover:text-surface-200 hover:bg-white/[0.04] transition-colors">
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-500 ring-2 ring-surface-950" />
+          {unreadCount > 0 && (
+            unreadCount <= 9 ? (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-accent-500 ring-1 ring-surface-950 text-[9px] font-bold text-white px-0.5">
+                {unreadCount}
+              </span>
+            ) : (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent-500 ring-2 ring-surface-950" />
+            )
+          )}
         </button>
 
         {/* Language switcher */}

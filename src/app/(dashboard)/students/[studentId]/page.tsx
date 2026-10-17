@@ -58,7 +58,13 @@ export default function StudentProfilePage({ params }: { params: { studentId: st
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
   const [addingNote, setAddingNote] = useState(false)
   const [newNote, setNewNote] = useState('')
-  const [noteList, setNoteList] = useState<Note[]>(notes)
+  const [noteList, setNoteList] = useState<Note[]>(() => {
+    try {
+      const saved = localStorage.getItem(`taleeko_student_notes_${studentId}`)
+      if (saved) return JSON.parse(saved) as Note[]
+    } catch {}
+    return notes
+  })
   const [toastMsg, setToastMsg] = useState('')
   const [aiSummary, setAiSummary] = useState('')
   const [generatingSummary, setGeneratingSummary] = useState(false)
@@ -90,7 +96,11 @@ export default function StudentProfilePage({ params }: { params: { studentId: st
   function saveNote() {
     if (!newNote.trim()) return
     const n: Note = { date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), author: 'Ms. Johnson', text: newNote.trim(), type: 'academic' }
-    setNoteList(prev => [n, ...prev])
+    setNoteList(prev => {
+      const updated = [n, ...prev]
+      try { localStorage.setItem(`taleeko_student_notes_${studentId}`, JSON.stringify(updated)) } catch {}
+      return updated
+    })
     setNewNote('')
     setAddingNote(false)
     showToast('Note saved')
