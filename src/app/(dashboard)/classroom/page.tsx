@@ -28,6 +28,7 @@ interface ClassRecord {
 }
 
 interface StudentRecord {
+  id: string
   name: string
   grade: string
   class: string
@@ -67,16 +68,16 @@ const classes: ClassRecord[] = [
 ]
 
 const students: StudentRecord[] = [
-  { name: 'Emma Rodriguez',  grade: '7th', class: 'Science', avg: 92, status: 'active',          streak: 15, lastActive: '2h ago',   awards: 3, attendance: 97, iep: false, ell: false },
-  { name: 'James Kim',       grade: '8th', class: 'History', avg: 87, status: 'active',          streak: 8,  lastActive: '1h ago',   awards: 2, attendance: 94, iep: false, ell: false },
-  { name: 'Aisha Thompson',  grade: '9th', class: 'Math',    avg: 95, status: 'active',          streak: 22, lastActive: '30m ago',  awards: 5, attendance: 99, iep: false, ell: false },
-  { name: 'Liam Chen',       grade: '10th',class: 'English', avg: 78, status: 'needs-attention', streak: 3,  lastActive: '2d ago',   awards: 1, attendance: 88, iep: false, ell: true  },
-  { name: 'Sofia Patel',     grade: '7th', class: 'Science', avg: 88, status: 'active',          streak: 11, lastActive: '3h ago',   awards: 2, attendance: 95, iep: false, ell: false },
-  { name: 'Noah Williams',   grade: '8th', class: 'History', avg: 71, status: 'needs-attention', streak: 1,  lastActive: '5d ago',   awards: 0, attendance: 82, iep: true,  ell: false },
-  { name: 'Olivia Martinez', grade: '9th', class: 'Math',    avg: 91, status: 'active',          streak: 14, lastActive: '1h ago',   awards: 4, attendance: 96, iep: false, ell: false },
-  { name: 'Ethan Johnson',   grade: '7th', class: 'Science', avg: 84, status: 'active',          streak: 7,  lastActive: '4h ago',   awards: 1, attendance: 93, iep: false, ell: false },
-  { name: 'Ava Lee',         grade: '10th',class: 'English', avg: 93, status: 'active',          streak: 19, lastActive: '45m ago',  awards: 3, attendance: 98, iep: false, ell: false },
-  { name: 'Mason Brown',     grade: '8th', class: 'History', avg: 76, status: 'needs-attention', streak: 2,  lastActive: '3d ago',   awards: 1, attendance: 85, iep: false, ell: false },
+  { id: '1', name: 'Emma Rodriguez',  grade: '7th', class: 'Science', avg: 92, status: 'active',          streak: 15, lastActive: '2h ago',   awards: 3, attendance: 97, iep: false, ell: false },
+  { id: '2', name: 'James Kim',       grade: '8th', class: 'History', avg: 87, status: 'active',          streak: 8,  lastActive: '1h ago',   awards: 2, attendance: 94, iep: false, ell: false },
+  { id: '3', name: 'Aisha Thompson',  grade: '9th', class: 'Math',    avg: 95, status: 'active',          streak: 22, lastActive: '30m ago',  awards: 5, attendance: 99, iep: false, ell: false },
+  { id: '4', name: 'Liam Chen',       grade: '10th',class: 'English', avg: 78, status: 'needs-attention', streak: 3,  lastActive: '2d ago',   awards: 1, attendance: 88, iep: false, ell: true  },
+  { id: '5', name: 'Sofia Patel',     grade: '7th', class: 'Science', avg: 88, status: 'active',          streak: 11, lastActive: '3h ago',   awards: 2, attendance: 95, iep: false, ell: false },
+  { id: '6', name: 'Noah Williams',   grade: '8th', class: 'History', avg: 71, status: 'needs-attention', streak: 1,  lastActive: '5d ago',   awards: 0, attendance: 82, iep: true,  ell: false },
+  { id: '7', name: 'Olivia Martinez', grade: '9th', class: 'Math',    avg: 91, status: 'active',          streak: 14, lastActive: '1h ago',   awards: 4, attendance: 96, iep: false, ell: false },
+  { id: '8', name: 'Ethan Johnson',   grade: '7th', class: 'Science', avg: 84, status: 'active',          streak: 7,  lastActive: '4h ago',   awards: 1, attendance: 93, iep: false, ell: false },
+  { id: '1', name: 'Ava Lee',         grade: '10th',class: 'English', avg: 93, status: 'active',          streak: 19, lastActive: '45m ago',  awards: 3, attendance: 98, iep: false, ell: false },
+  { id: '2', name: 'Mason Brown',     grade: '8th', class: 'History', avg: 76, status: 'needs-attention', streak: 2,  lastActive: '3d ago',   awards: 1, attendance: 85, iep: false, ell: false },
 ]
 
 const announcements: Announcement[] = [
@@ -687,7 +688,7 @@ export default function ClassroomPage() {
                         </td>
                         <td className="px-5 py-3">
                           <div className="flex items-center justify-end gap-1">
-                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => router.push('/students')} title="View profile"><Eye className="w-3.5 h-3.5" /></button>
+                            <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => router.push(`/students/${s.id}`)} title="View profile"><Eye className="w-3.5 h-3.5" /></button>
                             <button className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors" onClick={() => router.push('/communication')} title="Message parent"><Mail className="w-3.5 h-3.5" /></button>
                           </div>
                         </td>
@@ -955,7 +956,7 @@ export default function ClassroomPage() {
                 <button className="btn-secondary text-xs flex-1" onClick={() => setAddStudentModal(false)}>Cancel</button>
                 <motion.button className="btn-gradient text-xs flex-1" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => {
                   if (!newStudent.name.trim()) { showToast('Enter a student name'); return }
-                  const added: StudentRecord = { name: newStudent.name, grade: newStudent.grade, class: newStudent.class, avg: 0, status: 'active', streak: 0, lastActive: 'Just now', awards: 0, attendance: 100, iep: false, ell: false }
+                  const added: StudentRecord = { id: Date.now().toString(), name: newStudent.name, grade: newStudent.grade, class: newStudent.class, avg: 0, status: 'active', streak: 0, lastActive: 'Just now', awards: 0, attendance: 100, iep: false, ell: false }
                   setStudentList(prev => [...prev, added])
                   showToast('Student added!')
                   setAddStudentModal(false)
