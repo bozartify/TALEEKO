@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
@@ -92,9 +92,70 @@ export default function NewsletterPage() {
   const [sentToast, setSentToast]           = useState(false)
   const [toastMsg, setToastMsg]             = useState('')
 
+  // Auto-save draft to localStorage
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_newsletter_draft', JSON.stringify({ template, contents, className, dateRange, subject, tone, savedAt: Date.now() }))
+      } catch {}
+    }, 20000)
+    return () => clearInterval(id)
+  }, [template, contents, className, dateRange, subject, tone])
+
   function showToast(msg: string) {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  function exportNewsletterHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const sectionBlocks = activeSections.map(sec => {
+      const cfg = sectionConfig[sec]
+      const text = contents[sec] || sampleContent[sec] || ''
+      if (!text) return ''
+      const paragraphs = text.split('\n').filter(Boolean).map(line =>
+        `<p style="margin:0 0 10px;color:#374151;font-size:14px;line-height:1.7">${line}</p>`
+      ).join('')
+      return `<div style="margin-bottom:24px;padding:20px 24px;background:#ffffff;border-radius:8px;border-left:4px solid ${cfg.color};box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+        <h2 style="font-size:15px;font-weight:800;color:#111827;margin:0 0 12px;display:flex;align-items:center;gap:8px">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${cfg.color}"></span>
+          ${cfg.label}
+        </h2>
+        ${paragraphs}
+      </div>`
+    }).filter(Boolean).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${subject}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px}
+  .wrapper{max-width:680px;margin:0 auto}
+  .header{background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:12px 12px 0 0;padding:28px 32px;color:#fff}
+  .body{background:#f9fafb;padding:24px 32px}
+  .footer-bar{background:#1f2937;border-radius:0 0 12px 12px;padding:16px 32px;color:#9ca3af;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+  @media print{body{background:#fff;padding:0}.wrapper{max-width:100%}}
+</style></head><body>
+<div class="wrapper">
+  <div class="header">
+    <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;opacity:.8;margin-bottom:8px">TALEEKO · CLASS NEWSLETTER</div>
+    <h1 style="font-size:22px;font-weight:900;margin:0 0 6px;line-height:1.2">${subject}</h1>
+    <div style="font-size:13px;opacity:.85">${className} &nbsp;·&nbsp; ${dateRange} &nbsp;·&nbsp; ${templateConfig[template].label}</div>
+  </div>
+  <div class="body">
+    ${sectionBlocks}
+  </div>
+  <div class="footer-bar">
+    <span>Powered by TALEEKO Education Platform</span>
+    <span>${date}</span>
+  </div>
+</div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `newsletter-${dateRange.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Newsletter exported as HTML email!')
   }
 
   function handleTemplateChange(t: Template) {
@@ -446,7 +507,7 @@ export default function NewsletterPage() {
               <p className="text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">Send / Export</p>
               {[
                 { label: 'Email Parents', icon: Mail, color: '#6366f1', action: () => setSendModal(true) },
-                { label: 'Download PDF',  icon: Download, color: '#10b981', action: () => { window.print(); showToast('Printing newsletter…') } },
+                { label: 'Download HTML', icon: Download, color: '#10b981', action: () => exportNewsletterHTML() },
                 { label: 'Print',         icon: Printer,  color: '#f59e0b', action: () => { window.print(); showToast('Sending to printer…') } },
                 { label: 'Copy Link',     icon: Copy,     color: '#22d3ee', action: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Shareable link copied to clipboard') } },
               ].map(opt => (

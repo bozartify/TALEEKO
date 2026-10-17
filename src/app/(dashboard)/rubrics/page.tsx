@@ -146,6 +146,51 @@ export default function RubricsPage() {
     finally { setGenerating(false) }
   }
 
+  function exportRubricHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const levelColors = ['#10b981', '#6366f1', '#f59e0b', '#ef4444']
+    const thCells = editableLevels.map((l, i) => `<th style="padding:10px 14px;text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:${levelColors[i]};font-weight:700;border-bottom:2px solid ${levelColors[i]}30">${l}</th>`).join('')
+    const rows = editableCriteria.map((criterion, ri) => {
+      const cells = editableCells[ri].map((cell, ci) => `<td style="padding:12px 14px;vertical-align:top;font-size:12px;color:#d1d5db;line-height:1.5;border-right:1px solid #1f2937;background:${ci === 0 ? '#10b98108' : 'transparent'}">${cell}</td>`).join('')
+      return `<tr style="border-bottom:1px solid #1f2937">
+        <td style="padding:12px 14px;font-weight:700;color:#f9fafb;font-size:13px;vertical-align:top;width:140px;background:#1e293b">${criterion}</td>
+        ${cells}
+      </tr>`
+    }).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rubric — ${rubrics[0]?.title ?? 'Assessment Rubric'}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px}
+  @media print{body{background:#fff;color:#111;padding:16px}th,td{color:#111!important}table{border:1px solid #ddd!important}}
+  table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:14px;overflow:hidden}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1 style="font-size:24px;font-weight:900;margin:0 0 4px">${rubrics[0]?.title ?? 'Assessment Rubric'}</h1>
+  <p style="color:#6b7280;font-size:13px;margin:0 0 24px">${rubrics[0]?.subject ?? 'Assessment'} · Generated ${date} · TALEEKO Education Platform</p>
+  <table>
+    <thead><tr>
+      <th style="padding:10px 14px;text-align:left;font-size:11px;color:#94a3b8;background:#1e293b;border-bottom:1px solid #374151">Criterion</th>
+      ${thCells}
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div style="margin-top:20px;padding:14px 16px;background:#111827;border-radius:10px">
+    <div style="display:flex;gap:24px;flex-wrap:wrap">
+      ${editableLevels.map((l, i) => `<div style="display:flex;align-items:center;gap:6px"><div style="width:12px;height:12px;border-radius:3px;background:${levelColors[i]}"></div><span style="font-size:12px;color:#9ca3af">${l}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="footer"><span>TALEEKO Education Platform</span><span>Total Points: ${editableLevels.length * editableCriteria.length * 4}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `rubric-${(rubrics[0]?.title ?? 'rubric').replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    setExportOpen(false)
+    showToast('Rubric exported as HTML!')
+  }
+
   function downloadCSV() {
     const header = ['Criterion', ...editableLevels].map(c => `"${c.replace(/"/g, '""')}"`).join(',')
     const rows = editableCriteria.map((c, i) =>
@@ -901,9 +946,9 @@ export default function RubricsPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'PDF Rubric',        icon: Printer,  color: '#6366f1', desc: 'Print-ready PDF with scoring guide',  fn: () => { setExportOpen(false); window.print(); showToast('Printing rubric…') } },
+                  { label: 'HTML Rubric',       icon: FileText, color: '#6366f1', desc: 'Styled HTML file, print-ready',        fn: exportRubricHTML },
                   { label: 'CSV Spreadsheet',   icon: Download, color: '#10b981', desc: 'Criteria & levels in .csv format',     fn: downloadCSV },
-                  { label: 'Word Document',     icon: FileText,  color: '#8b5cf6', desc: 'Editable .docx format',               fn: () => { setExportOpen(false); window.print(); showToast('Printing as document…') } },
+                  { label: 'Print Rubric',      icon: Printer,  color: '#8b5cf6', desc: 'Browser print dialog',                 fn: () => { setExportOpen(false); window.print(); showToast('Printing rubric…') } },
                   { label: 'Copy as Text',      icon: Copy,      color: '#f59e0b', desc: 'Plain text, paste anywhere',          fn: () => { navigator.clipboard.writeText(editableCriteria.map((c,i) => `${c}: ${editableCells[i].join(' | ')}`).join('\n')).then(() => { setExportOpen(false); showToast('Copied to clipboard!') }) } },
                 ].map(opt => (
                   <motion.button
