@@ -27,6 +27,7 @@ interface Notification {
   read: boolean
   avatar?: string
   actionLabel?: string
+  actionRoute?: string
   actionSecondary?: string
   grouped?: boolean
   groupCount?: number
@@ -47,6 +48,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 120000,
     read: false,
     actionLabel: 'Review',
+    actionRoute: '/lesson-planner',
     actionSecondary: 'Dismiss',
   },
   {
@@ -61,6 +63,7 @@ const initialNotifications: Notification[] = [
     groupCount: 3,
     groupItems: ['Sarah M.', 'James T.', 'Aisha K.'],
     actionLabel: 'Review All',
+    actionRoute: '/gradebook',
   },
   {
     id: '3',
@@ -72,6 +75,7 @@ const initialNotifications: Notification[] = [
     read: false,
     avatar: 'MG',
     actionLabel: 'Reply',
+    actionRoute: '/communication',
     actionSecondary: 'View Thread',
     urgent: true,
   },
@@ -84,6 +88,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 1920000,
     read: false,
     actionLabel: 'View Quiz',
+    actionRoute: '/quiz-builder',
   },
   {
     id: '5',
@@ -95,6 +100,7 @@ const initialNotifications: Notification[] = [
     read: false,
     avatar: 'SM',
     actionLabel: 'Send Kudos',
+    actionRoute: '/communication',
   },
   {
     id: '6',
@@ -105,6 +111,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 7200000,
     read: false,
     actionLabel: 'Update Now',
+    actionRoute: '/agents',
     actionSecondary: 'Later',
   },
   {
@@ -116,6 +123,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 10800000,
     read: false,
     actionLabel: 'View Report',
+    actionRoute: '/curriculum',
   },
   {
     id: '8',
@@ -129,6 +137,7 @@ const initialNotifications: Notification[] = [
     groupCount: 5,
     groupItems: ['Marcus L.', 'Diana R.', 'Tyler S.', 'Jenny W.', 'Leo P.'],
     actionLabel: 'View Details',
+    actionRoute: '/intervention-tracker',
     urgent: true,
   },
   {
@@ -150,6 +159,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 21600000,
     read: true,
     actionLabel: 'Try It',
+    actionRoute: '/writing-prompts',
   },
   {
     id: '11',
@@ -160,6 +170,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 86400000,
     read: true,
     actionLabel: 'Review Grades',
+    actionRoute: '/gradebook',
   },
   {
     id: '12',
@@ -170,6 +181,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 90000000,
     read: true,
     actionLabel: 'Manage',
+    actionRoute: '/library',
   },
   {
     id: '13',
@@ -190,6 +202,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 172800000,
     read: true,
     actionLabel: 'View Schedule',
+    actionRoute: '/calendar',
   },
   {
     id: '15',
@@ -200,6 +213,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 180000000,
     read: true,
     actionLabel: 'Download',
+    actionRoute: '/assignments',
   },
   {
     id: '16',
@@ -219,6 +233,7 @@ const initialNotifications: Notification[] = [
     timestamp: Date.now() - 270000000,
     read: true,
     actionLabel: 'View Report',
+    actionRoute: '/reports',
   },
 ]
 
@@ -274,6 +289,7 @@ function SwipeableNotification({
   onMarkRead: (id: string) => void
   onDismiss: (id: string) => void
 }) {
+  const router = useRouter()
   const x = useMotionValue(0)
   const bg = useTransform(x, [-120, -60, 0], ['rgba(239,68,68,0.25)', 'rgba(239,68,68,0.1)', 'rgba(0,0,0,0)'])
   const dismissOpacity = useTransform(x, [-100, -50, 0], [1, 0.5, 0])
@@ -372,7 +388,7 @@ function SwipeableNotification({
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
                       className="btn-primary text-[11px] px-3 py-1.5"
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); if (notification.actionRoute) router.push(notification.actionRoute) }}
                     >
                       {notification.actionLabel}
                     </motion.button>
