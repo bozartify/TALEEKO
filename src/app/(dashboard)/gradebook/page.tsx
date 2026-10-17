@@ -9,7 +9,7 @@ import {
   ChevronRight, FileText, Eye, X, Star, Flag, Clock,
   ChevronLeft, Info, Edit3, Percent, Save,
   MessageSquare, Bell, ArrowUp, ArrowDown, Target,
-  PieChart, List, Grid, SortAsc, Layers
+  PieChart, List, Grid, SortAsc, Layers, User
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 
@@ -1067,10 +1067,10 @@ export default function GradebookPage() {
                   <p className="text-xs text-surface-300">{selectedStudent.notes}</p>
                 </div>
               )}
-              <div className="flex gap-2">
-                <button className="btn-gradient text-xs flex-1" onClick={() => router.push('/communication')}><MessageSquare className="w-3 h-3" /> Message</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => { if (selectedStudent) { try { const alerts = JSON.parse(localStorage.getItem('taleeko_grade_alerts') || '[]'); localStorage.setItem('taleeko_grade_alerts', JSON.stringify([...alerts, { student: selectedStudent.name, at: Date.now() }])) } catch {} showToast(`Alert set for ${selectedStudent.name}!`) } }}><Bell className="w-3 h-3" /> Set Alert</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => router.push('/reports')}><FileText className="w-3 h-3" /> Report</button>
+              <div className="flex gap-2 flex-wrap">
+                <button className="btn-gradient text-xs flex-1 min-w-[80px]" onClick={() => router.push('/communication')}><MessageSquare className="w-3 h-3" /> Message</button>
+                <button className="btn-secondary text-xs flex-1 min-w-[80px]" onClick={() => { if (selectedStudent) { try { const alerts = JSON.parse(localStorage.getItem('taleeko_grade_alerts') || '[]'); localStorage.setItem('taleeko_grade_alerts', JSON.stringify([...alerts, { student: selectedStudent.name, at: Date.now() }])) } catch {} showToast(`Alert set for ${selectedStudent.name}!`) } }}><Bell className="w-3 h-3" /> Set Alert</button>
+                <button className="btn-secondary text-xs flex-1 min-w-[80px]" onClick={() => { router.push(`/students/${selectedStudent?.id}`); setSelectedStudent(null) }}><User className="w-3 h-3" /> Profile</button>
               </div>
             </motion.div>
           </motion.div>

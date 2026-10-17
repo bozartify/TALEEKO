@@ -369,6 +369,7 @@ function TrendIcon({ trend }: { trend: Student['trend'] }) {
    Student Detail Drawer
 ───────────────────────────────────────────────────────────── */
 function StudentDrawer({ student, onClose }: { student: Student; onClose: () => void }) {
+  const router = useRouter()
   const miniStats = [
     { label: 'Overall Grade', value: `${student.grade}%`, icon: Star,   color: '#6366f1' },
     { label: 'Assignments',   value: `${student.assignments}%`, icon: BookOpen, color: '#22d3ee' },
@@ -475,6 +476,22 @@ function StudentDrawer({ student, onClose }: { student: Student; onClose: () => 
                 )
               })}
             </div>
+          </div>
+
+          {/* Footer actions */}
+          <div className="flex gap-2 px-6 pb-6">
+            <button
+              className="btn-secondary text-xs px-4 py-2 flex-1"
+              onClick={() => { router.push(`/students/${student.id}`); onClose() }}
+            >
+              <User size={12} className="mr-1.5" />View Full Profile
+            </button>
+            <button
+              className="btn-gradient text-xs px-4 py-2"
+              onClick={() => { router.push('/intervention-tracker'); onClose() }}
+            >
+              <AlertTriangle size={12} className="mr-1.5" />Intervention
+            </button>
           </div>
         </div>
       </motion.div>
