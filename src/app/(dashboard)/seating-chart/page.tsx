@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Users, Shuffle, Sparkles, Save, Download, CheckCircle,
@@ -92,6 +93,7 @@ function generateSeats(rows: number, cols: number, source: Student[]): Seat[] {
 }
 
 export default function SeatingChartPage() {
+  const router = useRouter()
   const students = INITIAL_STUDENTS
   const [rows, setRows]             = useState(3)
   const [cols, setCols]             = useState(4)
@@ -348,6 +350,9 @@ export default function SeatingChartPage() {
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setSaveOpen(true)}>
                 <FileText className="w-3.5 h-3.5" /> Template
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/students')}>
+                <Users className="w-3.5 h-3.5" /> Students
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setExportOpen(true)}>
                 <Download className="w-3.5 h-3.5" />

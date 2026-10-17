@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bot, Zap, CheckCircle2, XCircle, Clock, Cpu, Activity, ShieldCheck,
@@ -131,6 +132,7 @@ const STATUS_META: Record<AgentStatus, { label: string; dot: string; text: strin
 const AUTONOMY_CYCLE: Autonomy[] = ['supervised', 'semi', 'autonomous']
 
 export default function AgentsPage() {
+  const router = useRouter()
   const [agents, setAgents] = useState<Agent[]>(INITIAL_AGENTS)
   const [approvals, setApprovals] = useState<Approval[]>(INITIAL_APPROVALS)
   const [feed, setFeed] = useState<FeedItem[]>(INITIAL_FEED)
@@ -226,6 +228,7 @@ export default function AgentsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/api-keys')}><Settings className="w-3.5 h-3.5" /> API Keys</button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing agent report…') }}><Download className="w-3.5 h-3.5" /> Export Report</button>
               <motion.button
                 whileHover={{ scale: 1.04 }}

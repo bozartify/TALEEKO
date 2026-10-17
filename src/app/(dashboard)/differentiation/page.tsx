@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Brain, Users, BookOpen, Globe, Target, Sparkles, Check,
@@ -249,6 +250,7 @@ const TREND_LABELS = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8']
    ────────────────────────────────────────────── */
 
 export default function DifferentiationPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState('advanced')
   const [selectedAccommodations, setSelectedAccommodations] = useState<string[]>([
     'Extended Time', 'Visual Aids', 'Word Banks', 'Sentence Frames',
@@ -382,6 +384,9 @@ export default function DifferentiationPage() {
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setExportOpen(true)}>
                 <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => router.push('/students')}>
+                <Users className="w-3.5 h-3.5" /> Students
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => showSaveToast('New lesson created!')}>
                 <Sparkles className="w-3.5 h-3.5" /> New Lesson

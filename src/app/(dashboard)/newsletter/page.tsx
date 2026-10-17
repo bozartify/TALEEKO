@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -71,6 +72,7 @@ function readingTime(text: string) {
 }
 
 export default function NewsletterPage() {
+  const router = useRouter()
   const [template, setTemplate]             = useState<Template>('weekly')
   const [activeSections, setActiveSections] = useState<Section[]>(templateConfig.weekly.sections)
   const [expandedSection, setExpandedSection] = useState<Section | null>('fromDesk')
@@ -219,6 +221,9 @@ export default function NewsletterPage() {
                   </button>
                 ))}
               </div>
+              <button onClick={() => router.push('/communication')} className="btn-secondary text-xs px-3 py-1.5">
+                <Mail className="w-3.5 h-3.5" /> Communication
+              </button>
               <button onClick={generateAll} disabled={generating} className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50">
                 {generating ? <><RefreshCw className="w-3.5 h-3.5 animate-spin" />Generating…</> : <><Sparkles className="w-3.5 h-3.5" />AI Generate All</>}
               </button>

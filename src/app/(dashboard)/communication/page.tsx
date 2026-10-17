@@ -1,5 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Mail, MessageSquare, Users, Bell, Send, Plus, Search,
@@ -159,6 +160,7 @@ const LABEL_CONFIG: Record<string, { color: string; bg: string; label: string }>
 }
 
 export default function CommunicationPage() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>('inbox')
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterChip>('all')
@@ -404,8 +406,11 @@ export default function CommunicationPage() {
               }}>
                 <Download className="w-3.5 h-3.5" /> Export
               </motion.button>
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => router.push('/students')}>
+                <Users className="w-3.5 h-3.5" /> Students
+              </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { setComposeTo('All Families'); setComposeSubject('Class Update'); setTab('compose') }}>
-                <Users className="w-3.5 h-3.5" /> Bulk Message
+                Bulk Message
               </motion.button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} disabled={aiDraft} onClick={handleAIDraft}>
                 {aiDraft ? <><span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />&nbsp;Drafting…</> : <><Sparkles className="w-3.5 h-3.5" /> AI Draft</>}

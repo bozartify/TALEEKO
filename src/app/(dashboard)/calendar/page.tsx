@@ -1,5 +1,6 @@
 'use client'
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Calendar, ChevronLeft, ChevronRight, Plus, Clock, Users,
@@ -74,6 +75,7 @@ const aiSuggestions = [
 ]
 
 export default function CalendarPage() {
+  const router = useRouter()
   const [month, setMonth] = useState(9)
   const [year, setYear] = useState(2026)
   const [view, setView] = useState<ViewMode>('month')
@@ -225,6 +227,9 @@ export default function CalendarPage() {
                   </button>
                 ))}
               </div>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/lesson-planner')}>
+                <BookOpen className="w-3.5 h-3.5" /> Plan Lesson
+              </button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setShowNewEvent(true)}>
                 <Plus className="w-3.5 h-3.5" /> Add Event
               </motion.button>

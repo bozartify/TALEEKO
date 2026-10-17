@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -104,6 +105,7 @@ const QUESTION_STEMS: Record<Level, string[]> = {
 const DIST_DATA = [18, 24, 22, 16, 12, 8] // % per level (sum 100)
 
 export default function BloomsTaxonomyPage() {
+  const router = useRouter()
   const [activeLevel, setActiveLevel] = useState<Level>('understand')
   const [activeDomain, setActiveDomain] = useState<Domain>('science')
   const [topic, setTopic] = useState('Photosynthesis')
@@ -206,6 +208,9 @@ export default function BloomsTaxonomyPage() {
             </button>
             <button onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Sharing link copied!') }} className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
               <Share2 className="w-4 h-4" /> Share Unit
+            </button>
+            <button onClick={() => router.push('/lesson-planner')} className="btn-secondary flex items-center gap-2 text-sm px-4 py-2">
+              <BookOpen className="w-4 h-4" /> Use in Lesson
             </button>
           </div>
         </div>

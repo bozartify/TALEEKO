@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp } from '@/components/ui/motion'
 import {
@@ -138,6 +139,7 @@ const recentSets = [
 const TIMER_PRESETS = [2, 3, 5, 8, 10]
 
 export default function DiscussionPromptsPage() {
+  const router = useRouter()
   const [topic, setTopic]               = useState('Photosynthesis and Energy Flow')
   const [subject, setSubject]           = useState('Biology')
   const [gradeLevel, setGradeLevel]     = useState('9-12')
@@ -325,6 +327,9 @@ Return ONLY the JSON array, no other text.`
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={exportPromptsCSV}>
                 <Download className="w-3.5 h-3.5" /> Export
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5" onClick={() => router.push('/lesson-planner')}>
+                <BookOpen className="w-3.5 h-3.5" /> Use in Lesson
               </button>
               <motion.button onClick={handleGenerate} disabled={generating || !topic.trim()} className="btn-gradient text-xs px-4 py-1.5 disabled:opacity-50" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 {generating
