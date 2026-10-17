@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -169,7 +169,7 @@ export default function AnalyticsPage() {
 
   function exportAnalyticsCSV() {
     const headers = ['Day', 'Lessons', 'Minutes']
-    const rows = weekData.map(d => [d.day, d.lessons, d.minutes])
+    const rows = rangeData.activity.map(d => [d.day, d.lessons, d.minutes])
     const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
     const url = URL.createObjectURL(blob)
@@ -204,8 +204,32 @@ export default function AnalyticsPage() {
     } catch { showToast('Could not refresh AI insights') }
     finally { setLoadingInsights(false) }
   }
-  const maxLessons = Math.max(...weekData.map(d => d.lessons))
-  const maxMonthly = Math.max(...monthlyTrend.map(d => d.value))
+  // Range-adjusted data — the display responds to the selected time range
+  const rangeData = useMemo(() => {
+    const multiplier = { week: 0.25, month: 1, quarter: 3, year: 12 }[range]
+    const labels = {
+      week:    [{ day: 'Mon', lessons: 2, minutes: 45 }, { day: 'Tue', lessons: 4, minutes: 60 }, { day: 'Wed', lessons: 1, minutes: 30 }, { day: 'Thu', lessons: 5, minutes: 75 }, { day: 'Fri', lessons: 3, minutes: 50 }, { day: 'Sat', lessons: 1, minutes: 20 }, { day: 'Sun', lessons: 0, minutes: 0 }],
+      month:   weekData,
+      quarter: [{ day: 'Jul',  lessons: 18, minutes: 410 }, { day: 'Aug', lessons: 22, minutes: 510 }, { day: 'Sep', lessons: 28, minutes: 640 }],
+      year:    [{ day: 'Q1', lessons: 54, minutes: 1240 }, { day: 'Q2', lessons: 68, minutes: 1580 }, { day: 'Q3', lessons: 73, minutes: 1720 }, { day: 'Q4', lessons: 88, minutes: 2010 }],
+    }[range]
+    const trend = {
+      week:    [{ month: 'Mon', value: 3 }, { month: 'Tue', value: 7 }, { month: 'Wed', value: 5 }, { month: 'Thu', value: 9 }, { month: 'Fri', value: 8 }],
+      month:   monthlyTrend,
+      quarter: [{ month: 'Jul', value: 48 }, { month: 'Aug', value: 64 }, { month: 'Sep', value: 77 }],
+      year:    [{ month: 'Jan', value: 12 }, { month: 'Feb', value: 19 }, { month: 'Mar', value: 28 }, { month: 'Apr', value: 35 }, { month: 'May', value: 42 }, { month: 'Jun', value: 55 }, { month: 'Jul', value: 67 }, { month: 'Aug', value: 72 }, { month: 'Sep', value: 85 }, { month: 'Oct', value: 91 }, { month: 'Nov', value: 98 }, { month: 'Dec', value: 104 }],
+    }[range]
+    const totals = {
+      lessons:  Math.round(16 * multiplier),
+      materials:Math.round(47 * multiplier),
+      time:     Math.round(8.5 * multiplier),
+      students: 32,
+    }
+    return { activity: labels, trend, totals }
+  }, [range])
+
+  const maxLessons = Math.max(...rangeData.activity.map(d => d.lessons))
+  const maxMonthly = Math.max(...rangeData.trend.map(d => d.value))
 
   return (
     <div className="space-y-6">
@@ -302,10 +326,10 @@ export default function AnalyticsPage() {
       {/* ---- Summary stats ---- */}
       <StaggerList className="grid grid-cols-2 lg:grid-cols-4 gap-4" delay={0.08}>
         {[
-          { label: 'Materials Created', value: '67',   icon: BookOpen,   color: 'bg-accent-400/15 text-accent-400',     gradient: 'from-accent-500/20 to-accent-600/5', delta: '+12', up: true },
-          { label: 'AI Interactions',   value: '143',  icon: Brain,      color: 'bg-electric-400/15 text-electric-400', gradient: 'from-electric-400/20 to-electric-500/5', delta: '+28', up: true },
-          { label: 'Students Reached',  value: '142',  icon: Users,      color: 'bg-success-400/15 text-success-400',   gradient: 'from-success-400/20 to-success-500/5', delta: '+5', up: true },
-          { label: 'Hours Saved',       value: '31h',  icon: Clock,      color: 'bg-warning-400/15 text-warning-400',   gradient: 'from-warning-400/20 to-warning-500/5', delta: '+8h', up: true },
+          { label: 'Materials Created', value: String(rangeData.totals.materials), icon: BookOpen, color: 'bg-accent-400/15 text-accent-400',     gradient: 'from-accent-500/20 to-accent-600/5',     delta: range === 'week' ? '+3' : range === 'month' ? '+12' : range === 'quarter' ? '+34' : '+89', up: true },
+          { label: 'AI Interactions',   value: String(Math.round(rangeData.totals.materials * 2.1)), icon: Brain, color: 'bg-electric-400/15 text-electric-400', gradient: 'from-electric-400/20 to-electric-500/5', delta: range === 'week' ? '+7' : range === 'month' ? '+28' : range === 'quarter' ? '+84' : '+210', up: true },
+          { label: 'Students Reached',  value: String(rangeData.totals.students), icon: Users, color: 'bg-success-400/15 text-success-400', gradient: 'from-success-400/20 to-success-500/5', delta: '+5', up: true },
+          { label: 'Hours Saved',       value: `${rangeData.totals.time}h`, icon: Clock, color: 'bg-warning-400/15 text-warning-400', gradient: 'from-warning-400/20 to-warning-500/5', delta: range === 'week' ? '+2h' : range === 'month' ? '+8h' : range === 'quarter' ? '+24h' : '+96h', up: true },
         ].map(s => (
           <StaggerItem key={s.label} variants={fadeUp}>
             <motion.div
@@ -402,7 +426,7 @@ export default function AnalyticsPage() {
               <span className="text-xs text-surface-500 flex items-center gap-1"><Calendar className="w-3 h-3" /> This week</span>
             </div>
             {(() => {
-              const W = 500, H = 132, N = weekData.length
+              const W = 500, H = 132, N = rangeData.activity.length
               const slotW = W / N
               const barW = slotW * 0.65
               const baseY = H - 14
@@ -415,7 +439,7 @@ export default function AnalyticsPage() {
                       <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.7} />
                     </linearGradient>
                   </defs>
-                  {weekData.map((d, i) => {
+                  {rangeData.activity.map((d, i) => {
                     const x = i * slotW + (slotW - barW) / 2
                     const bh = d.lessons > 0 ? Math.max((d.lessons / maxLessons) * chartH, 6) : 3
                     return (
@@ -439,7 +463,7 @@ export default function AnalyticsPage() {
               )
             })()}
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.06]">
-              <span className="text-xs text-surface-500">Total: 16 lessons</span>
+              <span className="text-xs text-surface-500">Total: {rangeData.totals.lessons} lessons</span>
               <span className="text-xs font-bold text-success-400 flex items-center gap-1">
                 <ArrowUpRight className="w-3 h-3" /> 23% vs last week
               </span>
@@ -456,7 +480,7 @@ export default function AnalyticsPage() {
               </span>
             </div>
             {(() => {
-              const W = 500, H = 132, N = monthlyTrend.length
+              const W = 500, H = 132, N = rangeData.trend.length
               const slotW = W / N
               const barW = slotW * 0.6
               const baseY = H - 14
@@ -469,7 +493,7 @@ export default function AnalyticsPage() {
                       <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
                     </linearGradient>
                   </defs>
-                  {monthlyTrend.map((d, i) => {
+                  {rangeData.trend.map((d, i) => {
                     const x = i * slotW + (slotW - barW) / 2
                     const bh = Math.max((d.value / maxMonthly) * chartH, 4)
                     return (

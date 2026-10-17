@@ -1,8 +1,9 @@
 'use client'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem } from '@/components/ui/motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import {
   ChevronLeft, Mail, Phone, Users, BookOpen, BarChart2, Award,
   AlertTriangle, TrendingUp, TrendingDown, Minus, Flame, Star,
@@ -10,6 +11,7 @@ import {
   FileText, MessageSquare, Plus, Download, Sparkles, Target,
   CheckCircle, XCircle
 } from 'lucide-react'
+import { getStudentDetail } from '@/lib/student-data'
 
 interface Assignment {
   name: string; type: string; score: number | null; max: number
@@ -24,67 +26,6 @@ interface Intervention {
   type: string; startDate: string; status: 'active' | 'completed'; progress: number; goal: string
 }
 
-const student = {
-  id: '1',
-  name: 'Emma Wilson',
-  avatar: 'EW',
-  grade: '10th',
-  dob: 'March 14, 2009',
-  color: '#8b5cf6',
-  email: 'emma.w@student.edu',
-  parentEmail: 'parent.wilson@email.com',
-  parentPhone: '(555) 247-8910',
-  classes: [
-    { name: 'AP Biology', period: 'Period 2', teacher: 'Ms. Johnson', avg: 94, grade: 'A', color: '#8b5cf6' },
-    { name: '10th English', period: 'Period 4', teacher: 'Mr. Anderson', avg: 91, grade: 'A-', color: '#f43f5e' },
-    { name: 'Algebra II', period: 'Period 6', teacher: 'Ms. Chen', avg: 89, grade: 'B+', color: '#14b8a6' },
-    { name: 'World History', period: 'Period 1', teacher: 'Mr. Roberts', avg: 87, grade: 'B+', color: '#f97316' },
-  ],
-  gpa: 3.92,
-  attendance: 97,
-  streak: 15,
-  awards: 3,
-  trend: 'up' as const,
-  status: 'excelling' as const,
-  lastActive: '2 hours ago',
-  iep: false,
-  ell: false,
-  section504: false,
-  gifted: true,
-  counselor: 'Dr. Martinez',
-  locker: 'A-247',
-  photo: null,
-}
-
-const assignments: Assignment[] = [
-  { name: 'Lab Report: Photosynthesis', type: 'Lab', score: 71, max: 75, submitted: true, date: 'Jul 28', feedback: 'Excellent data analysis! Hypothesis section was precise and conclusions well-supported.' },
-  { name: 'Ch. 5 Quiz: Cell Division',  type: 'Quiz', score: 48, max: 50, submitted: true, date: 'Jul 22', feedback: 'Strong performance. Review cytokinesis for the unit test.' },
-  { name: 'Essay: The Great Gatsby',     type: 'Essay', score: 92, max: 100, submitted: true, date: 'Jul 18', feedback: 'Sophisticated analysis of Fitzgerald\'s symbolism. Compelling thesis.' },
-  { name: 'Midterm Exam',               type: 'Exam',  score: 178, max: 200, submitted: true, date: 'Jul 10', feedback: 'Top score in class. Strong across all domains.' },
-  { name: 'Science Fair Proposal',      type: 'Project', score: null, max: 50, submitted: false, date: 'Aug 15', feedback: '' },
-  { name: 'Algebra Ch. 6 Problem Set',  type: 'HW', score: 19, max: 20, submitted: true, date: 'Jul 25', feedback: '' },
-]
-
-const notes: Note[] = [
-  { date: 'Jul 29', author: 'Ms. Johnson', text: 'Emma showed exceptional insight during today\'s genetics discussion. Recommended for Science Olympiad team. Will contact parent to discuss.', type: 'academic' },
-  { date: 'Jul 20', author: 'Ms. Johnson', text: 'Spoke with Ms. Wilson (parent) regarding Science Olympiad opportunity. Parent is supportive and excited. Emma will trial the team next week.', type: 'parent' },
-  { date: 'Jul 15', author: 'Dr. Martinez (Counselor)', text: 'Emma mentioned feeling some stress about AP load. Reviewed strategies and discussed optional study hall. Monitoring closely.', type: 'academic' },
-  { date: 'Jun 30', author: 'Mr. Anderson', text: 'Emma\'s writing is consistently above grade level. She would benefit from independent reading enrichment. Suggested she join the Literary Magazine.', type: 'academic' },
-]
-
-const monthlyScores = [
-  { month: 'Mar', avg: 87 }, { month: 'Apr', avg: 89 }, { month: 'May', avg: 90 },
-  { month: 'Jun', avg: 91 }, { month: 'Jul', avg: 92 }, { month: 'Aug', avg: 94 },
-]
-
-const attendanceByMonth = [
-  { month: 'Mar', present: 20, total: 21 },
-  { month: 'Apr', present: 19, total: 20 },
-  { month: 'May', present: 21, total: 22 },
-  { month: 'Jun', present: 17, total: 18 },
-  { month: 'Jul', present: 20, total: 20 },
-]
-
 const noteTypeConfig = {
   academic:     { label: 'Academic',     bg: 'bg-accent-500/10',  text: 'text-accent-400' },
   behavior:     { label: 'Behavior',     bg: 'bg-warning-500/10', text: 'text-warning-400' },
@@ -94,10 +35,26 @@ const noteTypeConfig = {
 
 type ActiveTab = 'overview' | 'assignments' | 'notes' | 'contact'
 
-const maxScore = Math.max(...monthlyScores.map(m => m.avg))
-const minScore = 75
+export default function StudentProfilePage({ params }: { params: Promise<{ studentId: string }> }) {
+  const { studentId } = use(params)
+  const router = useRouter()
+  const studentData = getStudentDetail(studentId)
 
-export default function StudentProfilePage() {
+  const student = studentData ?? {
+    id: studentId, name: 'Student Not Found', avatar: '?', grade: '—', color: '#6366f1',
+    email: '—', parentEmail: '—', parentPhone: '—', dob: '—', gpa: 0, attendance: 0,
+    streak: 0, awards: 0, trend: 'flat' as const, status: 'active' as const, lastActive: '—',
+    iep: false, ell: false, section504: false, gifted: false, counselor: '—', locker: '—',
+    notes: '—', missing: 0, classes: [], classDetails: [], assignments: [], teacherNotes: [],
+    monthlyScores: [], interventions: [],
+  }
+
+  const assignments = studentData?.assignments ?? []
+  const notes = studentData?.teacherNotes ?? []
+  const monthlyScores = studentData?.monthlyScores ?? []
+  const maxScore = monthlyScores.length > 0 ? Math.max(...monthlyScores.map(m => m.avg)) : 100
+  const minScore = 75
+
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview')
   const [addingNote, setAddingNote] = useState(false)
   const [newNote, setNewNote] = useState('')
@@ -113,7 +70,7 @@ export default function StudentProfilePage() {
     setActiveTab('overview')
     showToast('Generating AI profile summary…')
     try {
-      const classAvgs = student.classes.map(c => `${c.name}: ${c.avg}%`).join(', ')
+      const classAvgs = (studentData?.classDetails ?? []).map(c => `${c.name}: ${c.avg}%`).join(', ')
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'user', content: `Write a concise 2-paragraph academic profile summary for ${student.name}, grade ${student.grade}. GPA: ${student.gpa}. Attendance: ${student.attendance}%. Class averages: ${classAvgs}. Status: ${student.status}.` }] }) })
       if (!res.body) throw new Error()
       const reader = res.body.getReader(); const dec = new TextDecoder(); let out = ''
@@ -217,7 +174,7 @@ export default function StudentProfilePage() {
                 <span>·</span>
                 <span>GPA: <span className="text-white font-semibold">{student.gpa}</span></span>
                 <span>·</span>
-                <span>{student.classes.length} classes</span>
+                <span>{(studentData?.classDetails ?? []).length} classes</span>
                 <span>·</span>
                 <span>Counselor: {student.counselor}</span>
                 <span>·</span>
@@ -373,7 +330,7 @@ export default function StudentProfilePage() {
               <div className="glass-card p-5">
                 <h3 className="text-sm font-semibold text-surface-200 mb-4">Classes</h3>
                 <div className="space-y-2.5">
-                  {student.classes.map(cls => (
+                  {(studentData?.classDetails ?? []).map(cls => (
                     <div key={cls.name} className="flex items-center gap-3">
                       <div className="w-1.5 h-10 rounded-full flex-shrink-0" style={{ background: cls.color }} />
                       <div className="flex-1 min-w-0">
@@ -411,7 +368,14 @@ export default function StudentProfilePage() {
             <div className="glass-card p-5">
               <h3 className="text-sm font-semibold text-surface-200 mb-4">Monthly Attendance</h3>
               {(() => {
-                const rows = attendanceByMonth.map(m => {
+                const attendanceByMonth = [
+                  { month: 'Mar', present: Math.round(student.attendance / 100 * 21), total: 21 },
+                  { month: 'Apr', present: Math.round(student.attendance / 100 * 20), total: 20 },
+                  { month: 'May', present: Math.round(student.attendance / 100 * 22), total: 22 },
+                  { month: 'Jun', present: Math.round(student.attendance / 100 * 18), total: 18 },
+                  { month: 'Jul', present: Math.round(student.attendance / 100 * 20), total: 20 },
+                ]
+                const rows = attendanceByMonth.map((m: { month: string; present: number; total: number }) => {
                   const pct = Math.round((m.present / m.total) * 100)
                   const color = pct >= 95 ? '#10b981' : pct >= 85 ? '#f59e0b' : '#ef4444'
                   return { month: m.month, pct, present: m.present, total: m.total, color }
@@ -431,7 +395,7 @@ export default function StudentProfilePage() {
                         </linearGradient>
                       ))}
                     </defs>
-                    {rows.map((r, i) => {
+                    {rows.map((r: { month: string; pct: number; present: number; total: number; color: string }, i: number) => {
                       const bh = Math.max((r.pct / 100) * H, 3)
                       const x = PX + i * step + (step - barW) / 2
                       const gradIdx = r.pct >= 95 ? 0 : r.pct >= 85 ? 1 : 2

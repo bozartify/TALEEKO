@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, use } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -8,21 +8,7 @@ import {
   Target, Check, Sparkles, ArrowLeft, Edit3, CheckCircle
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible, StaggerList, StaggerItem, fadeUp } from '@/components/ui/motion'
-
-const student = {
-  id: 'stu_001',
-  name: 'Emma Rodriguez',
-  grade: '7th',
-  className: 'AP Biology',
-  period: '1st Period',
-  email: 'emma.rodriguez@school.edu',
-  avatar: null,
-  gpa: 3.87,
-  attendance: 96,
-  assignmentsCompleted: 42,
-  streakDays: 15,
-  enrolledAt: 'Sep 2025',
-}
+import { getStudentDetail, STUDENTS } from '@/lib/student-data'
 
 const recentActivity = [
   { id: 1, text: 'Scored 95% on Cell Division Quiz', date: '2 hours ago', color: 'bg-success-400', icon: Check },
@@ -90,11 +76,35 @@ function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).join('')
 }
 
-export default function StudentDetailPage() {
+export default function StudentDetailPage({ params }: { params: Promise<{ studentId: string }> }) {
+  const { studentId } = use(params)
+  const studentData = getStudentDetail(studentId)
+  const fallback = STUDENTS[0]
+  const base = studentData ?? (fallback ? getStudentDetail(fallback.id) : null)
+
+  const student = base ? {
+    id: base.id,
+    name: base.name,
+    grade: base.grade,
+    className: base.classes[0] ?? 'AP Biology',
+    period: '1st Period',
+    email: base.email,
+    avatar: null,
+    gpa: base.gpa,
+    attendance: base.attendance,
+    assignmentsCompleted: Math.round(base.gpa * 10),
+    streakDays: base.streak,
+    enrolledAt: 'Sep 2025',
+  } : { id: '1', name: 'Student', grade: '10th', className: 'AP Biology', period: '1st Period', email: '—', avatar: null, gpa: 3.5, attendance: 95, assignmentsCompleted: 35, streakDays: 7, enrolledAt: 'Sep 2025' }
+
   const [tab, setTab] = useState<Tab>('overview')
   const [noteText, setNoteText] = useState('')
   const [toastMsg, setToastMsg] = useState('')
-  const [noteList, setNoteList] = useState(teacherNotes)
+  const [noteList, setNoteList] = useState(
+    base?.teacherNotes
+      ? base.teacherNotes.map((n, i) => ({ id: i + 1, date: n.date, content: n.text }))
+      : teacherNotes
+  )
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   return (

@@ -539,7 +539,7 @@ export default function StudentsPage() {
                                 transition={{ duration: 0.15 }}
                               >
                                 {[
-                                  { icon: Eye,          label: 'View Portfolio',   action: () => { router.push('/portfolio'); setActionMenu(null) } },
+                                  { icon: Eye,          label: 'View Profile',     action: () => { router.push(`/students/${student.id}`); setActionMenu(null) } },
                                   { icon: Mail,         label: 'Message Parent',   action: () => { setMessageModal(student); setActionMenu(null) } },
                                   { icon: Sparkles,     label: 'AI Action Plan',   action: () => { router.push('/intervention-tracker'); setActionMenu(null) } },
                                   { icon: BarChart2,    label: 'View Analytics',   action: () => { router.push('/analytics'); setActionMenu(null) } },
@@ -628,7 +628,7 @@ export default function StudentsPage() {
                           </div>
                           <p className="text-xs text-surface-400 mb-3 p-2.5 bg-white/[0.03] rounded-xl italic">&ldquo;{student.notes}&rdquo;</p>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/portfolio') }}><Eye className="w-3 h-3" /> Portfolio</button>
+                            <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push(`/students/${student.id}`) }}><Eye className="w-3 h-3" /> Full Profile</button>
                             <button onClick={e => { e.stopPropagation(); setMessageModal(student) }} className="btn-secondary text-xs px-3 py-1.5"><Mail className="w-3 h-3" /> Message Parent</button>
                             <button className="btn-secondary text-xs px-3 py-1.5" onClick={e => { e.stopPropagation(); router.push('/analytics') }}><BarChart2 className="w-3 h-3" /> Analytics</button>
                             <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" onClick={e => { e.stopPropagation(); router.push('/intervention-tracker') }}><Sparkles className="w-3 h-3" /> AI Action Plan</button>
