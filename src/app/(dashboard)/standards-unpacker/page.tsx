@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, fadeUp, FadeInWhenVisible } from '@/components/ui/motion'
 import {
@@ -117,6 +118,7 @@ const BLOOMS_LADDER = [
 const RIGOR_LABELS = ['', 'Surface', 'Developing', 'Proficient', 'Deep', 'Transfer']
 
 export default function StandardsUnpackerPage() {
+  const router = useRouter()
   const [input, setInput] = useState(SAMPLE_STANDARD)
   const [framework, setFramework] = useState('ngss')
   const [generating, setGenerating] = useState(false)
@@ -430,6 +432,7 @@ export default function StandardsUnpackerPage() {
                 {[
                   { label: 'Export as PDF', icon: FileText, desc: 'Full breakdown in printable format' },
                   { label: 'Copy to Clipboard', icon: Copy, desc: 'Plain text for pasting anywhere' },
+                  { label: 'Use in Lesson Plan', icon: BookOpen, desc: 'Open this standard in Lesson Planner' },
                   { label: 'Share Link', icon: Share2, desc: 'Generate a shareable read-only link' },
                   { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Docs' },
                 ].map(opt => (
@@ -439,6 +442,7 @@ export default function StandardsUnpackerPage() {
                     onClick={() => {
                       if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
                       else if (opt.label === 'Export as PDF') { window.print(); showToast('Printing standard breakdown…') }
+                      else if (opt.label === 'Use in Lesson Plan') { router.push('/lesson-planner'); setExportOpen(false); return }
                       else if (opt.label === 'Share Link') { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied to clipboard!') }
                       else if (opt.label === 'Export to Google Docs') { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…') }
                       setExportOpen(false)

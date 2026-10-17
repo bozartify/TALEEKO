@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem } from '@/components/ui/motion'
 import {
@@ -216,6 +217,7 @@ const gradeRanges: GradeRange[] = ['K-2', '3-5', '6-8', '9-12', 'College']
 const modes: PromptMode[] = ['narrative', 'persuasive', 'expository', 'descriptive', 'creative', 'reflective', 'research']
 
 export default function WritingPromptsPage() {
+  const router = useRouter()
   const [prompts, setPrompts] = useState<WritingPrompt[]>(PROMPTS)
   useEffect(() => {
     try {
@@ -792,6 +794,10 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                                 <Download className="w-3.5 h-3.5" />
                                 Export
                               </button>
+                              <button onClick={() => { router.push('/lesson-planner') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
+                                <BookOpen className="w-3.5 h-3.5" />
+                                Use in Lesson
+                              </button>
                               <button onClick={() => { navigator.clipboard?.writeText(prompt.prompt).catch(() => {}); showToast('Prompt copied to clipboard!') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors ml-auto">
                                 <Share2 className="w-3.5 h-3.5" />
                                 Share
@@ -907,9 +913,11 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                 {generatedText ? (
                   <div className="space-y-3">
                     <pre className="text-xs text-surface-200 whitespace-pre-wrap font-sans leading-relaxed max-h-64 overflow-y-auto">{generatedText}</pre>
-                    <div className="flex gap-2">
-                      <button onClick={() => { navigator.clipboard.writeText(generatedText); showToast('Prompt copied!') }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1">Copy</button>
-                      <button onClick={() => setGeneratedText('')} className="btn-secondary text-xs px-3 py-1.5">Clear</button>
+                    <div className="flex gap-2 flex-wrap">
+                      <button onClick={() => { navigator.clipboard.writeText(generatedText); showToast('Prompt copied!') }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><Copy className="w-3 h-3" /> Copy</button>
+                      <button onClick={() => { router.push('/lesson-planner') }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><BookOpen className="w-3 h-3" /> Use in Lesson</button>
+                      <button onClick={() => { router.push('/rubrics') }} className="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1"><FileText className="w-3 h-3" /> Make Rubric</button>
+                      <button onClick={() => setGeneratedText('')} className="btn-secondary text-xs px-3 py-1.5 ml-auto">Clear</button>
                     </div>
                   </div>
                 ) : (

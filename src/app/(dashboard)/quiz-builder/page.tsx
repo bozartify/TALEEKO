@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import {
   ClipboardList, Sparkles, Plus, Trash2, Copy, GripVertical,
@@ -80,6 +81,7 @@ const recentQuizzes = [
 ]
 
 export default function QuizBuilderPage() {
+  const router = useRouter()
   const [questions, setQuestions] = useState<Question[]>(initialQuestions)
   const [expandedQ, setExpandedQ] = useState<string | null>('q1')
   const [generating, setGenerating] = useState(false)
@@ -425,6 +427,10 @@ export default function QuizBuilderPage() {
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={handleSave}>
                 {saved ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
                 {saved ? 'Saved!' : 'Save'}
+              </button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/assessment-center')}>
+                <BookOpen className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline ml-1">Assessment</span>
               </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing quiz…') }}>
                 <Download className="w-3.5 h-3.5" />
