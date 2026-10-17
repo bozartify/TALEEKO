@@ -10,22 +10,16 @@ import {
   FileText, Zap, Star, Award, Layers, Flag, Bell, MessageSquare
 } from 'lucide-react'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
+import { getCourseDetail } from '@/lib/course-data'
 
-const courseInfo = {
-  title: '7th Grade Biology',
-  subject: 'Science',
-  grade: 'Grade 7',
-  term: 'Fall 2026',
-  students: 28,
-  avgGrade: 84,
-  nextClass: 'Today · 9:00 AM · Room 204',
-  description: 'A comprehensive biology course covering cellular biology, genetics, evolution, ecology, and human body systems. Aligned to NGSS standards with hands-on labs and AI-powered differentiation.',
-  standards: ['MS-LS1-1', 'MS-LS1-2', 'MS-LS1-3', 'MS-LS3-1', 'MS-LS4-1'],
-  schedule: [
-    { day: 'Mon/Wed/Fri', time: '9:00–9:50 AM', room: 'Room 204' },
-    { day: 'Tue/Thu', time: '10:15–11:05 AM', room: 'Lab 3B' },
-  ],
-}
+const UNIT_COLORS = ['#6366f1', '#10b981', '#f97316', '#14b8a6', '#ec4899', '#f59e0b']
+
+const topStudents: { name: string; initials: string; avg: number; trend: 'up' | 'down' | 'stable'; color: string }[] = [
+  { name: 'Emma Davis', initials: 'ED', avg: 96, trend: 'up', color: '#8b5cf6' },
+  { name: 'Sofia Rodriguez', initials: 'SR', avg: 94, trend: 'up', color: '#10b981' },
+  { name: 'Ethan Kim', initials: 'EK', avg: 91, trend: 'stable', color: '#f97316' },
+  { name: 'Liam Chen', initials: 'LC', avg: 88, trend: 'up', color: '#6366f1' },
+]
 
 interface Lesson {
   id: string
@@ -46,84 +40,71 @@ interface Unit {
   lessons: Lesson[]
 }
 
-const units: Unit[] = [
-  {
-    id: 'u1',
-    title: 'Unit 1: Cell Biology',
-    color: '#6366f1',
-    weeks: 'Weeks 1–4',
-    completedLessons: 3,
-    lessons: [
-      { id: '1', title: 'Introduction to Cells', duration: 45, status: 'published', materials: 3, type: 'Lecture + Lab', ai: true },
-      { id: '2', title: 'Cell Structure and Organelles', duration: 50, status: 'published', materials: 4, type: 'Interactive', ai: true },
-      { id: '3', title: 'Photosynthesis', duration: 60, status: 'published', materials: 5, type: 'Lab' },
-      { id: '4', title: 'Cellular Respiration', duration: 55, status: 'draft', materials: 2, type: 'Lecture' },
-    ],
-  },
-  {
-    id: 'u2',
-    title: 'Unit 2: Genetics & Heredity',
-    color: '#10b981',
-    weeks: 'Weeks 5–8',
-    completedLessons: 1,
-    lessons: [
-      { id: '5', title: 'DNA and Genetics', duration: 60, status: 'published', materials: 3, type: 'Lecture + Activity', ai: true },
-      { id: '6', title: 'Punnett Squares', duration: 50, status: 'draft', materials: 1, type: 'Practice' },
-      { id: '7', title: 'Traits and Inheritance', duration: 55, status: 'draft', materials: 0, type: 'Lab' },
-    ],
-  },
-  {
-    id: 'u3',
-    title: 'Unit 3: Evolution',
-    color: '#f97316',
-    weeks: 'Weeks 9–11',
-    completedLessons: 0,
-    lessons: [
-      { id: '8', title: 'Natural Selection', duration: 50, status: 'draft', materials: 0, type: 'Discussion' },
-      { id: '9', title: 'Adaptation & Speciation', duration: 55, status: 'draft', materials: 0, type: 'Lecture + Lab' },
-    ],
-  },
-  {
-    id: 'u4',
-    title: 'Unit 4: Ecosystems',
-    color: '#14b8a6',
-    weeks: 'Weeks 12–15',
-    completedLessons: 0,
-    lessons: [
-      { id: '10', title: 'Ecosystems and Food Webs', duration: 45, status: 'draft', materials: 0, type: 'Project' },
-      { id: '11', title: 'Biomes of the World', duration: 50, status: 'draft', materials: 0, type: 'Lecture' },
-      { id: '12', title: 'Human Impact on Ecosystems', duration: 60, status: 'draft', materials: 0, type: 'Research Project' },
-    ],
-  },
-]
-
-const upcomingDeadlines = [
-  { title: 'Cell Structure Quiz', type: 'Quiz', dueDate: 'Tomorrow', color: '#f97316', urgent: true },
-  { title: 'Photosynthesis Lab Report', type: 'Assignment', dueDate: 'Aug 5', color: '#6366f1', urgent: false },
-  { title: 'Unit 1 Test', type: 'Assessment', dueDate: 'Aug 10', color: '#ec4899', urgent: false },
-]
-
-const topStudents: { name: string; initials: string; avg: number; trend: 'up' | 'down' | 'stable'; color: string }[] = [
-  { name: 'Emma Davis', initials: 'ED', avg: 96, trend: 'up', color: '#8b5cf6' },
-  { name: 'Sofia Rodriguez', initials: 'SR', avg: 94, trend: 'up', color: '#10b981' },
-  { name: 'Ethan Kim', initials: 'EK', avg: 91, trend: 'stable', color: '#f97316' },
-  { name: 'Liam Chen', initials: 'LC', avg: 88, trend: 'up', color: '#6366f1' },
-]
-
-const aiInsights = [
-  { icon: AlertTriangle, color: '#f59e0b', title: '4 students struggling with cellular respiration', action: 'Plan intervention' },
-  { icon: TrendingUp, color: '#10b981', title: 'Class avg up 6% since Unit 1 started', action: 'View analytics' },
-  { icon: Brain, color: '#6366f1', title: 'AI lesson for genetics ready to generate', action: 'Generate now' },
-]
-
 export default function CourseDetailPage({ params }: { params: { courseId: string } }) {
+  const { courseId } = params
   const router = useRouter()
   const [expandedUnit, setExpandedUnit] = useState<string | null>('u1')
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  const data = getCourseDetail(courseId)
+
+  const courseInfo = {
+    title: data?.title ?? 'Course Not Found',
+    subject: data?.subject ?? '—',
+    grade: data ? `Grade ${data.grade.replace(/th|st|nd|rd/, '')}` : '—',
+    term: 'Fall 2026',
+    students: data?.students ?? 0,
+    avgGrade: data ? Math.round(50 + data.completion * 0.4) : 0,
+    nextClass: 'Today · 9:00 AM · Room 204',
+    description: data?.description ?? '',
+    standards: ['MS-LS1-1', 'MS-LS1-2', 'MS-LS1-3', 'MS-LS3-1', 'MS-LS4-1'],
+    schedule: [
+      { day: 'Mon/Wed/Fri', time: '9:00–9:50 AM', room: 'Room 204' },
+      { day: 'Tue/Thu', time: '10:15–11:05 AM', room: 'Lab 3B' },
+    ],
+  }
+
+  const units: Unit[] = (data?.units ?? []).map((u, ui) => {
+    const completedLessons = u.lessons.filter(l => l.status === 'complete').length
+    return {
+      id: u.id,
+      title: u.title,
+      color: UNIT_COLORS[ui % UNIT_COLORS.length],
+      weeks: `Weeks ${ui * 4 + 1}–${(ui + 1) * 4}`,
+      completedLessons,
+      lessons: u.lessons.map(l => ({
+        id: l.id,
+        title: l.title,
+        duration: l.duration,
+        status: (l.status === 'complete' || l.status === 'in-progress') ? 'published' as const : 'draft' as const,
+        materials: l.status === 'complete' ? 3 : l.status === 'in-progress' ? 1 : 0,
+        type: l.type,
+        ai: l.type === 'Lesson',
+      })),
+    }
+  })
+
+  const upcomingDeadlines = (data?.upcomingDeadlines ?? []).map((d, i) => ({
+    title: d.title,
+    type: d.title.toLowerCase().includes('quiz') ? 'Quiz' : d.title.toLowerCase().includes('lab') ? 'Assignment' : 'Assessment',
+    dueDate: d.date,
+    color: UNIT_COLORS[i % UNIT_COLORS.length],
+    urgent: i === 0,
+  }))
+
+  const insightIconMap: Record<string, typeof AlertTriangle> = { warning: AlertTriangle, success: TrendingUp, info: Brain }
+  const insightColorMap: Record<string, string> = { warning: '#f59e0b', success: '#10b981', info: '#6366f1' }
+  const aiInsights = (data?.aiInsights ?? []).map(ins => ({
+    icon: insightIconMap[ins.type] ?? Brain,
+    color: insightColorMap[ins.type] ?? '#6366f1',
+    title: ins.message,
+    action: ins.action,
+  }))
+
   const allLessons = units.flatMap(u => u.lessons)
   const publishedCount = allLessons.filter(l => l.status === 'published').length
-  const progressPct = Math.round((publishedCount / allLessons.length) * 100)
+  const progressPct = allLessons.length > 0 ? Math.round((publishedCount / allLessons.length) * 100) : 0
   const totalLessons = allLessons.length
 
   return (
@@ -400,7 +381,7 @@ export default function CourseDetailPage({ params }: { params: { courseId: strin
                             {unit.lessons.map((lesson, li) => (
                               <Link
                                 key={lesson.id}
-                                href={`/courses/${params.courseId}/lessons/${lesson.id}`}
+                                href={`/courses/${courseId}/lessons/${lesson.id}`}
                                 className={`flex items-center gap-3 px-5 py-3.5 hover:bg-white/[0.03] transition-colors group ${
                                   li < unit.lessons.length - 1 ? 'border-b border-white/[0.04]' : ''
                                 }`}

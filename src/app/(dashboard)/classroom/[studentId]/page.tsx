@@ -1,5 +1,5 @@
 'use client'
-import { useState, use } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -76,8 +76,8 @@ function getInitials(name: string) {
   return name.split(' ').map(n => n[0]).join('')
 }
 
-export default function StudentDetailPage({ params }: { params: Promise<{ studentId: string }> }) {
-  const { studentId } = use(params)
+export default function StudentDetailPage({ params }: { params: { studentId: string } }) {
+  const { studentId } = params
   const studentData = getStudentDetail(studentId)
   const fallback = STUDENTS[0]
   const base = studentData ?? (fallback ? getStudentDetail(fallback.id) : null)

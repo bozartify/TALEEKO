@@ -51,6 +51,7 @@ export default function LessonDetailPage({
 }: {
   params: { courseId: string; lessonId: string }
 }) {
+  const { courseId, lessonId } = params
   const router = useRouter()
   const [expandedSection, setExpandedSection] = useState<number>(0)
   const [toastMsg, setToastMsg] = useState('')
@@ -67,7 +68,7 @@ export default function LessonDetailPage({
         <div className="flex items-center gap-2 text-xs text-surface-500">
           <Link href="/courses" className="hover:text-surface-300">Courses</Link>
           <span>/</span>
-          <Link href={`/courses/${params.courseId}`} className="hover:text-surface-300">7th Grade Biology</Link>
+          <Link href={`/courses/${courseId}`} className="hover:text-surface-300">Course</Link>
           <span>/</span>
           <span className="text-surface-300">Photosynthesis</span>
         </div>
@@ -95,7 +96,7 @@ export default function LessonDetailPage({
         <div className="hero-mesh rounded-3xl p-6 border border-white/[0.06]">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="flex items-start gap-4">
-              <Link href={`/courses/${params.courseId}`} className="text-surface-500 hover:text-surface-300 mt-1">
+              <Link href={`/courses/${courseId}`} className="text-surface-500 hover:text-surface-300 mt-1">
                 <ArrowLeft className="w-4 h-4" />
               </Link>
               <div>

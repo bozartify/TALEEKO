@@ -1,5 +1,5 @@
 'use client'
-import { useState, use } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem } from '@/components/ui/motion'
 import Link from 'next/link'
@@ -35,8 +35,8 @@ const noteTypeConfig = {
 
 type ActiveTab = 'overview' | 'assignments' | 'notes' | 'contact'
 
-export default function StudentProfilePage({ params }: { params: Promise<{ studentId: string }> }) {
-  const { studentId } = use(params)
+export default function StudentProfilePage({ params }: { params: { studentId: string } }) {
+  const { studentId } = params
   const router = useRouter()
   const studentData = getStudentDetail(studentId)
 
