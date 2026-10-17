@@ -200,6 +200,56 @@ export default function PortfolioPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportPortfolioHTML(s: StudentData) {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const skillBars = s.skills.map(sk => `<div class="skill"><span>${sk.name}</span><div class="bar"><div class="fill" style="width:${sk.level}%;background:${s.color}"></div></div><strong>${sk.level}%</strong></div>`).join('')
+    const achievements = s.achievements.map(a => `<div class="badge">${a.icon} ${a.title}<span>${a.date}</span></div>`).join('')
+    const recentWork = s.recentWork.map(w => `<tr><td>${w.title}</td><td>${w.type}</td><td>${w.date}</td><td><strong>${w.score}%</strong></td></tr>`).join('')
+    const goals = s.goals.map(g => `<li class="${g.done ? 'done' : ''}">${g.done ? '✓' : '○'} ${g.text}</li>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${s.name} — Student Portfolio</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Inter,system-ui,sans-serif;background:#f8fafc;color:#1e293b}
+.hero{background:linear-gradient(135deg,${s.color},${s.color}88);color:white;padding:40px;border-radius:0 0 24px 24px}
+.hero h1{font-size:32px;font-weight:900}.hero p{opacity:.85;margin-top:4px}
+.stats{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.2);border-radius:12px;padding:12px 20px;text-align:center}
+.stat strong{font-size:24px;display:block}.stat span{font-size:12px;opacity:.85}
+.container{max-width:900px;margin:0 auto;padding:32px 20px}
+.section{background:white;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+h2{font-size:18px;font-weight:700;margin-bottom:16px;color:#0f172a}
+.skill{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.skill span{width:180px;font-size:13px;color:#475569}.bar{flex:1;height:8px;background:#e2e8f0;border-radius:4px}
+.fill{height:100%;border-radius:4px}.skill strong{font-size:13px;width:38px;text-align:right}
+.badge{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border-radius:20px;padding:6px 14px;margin:4px;font-size:13px}
+.badge span{font-size:11px;color:#94a3b8;margin-left:4px}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:12px;color:#94a3b8;padding:8px 0;border-bottom:1px solid #e2e8f0}
+td{padding:10px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+ul{list-style:none;padding:0}li{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:14px}
+li.done{color:#10b981}
+.footer{text-align:center;font-size:11px;color:#94a3b8;margin-top:32px;padding-bottom:32px}
+</style></head><body>
+<div class="hero"><div style="max-width:900px;margin:0 auto">
+<h1>${s.name}</h1><p>${s.grade} Grade · ${s.class} · Generated ${date}</p>
+<div class="stats">
+<div class="stat"><strong>${s.avg}%</strong><span>Overall Average</span></div>
+<div class="stat"><strong>${s.attendance}%</strong><span>Attendance</span></div>
+<div class="stat"><strong>${s.streak}</strong><span>Day Streak</span></div>
+<div class="stat"><strong>${s.awards}</strong><span>Awards</span></div>
+</div></div></div>
+<div class="container">
+<div class="section"><h2>Skills & Proficiency</h2>${skillBars}</div>
+<div class="section"><h2>Recent Work</h2><table><thead><tr><th>Assignment</th><th>Type</th><th>Date</th><th>Score</th></tr></thead><tbody>${recentWork}</tbody></table></div>
+<div class="section"><h2>Achievements</h2>${achievements}</div>
+<div class="section"><h2>Goals</h2><ul>${goals}</ul></div>
+</div>
+<div class="footer">TALEEKO Student Portfolio · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a'); a.href = url; a.download = `portfolio-${s.name.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast(`Portfolio exported for ${s.name}!`)
+  }
+
   const filtered = students.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.class.toLowerCase().includes(search.toLowerCase())
@@ -268,7 +318,7 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing portfolio…') }}><Download className="w-3 h-3" /> Export PDF</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => exportPortfolioHTML(selectedStudent)}><Download className="w-3 h-3" /> Export Portfolio</button>
               <button onClick={() => setShareModal(true)} className="btn-secondary text-xs px-3 py-1.5"><Share2 className="w-3 h-3" /> Share</button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => generateAIInsights(selectedStudent)}>
                 <Sparkles className="w-3.5 h-3.5" /> AI Summary
