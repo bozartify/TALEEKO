@@ -341,9 +341,16 @@ export default function LessonPlannerPage() {
                 {savedPulse ? <CheckCircle className="w-3.5 h-3.5 text-success-400" /> : <Save className="w-3.5 h-3.5" />}
                 {savedPulse ? 'Saved!' : 'Save'}
               </motion.button>
+              <button className="btn-secondary text-xs" onClick={() => router.push('/quiz-builder')}>
+                <Zap className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline ml-1">Add Quiz</span>
+              </button>
+              <button className="btn-secondary text-xs" onClick={() => router.push('/exit-tickets')}>
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline ml-1">Exit Ticket</span>
+              </button>
               <button className="btn-secondary text-xs" onClick={() => { window.print(); showToast('Printing lesson plan…') }}>
                 <Download className="w-3.5 h-3.5" />
-                Export
               </button>
               <button className="btn-secondary text-xs" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied!') }}>
                 <Share2 className="w-3.5 h-3.5" />
