@@ -116,6 +116,77 @@ export default function AttendancePage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportAttendanceHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const weekLabel = `${weekDates[0].month} ${weekDates[0].date} – ${weekDates[4].month} ${weekDates[4].date}`
+    const statusEmoji: Record<Status, string> = { present: '✅', absent: '❌', late: '⏰', excused: '💙' }
+    const statusColor: Record<Status, string> = { present: '#10b981', absent: '#ef4444', late: '#f59e0b', excused: '#22d3ee' }
+
+    const rows = filteredStudents.map(s => {
+      const rate = getStudentRate(s.name)
+      const rateColor = rate >= 90 ? '#10b981' : rate >= 75 ? '#f59e0b' : '#ef4444'
+      const daysCells = days.map(day => {
+        const st = attendance[s.name]?.[day] ?? 'present'
+        return `<td style="text-align:center;padding:8px 4px;color:${statusColor[st]}">${statusEmoji[st]}</td>`
+      }).join('')
+      const flags = [(s.iep ? '<span style="background:#6366f120;color:#818cf8;padding:2px 6px;border-radius:4px;font-size:10px">IEP</span>' : ''), (s.ell ? '<span style="background:#22d3ee20;color:#67e8f9;padding:2px 6px;border-radius:4px;font-size:10px">ELL</span>' : '')].filter(Boolean).join(' ')
+      return `<tr style="border-bottom:1px solid #1f2937">
+        <td style="padding:10px 12px">
+          <div style="font-weight:600;color:#f9fafb">${s.name}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:2px">${flags}</div>
+        </td>
+        ${daysCells}
+        <td style="text-align:center;padding:8px;font-weight:700;color:${rateColor}">${rate}%</td>
+        <td style="text-align:center;padding:8px;color:${s.absences30d >= 3 ? '#ef4444' : '#9ca3af'}">${s.absences30d}</td>
+      </tr>`
+    }).join('')
+
+    const summaryStats = [
+      { label: 'Overall Rate', value: `${attendanceRate}%`, color: attendanceRate >= 90 ? '#10b981' : '#f59e0b' },
+      { label: 'Present', value: presentCount, color: '#10b981' },
+      { label: 'Absent', value: absentCount, color: '#ef4444' },
+      { label: 'Late', value: lateCount, color: '#f59e0b' },
+      { label: 'Excused', value: excusedCount, color: '#22d3ee' },
+      { label: 'At Risk (30d)', value: atRiskStudents.length, color: '#ef4444' },
+    ].map(s => `<div style="text-align:center;background:#111827;border-radius:12px;padding:16px 20px">
+      <div style="font-size:22px;font-weight:900;color:${s.color}">${s.value}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px">${s.label}</div>
+    </div>`).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Attendance Report — ${weekLabel}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px}
+  @media print{body{background:#fff;color:#111}table{color:#111}td,th{border-color:#ddd!important}}
+  h1{font-size:26px;font-weight:900;margin:0 0 4px}
+  .subtitle{color:#6b7280;font-size:13px;margin-bottom:28px}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:28px}
+  table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:12px;overflow:hidden}
+  th{background:#1e293b;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:600}
+  th:not(:first-child){text-align:center}
+  .footer{margin-top:24px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1>Attendance Report</h1>
+  <p class="subtitle">${selectedClass} · ${selectedPeriod} · Week of ${weekLabel} · Generated ${date}</p>
+  <div class="summary-grid">${summaryStats}</div>
+  <table>
+    <thead><tr>
+      <th>Student</th>
+      ${days.map((d, i) => `<th>${d}<br><span style="font-size:9px;font-weight:400">${weekDates[i]?.month} ${weekDates[i]?.date}</span></th>`).join('')}
+      <th>Rate</th><th>Absences<br><span style="font-size:9px;font-weight:400">30 days</span></th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="footer"><span>TALEEKO Education Platform</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `attendance-${weekLabel.replace(/\s+/g, '-').replace(/–/g, 'to').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Attendance report exported as HTML!')
+  }
+
   function exportCSV() {
     const headers = ['Student', ...days.map((d, i) => `${d} (${weekDates[i]?.month} ${weekDates[i]?.date})`), 'Absences (30d)']
     const rows = studentNames.map(name => [
@@ -1042,7 +1113,7 @@ export default function AttendancePage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Weekly PDF Report',      desc: 'Formatted for printing',       emoji: '📄', action: () => { window.print(); showToast('Printing attendance report…') } },
+                  { label: 'Weekly HTML Report',      desc: 'Styled, printable report file', emoji: '📄', action: () => exportAttendanceHTML() },
                   { label: 'Monthly CSV Data',        desc: 'For spreadsheet analysis',      emoji: '📊', action: () => exportCSV() },
                   { label: 'At-Risk Student Report',  desc: 'Students with 3+ absences',    emoji: '⚠️', action: () => { const atRisk = STUDENTS.filter(s => s.absences30d >= 3); const csv = ['Student,Parent Email,Absences (30d)', ...atRisk.map(s => `"${s.name}","${s.parentEmail}",${s.absences30d}`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'at-risk.csv'; a.click(); URL.revokeObjectURL(url); showToast(`At-risk report: ${atRisk.length} students`) } },
                   { label: 'Parent Contact List',     desc: 'CSV with parent email list',    emoji: '📧', action: () => { const csv = ['Student,Parent Email', ...STUDENTS.map(s => `"${s.name}","${s.parentEmail}"`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'parent-contacts.csv'; a.click(); URL.revokeObjectURL(url); showToast('Parent contact list exported') } },

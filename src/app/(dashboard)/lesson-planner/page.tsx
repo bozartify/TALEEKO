@@ -305,6 +305,70 @@ export default function LessonPlannerPage() {
     setTimeout(() => setSavedPulse(false), 2000)
   }
 
+  function exportLessonHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const sectionColors: Record<string, string> = { objectives: '#6366f1', materials: '#14b8a6', hook: '#f59e0b', direct: '#8b5cf6', guided: '#10b981', independent: '#ec4899', closure: '#22d3ee', assessment: '#f97316' }
+    const sectionBlocks = sections.map(s => {
+      const color = sectionColors[s.id] || '#6366f1'
+      const durationBadge = s.duration > 0 ? `<span style="background:${color}20;color:${color};padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600">${s.duration} min</span>` : ''
+      const badge = s.badge ? `<span style="background:#f59e0b20;color:#f59e0b;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-right:4px">${s.badge}</span>` : ''
+      const contentLines = s.content.split('\n').map(line => `<p style="margin:4px 0;color:#d1d5db;font-size:13px;line-height:1.6">${line || '&nbsp;'}</p>`).join('')
+      return `<div style="border-left:4px solid ${color};background:#0f172a;border-radius:0 12px 12px 0;padding:16px 20px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+          <h3 style="font-size:14px;font-weight:800;color:#f9fafb;margin:0">${s.title}</h3>
+          ${badge}${durationBadge}
+        </div>
+        ${contentLines}
+      </div>`
+    }).join('')
+
+    const standardRows = standards.map(st => `<tr>
+      <td style="padding:8px 12px;font-weight:700;color:#818cf8;white-space:nowrap">${st.code}</td>
+      <td style="padding:8px 12px;color:#d1d5db;font-size:12px">${st.desc}</td>
+      <td style="padding:8px 12px;text-align:center;font-size:11px;color:${st.status === 'primary' ? '#6366f1' : '#94a3b8'};font-weight:600;text-transform:uppercase">${st.status}</td>
+    </tr>`).join('')
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Lesson Plan — ${topic}</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#030712;color:#f9fafb;margin:0;padding:32px;max-width:900px}
+  @media print{body{background:#fff;color:#111;max-width:100%}h1,h2,h3{color:#111!important}p{color:#333!important}.no-print{display:none}}
+  h1{font-size:28px;font-weight:900;margin:0 0 4px;color:#f9fafb}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:20px 0 28px;background:#0f172a;border-radius:16px;padding:20px}
+  .meta-item label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;font-weight:600;display:block;margin-bottom:4px}
+  .meta-item span{font-size:15px;font-weight:800;color:#f9fafb}
+  h2{font-size:16px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin:28px 0 14px;padding-bottom:8px;border-bottom:1px solid #1f2937}
+  table{width:100%;border-collapse:collapse;background:#0f172a;border-radius:12px;overflow:hidden;margin-bottom:28px}
+  th{background:#1e293b;padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#94a3b8;font-weight:600}
+  tr:not(:last-child) td{border-bottom:1px solid #1f2937}
+  .footer{margin-top:32px;padding-top:16px;border-top:1px solid #1f2937;font-size:11px;color:#4b5563;display:flex;justify-content:space-between}
+</style></head><body>
+  <h1>${topic}</h1>
+  <p style="color:#6b7280;font-size:13px;margin:4px 0 0">Lesson Plan · Generated ${date}</p>
+  <div class="meta-grid">
+    <div class="meta-item"><label>Subject</label><span>${subject}</span></div>
+    <div class="meta-item"><label>Grade</label><span>${grade}</span></div>
+    <div class="meta-item"><label>Duration</label><span>${duration} min</span></div>
+    <div class="meta-item"><label>Sections</label><span>${sections.length}</span></div>
+    <div class="meta-item"><label>Planned Time</label><span>${totalTime} min</span></div>
+  </div>
+  <h2>Lesson Sections</h2>
+  ${sectionBlocks}
+  <h2>Standards Alignment</h2>
+  <table>
+    <thead><tr><th>Standard</th><th>Description</th><th>Type</th></tr></thead>
+    <tbody>${standardRows}</tbody>
+  </table>
+  <div class="footer"><span>TALEEKO Education Platform</span><span>${date}</span></div>
+</body></html>`
+
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `lesson-plan-${topic.replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-]/g, '').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Lesson plan exported as HTML!')
+  }
+
   return (
     <div className="space-y-6">
       <FadeUp>
@@ -366,7 +430,7 @@ export default function LessonPlannerPage() {
                 <CheckCircle className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline ml-1">Exit Ticket</span>
               </button>
-              <button className="btn-secondary text-xs" onClick={() => { window.print(); showToast('Printing lesson plan…') }}>
+              <button className="btn-secondary text-xs" onClick={exportLessonHTML} title="Export HTML">
                 <Download className="w-3.5 h-3.5" />
               </button>
               <button className="btn-secondary text-xs" onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied!') }}>
