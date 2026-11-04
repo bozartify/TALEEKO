@@ -124,6 +124,14 @@ export default function ClassroomPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportClassroomHTML() {
+    const classRows = classList.map(c => `<tr><td>${c.name}</td><td>${c.subject}</td><td>${c.period}</td><td>${c.room}</td><td>${c.students}</td><td>${c.avgScore}%</td><td>${c.completion}%</td><td style="color:${c.trend==='up'?'#10b981':'#f43f5e'}">${c.trend==='up'?'↑ Up':'↓ Down'}</td></tr>`).join('')
+    const studentRows = studentList.map(s => `<tr><td>${s.name}</td><td>${s.grade}</td><td>${s.class}</td><td>${s.avg}%</td><td>${s.status}</td></tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>TALEEKO Classroom Overview</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#f8fafc;color:#1e293b}h1{font-size:22px;margin-bottom:4px}h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:20px}h3{font-size:15px;margin:24px 0 10px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;margin-bottom:24px}th{background:#f1f5f9;text-align:left;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b}td{padding:8px 12px;font-size:13px;border-top:1px solid #f1f5f9}.footer{margin-top:16px;padding-top:14px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px}</style></head><body><h1>Classroom Overview</h1><h2>Exported ${new Date().toLocaleDateString()}</h2><h3>Classes (${classList.length})</h3><table><thead><tr><th>Class</th><th>Subject</th><th>Period</th><th>Room</th><th>Students</th><th>Avg Score</th><th>Completion</th><th>Trend</th></tr></thead><tbody>${classRows}</tbody></table><h3>Students (${studentList.length})</h3><table><thead><tr><th>Name</th><th>Grade</th><th>Class</th><th>Avg Score</th><th>Status</th></tr></thead><tbody>${studentRows}</tbody></table><div class="footer">TALEEKO · taleeko.ai</div></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'classroom-overview.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Classroom overview exported!')
+  }
+
   async function handleAIPlan(cls: ClassRecord) {
     setAiPlanId(cls.name)
     showToast(`AI is planning a lesson for ${cls.name}…`)
@@ -315,6 +323,9 @@ export default function ClassroomPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
+            <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportClassroomHTML}>
+              <Download className="w-3 h-3" /> Export HTML
+            </button>
             <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
               const headers = ['Class', 'Subject', 'Period', 'Room', 'Students', 'Avg Score', 'Completion %', 'Trend']
               const rows = classList.map(c => [c.name, c.subject, c.period, c.room, c.students, c.avgScore, c.completion, c.trend])
@@ -322,7 +333,7 @@ export default function ClassroomPage() {
               const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'classroom-data.csv'; a.click(); URL.revokeObjectURL(a.href)
               showToast('Classroom data exported!')
             }}>
-              <Download className="w-3 h-3" /> Export
+              <Download className="w-3 h-3" /> Export CSV
             </button>
             <motion.button
               className="btn-gradient text-xs"

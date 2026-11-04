@@ -140,6 +140,13 @@ export default function LearningPathsPage() {
 
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportLearningPathsHTML() {
+    const cards = paths.map(p => `<div class="card"><div class="head" style="border-left:4px solid ${p.color}"><strong>${p.title}</strong><span class="badge">${p.status}</span></div><div class="meta">${p.subject} · ${p.grade} · ${p.estimatedWeeks} weeks · ${p.enrolled} enrolled · ${p.completionPct}% complete</div>${p.description ? `<div class="desc">${p.description}</div>` : ''}${p.steps.length ? `<ul>${p.steps.map(s => `<li>${s.title} <span class="type">${s.type}</span></li>`).join('')}</ul>` : ''}</div>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>TALEEKO Learning Paths</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#f8fafc;color:#1e293b}h1{font-size:22px;margin-bottom:4px}h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:24px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:12px}.head{padding:0 0 8px 10px;display:flex;align-items:center;justify-content:space-between}strong{font-size:14px;font-weight:600}.badge{font-size:10px;padding:2px 8px;background:#f1f5f9;border-radius:20px;color:#64748b}.meta{font-size:11px;color:#64748b;margin-bottom:6px}.desc{font-size:12px;color:#475569;margin-bottom:8px}ul{margin:4px 0;padding-left:18px}li{font-size:12px;color:#374151;margin-bottom:2px}.type{font-size:10px;color:#8b5cf6;margin-left:4px}.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px}</style></head><body><h1>Learning Paths</h1><h2>${paths.length} paths · Exported ${new Date().toLocaleDateString()}</h2>${cards}<div class="footer">TALEEKO · taleeko.ai</div></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'learning-paths.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Learning paths exported as HTML!')
+  }
+
   async function handleGeneratePath(path: LearningPath) {
     setGenerating(path.id)
     showToast('AI is building your learning path steps…')
@@ -223,6 +230,9 @@ export default function LearningPathsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportLearningPathsHTML}>
+                <Download className="w-3.5 h-3.5" /> Export HTML
+              </button>
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => {
                 const headers = ['Path', 'Subject', 'Grade', 'Steps', 'Status']
                 const rows = paths.map(p => [p.title, p.subject, p.grade, p.steps.length, p.status])
@@ -230,7 +240,7 @@ export default function LearningPathsPage() {
                 const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='learning-paths.csv'; a.click(); URL.revokeObjectURL(a.href)
                 showToast('Paths exported to CSV!')
               }}>
-                <Download className="w-3.5 h-3.5" /> Export
+                <Download className="w-3.5 h-3.5" /> Export CSV
               </button>
               <motion.button className="btn-gradient text-xs" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateModal(true)}>
                 <Plus className="w-3.5 h-3.5" /> New Path
