@@ -150,6 +150,14 @@ export default function AgentsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportAgentsHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = agents.map(a => `<tr style="border-bottom:1px solid #1e293b"><td style="padding:10px 14px;font-weight:600;color:#e2e8f0">${a.name}</td><td style="padding:10px 14px;color:#94a3b8">${a.type}</td><td style="padding:10px 14px"><span style="padding:2px 8px;border-radius:20px;font-size:11px;background:${a.status==='running'?'#10b98120':'#f59e0b20'};color:${a.status==='running'?'#10b981':'#f59e0b'}">${a.status}</span></td><td style="padding:10px 14px;color:#94a3b8;font-variant-numeric:tabular-nums">${a.tasksDone}</td><td style="padding:10px 14px;color:#94a3b8">${a.timeSaved}</td><td style="padding:10px 14px;color:#94a3b8">${a.accuracy}%</td></tr>`).join('')
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>AI Agents Report</title><style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:32px}h1{font-size:22px;font-weight:800;margin:0 0 4px}p{color:#64748b;margin:0 0 24px;font-size:13px}table{width:100%;border-collapse:collapse;background:#1a1f2e;border-radius:10px;overflow:hidden}th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;background:#0f172a;border-bottom:1px solid #1e293b}.footer{margin-top:24px;font-size:11px;color:#334155;text-align:center}</style></head><body><h1>AI Agents Report</h1><p>Generated ${date} · TALEEKO Teaching Platform</p><table><thead><tr><th>Agent</th><th>Type</th><th>Status</th><th>Tasks Done</th><th>Time Saved</th><th>Accuracy</th></tr></thead><tbody>${rows}</tbody></table><p class="footer">TALEEKO · Confidential</p></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'agents-report.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Agent report exported as HTML!')
+  }
+
   const activeCount = agents.filter(a => a.status === 'running').length
   const awaitingCount = agents.filter(a => a.status === 'awaiting').length
   const totalDone = agents.reduce((s, a) => s + a.tasksDone, 0)
@@ -229,7 +237,7 @@ export default function AgentsPage() {
             </div>
             <div className="flex items-center gap-2">
               <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/api-keys')}><Settings className="w-3.5 h-3.5" /> API Keys</button>
-              <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing agent report…') }}><Download className="w-3.5 h-3.5" /> Export Report</button>
+              <button className="btn-secondary text-xs px-3 py-1.5" onClick={exportAgentsHTML}><Download className="w-3.5 h-3.5" /> Export Report</button>
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
