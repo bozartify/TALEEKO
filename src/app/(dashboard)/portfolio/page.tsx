@@ -451,7 +451,7 @@ li.done{color:#10b981}
                   <button onClick={() => setNoteOpen(o => !o)} className="btn-secondary text-xs px-3 py-1.5"><PenTool className="w-3 h-3" /> Add Note</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push(`/students/${selectedStudent.id}`)}><User className="w-3 h-3" /> Full Profile</button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => router.push('/communication')}><Mail className="w-3 h-3" /> Message Parent</button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}><Printer className="w-3 h-3" /> Print</button>
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { exportPortfolioHTML(selectedStudent); showToast('Downloading portfolio…') }}><Printer className="w-3 h-3" /> Export HTML</button>
                   <button className="btn-gradient text-xs px-3 py-1.5 ml-auto" disabled={generatingInsight === selectedStudent.id} onClick={() => generateAIInsights(selectedStudent)}>
                     {generatingInsight === selectedStudent.id ? <><span className="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />&nbsp;Generating…</> : <><Sparkles className="w-3 h-3" /> AI Insights</>}
                   </button>
@@ -785,7 +785,7 @@ li.done{color:#10b981}
                       )}
                       <div className="flex items-center gap-2">
                         <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => router.push('/lesson-planner')}><Zap className="w-3 h-3" /> Accelerate Plan</button>
-                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing growth report…') }}><Download className="w-3 h-3" /> Export Report</button>
+                        <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { exportPortfolioHTML(selectedStudent); showToast('Downloading growth report…') }}><Download className="w-3 h-3" /> Export Report</button>
                       </div>
                     </div>
                   </motion.div>
@@ -884,7 +884,7 @@ li.done{color:#10b981}
                 {[
                   { label: 'Email to parent', icon: Mail, color: '#6366f1', fn: () => { window.open(`mailto:?subject=${encodeURIComponent(selectedStudent.name + "'s Portfolio")}&body=${encodeURIComponent('Please find the portfolio attached. View it at: ' + window.location.href)}`, '_blank'); showToast(`Portfolio email opened for ${selectedStudent.name.split(' ')[0]}'s parent`) } },
                   { label: 'Generate shareable link', icon: Share2, color: '#14b8a6', fn: () => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Shareable link copied to clipboard') } },
-                  { label: 'Export as PDF', icon: Download, color: '#f97316', fn: () => { window.print(); showToast('Portfolio sent to printer') } },
+                  { label: 'Export as HTML', icon: Download, color: '#f97316', fn: () => { exportPortfolioHTML(selectedStudent); showToast('Downloading portfolio HTML…') } },
                 ].map(o => (
                   <button key={o.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.04] transition-colors" onClick={() => { o.fn(); setShareModal(false) }}>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: o.color + '18' }}>

@@ -216,6 +216,31 @@ export default function LessonPlannerPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportLessonPlanHTML(): void {
+    const sectionRows = sections.map(s =>
+      `<div class="section"><h2 style="color:${s.color}">${s.icon} ${s.title} <span class="duration">${s.duration} min</span></h2><p>${s.content.replace(/\n/g, '<br>') || s.placeholder}</p></div>`
+    ).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Lesson Plan: ${topic}</title><style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.65}
+h1{color:#4f46e5;font-size:1.75rem;margin-bottom:.25rem}
+.meta{color:#64748b;font-size:.875rem;margin-bottom:2rem}
+.section{padding:1.25rem;margin-bottom:1.25rem;border-radius:8px;background:#f8fafc;border-left:4px solid #6366f1}
+h2{font-size:1.1rem;font-weight:700;margin-bottom:.75rem}.duration{font-size:.8rem;color:#64748b;font-weight:400;margin-left:.5rem}
+p{margin:0;color:#334155}
+</style></head><body>
+<h1>Lesson Plan: ${topic}</h1>
+<div class="meta">${subject} · ${grade} · ${duration} min · Total sections: ${sections.length}</div>
+${sectionRows}
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `lesson-plan-${topic.replace(/\s+/g, '-').toLowerCase()}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function streamChat(userMessage: string): Promise<{ text: string; toolInput: Record<string, unknown> | null }> {
     const res = await fetch('/api/chat', {
       method: 'POST',
@@ -870,7 +895,7 @@ export default function LessonPlannerPage() {
               <p className="text-xs font-bold text-surface-300 mb-3">Quick Actions</p>
               <div className="space-y-2">
                 {[
-                  { label: 'Export to PDF', icon: FileText, color: '#ef4444', toast: 'Printing lesson plan…', action: () => window.print() },
+                  { label: 'Export as HTML', icon: FileText, color: '#ef4444', toast: 'Downloading lesson plan…', action: () => exportLessonPlanHTML() },
                   { label: 'Share with Team', icon: Share2, color: '#6366f1', toast: 'Share link copied!', action: () => navigator.clipboard?.writeText(window.location.href).catch(() => {}) },
                   { label: 'Duplicate Plan', icon: Clipboard, color: '#14b8a6', toast: 'Lesson plan duplicated to drafts' },
                   { label: 'Add to Library', icon: Star, color: '#f59e0b', toast: 'Added to your lesson library', action: () => {} },

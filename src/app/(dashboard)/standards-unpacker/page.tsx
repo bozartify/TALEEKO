@@ -138,6 +138,40 @@ export default function StandardsUnpackerPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportStandardsHTML(): void {
+    if (!unpacked) return
+    const vocab = unpacked.keyVocabulary.map(v => `<tr><td><strong>${v.term}</strong></td><td>${v.definition}</td></tr>`).join('')
+    const activities = unpacked.suggestedActivities.map(a => `<li>${a}</li>`).join('')
+    const assessments = unpacked.assessmentIdeas.map(a => `<li>${a}</li>`).join('')
+    const prereqs = unpacked.prerequisites.map(p => `<li>${p}</li>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Standard ${unpacked.code}</title><style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.65}
+h1{color:#4f46e5;font-size:1.5rem}h2{color:#334155;font-size:1rem;font-weight:700;margin-top:1.5rem;border-bottom:1px solid #e2e8f0;padding-bottom:.4rem}
+.meta{color:#64748b;font-size:.875rem;margin:.5rem 0 1.5rem}
+.friendly-box{padding:1rem;background:#f0f9ff;border-left:4px solid #0ea5e9;border-radius:0 8px 8px 0;margin:.75rem 0}
+table{width:100%;border-collapse:collapse;margin:.75rem 0}
+th,td{padding:.5rem .75rem;border:1px solid #e2e8f0;text-align:left;font-size:.875rem}
+th{background:#f1f5f9;font-weight:600}ul{padding-left:1.5rem}li{margin-bottom:.35rem}
+</style></head><body>
+<h1>Standard ${unpacked.code}</h1>
+<div class="meta">${unpacked.subject} · ${unpacked.grade} · Estimated: ${unpacked.estimatedDays} days · Rigor: ${unpacked.rigor}/5</div>
+<p>${unpacked.fullText}</p>
+<h2>Student-Friendly Language</h2><div class="friendly-box">${unpacked.studentFriendly}</div>
+<h2>Parent-Friendly Summary</h2><div class="friendly-box">${unpacked.parentFriendly}</div>
+<h2>Prerequisites</h2><ul>${prereqs}</ul>
+<h2>Key Vocabulary</h2><table><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody>${vocab}</tbody></table>
+<h2>Suggested Activities</h2><ul>${activities}</ul>
+<h2>Assessment Ideas</h2><ul>${assessments}</ul>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `standard-${unpacked.code.replace(/[^a-z0-9]/gi, '-')}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function handleUnpack() {
     if (!input.trim()) return
     setGenerating(true)
@@ -441,7 +475,7 @@ export default function StandardsUnpackerPage() {
                     className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left"
                     onClick={() => {
                       if (opt.label === 'Copy to Clipboard') { handleCopy(); showToast('Standard copied to clipboard!') }
-                      else if (opt.label === 'Export as PDF') { window.print(); showToast('Printing standard breakdown…') }
+                      else if (opt.label === 'Export as PDF') { exportStandardsHTML(); showToast('Downloading standard breakdown…') }
                       else if (opt.label === 'Use in Lesson Plan') { router.push('/lesson-planner'); setExportOpen(false); return }
                       else if (opt.label === 'Share Link') { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Share link copied to clipboard!') }
                       else if (opt.label === 'Export to Google Docs') { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…') }
