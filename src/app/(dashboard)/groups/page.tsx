@@ -225,6 +225,35 @@ export default function GroupsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportGroupsHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const cards = groups.map(g => `<div style="background:#1a1f2e;border-left:4px solid ${g.color};border-radius:8px;padding:16px 20px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-weight:700;font-size:15px;color:#e2e8f0">${g.name}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">${g.type} · ${g.purpose}</div>
+        </div>
+        <span style="background:${g.color}22;color:${g.color};padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">${g.avgPerformance}% avg</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr><th style="background:#0f1117;padding:6px 10px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Student</th><th style="background:#0f1117;padding:6px 10px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Average</th><th style="background:#0f1117;padding:6px 10px;text-align:left;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em">Status</th></tr></thead>
+        <tbody>${g.students.map(s=>`<tr><td style="padding:6px 10px;font-size:12px;color:#e2e8f0">${s.name}</td><td style="padding:6px 10px;font-size:12px;color:${s.avg>=80?'#10b981':s.avg>=65?'#f59e0b':'#f43f5e'};font-weight:600">${s.avg}%</td><td style="padding:6px 10px;font-size:11px;color:#94a3b8">${s.status}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Group Roster</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#0f1117;color:#e2e8f0}h1{color:#22d3ee;font-size:22px;margin-bottom:4px}.meta{color:#64748b;font-size:12px;margin-bottom:24px}.footer{margin-top:32px;padding-top:16px;border-top:1px solid #1e293b;color:#475569;font-size:11px}</style></head><body>
+      <h1>Group Roster</h1>
+      <div class="meta">${date} · ${groups.length} groups · ${groups.reduce((s,g)=>s+g.students.length,0)} students total</div>
+      ${cards}
+      <div class="footer">TALEEKO Groups · Exported ${date}</div>
+    </body></html>`
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    a.download = 'groups-roster.html'
+    a.click()
+    URL.revokeObjectURL(a.href)
+    showToast('Groups roster exported as HTML!')
+  }
+
   async function handleAISmartGroup() {
     setAiGrouping(true)
     showToast('AI is analyzing class data and creating optimal groups…')
@@ -926,6 +955,7 @@ export default function GroupsPage() {
                 { label: 'Send group progress report', icon: TrendingUp, color: '#f97316', fn: () => router.push('/reports') },
                 { label: 'Shuffle all groups randomly', icon: Shuffle, color: '#8b5cf6', fn: () => { setGroups(prev => { const s=[...prev]; for(let i=s.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[s[i],s[j]]=[s[j],s[i]]}; return s }); showToast('All groups shuffled!') } },
                 { label: 'Export group roster (CSV)', icon: Download, color: '#22d3ee', fn: () => { const rows=[['Group','Type','Students','Avg Performance'],...groups.map(g=>[g.name,g.type,g.students.map(s=>s.name).join('; '),g.avgPerformance])]; const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'); const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='groups.csv';a.click();URL.revokeObjectURL(a.href);showToast('Groups CSV exported!') } },
+                { label: 'Export group roster (HTML)', icon: Download, color: '#10b981', fn: exportGroupsHTML },
               ].map(action => (
                 <motion.button
                   key={action.label}

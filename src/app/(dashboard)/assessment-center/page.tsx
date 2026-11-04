@@ -155,6 +155,50 @@ export default function AssessmentCenterPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportAssessmentHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = assessments.map(a => `<tr>
+      <td style="color:#e2e8f0;font-weight:600">${a.title}</td>
+      <td><span style="background:${TYPE_COLORS[a.type]}22;color:${TYPE_COLORS[a.type]};padding:2px 8px;border-radius:4px;font-size:11px">${a.type}</span></td>
+      <td>${a.subject}</td>
+      <td>${a.date}</td>
+      <td style="font-weight:600;color:${a.classAvg>=80?'#10b981':a.classAvg>=65?'#f59e0b':'#f43f5e'}">${a.classAvg}%</td>
+      <td>${a.submitted}/${a.totalStudents}</td>
+      <td><span style="background:${a.status==='Active'?'#10b98122':a.status==='Scheduled'?'#f59e0b22':'#6366f122'};color:${a.status==='Active'?'#10b981':a.status==='Scheduled'?'#f59e0b':'#818cf8'};padding:2px 8px;border-radius:4px;font-size:11px">${a.status}</span></td>
+    </tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Assessment Center Report</title><style>
+      body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#0f1117;color:#e2e8f0}
+      h1{color:#22d3ee;font-size:22px;margin-bottom:4px}
+      .meta{color:#64748b;font-size:12px;margin-bottom:24px}
+      .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+      .stat{background:#1a1f2e;border-radius:8px;padding:14px 16px}
+      .stat-n{font-size:24px;font-weight:700;color:#22d3ee}
+      .stat-l{font-size:11px;color:#64748b;margin-top:2px}
+      table{width:100%;border-collapse:collapse}
+      th{background:#1e293b;padding:10px 12px;text-align:left;font-size:11px;letter-spacing:.06em;color:#94a3b8;text-transform:uppercase}
+      td{padding:10px 12px;border-bottom:1px solid #1e293b;font-size:13px;color:#94a3b8}
+      .footer{margin-top:32px;padding-top:16px;border-top:1px solid #1e293b;color:#475569;font-size:11px}
+    </style></head><body>
+      <h1>Assessment Center Report</h1>
+      <div class="meta">${date} · AP Biology · ${assessments.length} assessments</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-n">${assessments.length}</div><div class="stat-l">Total Assessments</div></div>
+        <div class="stat"><div class="stat-n">${Math.round(assessments.reduce((s,a)=>s+a.classAvg,0)/assessments.length)}%</div><div class="stat-l">Class Average</div></div>
+        <div class="stat"><div class="stat-n">${assessments.filter(a=>a.status==='Active').length}</div><div class="stat-l">Active</div></div>
+        <div class="stat"><div class="stat-n">${assessments.reduce((s,a)=>s+a.submitted,0)}</div><div class="stat-l">Submissions</div></div>
+      </div>
+      <table><thead><tr><th>Assessment</th><th>Type</th><th>Subject</th><th>Date</th><th>Avg</th><th>Submitted</th><th>Status</th></tr></thead>
+      <tbody>${rows}</tbody></table>
+      <div class="footer">TALEEKO Assessment Center · Exported ${date}</div>
+    </body></html>`
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    a.download = 'assessment-report.html'
+    a.click()
+    URL.revokeObjectURL(a.href)
+    showToast('Assessment report exported as HTML!')
+  }
+
   async function generateStudentFeedback(a: Assessment) {
     setGeneratingFeedback(true)
     setFeedbackText('')
@@ -258,7 +302,10 @@ export default function AssessmentCenterPage() {
               const el = document.createElement('a'); el.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); el.download = 'assessments.csv'; el.click(); URL.revokeObjectURL(el.href)
               showToast('Assessments exported to CSV!')
             }}>
-              <Download className="w-4 h-4" /> Export
+              <Download className="w-4 h-4" /> CSV
+            </button>
+            <button className="btn-secondary text-sm flex items-center gap-2" onClick={exportAssessmentHTML}>
+              <Download className="w-4 h-4" /> HTML Report
             </button>
             <button className="btn-gradient text-sm flex items-center gap-2" onClick={() => router.push('/quiz-builder')}>
               <Plus className="w-4 h-4" /> New Assessment
