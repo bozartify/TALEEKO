@@ -1,8 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { SYSTEM_PROMPT, TEACHING_TOOLS, MODE_PROMPTS } from '@/lib/prompts'
 import { rateLimit } from '@/lib/rate-limit'
+import { validateSessionToken, COOKIE_NAME } from '@/lib/auth'
 
 const client = new Anthropic()
+
+const VALID_MODES = new Set(['general', 'lesson', 'quiz', 'feedback', 'rubric', 'unit', 'writing', 'differentiation'])
 
 export async function POST(request: Request) {
   const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
@@ -10,8 +13,31 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Too many requests — please wait a moment' }, { status: 429 })
   }
 
+  // Validate session
+  const cookieHeader = request.headers.get('cookie') ?? ''
+  const sessionToken = cookieHeader.match(new RegExp(`(?:^|;\\s*)${COOKIE_NAME}=([^;]+)`))?.[1]
+  if (!sessionToken || !validateSessionToken(sessionToken)) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const { messages, mode = 'general' } = await request.json()
+
+    // Input validation
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return Response.json({ error: 'messages must be a non-empty array' }, { status: 400 })
+    }
+    if (messages.length > 50) {
+      return Response.json({ error: 'Too many messages in context' }, { status: 400 })
+    }
+    const totalChars = messages.reduce((sum: number, m: { content?: unknown }) =>
+      sum + (typeof m.content === 'string' ? m.content.length : 0), 0)
+    if (totalChars > 100_000) {
+      return Response.json({ error: 'Message content too large' }, { status: 400 })
+    }
+    if (mode && !VALID_MODES.has(mode)) {
+      return Response.json({ error: 'Invalid mode' }, { status: 400 })
+    }
 
     const systemPrompt = `${SYSTEM_PROMPT}\n\n${MODE_PROMPTS[mode] ?? ''}`
 
