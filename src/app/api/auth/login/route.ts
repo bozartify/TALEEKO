@@ -1,7 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createSession, DEMO_TEACHER_ID } from '@/lib/auth'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: Request) {
+  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
+  if (!rateLimit(`login:${ip}`, 10, 60_000)) {
+    return NextResponse.json({ error: 'Too many login attempts — please wait a moment' }, { status: 429 })
+  }
+
   try {
     const { email, password } = await request.json()
 

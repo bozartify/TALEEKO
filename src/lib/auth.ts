@@ -1,6 +1,10 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
+if (process.env.NODE_ENV === 'production' && !process.env.AUTH_SECRET) {
+  throw new Error('AUTH_SECRET environment variable must be set in production')
+}
+
 const AUTH_SECRET = process.env.AUTH_SECRET || 'dev_secret_taleeko_2024_change_in_prod'
 const COOKIE_NAME = 'taleeko_session'
 const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days

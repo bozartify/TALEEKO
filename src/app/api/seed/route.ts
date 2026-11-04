@@ -1,7 +1,21 @@
 import { NextResponse } from 'next/server'
 import { prisma, DEMO_TEACHER_ID } from '@/lib/db'
 
-export async function POST() {
+function isAdminAuthorized(request: Request): boolean {
+  const token = request.headers.get('x-seed-token')
+  const adminToken = process.env.SEED_TOKEN
+  // In development without a configured token, allow local access only
+  if (!adminToken) {
+    return process.env.NODE_ENV !== 'production'
+  }
+  return token === adminToken
+}
+
+export async function POST(request: Request) {
+  if (!isAdminAuthorized(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const teacher = await prisma.user.upsert({
       where: { id: DEMO_TEACHER_ID },
@@ -396,6 +410,6 @@ export async function POST() {
   }
 }
 
-export async function GET() {
-  return POST()
+export async function GET(request: Request) {
+  return POST(request)
 }

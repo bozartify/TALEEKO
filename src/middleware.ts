@@ -21,8 +21,8 @@ const PROTECTED_PREFIXES = [
   '/settings',
 ]
 
-// Routes that are always public
-const PUBLIC_PATHS = ['/', '/login', '/api/seed']
+// Routes that are always public — /api/seed is intentionally excluded
+const PUBLIC_PATHS = ['/', '/login']
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_PATHS.includes(pathname)) return true
@@ -37,14 +37,41 @@ function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-function validateToken(token: string): boolean {
-  // Inline validation to avoid importing Node crypto in edge runtime
-  // We do a structural check here; full HMAC validation happens server-side
+function hexToBytes(hex: string): Uint8Array {
+  const bytes = new Uint8Array(hex.length / 2)
+  for (let i = 0; i < bytes.length; i++) {
+    bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
+  }
+  return bytes
+}
+
+function base64urlDecode(str: string): string {
+  const b64 = str.replace(/-/g, '+').replace(/_/g, '/')
+  const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4)
+  return atob(padded)
+}
+
+// Verifies HMAC-SHA256 signature using Web Crypto API (edge-compatible, no Node crypto)
+async function validateToken(token: string): Promise<boolean> {
   const parts = token.split('.')
   if (parts.length !== 2) return false
+  const [base64, hexSig] = parts
 
   try {
-    const json = Buffer.from(parts[0], 'base64url').toString('utf-8')
+    const keyMaterial = new TextEncoder().encode(AUTH_SECRET)
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyMaterial,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    )
+    const data = new TextEncoder().encode(base64)
+    const sig = hexToBytes(hexSig)
+    const valid = await crypto.subtle.verify('HMAC', key, sig, data)
+    if (!valid) return false
+
+    const json = base64urlDecode(base64)
     const payload = JSON.parse(json)
     if (!payload.userId || !payload.exp) return false
     if (Date.now() > payload.exp) return false
@@ -54,7 +81,7 @@ function validateToken(token: string): boolean {
   }
 }
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Allow public paths
@@ -66,7 +93,7 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath(pathname)) {
     const token = request.cookies.get(COOKIE_NAME)?.value
 
-    if (!token || !validateToken(token)) {
+    if (!token || !(await validateToken(token))) {
       const loginUrl = new URL('/login', request.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)

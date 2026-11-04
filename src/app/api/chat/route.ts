@@ -1,9 +1,15 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { SYSTEM_PROMPT, TEACHING_TOOLS, MODE_PROMPTS } from '@/lib/prompts'
+import { rateLimit } from '@/lib/rate-limit'
 
 const client = new Anthropic()
 
 export async function POST(request: Request) {
+  const ip = (request.headers.get('x-forwarded-for') ?? 'unknown').split(',')[0].trim()
+  if (!rateLimit(`chat:${ip}`, 20, 60_000)) {
+    return Response.json({ error: 'Too many requests — please wait a moment' }, { status: 429 })
+  }
+
   try {
     const { messages, mode = 'general' } = await request.json()
 
