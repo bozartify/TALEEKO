@@ -288,6 +288,36 @@ export default function UnitPlannerPage() {
     setTimeout(() => setToastMsg(''), 2800)
   }
 
+  function exportUnitPlanHTML(unit: Unit): void {
+    const objectives = unit.objectives.map(o => `<li>${o.text}</li>`).join('')
+    const assessments = unit.assessments.map(a => `<tr><td>${a.title}</td><td>${a.type}</td></tr>`).join('')
+    const timeline = unit.timeline.map(t => `<tr><td>Week ${t.week}</td><td>${t.topic}</td></tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${unit.title}</title><style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.6}
+h1{color:#4f46e5;font-size:1.75rem;margin-bottom:.25rem}
+.meta{color:#64748b;font-size:.875rem;margin-bottom:2rem}
+h2{color:#334155;font-size:1.1rem;margin-top:1.5rem;border-bottom:1px solid #e2e8f0;padding-bottom:.4rem}
+ul{padding-left:1.5rem}li{margin-bottom:.4rem}
+table{width:100%;border-collapse:collapse;margin-top:.75rem}
+th,td{padding:.5rem .75rem;border:1px solid #e2e8f0;text-align:left}
+th{background:#f1f5f9;font-weight:600;font-size:.875rem}
+</style></head><body>
+<h1>${unit.title}</h1>
+<div class="meta">${unit.subject} · ${unit.grade} · Weeks ${unit.weekStart}–${unit.weekEnd} · Status: ${unit.status} · Progress: ${unit.progress}%</div>
+<p>${unit.description}</p>
+<h2>Learning Objectives</h2><ul>${objectives}</ul>
+<h2>Assessments</h2><table><thead><tr><th>Title</th><th>Type</th></tr></thead><tbody>${assessments}</tbody></table>
+<h2>Timeline</h2><table><thead><tr><th>Week</th><th>Topic</th></tr></thead><tbody>${timeline}</tbody></table>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${unit.title.replace(/\s+/g, '-').toLowerCase()}-unit-plan.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   function handleCreateUnit() {
     if (!form.title.trim()) {
       showToast('Please enter a unit title')
@@ -426,10 +456,10 @@ export default function UnitPlannerPage() {
                 className="btn-secondary text-xs"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => { window.print(); showToast('Printing unit plan…') }}
+                onClick={() => { if (selectedUnit) exportUnitPlanHTML(selectedUnit); else showToast('Select a unit to export'); }}
               >
                 <Download className="w-3.5 h-3.5" />
-                Export PDF
+                Export HTML
               </motion.button>
               <motion.button
                 className="btn-gradient text-xs"
@@ -944,7 +974,7 @@ export default function UnitPlannerPage() {
                     className="btn-secondary flex-1 justify-center text-sm"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
-                    onClick={() => { window.print(); showToast(`Printing "${selectedUnit.title}"…`) }}
+                    onClick={() => { exportUnitPlanHTML(selectedUnit!); showToast(`Downloading "${selectedUnit!.title}"…`) }}
                   >
                     <Download className="w-3.5 h-3.5" />
                     Export

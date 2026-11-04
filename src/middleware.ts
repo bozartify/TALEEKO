@@ -37,8 +37,9 @@ function isProtectedPath(pathname: string): boolean {
   return PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2)
+function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
+  const buf = new ArrayBuffer(hex.length / 2)
+  const bytes = new Uint8Array(buf)
   for (let i = 0; i < bytes.length; i++) {
     bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16)
   }

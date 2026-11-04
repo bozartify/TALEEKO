@@ -170,6 +170,38 @@ export default function FeedbackWriterPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportFeedbackHTML(): void {
+    const rows = STUDENTS.map(s => {
+      const text = batchFeedback[s.id] || SAMPLE_FEEDBACK[s.id]?.[tone] || '(not yet generated)'
+      return `<div class="student-card">
+        <div class="student-header">
+          <span class="initials" style="background:${s.color}">${s.initials}</span>
+          <div><strong>${s.name}</strong><span class="grade">${s.grade} · ${s.avg}%</span></div>
+          <span class="status ${s.status}">${s.status.replace('-', ' ')}</span>
+        </div>
+        <p class="feedback-text">${text.replace(/\n/g, '<br>')}</p>
+      </div>`
+    }).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Feedback Report ${new Date().toLocaleDateString()}</title><style>
+body{font-family:system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1rem;color:#1e293b}
+h1{font-size:1.5rem;color:#4f46e5;margin-bottom:.25rem}.meta{color:#64748b;font-size:.875rem;margin-bottom:2rem}
+.student-card{margin-bottom:1.5rem;padding:1.25rem;border:1px solid #e2e8f0;border-radius:10px}
+.student-header{display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.initials{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.75rem;flex-shrink:0}
+.grade{display:block;color:#64748b;font-size:.8rem}.status{margin-left:auto;font-size:.75rem;padding:2px 10px;border-radius:100px;font-weight:600}
+.status.excelling{background:#d1fae5;color:#065f46}.status.on-track{background:#ede9fe;color:#4f46e5}.status.needs-support{background:#fef9c3;color:#92400e}
+.feedback-text{margin:0;line-height:1.65;color:#334155}
+</style></head><body><h1>Student Feedback Report</h1>
+<div class="meta">Generated ${new Date().toLocaleDateString()} · Tone: ${tone} · Audience: ${audience}</div>${rows}</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `feedback-report-${new Date().toISOString().slice(0, 10)}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const handleGenerate = async () => {
     setGenerating(true)
     setGenerated(false)
@@ -934,8 +966,8 @@ Write ONLY the comment, no preamble or formatting.`
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'PDF Report Card Pack', icon: FileText, desc: 'Formatted for school records', action: () => { window.print(); showToast('Printing feedback…'); setExportOpen(false) } },
-                  { label: 'Word Document (.docx)', icon: Download, desc: 'Editable comments document', action: () => { window.print(); showToast('Printing as document…'); setExportOpen(false) } },
+                  { label: 'HTML Report Pack', icon: FileText, desc: 'Formatted report for school records', action: () => { exportFeedbackHTML(); showToast('Downloading HTML report…'); setExportOpen(false) } },
+                  { label: 'HTML Document', icon: Download, desc: 'Editable comments document', action: () => { exportFeedbackHTML(); showToast('Downloading HTML document…'); setExportOpen(false) } },
                   { label: 'Google Docs', icon: ExternalLink, desc: 'Export directly to Drive', action: () => { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…'); setExportOpen(false) } },
                   { label: 'Copy All as Text', icon: Copy, desc: 'Plain text for email or SIS', action: () => { navigator.clipboard?.writeText(STUDENTS.map(s => `${s.name} (${s.grade}): ${s.strengths.join(', ')}`).join('\n\n')).catch(() => {}); showToast('Copied all feedback!'); setExportOpen(false) } },
                 ].map(opt => (

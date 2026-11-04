@@ -216,6 +216,37 @@ export default function FiveELessonPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function export5ELessonHTML(): void {
+    const phaseSections = phases.map(p =>
+      `<div class="phase" style="border-left:4px solid ${p.color}">
+        <h2 style="color:${p.color}">${p.emoji} ${p.label} <span class="bloom">${p.bloomLevel}</span></h2>
+        <p class="duration">⏱ ${durations[p.id]} min</p>
+        <div class="content">${(contents[p.id] || p.description).replace(/\n/g, '<br>')}</div>
+      </div>`
+    ).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>5E Lesson: ${topic}</title><style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.65}
+h1{color:#4f46e5;font-size:1.75rem;margin-bottom:.25rem}
+.meta{color:#64748b;font-size:.875rem;margin-bottom:2rem}
+.phase{padding:1.25rem;margin-bottom:1.25rem;border-radius:8px;background:#f8fafc}
+h2{font-size:1.1rem;margin:0 0 .5rem}
+.bloom{font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:100px;background:#ede9fe;color:#4f46e5;margin-left:.5rem;vertical-align:middle}
+.duration{font-size:.8rem;color:#64748b;margin:0 0 .75rem}
+.content{color:#334155}
+</style></head><body>
+<h1>5E Lesson Plan: ${topic}</h1>
+<div class="meta">${subject} · ${grade} · ${lessonDuration} min · Standards: ${standardsText}</div>
+${phaseSections}
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `5e-lesson-${topic.replace(/\s+/g, '-').toLowerCase()}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const totalPhaseMins = Object.values(durations).reduce((a, b) => a + b, 0)
 
   async function streamText(prompt: string): Promise<string> {
@@ -810,8 +841,8 @@ Return as JSON: {"engage":"...","explore":"...","explain":"...","elaborate":"...
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-surface-300 hover:text-white hover:bg-white/[0.04] transition-all"
                     whileHover={{ x: 2 }}
                     onClick={() => {
-                      if (action.label === 'Print Lesson Plan') { window.print(); showToast('Printing lesson plan…') }
-                      else if (action.label === 'Export to PDF') { window.print(); showToast('Printing lesson plan as PDF…') }
+                      if (action.label === 'Print Lesson Plan') { export5ELessonHTML(); showToast('Downloading lesson plan…') }
+                      else if (action.label === 'Export to PDF') { export5ELessonHTML(); showToast('Downloading lesson plan as HTML…') }
                       else if (action.label === 'Share with Team') { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Lesson plan link copied to clipboard') }
                       else if (action.label === 'Save to Library') { router.push('/library'); showToast('Navigating to Library…') }
                     }}

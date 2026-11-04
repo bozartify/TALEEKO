@@ -251,6 +251,36 @@ export default function WritingPromptsPage() {
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportPromptHTML(p: WritingPrompt): void {
+    const scaffold = p.scaffoldQuestions.map(q => `<li>${q}</li>`).join('')
+    const rubric = p.rubricFocus.map(r => `<span class="tag">${r}</span>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${p.title}</title><style>
+body{font-family:system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.65}
+h1{color:#4f46e5;font-size:1.5rem;margin-bottom:.25rem}
+.meta{color:#64748b;font-size:.875rem;margin-bottom:1.5rem;display:flex;gap:1rem;flex-wrap:wrap}
+.prompt-box{background:#f8fafc;border-left:4px solid #6366f1;padding:1.25rem;border-radius:0 8px 8px 0;margin-bottom:1.5rem;font-size:1rem}
+h2{color:#334155;font-size:1rem;font-weight:600;margin-top:1.5rem;margin-bottom:.5rem}
+ul{padding-left:1.5rem}li{margin-bottom:.4rem}
+.tag{display:inline-block;padding:2px 10px;border-radius:100px;background:#ede9fe;color:#4f46e5;font-size:.75rem;font-weight:600;margin:.2rem}
+.answer-line{height:1px;background:#e2e8f0;margin:.75rem 0 1.25rem}
+</style></head><body>
+<h1>${p.title}</h1>
+<div class="meta"><span>📚 ${modeConfig[p.mode].label}</span><span>🎓 Grade ${p.grade}</span><span>⏱ ${p.timeEstimate} min</span><span>${difficultyConfig[p.difficulty].label}</span></div>
+<div class="prompt-box">${p.prompt}</div>
+<h2>Scaffolding Questions</h2><ol>${scaffold}</ol>
+<h2>Rubric Focus</h2><p>${rubric}</p>
+<h2>Student Response</h2>
+<div class="answer-line"></div><div class="answer-line"></div><div class="answer-line"></div><div class="answer-line"></div><div class="answer-line"></div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${p.title.replace(/\s+/g, '-').toLowerCase()}-handout.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function handleGeneratePrompt() {
     if (!genTopic.trim()) { showToast('Please enter a subject or topic'); return }
     setGenerating(true)
@@ -790,9 +820,9 @@ Write ONLY the prompt text — no preamble, no "Here is a prompt:", just the pro
                                 <Sparkles className="w-3.5 h-3.5" />
                                 AI Variant
                               </button>
-                              <button onClick={() => { window.print(); showToast('Printing prompt…') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
+                              <button onClick={() => { exportPromptHTML(prompt); showToast('Downloading handout…') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
                                 <Download className="w-3.5 h-3.5" />
-                                Export
+                                Export HTML
                               </button>
                               <button onClick={() => { router.push('/lesson-planner') }} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/[0.03] border border-white/[0.08] text-surface-400 hover:text-surface-200 transition-colors">
                                 <BookOpen className="w-3.5 h-3.5" />

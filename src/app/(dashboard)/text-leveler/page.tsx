@@ -84,6 +84,44 @@ export default function TextLevelerPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportLeveledTextHTML(variant: 'side-by-side' | 'worksheet' | 'all-levels'): void {
+    const lvdText = outputText || TEXTS[targetLevel]
+    let bodyHtml = ''
+    if (variant === 'side-by-side') {
+      bodyHtml = `<h1>Side-by-Side Leveled Text</h1><div class="columns">
+        <div class="col"><h2>Original (${originalConfig.grade})</h2><p>${inputText}</p></div>
+        <div class="col"><h2>Leveled (${targetConfig.grade})</h2><p>${lvdText}</p></div></div>`
+    } else if (variant === 'worksheet') {
+      bodyHtml = `<h1>Reading Worksheet</h1>
+        <div class="level-badge" style="background:${targetConfig.color}20;color:${targetConfig.color}">${targetConfig.grade} · ${targetConfig.lexile}</div>
+        <h2>Passage</h2><p>${lvdText}</p>
+        <h2>Comprehension Questions</h2><ol>
+          <li>What is the main idea of this passage?<div class="line"></div><div class="line"></div></li>
+          <li>What are two key details?<div class="line"></div><div class="line"></div></li>
+          <li>What question do you still have?<div class="line"></div><div class="line"></div></li></ol>`
+    } else {
+      bodyHtml = `<h1>All Grade Levels — Leveled Passage</h1>` + (Object.keys(levelConfig) as ReadingLevel[]).map(lvl =>
+        `<div class="level-block"><h2 style="color:${levelConfig[lvl].color}">${levelConfig[lvl].label} · ${levelConfig[lvl].grade}</h2>
+        <p>${lvl === targetLevel ? lvdText : TEXTS[lvl]}</p></div>`
+      ).join('')
+    }
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Leveled Text</title><style>
+body{font-family:system-ui,sans-serif;max-width:900px;margin:2rem auto;padding:0 1rem;color:#1e293b;line-height:1.65}
+h1{color:#4f46e5;font-size:1.5rem}h2{color:#334155;font-size:1.1rem;margin-top:1.5rem}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:2rem}.col{padding:1rem;background:#f8fafc;border-radius:8px}
+.level-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:.8rem;font-weight:600;margin-bottom:1rem}
+.level-block{margin-bottom:2rem;padding:1rem;border-left:4px solid #6366f1}
+.line{height:1px;background:#cbd5e1;margin:.6rem 0 1rem}ol{padding-left:1.5rem}li{margin-bottom:.5rem}
+</style></head><body>${bodyHtml}</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `leveled-text-${variant}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const inputStats = readingStats(inputText)
   const outputStats = readingStats(outputText)
   const targetConfig = levelConfig[targetLevel]
@@ -231,9 +269,9 @@ export default function TextLevelerPage() {
               </div>
               <div className="space-y-2">
                 {[
-                  { label: 'Side-by-Side PDF', icon: FileText, desc: 'Original + leveled version for differentiated instruction', action: () => { setExportOpen(false); window.print(); showToast('Printing side-by-side…') } },
-                  { label: 'Student Worksheet', icon: Layers, desc: 'Formatted with comprehension questions appended', action: () => { setExportOpen(false); window.print(); showToast('Printing worksheet…') } },
-                  { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)', action: () => { setExportOpen(false); window.print(); showToast('Printing all levels…') } },
+                  { label: 'Side-by-Side HTML', icon: FileText, desc: 'Original + leveled version for differentiated instruction', action: () => { setExportOpen(false); exportLeveledTextHTML('side-by-side'); showToast('Downloading side-by-side…') } },
+                  { label: 'Student Worksheet', icon: Layers, desc: 'Formatted with comprehension questions appended', action: () => { setExportOpen(false); exportLeveledTextHTML('worksheet'); showToast('Downloading worksheet…') } },
+                  { label: 'All Grade Levels', icon: BarChart3, desc: 'K-2 through College in one document (5 versions)', action: () => { setExportOpen(false); exportLeveledTextHTML('all-levels'); showToast('Downloading all levels…') } },
                   { label: 'Export to Google Docs', icon: FileText, desc: 'Open directly in Google Drive', action: () => { window.open('https://docs.google.com/document/create', '_blank'); setExportOpen(false); showToast('Opening Google Docs…') } },
                 ].map(opt => (
                   <button key={opt.label} className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/[0.06] transition-colors text-left" onClick={opt.action}>
