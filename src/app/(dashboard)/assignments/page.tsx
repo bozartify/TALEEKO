@@ -198,6 +198,15 @@ export default function AssignmentsPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportAssignmentRubricHTML() {
+    if (!selectedRubric) return
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = selectedRubric.rubric.map((r: { label: string; pts: number; desc: string }) => `<tr style="border-bottom:1px solid #1e293b"><td style="padding:10px 14px;font-weight:600;color:#e2e8f0">${r.label}</td><td style="padding:10px 14px;color:#22d3ee;font-variant-numeric:tabular-nums;text-align:right">${r.pts} pts</td><td style="padding:10px 14px;color:#94a3b8;font-size:13px">${r.desc}</td></tr>`).join('')
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${selectedRubric.title} Rubric</title><style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:32px}h1{font-size:22px;font-weight:800;margin:0 0 4px}p{color:#64748b;margin:0 0 24px;font-size:13px}table{width:100%;border-collapse:collapse;background:#1a1f2e;border-radius:10px;overflow:hidden}th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;background:#0f172a;border-bottom:1px solid #1e293b}.footer{margin-top:24px;font-size:11px;color:#334155;text-align:center}</style></head><body><h1>${selectedRubric.title}</h1><p>Total: ${selectedRubric.points} pts · ${selectedRubric.class} · Generated ${date}</p><table><thead><tr><th>Criterion</th><th style="text-align:right">Points</th><th>Description</th></tr></thead><tbody>${rows}</tbody></table><p class="footer">TALEEKO · Assignment Rubric</p></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = `${selectedRubric.title.replace(/\s+/g, '-')}-rubric.html`; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Rubric exported as HTML!')
+  }
+
   function exportCSV() {
     const headers = ['Title', 'Type', 'Class', 'Due Date', 'Status', 'Submitted', 'Total', 'Avg Score', 'Points']
     const rows = filtered.map(a => [a.title, a.type, a.class, a.dueLabel, a.status, String(a.submitted), String(a.total), a.avgScore !== null ? String(a.avgScore) : 'N/A', String(a.points)])
@@ -949,7 +958,7 @@ export default function AssignmentsPage() {
               </div>
               <div className="flex gap-2 mt-4">
                 <button className="btn-gradient text-xs flex-1" onClick={() => router.push('/rubrics')}><Sparkles className="w-3 h-3" /> AI Improve</button>
-                <button className="btn-secondary text-xs flex-1" onClick={() => { window.print(); showToast('Printing rubric…') }}><Download className="w-3 h-3" /> Export</button>
+                <button className="btn-secondary text-xs flex-1" onClick={exportAssignmentRubricHTML}><Download className="w-3 h-3" /> Export</button>
                 <button className="btn-secondary text-xs flex-1" onClick={() => router.push('/rubrics')}><Edit3 className="w-3 h-3" /> Edit</button>
               </div>
             </motion.div>

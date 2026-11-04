@@ -56,6 +56,14 @@ export default function LessonDetailPage({
   const [expandedSection, setExpandedSection] = useState<number>(0)
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  function exportLessonHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const matRows = materials.map((m: { title: string; type: string; date: string }) => `<tr style="border-bottom:1px solid #1e293b"><td style="padding:10px 14px;font-weight:600;color:#e2e8f0">${m.title}</td><td style="padding:10px 14px;color:#94a3b8">${m.type.replace('_',' ')}</td><td style="padding:10px 14px;color:#94a3b8">${m.date}</td></tr>`).join('')
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Photosynthesis Lesson</title><style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:32px}h1{font-size:22px;font-weight:800;margin:0 0 4px}h2{font-size:15px;font-weight:700;color:#94a3b8;margin:24px 0 12px}p{color:#64748b;margin:0 0 24px;font-size:13px}table{width:100%;border-collapse:collapse;background:#1a1f2e;border-radius:10px;overflow:hidden}th{padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;background:#0f172a;border-bottom:1px solid #1e293b}.footer{margin-top:24px;font-size:11px;color:#334155;text-align:center}</style></head><body><h1>Photosynthesis</h1><p>60 min · AP Biology · Generated ${date} · TALEEKO Teaching Platform</p><p>Avg Score: ${avgScore}% · Completed: ${completedCount}/${studentProgress.length} students</p><h2>Materials</h2><table><thead><tr><th>Title</th><th>Type</th><th>Date</th></tr></thead><tbody>${matRows}</tbody></table><p class="footer">TALEEKO · Course Lesson Export</p></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'photosynthesis-lesson.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Lesson exported as HTML!')
+  }
   const completedCount = studentProgress.filter(s => s.status === 'completed').length
   const avgScore = Math.round(
     studentProgress.filter(s => s.score !== null).reduce((a, s) => a + (s.score ?? 0), 0) /
@@ -111,7 +119,7 @@ export default function LessonDetailPage({
               </div>
             </div>
             <div className="flex gap-2 flex-shrink-0">
-              <button onClick={() => { window.print(); showToast('Lesson sent to printer') }} className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
+              <button onClick={exportLessonHTML} className="btn-secondary text-xs"><Download className="w-3.5 h-3.5" /> Export</button>
               <button onClick={() => { navigator.clipboard?.writeText(window.location.href).catch(() => {}); showToast('Link copied!') }} className="btn-secondary text-xs"><Share2 className="w-3.5 h-3.5" /> Share</button>
               <Link href="/magic-chat?mode=lesson" className="btn-gradient text-xs">
                 <Sparkles className="w-4 h-4" /> Generate More

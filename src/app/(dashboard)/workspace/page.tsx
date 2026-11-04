@@ -167,6 +167,13 @@ export default function WorkspacePage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportWorkspaceItemHTML(item: { title: string; tool: string; date: string; type: string; color: string }) {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${item.title}</title><style>body{font-family:system-ui,sans-serif;background:#0f172a;color:#e2e8f0;margin:0;padding:32px}h1{font-size:22px;font-weight:800;margin:0 0 4px}p{color:#64748b;margin:0 0 24px;font-size:13px}.card{background:#1a1f2e;border:1px solid #1e293b;border-radius:10px;padding:20px 24px;border-left:4px solid ${item.color}}.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:4px}.value{font-size:14px;color:#e2e8f0;margin-bottom:16px}.footer{margin-top:24px;font-size:11px;color:#334155;text-align:center}</style></head><body><h1>${item.title}</h1><p>Exported ${date} · TALEEKO Teaching Platform</p><div class="card"><div class="label">Tool</div><div class="value">${item.tool}</div><div class="label">Type</div><div class="value"><span style="padding:3px 10px;border-radius:20px;background:${item.color}20;color:${item.color};font-size:12px;font-weight:700">${item.type}</span></div><div class="label">Created</div><div class="value">${item.date}</div></div><p class="footer">TALEEKO · Workspace Item</p></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = `${item.title.replace(/\s+/g, '-')}.html`; a.click(); URL.revokeObjectURL(a.href)
+    showToast(`"${item.title}" exported as HTML!`)
+  }
+
   async function handleAISuggest() {
     setLoadingAISuggest(true)
     setAiSuggestText('')
@@ -669,7 +676,7 @@ export default function WorkspacePage() {
                       <td className="px-5 py-3">
                         <div className="flex items-center justify-end gap-1">
                           <button onClick={() => router.push('/library')} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Eye className="w-3.5 h-3.5" /></button>
-                          <button onClick={() => { window.print(); showToast(`Downloading "${item.title}"…`) }} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => exportWorkspaceItemHTML(item)} className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"><Download className="w-3.5 h-3.5" /></button>
                           <button
                             className="p-1.5 rounded-lg hover:bg-white/[0.06] text-surface-500 hover:text-white transition-colors"
                             onClick={() => { navigator.clipboard?.writeText(`${window.location.origin}/library?title=${encodeURIComponent(item.title)}`).catch(() => {}); showToast(`Link copied for "${item.title}"`) }}
