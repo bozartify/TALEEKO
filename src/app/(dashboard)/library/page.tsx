@@ -117,6 +117,13 @@ export default function LibraryPage() {
   const [collectionList, setCollectionList] = useState(collections)
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
+  function exportLibraryHTML() {
+    const rows = items.map(it => `<tr><td>${it.title}</td><td>${it.type}</td><td>${it.subject}</td><td>${it.grade}</td><td>${it.createdAt}</td><td>${it.uses}</td><td>${it.aiGenerated ? '✦ AI' : ''}</td></tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>TALEEKO Resource Library</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#f8fafc;color:#1e293b}h1{font-size:22px;margin-bottom:4px}h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:24px}table{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0}th{background:#f1f5f9;text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#64748b}td{padding:9px 12px;font-size:13px;border-top:1px solid #f1f5f9;color:#1e293b}.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px}</style></head><body><h1>Resource Library</h1><h2>${items.length} resources · Exported ${new Date().toLocaleDateString()}</h2><table><thead><tr><th>Title</th><th>Type</th><th>Subject</th><th>Grade</th><th>Created</th><th>Uses</th><th>Source</th></tr></thead><tbody>${rows}</tbody></table><div class="footer">TALEEKO · taleeko.ai</div></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'resource-library.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Library exported as HTML!')
+  }
+
   const filtered = items
     .filter(item => {
       if (activeFilter !== 'all' && item.type !== activeFilter) return false
@@ -357,6 +364,9 @@ export default function LibraryPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={exportLibraryHTML}>
+                <Download className="w-3.5 h-3.5" /> Export HTML
+              </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => {
                 const headers = ['Title', 'Type', 'Subject', 'Grade', 'Created', 'Uses', 'AI Generated', 'Starred']
                 const rows = items.map(it => [it.title, it.type, it.subject, it.grade, it.createdAt, it.uses, it.aiGenerated ? 'Yes' : 'No', it.starred ? 'Yes' : 'No'])
@@ -364,7 +374,7 @@ export default function LibraryPage() {
                 const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'library.csv'; a.click(); URL.revokeObjectURL(a.href)
                 showToast('Library exported to CSV!')
               }}>
-                <Download className="w-3.5 h-3.5" /> Export
+                <Download className="w-3.5 h-3.5" /> Export CSV
               </motion.button>
               <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} onClick={() => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.pdf,.doc,.docx,.csv,.txt,.pptx'; inp.onchange = () => { if (inp.files?.[0]) showToast(`"${inp.files[0].name}" uploaded to library!`) }; inp.click() }}>
                 <Upload className="w-3.5 h-3.5" /> Upload

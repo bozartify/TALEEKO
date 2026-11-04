@@ -108,6 +108,13 @@ export default function CoursesPage() {
     setTimeout(() => setToastMsg(''), 3000)
   }
 
+  function exportCoursesHTML() {
+    const rows = courses.map(c => `<div class="card"><div class="flex"><div class="dot" style="background:${c.color}"></div><div><strong>${c.title}</strong><div class="meta">${c.subject} · ${c.grade} · ${c.lessons} lessons · ${c.students} students · ${c.completion}% complete · ${c.status}</div><div class="desc">${c.description}</div>${c.nextMilestone ? `<div class="next">Next: ${c.nextMilestone}</div>` : ''}</div></div></div>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>TALEEKO Course Catalog</title><style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#f8fafc;color:#1e293b}h1{font-size:22px;margin-bottom:4px}h2{font-size:13px;color:#64748b;font-weight:400;margin-bottom:24px}.card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px 16px;margin-bottom:10px}.flex{display:flex;gap:12px;align-items:flex-start}.dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px}strong{font-size:14px;font-weight:600}.meta{font-size:11px;color:#64748b;margin:3px 0}.desc{font-size:12px;color:#475569;margin-top:4px}.next{font-size:11px;color:#6366f1;margin-top:4px;font-weight:500}.footer{margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:11px}</style></head><body><h1>Course Catalog</h1><h2>${courses.length} courses · Exported ${new Date().toLocaleDateString()}</h2>${rows}<div class="footer">TALEEKO · taleeko.ai</div></body></html>`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html' })); a.download = 'course-catalog.html'; a.click(); URL.revokeObjectURL(a.href)
+    showToast('Course catalog exported!')
+  }
+
   function createCourse() {
     if (!newTitle.trim()) return
     const colorMap: Record<string, string> = { Science: '#8b5cf6', Math: '#14b8a6', History: '#f97316', English: '#f43f5e', Art: '#ec4899' }
@@ -283,6 +290,9 @@ export default function CoursesPage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <motion.button className="btn-secondary text-xs px-3 py-1.5" whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} onClick={exportCoursesHTML}>
+                <Download className="w-3.5 h-3.5" /> Export
+              </motion.button>
               <motion.button className="btn-gradient" whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }} onClick={() => setCreateOpen(true)}>
                 <Sparkles className="w-4 h-4" />
                 AI Create Course
