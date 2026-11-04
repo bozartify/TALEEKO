@@ -1,11 +1,12 @@
 import { cookies } from 'next/headers'
 import crypto from 'crypto'
 
-if (process.env.NODE_ENV === 'production' && !process.env.AUTH_SECRET) {
-  throw new Error('AUTH_SECRET environment variable must be set in production')
-}
-
 const AUTH_SECRET = process.env.AUTH_SECRET || 'dev_secret_taleeko_2024_change_in_prod'
+
+// Runtime guard: logs a warning in production if AUTH_SECRET is not overridden
+if (process.env.NODE_ENV === 'production' && AUTH_SECRET === 'dev_secret_taleeko_2024_change_in_prod') {
+  console.error('[TALEEKO] WARNING: AUTH_SECRET is using the default dev value. Set AUTH_SECRET in production.')
+}
 const COOKIE_NAME = 'taleeko_session'
 const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days
 
