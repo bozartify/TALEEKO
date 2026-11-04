@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -106,6 +106,25 @@ export default function RubricsPage() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
   }
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_rubrics')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.rubrics) setRubrics(d.rubrics)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_rubrics', JSON.stringify({ rubrics, savedAt: Date.now() }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [rubrics])
 
   async function handleGenerate(templateName: string) {
     setGenerating(true)

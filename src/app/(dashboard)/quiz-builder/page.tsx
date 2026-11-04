@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import {
@@ -103,6 +103,29 @@ export default function QuizBuilderPage() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
   }
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_quiz_builder')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.questions) setQuestions(d.questions)
+        if (d.topic) setTopic(d.topic)
+        if (d.grade) setGrade(d.grade)
+        if (d.subject) setSubject(d.subject)
+        if (d.timeLimit) setTimeLimit(d.timeLimit)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_quiz_builder', JSON.stringify({ questions, topic, grade, subject, timeLimit, savedAt: Date.now() }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [questions, topic, grade, subject, timeLimit])
 
   function exportQuizHTML() {
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })

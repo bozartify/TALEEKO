@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
@@ -169,6 +169,27 @@ export default function ExitTicketsPage() {
   const gotItCount  = STUDENT_RESULTS.filter(s => s.status === 'got-it').length
   const almostCount = STUDENT_RESULTS.filter(s => s.status === 'almost').length
   const needsCount  = STUDENT_RESULTS.filter(s => s.status === 'needs-help').length
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_exit_tickets')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.tickets) setTickets(d.tickets)
+        if (d.topic) setTopic(d.topic)
+        if (d.period) setPeriod(d.period)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_exit_tickets', JSON.stringify({ tickets, topic, period, savedAt: Date.now() }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [tickets, topic, period])
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
