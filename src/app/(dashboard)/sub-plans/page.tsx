@@ -712,8 +712,8 @@ ${procs ? `<div class="section"><h2>Classroom Procedures</h2>${procs}</div>` : '
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => setFeedbackOpen(true)}>
                     <MessageSquare className="w-3.5 h-3.5" /> Feedback
                   </button>
-                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => window.print()}>
-                    <Printer className="w-3.5 h-3.5" /> Print
+                  <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => exportSubPlanHTML(selectedPlan)}>
+                    <Download className="w-3.5 h-3.5" /> Export HTML
                   </button>
                   <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { setExpandedPeriod(selectedPlan.periods[0]?.id ?? null); showToast('Period expanded — click fields to edit') }}>
                     <Edit className="w-3.5 h-3.5" /> Edit
@@ -1053,7 +1053,7 @@ ${procs ? `<div class="section"><h2>Classroom Procedures</h2>${procs}</div>` : '
               <div className="space-y-2">
                 {[
                   { label: 'Download HTML', icon: FileText, desc: 'Print-ready formatted sub plan', action: () => { exportSubPlanHTML(selectedPlan); setExportOpen(false) } },
-                  { label: 'Full Plan PDF', icon: ClipboardList, desc: 'Print from browser to PDF', action: () => { window.print(); showToast('Printing sub plan…'); setExportOpen(false) } },
+                  { label: 'Full Plan HTML', icon: ClipboardList, desc: 'Download print-ready HTML document', action: () => { exportSubPlanHTML(selectedPlan); setExportOpen(false) } },
                   { label: 'Google Docs', icon: ExternalLink, desc: 'Export to your Drive for editing', action: () => { window.open('https://docs.google.com/document/create', '_blank'); showToast('Opening Google Docs…'); setExportOpen(false) } },
                   { label: 'Copy as Text', icon: Copy, desc: 'Plain text for email or sub portal', action: () => {
                     const text = `${selectedPlan.title} — ${selectedPlan.date}\n\n` +

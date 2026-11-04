@@ -938,7 +938,7 @@ export default function AttendancePage() {
               </h4>
               <div className="space-y-1.5">
                 {[
-                  { label: 'Weekly PDF Report', action: () => { window.print(); showToast('Printing attendance…') } },
+                  { label: 'Weekly HTML Report', action: () => exportAttendanceHTML() },
                   { label: 'Monthly CSV',        action: () => exportCSV() },
                   { label: 'At-Risk Summary',    action: () => { const atRisk = STUDENTS.filter(s => s.absences30d >= 3); showToast(`${atRisk.length} at-risk students — downloading…`); const csv = ['Student,Absences', ...atRisk.map(s => `"${s.name}",${s.absences30d}`)].join('\n'); const blob = new Blob([csv], { type: 'text/csv' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'at-risk.csv'; a.click(); URL.revokeObjectURL(url) } },
                   { label: 'Parent Contact List',action: () => exportCSV() },
