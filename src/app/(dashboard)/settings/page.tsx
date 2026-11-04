@@ -163,6 +163,32 @@ export default function SettingsPage() {
     })
   }
 
+  function exportInvoiceHTML(inv: { date: string; amount: string; status: string; invoice: string }) {
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Invoice ${inv.invoice}</title>
+<style>body{font-family:Georgia,serif;max-width:600px;margin:60px auto;color:#1a1a2e;padding:24px}
+h1{font-size:28px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin:0 0 32px}
+.row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #e5e7eb;font-size:14px}
+.label{color:#666}.value{font-weight:700}
+.total{font-size:20px;font-weight:800;color:#1a1a2e}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;background:#d1fae5;color:#065f46;font-size:12px;font-weight:700}
+.footer{margin-top:48px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO</h1><h2>Invoice Receipt</h2>
+<div class="row"><span class="label">Invoice Number</span><span class="value">${inv.invoice}</span></div>
+<div class="row"><span class="label">Date</span><span class="value">${inv.date}</span></div>
+<div class="row"><span class="label">Plan</span><span class="value">Taleeko Pro — Monthly</span></div>
+<div class="row"><span class="label">Amount</span><span class="value total">${inv.amount}</span></div>
+<div class="row"><span class="label">Status</span><span class="value"><span class="badge">${inv.status}</span></span></div>
+<div class="footer">TALEEKO AI Teaching Platform · Thank you for your subscription</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `${inv.invoice}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast(`${inv.invoice} downloaded`)
+  }
+
   return (
     <div className="max-w-5xl space-y-6">
       {/* Header */}
@@ -891,7 +917,7 @@ export default function SettingsPage() {
                           <div className="flex items-center gap-4">
                             <p className="text-sm font-bold text-white">{inv.amount}</p>
                             <span className="badge bg-success-400/15 text-success-400">{inv.status}</span>
-                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300" onClick={() => { window.print(); showToast(`Downloading ${inv.invoice}…`) }}>
+                            <button className="text-xs text-accent-400 font-semibold hover:text-accent-300" onClick={() => { exportInvoiceHTML(inv) }}>
                               <Download className="w-3 h-3" />
                             </button>
                           </div>

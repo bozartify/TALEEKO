@@ -199,6 +199,59 @@ export default function ParentPortalPage() {
     setTimeout(() => setToastMsg(''), 2500)
   }
 
+  function exportReportCardHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const gradeRows = SUBJECT_GRADES.map(g => `<tr>
+      <td>${g.subject}</td>
+      <td style="color:${g.color};font-weight:700">${g.letter}</td>
+      <td>${g.percentage}%</td>
+      <td>${g.classAvg}%</td>
+      <td>${g.percentage - g.classAvg > 0 ? '+' : ''}${g.percentage - g.classAvg}%</td>
+    </tr>`).join('')
+    const recentRows = RECENT_GRADES.map(g => `<tr>
+      <td>${g.assignment}</td>
+      <td>${g.subject}</td>
+      <td style="font-weight:700">${g.score}/${g.maxScore}</td>
+      <td style="font-weight:700">${g.grade}</td>
+      <td>${g.date}</td>
+    </tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Report Card — ${STUDENT_INFO.name}</title>
+<style>body{font-family:Georgia,serif;max-width:900px;margin:40px auto;color:#1a1a2e;padding:20px}
+h1{font-size:26px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin:0 0 16px}
+h3{font-size:16px;margin:28px 0 10px}
+.meta{display:flex;gap:24px;background:#f9fafb;padding:16px;border-radius:8px;margin:0 0 24px;flex-wrap:wrap}
+.meta span{font-size:13px;color:#555}.meta strong{color:#1a1a2e}
+table{width:100%;border-collapse:collapse;margin-top:0;font-size:13px}
+th{background:#1a1a2e;color:white;padding:9px 12px;text-align:left}
+td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO — Report Card</h1><h2>Generated ${date}</h2>
+<div class="meta">
+  <span><strong>Student:</strong> ${STUDENT_INFO.name}</span>
+  <span><strong>Grade:</strong> ${STUDENT_INFO.grade}</span>
+  <span><strong>GPA:</strong> ${STUDENT_INFO.gpa}</span>
+  <span><strong>Attendance:</strong> ${STUDENT_INFO.attendanceRate}</span>
+  <span><strong>Advisor:</strong> ${STUDENT_INFO.advisor}</span>
+  <span><strong>ID:</strong> ${STUDENT_INFO.id}</span>
+</div>
+<h3>Subject Grades</h3>
+<table><thead><tr><th>Subject</th><th>Letter</th><th>Score</th><th>Class Avg</th><th>vs. Class</th></tr></thead>
+<tbody>${gradeRows}</tbody></table>
+<h3>Recent Assignments</h3>
+<table><thead><tr><th>Assignment</th><th>Subject</th><th>Score</th><th>Grade</th><th>Date</th></tr></thead>
+<tbody>${recentRows}</tbody></table>
+<div class="footer">TALEEKO AI Teaching Platform · Confidential · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `report-card-${STUDENT_INFO.name.replace(/\s+/g, '-').toLowerCase()}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Report card downloaded')
+  }
+
   const handleSendReply = () => {
     if (!replyText.trim()) return
     const newMsg: Message = {
@@ -307,7 +360,7 @@ export default function ParentPortalPage() {
               This is exactly what parents and guardians will see. Toggle sections on/off below and share the portal link with families.
             </p>
           </div>
-          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0" onClick={() => { window.print(); showToast('Printing report card…') }}>
+          <button className="btn-secondary text-xs px-3 py-1.5 flex-shrink-0" onClick={() => { exportReportCardHTML() }}>
             <Download className="w-3.5 h-3.5" /> Report Card
           </button>
         </div>

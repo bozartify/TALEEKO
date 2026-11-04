@@ -256,6 +256,35 @@ export default function ReportsPage() {
 
   const selected = reportTypes.find(r => r.id === selectedReport)
 
+  function exportPreviewHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const title = selected?.title ?? 'Taleeko Report'
+    const rows = reportHistory.map(r => `<tr>
+      <td>${r.title}</td><td>${r.type}</td><td>${r.date}</td>
+      <td>${r.format.toUpperCase()}</td><td>${r.size}</td><td>${r.views}</td>
+    </tr>`).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title} Preview</title>
+<style>body{font-family:Georgia,serif;max-width:900px;margin:40px auto;color:#1a1a2e;padding:20px}
+h1{font-size:26px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin:0 0 24px}
+table{width:100%;border-collapse:collapse;margin-top:16px}
+th{background:#1a1a2e;color:white;padding:10px 14px;text-align:left;font-size:13px}
+td{padding:9px 14px;border-bottom:1px solid #e5e7eb;font-size:13px}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO — ${title}</h1><h2>Preview · Generated ${date}</h2>
+<table><thead><tr><th>Report</th><th>Type</th><th>Date</th><th>Format</th><th>Size</th><th>Views</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">TALEEKO AI Teaching Platform · Confidential · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `report-preview-${new Date().toISOString().slice(0, 10)}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Report preview downloaded')
+  }
+
   return (
     <div className="space-y-6">
       {/* Hero Header */}
@@ -550,7 +579,7 @@ export default function ReportsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { window.print(); showToast('Printing report…') }}><Eye className="w-3.5 h-3.5" /> Preview</button>
+                      <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { exportPreviewHTML() }}><Eye className="w-3.5 h-3.5" /> Preview</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><File className="w-3.5 h-3.5" /> PDF</button>
                       <button className="btn-secondary text-xs px-3 py-1.5" onClick={() => { if (selected) downloadReportCSV(selected.title, selected.id) }}><FileSpreadsheet className="w-3.5 h-3.5" /> XLSX</button>
                       <button className="btn-gradient text-xs px-3 py-1.5" onClick={() => { window.open(`mailto:${shareEmail || ''}?subject=${encodeURIComponent('Taleeko Report')}&body=${encodeURIComponent('Please find your report at: ' + window.location.href)}`, '_blank'); showToast('Email client opened') }}><Mail className="w-3.5 h-3.5" /> Email</button>

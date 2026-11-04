@@ -262,6 +262,45 @@ export default function InterventionTrackerPage() {
     setTimeout(() => setToastMsg(''), 2600)
   }
 
+  function exportInterventionReportHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = caseload.map(item => {
+      const tierColor = TIER_COLORS[item.tier]
+      const statusColor = STATUS_CONFIG[item.status].color
+      return `<tr>
+        <td>${item.student}${item.iep ? ' <span style="color:#a78bfa;font-size:11px">[IEP]</span>' : ''}</td>
+        <td style="color:${tierColor};font-weight:700">Tier ${item.tier} — ${TIER_LABELS[item.tier]}</td>
+        <td>${item.area}</td>
+        <td>${item.type}</td>
+        <td>${item.startDate}</td>
+        <td>${item.sessions}</td>
+        <td>${item.progress}%</td>
+        <td style="color:${statusColor};font-weight:600">${item.status}</td>
+        <td>${item.nextSession}</td>
+      </tr>`
+    }).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Intervention Progress Report — ${date}</title>
+<style>body{font-family:Georgia,serif;max-width:1100px;margin:40px auto;color:#1a1a2e;padding:20px}
+h1{font-size:26px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin:0 0 24px}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12px}
+th{background:#1a1a2e;color:white;padding:9px 12px;text-align:left}
+td{padding:8px 12px;border-bottom:1px solid #e5e7eb}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO — Intervention Progress Report</h1><h2>Generated ${date} · ${caseload.length} students</h2>
+<table><thead><tr><th>Student</th><th>Tier</th><th>Area</th><th>Intervention Type</th><th>Start Date</th><th>Sessions</th><th>Progress</th><th>Status</th><th>Next Session</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">TALEEKO AI Teaching Platform · Confidential · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `intervention-report-${new Date().toISOString().slice(0, 10)}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Intervention report downloaded')
+  }
+
   function toggleSort(field: 'student' | 'progress' | 'sessions') {
     if (sortField === field) setSortAsc(v => !v)
     else { setSortField(field); setSortAsc(true) }
@@ -870,7 +909,7 @@ export default function InterventionTrackerPage() {
                 <p className="text-[10px] text-surface-500">Benchmark target: 70% · Universal screening every 6 weeks</p>
                 <button
                   className="text-[10px] text-accent-400 hover:text-accent-300 font-semibold flex items-center gap-0.5"
-                  onClick={() => { window.print(); showToast('Printing full progress report…') }}
+                  onClick={() => { exportInterventionReportHTML() }}
                 >
                   Full report <ChevronRight className="w-2.5 h-2.5" />
                 </button>

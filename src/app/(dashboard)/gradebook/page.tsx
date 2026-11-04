@@ -825,7 +825,7 @@ tr:nth-child(even) td{background:#f9fafb}
                 <div className="px-4 py-2.5 border-t border-white/[0.06] flex items-center justify-between">
                   <span className="text-[10px] text-surface-500">Click any score to edit inline · Enter to confirm</span>
                   <div className="flex items-center gap-3">
-                    <button onClick={() => { window.print(); showToast('Printing gradebook…') }} className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
+                    <button onClick={exportHTMLReport} className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">
                       <FileText className="w-3 h-3" /> Print / PDF
                     </button>
                     <button onClick={exportCSV} className="text-[10px] text-surface-400 hover:text-surface-200 flex items-center gap-1 transition-colors">

@@ -119,6 +119,45 @@ export default function StudentsPage() {
     showToast('Roster exported to CSV')
   }
 
+  function exportProgressReportHTML() {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+    const rows = students.map(s => {
+      const trend = s.trend === 'up' ? '↑' : s.trend === 'down' ? '↓' : '→'
+      const statusLabel = statusConfig[s.status].label
+      return `<tr>
+        <td>${s.name}${s.iep ? ' <span style="color:#a78bfa;font-size:11px">[IEP]</span>' : ''}${s.ell ? ' <span style="color:#22d3ee;font-size:11px">[ELL]</span>' : ''}</td>
+        <td>${s.grade}</td>
+        <td>${s.classes.join(', ')}</td>
+        <td style="font-weight:700">${s.avg}%</td>
+        <td>${s.attendance}%</td>
+        <td>${s.streak} days</td>
+        <td>${trend}</td>
+        <td>${statusLabel}</td>
+        <td>${s.missing}</td>
+      </tr>`
+    }).join('')
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Student Progress Report — ${date}</title>
+<style>body{font-family:Georgia,serif;max-width:1100px;margin:40px auto;color:#1a1a2e;padding:20px}
+h1{font-size:26px;margin-bottom:4px}h2{font-size:13px;color:#666;font-weight:normal;margin:0 0 24px}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:12px}
+th{background:#1a1a2e;color:white;padding:9px 12px;text-align:left}
+td{padding:8px 12px;border-bottom:1px solid #e5e7eb;vertical-align:top}
+tr:nth-child(even) td{background:#f9fafb}
+.footer{margin-top:32px;font-size:11px;color:#999;text-align:center}
+</style></head><body>
+<h1>TALEEKO — Student Progress Report</h1><h2>Generated ${date} · ${students.length} students</h2>
+<table><thead><tr><th>Student</th><th>Grade</th><th>Classes</th><th>Average</th><th>Attendance</th><th>Streak</th><th>Trend</th><th>Status</th><th>Missing</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="footer">TALEEKO AI Teaching Platform · Confidential · ${date}</div>
+</body></html>`
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `progress-report-${new Date().toISOString().slice(0, 10)}.html`; a.click()
+    URL.revokeObjectURL(url)
+    showToast('Progress report downloaded as HTML')
+  }
+
   const filtered = students
     .filter(s => {
       const matchesSearch = !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.email.toLowerCase().includes(search.toLowerCase())
@@ -856,7 +895,7 @@ export default function StudentsPage() {
             <div className="space-y-2">
               {[
                 { icon: Mail,        label: 'Message All Parents',    color: '#6366f1', action: () => router.push('/communication') },
-                { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => { window.print(); showToast('Printing progress reports…') } },
+                { icon: FileText,    label: 'Generate Progress Report', color: '#10b981', action: () => { exportProgressReportHTML() } },
                 { icon: Sparkles,    label: 'AI Intervention Plan',   color: '#f59e0b', action: () => router.push('/intervention-tracker') },
                 { icon: Download,    label: 'Export Full Roster',      color: '#22d3ee', action: () => exportRosterCSV() },
                 { icon: GraduationCap, label: 'Assign Peer Tutors',  color: '#a855f7', action: () => router.push('/groups') },
