@@ -222,6 +222,28 @@ export default function DiscussionPromptsPage() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [timerRunning, timerSecs])
 
+  // Restore prompts + inputs from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_discussion_prompts')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.prompts) setPrompts(d.prompts)
+        if (d.topic) setTopic(d.topic)
+        if (d.subject) setSubject(d.subject)
+        if (d.gradeLevel) setGradeLevel(d.gradeLevel)
+      }
+    } catch {}
+  }, [])
+
+  // Auto-save every 30s
+  useEffect(() => {
+    const id = setInterval(() => {
+      try { localStorage.setItem('taleeko_discussion_prompts', JSON.stringify({ prompts, topic, subject, gradeLevel })) } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [prompts, topic, subject, gradeLevel])
+
   const resetTimer = (mins: number) => {
     setTimerRunning(false)
     setTimerSecs(mins * 60)

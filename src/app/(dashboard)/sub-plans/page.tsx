@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
@@ -237,6 +237,28 @@ export default function SubPlansPage() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(''), 2500)
   }
+
+  // Restore plans from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_sub_plans')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setPlans(parsed)
+          setSelectedPlan(parsed[0])
+        }
+      }
+    } catch {}
+  }, [])
+
+  // Auto-save plans every 30s
+  useEffect(() => {
+    const id = setInterval(() => {
+      try { localStorage.setItem('taleeko_sub_plans', JSON.stringify(plans)) } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [plans])
 
   function exportSubPlanHTML(plan: SubPlan) {
     const date = plan.date ? new Date(plan.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Undated'

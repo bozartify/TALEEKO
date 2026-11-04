@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -215,6 +215,33 @@ export default function FiveELessonPage() {
 
   const [toastMsg, setToastMsg] = useState('')
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
+
+  // Restore lesson state from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_5e_lesson')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.contents) setContents(d.contents)
+        if (d.durations) setDurations(d.durations)
+        if (d.subject) setSubject(d.subject)
+        if (d.grade) setGrade(d.grade)
+        if (d.topic) setTopic(d.topic)
+        if (d.lessonDuration) setLessonDuration(d.lessonDuration)
+        if (d.standardsText) setStandardsText(d.standardsText)
+      }
+    } catch {}
+  }, [])
+
+  // Auto-save lesson every 30s
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_5e_lesson', JSON.stringify({ contents, durations, subject, grade, topic, lessonDuration, standardsText }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [contents, durations, subject, grade, topic, lessonDuration, standardsText])
 
   function export5ELessonHTML(): void {
     const phaseSections = phases.map(p =>
