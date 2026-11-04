@@ -730,7 +730,7 @@ tr:nth-child(even) td{background:#f9fafb}
                                 'Assessment Analytics': 'assessment', 'AI Tools ROI': 'ai-usage',
                               }
                               const id = map[q.label] ?? 'progress'
-                              setSelectedReport(id as any); setActiveTab('generate')
+                              setSelectedReport(id as ReportId); setActiveTab('generate')
                               window.scrollTo({ top: 0, behavior: 'smooth' })
                             }}
                           >

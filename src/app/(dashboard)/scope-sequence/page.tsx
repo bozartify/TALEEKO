@@ -875,7 +875,7 @@ export default function ScopeSequencePage() {
                   </button>
                   <button
                     onClick={() => {
-                      const text = `Unit: ${selectedUnit?.title}\nSubject: ${selectedUnit?.subject}\nQuarter: ${selectedUnit?.quarter}\nWeeks: ${selectedUnit?.weeks}\nStandards: ${(selectedUnit as any)?.standards?.join(', ') ?? ''}`
+                      const text = `Unit: ${selectedUnit?.title}\nSubject: ${selectedUnit?.subject}\nQuarter: ${selectedUnit?.quarter}\nWeeks: ${selectedUnit?.weeks}\nStandards: ${selectedUnit?.standards?.join(', ') ?? ''}`
                       navigator.clipboard?.writeText(text).catch(() => {})
                       showToast('Unit copied to clipboard!')
                     }}
