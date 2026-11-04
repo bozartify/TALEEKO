@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  name          String
+  role          String          @default("teacher")
+  avatar        String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  courses       Course[]
+  sessions      ChatSession[]
+  classrooms    Classroom[]
+  rubrics       Rubric[]
+  events        CalendarEvent[]
+  notifications Notification[]
+}
+
+model Course {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  subject     String
+  grade       String
+  color       String   @default("#8b5cf6")
+  teacherId   String
+  teacher     User     @relation(fields: [teacherId], references: [id])
+  lessons     Lesson[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lesson {
+  id        String     @id @default(cuid())
+  title     String
+  objective String?
+  content   String?
+  duration  Int        @default(45)
+  status    String     @default("draft")
+  courseId  String
+  course    Course     @relation(fields: [courseId], references: [id])
+  materials Material[]
+  analytics LessonAnalytics[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Material {
+  id        String   @id @default(cuid())
+  type      String
+  title     String
+  content   String
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model LessonAnalytics {
+  id              String   @id @default(cuid())
+  lessonId        String
+  lesson          Lesson   @relation(fields: [lessonId], references: [id])
+  engagementScore Float    @default(0)
+  completionRate  Float    @default(0)
+  avgScore        Float    @default(0)
+  notes           String?
+  createdAt       DateTime @default(now())
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  mode      String   @default("general")
+  messages  String   @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Student {
+  id          String      @id @default(cuid())
+  name        String
+  email       String?
+  grade       String
+  avatar      String?
+  classId     String?
+  enrolledAt  DateTime    @default(now())
+  class       Classroom?  @relation(fields: [classId], references: [id])
+  portfolios  Portfolio[]
+}
+
+model Classroom {
+  id        String    @id @default(cuid())
+  name      String
+  subject   String
+  grade     String
+  period    String?
+  teacherId String
+  color     String    @default("#6366f1")
+  teacher   User      @relation(fields: [teacherId], references: [id])
+  students  Student[]
+  createdAt DateTime  @default(now())
+}
+
+model Rubric {
+  id        String   @id @default(cuid())
+  title     String
+  subject   String
+  grade     String
+  criteria  String
+  levels    Int      @default(4)
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  date        DateTime
+  endDate     DateTime?
+  type        String    @default("class")
+  color       String    @default("#6366f1")
+  teacherId   String
+  teacher     User      @relation(fields: [teacherId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+model Portfolio {
+  id        String   @id @default(cuid())
+  studentId String
+  title     String
+  type      String
+  score     Float?
+  feedback  String?
+  createdAt DateTime @default(now())
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
