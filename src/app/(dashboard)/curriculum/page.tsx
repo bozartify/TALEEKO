@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -242,6 +242,27 @@ export default function CurriculumPage() {
   const [showAlert, setShowAlert] = useState(true)
   const [toastMsg, setToastMsg] = useState('')
   const [generatingId, setGeneratingId] = useState<string | null>(null)
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_curriculum')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.units?.length) setUnits(d.units)
+        if (d.view) setView(d.view)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_curriculum', JSON.stringify({ units, view }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [units, view])
+
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   async function generateLessons(unit: Unit) {

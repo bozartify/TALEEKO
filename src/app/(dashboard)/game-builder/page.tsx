@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, StaggerList, StaggerItem, FadeInWhenVisible } from '@/components/ui/motion'
@@ -111,6 +111,32 @@ export default function GameBuilderPage() {
 
   const cfg = gameTypes[selectedType]
   const [toastMsg, setToastMsg] = useState('')
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_game_builder')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.selectedType) setSelectedType(d.selectedType)
+        if (d.title) setTitle(d.title)
+        if (d.subject) setSubject(d.subject)
+        if (d.difficulty) setDifficulty(d.difficulty)
+        if (d.questionCount) setQuestionCount(d.questionCount)
+        if (d.timeLimit) setTimeLimit(d.timeLimit)
+        if (d.theme) setTheme(d.theme)
+        if (d.questions?.length) setQuestions(d.questions)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_game_builder', JSON.stringify({ selectedType, title, subject, difficulty, questionCount, timeLimit, theme, questions }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [selectedType, title, subject, difficulty, questionCount, timeLimit, theme, questions])
 
   function showToast(msg: string) {
     setToastMsg(msg)

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FadeUp, FadeInWhenVisible } from '@/components/ui/motion'
@@ -116,6 +116,30 @@ export default function BloomsTaxonomyPage() {
   const [pyramidHover, setPyramidHover] = useState<Level | null>(null)
   const [toastMsg, setToastMsg] = useState('')
   const [aiObjectives, setAiObjectives] = useState<Partial<Record<Level, string[]>>>({})
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_blooms_taxonomy')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.topic) setTopic(d.topic)
+        if (d.activeLevel) setActiveLevel(d.activeLevel)
+        if (d.activeDomain) setActiveDomain(d.activeDomain)
+        if (d.savedObjectives) setSavedObjectives(d.savedObjectives)
+        if (d.aiObjectives) setAiObjectives(d.aiObjectives)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_blooms_taxonomy', JSON.stringify({ topic, activeLevel, activeDomain, savedObjectives, aiObjectives }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [topic, activeLevel, activeDomain, savedObjectives, aiObjectives])
+
   function showToast(msg: string) { setToastMsg(msg); setTimeout(() => setToastMsg(''), 2500) }
 
   function handleCopy(text: string, idx: number) {

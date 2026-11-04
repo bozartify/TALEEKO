@@ -162,6 +162,31 @@ export default function FeedbackWriterPage() {
 
   useEffect(() => { setAiFeedback(''); setGenerated(false) }, [selectedStudent.id, tone, audience])
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('taleeko_feedback_writer')
+      if (saved) {
+        const d = JSON.parse(saved)
+        if (d.tone) setTone(d.tone)
+        if (d.length) setLength(d.length)
+        if (d.audience) setAudience(d.audience)
+        if (d.avoidCliches !== undefined) setAvoidCliches(d.avoidCliches)
+        if (d.includeExamples !== undefined) setIncludeExamples(d.includeExamples)
+        if (d.aiFeedback) setAiFeedback(d.aiFeedback)
+        if (d.editedText) setEditedText(d.editedText)
+      }
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        localStorage.setItem('taleeko_feedback_writer', JSON.stringify({ tone, length, audience, avoidCliches, includeExamples, aiFeedback, editedText }))
+      } catch {}
+    }, 30000)
+    return () => clearInterval(id)
+  }, [tone, length, audience, avoidCliches, includeExamples, aiFeedback, editedText])
+
   const feedback = aiFeedback || batchFeedback[selectedStudent.id] || SAMPLE_FEEDBACK[selectedStudent.id]?.[tone] || ''
   const wordCount = (feedback || '').split(' ').length
 
